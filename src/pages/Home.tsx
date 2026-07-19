@@ -32,8 +32,8 @@ export function Home() {
             className={cn(
               "shrink-0 px-4 py-1.5 text-sm font-medium rounded-lg transition-colors cursor-pointer border-none",
               i === 0
-                ? "bg-accent text-accent-foreground"
-                : "bg-transparent text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                ? "bg-white/10 text-foreground"
+                : "bg-transparent text-muted-foreground hover:bg-white/5 hover:text-foreground"
             )}
           >
             {cat}
