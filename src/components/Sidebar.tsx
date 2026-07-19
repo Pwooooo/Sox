@@ -2,8 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import {
   Home, User, MessageSquare, Users, Paintbrush, Package,
-  ArrowLeftRight, Globe, Palette, BookOpen, Store, Gift,
-  Sparkles
+  ArrowLeftRight, Globe, Palette, BookOpen, Store, Gift
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -81,18 +80,6 @@ export function Sidebar({ className, headerHidden }: SidebarProps) {
           </div>
         </div>
 
-        <div className="mt-4 mx-1 p-4 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="size-4 text-primary" />
-            <span className="text-sm font-semibold">Brads+</span>
-          </div>
-          <p className="text-[12px] text-muted-foreground leading-relaxed mb-3">
-            Get exclusive items, priority access, and more.
-          </p>
-          <button className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer border-none">
-            Upgrade Now
-          </button>
-        </div>
       </div>
     </aside>
   )
