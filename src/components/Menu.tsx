@@ -82,9 +82,7 @@ export function Menu({
                 {logoSrc ? (
                   <img src={logoSrc} alt="" className="h-8 w-auto" />
                 ) : (
-                  <div className="size-8 bg-white/20 text-white rounded-lg flex items-center justify-center font-extrabold text-sm font-sans backdrop-blur-sm">
-                    {logoLabel}
-                  </div>
+                  <img src="/logo.png" alt="Logo" className="h-8 w-auto rounded" />
                 )}
               </a>
 
