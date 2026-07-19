@@ -66,7 +66,7 @@ export function Profile() {
   const visible = WEARING_ITEMS.slice(wearingIndex, wearingIndex + 4)
 
   return (
-    <div className="max-w-[820px] mx-auto p-4 md:py-6 flex flex-col gap-3">
+    <div className="w-full p-4 md:py-6 flex flex-col gap-3">
       {/* Header card */}
       <div className="bg-card rounded-2xl border border-border p-6 pt-8 pb-5">
         <div className="flex items-start justify-between">
