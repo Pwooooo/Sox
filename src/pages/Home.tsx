@@ -60,16 +60,6 @@ export function Home() {
                       className="size-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {game.players > 0 && (
-                      <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 rounded-md px-2 py-0.5">
-                        <span className="size-1.5 rounded-full bg-green" />
-                        <span className="text-[11px] font-medium text-white">{game.players}</span>
-                      </div>
-                    )}
-                    <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 rounded-md px-2 py-0.5">
-                      <ThumbsUp className="size-3 text-white" />
-                      <span className="text-[11px] font-medium text-white">{game.likes.toLocaleString()}</span>
-                    </div>
                   </div>
                   <div className="mt-2 px-0.5">
                     <p className="text-sm font-medium text-foreground truncate leading-tight">{game.name}</p>
