@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Navbar } from '@/components/Navbar'
-import { Sidebar } from '@/components/Sidebar'
 import { Footer } from '@/components/Footer'
 import { Home } from '@/pages/Home'
 import { Marketplace } from '@/pages/Marketplace'
@@ -13,15 +12,15 @@ import { Auth } from '@/pages/Auth'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-background flex flex-col items-center min-h-screen">
+      <a href="#main-content" className="skip-link focus-visible:absolute focus-visible:left-4 focus-visible:top-4 focus-visible:z-[200] focus-visible:h-auto focus-visible:w-auto focus-visible:m-0 focus-visible:overflow-visible focus-visible:whitespace-normal focus-visible:[clip:auto] focus-visible:rounded-md focus-visible:bg-primary focus-visible:px-4 focus-visible:py-2 focus-visible:text-primary-foreground">
+        Skip to main content
+      </a>
       <Navbar />
-      <Sidebar />
-      <main className="pt-16 md:ml-[220px] min-h-[calc(100vh-4rem)]">
+      <main id="main-content" tabIndex={-1} className="relative isolate flex-1 min-h-0 w-full flex flex-col pt-16">
         {children}
       </main>
-      <div className="md:ml-[220px]">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   )
 }
