@@ -37,6 +37,7 @@ interface MenuProps {
   unreadMessages?: number
   announcementDismissed?: boolean
   onDismissAnnouncement?: () => void
+  headerHidden?: boolean
 }
 
 export function Menu({
@@ -48,6 +49,7 @@ export function Menu({
   unreadMessages = 0,
   announcementDismissed: controlledDismissed,
   onDismissAnnouncement,
+  headerHidden,
 }: MenuProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [localDismissed, setLocalDismissed] = useState(false)
@@ -63,7 +65,7 @@ export function Menu({
 
   return (
     <>
-      {!announcementDismissed && (
+      {!announcementDismissed && !headerHidden && (
         <aside className="relative z-40 w-full border-b border-primary/50 bg-primary py-2 text-navbar-foreground shadow-sm">
           <div className="flex w-full items-center gap-2 px-3 max-[420px]:px-2">
             <a
@@ -95,10 +97,13 @@ export function Menu({
       <header
         className={cn(
           "flex justify-center w-full bg-primary text-navbar-foreground shadow-sm h-16 z-50",
-          "fixed top-0 left-0 right-0",
-          announcementDismissed ? "" : "top-[52px]"
+          "fixed left-0 right-0",
+          announcementDismissed ? "top-0" : "top-[52px]"
         )}
-        style={{ transition: "background-color 0.2s ease-out, opacity 0.2s ease-out" }}
+        style={{
+          transition: "transform 0.3s ease-out, background-color 0.2s ease-out",
+          transform: headerHidden ? "translateY(-100%)" : "translateY(0)",
+        }}
       >
         <nav aria-label="Primary" className="relative flex items-stretch h-full w-full px-3 py-3 max-[420px]:px-2 overflow-hidden">
           <div className="flex items-stretch h-full gap-2 md:gap-4 w-full justify-between">
