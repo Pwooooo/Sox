@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { ITEMS, TYPE_ICONS, formatPrice } from '@/data/items'
+import { ITEMS, formatPrice } from '@/data/items'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ArrowLeft, ShoppingCart, Star } from 'lucide-react'
@@ -32,8 +32,8 @@ export function ItemDetail() {
 
       <div className="max-w-[1000px] mx-auto px-6 pb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="aspect-square bg-card border border-border rounded-[calc(var(--radius)+4px)] flex items-center justify-center text-[120px]">
-            {TYPE_ICONS[item.type] || '📦'}
+          <div className="aspect-square bg-card border border-border rounded-[calc(var(--radius)+4px)] flex items-center justify-center">
+            <span className="text-white/10 text-[120px] font-black tracking-widest select-none">{item.type.toUpperCase()}</span>
           </div>
 
           <div>

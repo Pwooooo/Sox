@@ -80,29 +80,8 @@ export function Navbar() {
             >
               <Search className="size-[18px]" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-navbar-foreground/75 hover:text-navbar-foreground hover:bg-white/10 size-9 relative"
-            >
-              <Bell className="size-[18px]" />
-              <span className="absolute top-1.5 right-1.5 size-2 bg-white rounded-full" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-navbar-foreground/75 hover:text-navbar-foreground hover:bg-white/10 size-9"
-            >
-              <MessageSquare className="size-[18px]" />
-            </Button>
-
-            <div className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1.5 text-sm ml-1">
-              <span className="text-gold font-bold text-xs">B</span>
-              <span className="font-medium text-navbar-foreground text-xs">12,450</span>
-            </div>
-
             <div
-              className="size-8 rounded-full bg-white/20 flex items-center justify-center cursor-pointer hover:bg-white/30 transition-colors ml-0.5"
+              className="size-8 rounded-full bg-white/20 flex items-center justify-center cursor-pointer hover:bg-white/30 transition-colors"
               onClick={() => navigate('/profile')}
             >
               <span className="text-xs font-bold text-navbar-foreground">U</span>

@@ -6,15 +6,11 @@ export function Footer() {
           <div className="w-[34px] h-[34px] bg-primary text-white rounded-[9px] flex items-center justify-center font-extrabold text-[17px] mb-3">
             N
           </div>
-          <p className="text-muted-foreground text-sm max-w-xs">
-            The next generation UGC platform.
-          </p>
         </div>
         <div className="flex gap-12 flex-wrap">
           {[
-            { title: 'Platform', links: ['Marketplace', 'Create', 'Avatar', 'Groups'] },
-            { title: 'Support', links: ['Help Center', 'Safety', 'Terms', 'Privacy'] },
-            { title: 'Social', links: ['Twitter', 'Discord', 'YouTube', 'Blog'] },
+            { title: 'Platform', links: ['Marketplace', 'Create', 'Avatar'] },
+            { title: 'Support', links: ['Terms', 'Privacy'] },
           ].map((col) => (
             <div key={col.title}>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
@@ -34,7 +30,7 @@ export function Footer() {
         </div>
       </div>
       <div className="text-center py-6 text-xs text-muted-foreground border-t border-border">
-        &copy; 2026 Novelo. All rights reserved.
+        &copy; 2026 Novelo
       </div>
     </footer>
   )

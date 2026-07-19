@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
-import { Star, ThumbsUp, Users, MoreHorizontal } from 'lucide-react'
-import { formatPrice, TYPE_ICONS } from '@/data/items'
+import { useState, useEffect } from 'react'
+import { Star } from 'lucide-react'
+import { formatPrice, TYPE_LABELS } from '@/data/items'
 
 const TYPE_GRADIENTS: Record<string, string> = {
   hat: 'from-amber-900/60 to-amber-950/80',
@@ -29,21 +29,12 @@ interface GameCardProps {
 
 export function GameCard({ item, variant = 'default', onClick, accentEnabled }: GameCardProps) {
   const [loaded, setLoaded] = useState(false)
-  const [imgError, setImgError] = useState(false)
-  const imgRef = useRef<HTMLImageElement>(null)
   const gradient = TYPE_GRADIENTS[item.type] || 'from-zinc-800/60 to-zinc-950/80'
 
   useEffect(() => {
-    setLoaded(false)
-    setImgError(false)
+    const timer = setTimeout(() => setLoaded(true), 100)
+    return () => clearTimeout(timer)
   }, [item.id])
-
-  useEffect(() => {
-    const img = imgRef.current
-    if (img && img.complete && img.naturalWidth > 0) {
-      setLoaded(true)
-    }
-  }, [])
 
   return (
     <div
@@ -61,10 +52,12 @@ export function GameCard({ item, variant = 'default', onClick, accentEnabled }: 
         {!loaded && (
           <div className="absolute inset-0 animate-pulse bg-muted/40" aria-hidden="true" />
         )}
-        <div className={`w-full h-full flex items-center justify-center text-4xl sm:text-5xl transition-all duration-300 group-hover/card:scale-105 ${
+        <div className={`w-full h-full flex items-center justify-center transition-all duration-300 group-hover/card:scale-105 ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}>
-          {TYPE_ICONS[item.type] || '📦'}
+          <span className="text-white/20 text-7xl sm:text-8xl font-black tracking-widest select-none">
+            {TYPE_LABELS[item.type] || '?'}
+          </span>
         </div>
         {item.price === 0 && (
           <div className="pointer-events-none absolute bottom-2 left-2 z-10">

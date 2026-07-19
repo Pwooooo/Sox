@@ -109,7 +109,7 @@ export function Create() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Price (Bricks)</label>
+            <label className="text-xs font-semibold text-muted-foreground">Price</label>
             <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0 = Free" min={0} />
           </div>
           <div className="flex flex-col gap-1.5">

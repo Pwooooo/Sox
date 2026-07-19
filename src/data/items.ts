@@ -37,13 +37,13 @@ export const ITEMS: Item[] = [
 ]
 
 export const CATEGORIES = [
-  { key: '', name: 'All Items', icon: '📦', count: 50 },
-  { key: 'hat', name: 'Hats', icon: '🎩', count: 8 },
-  { key: 'hair', name: 'Hair', icon: '💇', count: 4 },
-  { key: 'face', name: 'Faces', icon: '😊', count: 3 },
-  { key: 'clothing', name: 'Clothing', icon: '👕', count: 4 },
-  { key: 'accessory', name: 'Accessories', icon: '💎', count: 5 },
-  { key: 'tool', name: 'Tools', icon: '🔧', count: 4 },
+  { key: '', name: 'All Items', count: 50 },
+  { key: 'hat', name: 'Hats', count: 8 },
+  { key: 'hair', name: 'Hair', count: 4 },
+  { key: 'face', name: 'Faces', count: 3 },
+  { key: 'clothing', name: 'Clothing', count: 4 },
+  { key: 'accessory', name: 'Accessories', count: 5 },
+  { key: 'tool', name: 'Tools', count: 4 },
 ]
 
 export const CREATORS = [
@@ -57,11 +57,11 @@ export const CREATORS = [
 
 export const INVENTORY_IDS = [1, 5, 7, 10, 13, 16, 17, 19, 24]
 
-export const TYPE_ICONS: Record<string, string> = {
-  hat: '🎩', hair: '💇', face: '😊', clothing: '👕', accessory: '💎', tool: '🔧',
+export const TYPE_LABELS: Record<string, string> = {
+  hat: 'Hat', hair: 'Hair', face: 'Face', clothing: 'Shirt', accessory: 'Acc', tool: 'Tool',
 }
 
 export function formatPrice(price: number) {
   if (price === 0) return 'FREE'
-  return price.toLocaleString() + ' B'
+  return price.toLocaleString()
 }

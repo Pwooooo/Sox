@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ITEMS, INVENTORY_IDS, TYPE_ICONS, formatPrice } from '@/data/items'
+import { ITEMS, INVENTORY_IDS, formatPrice } from '@/data/items'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -111,7 +111,6 @@ export function Avatar() {
                   <Badge variant="secondary" className="absolute top-2 left-2 text-[10px] uppercase tracking-wider">
                     {item.type}
                   </Badge>
-                  {TYPE_ICONS[item.type] || '📦'}
                 </div>
                 <div className="p-3">
                   <div className="text-sm font-semibold truncate">{item.name}</div>

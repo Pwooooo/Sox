@@ -1,4 +1,4 @@
-import { Item, TYPE_ICONS, formatPrice } from '@/data/items'
+import { Item, formatPrice } from '@/data/items'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -12,7 +12,6 @@ export function ItemCard({ item, onClick }: { item: Item; onClick: () => void })
         <Badge variant="secondary" className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 uppercase tracking-wider">
           {item.type}
         </Badge>
-        {TYPE_ICONS[item.type] || '📦'}
       </div>
       <div className="p-3.5">
         <div className="text-sm font-semibold truncate mb-1">{item.name}</div>
