@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novelo - UGC Marketplace</title>
+    <title>Novelo</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar">
@@ -70,7 +70,7 @@
                 <div class="categories-grid" id="categories-grid"></div>
             </div>
 
-            <div class="section">
+            <div class="section" style="border-bottom: none;">
                 <h2 class="section-title">Top Creators</h2>
                 <div class="creators-grid" id="creators-grid"></div>
             </div>
@@ -118,7 +118,6 @@
                     <p>Discover millions of UGC items created by the community.</p>
                 </div>
             </div>
-
             <div class="marketplace-controls">
                 <div class="filter-bar">
                     <div class="filter-tabs" id="category-tabs"></div>
@@ -133,7 +132,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="marketplace-content">
                 <div class="item-grid" id="marketplace-grid"></div>
                 <div class="loading" id="marketplace-loading">Loading items...</div>
@@ -153,7 +151,6 @@
                 <h1>Creator Dashboard</h1>
                 <p>Publish your creations to the Novelo marketplace.</p>
             </div>
-
             <div class="create-grid">
                 <div class="create-card" onclick="openUpload('model')">
                     <div class="create-card-icon">M</div>
@@ -186,7 +183,6 @@
                     <p>Upload music and sound effects.</p>
                 </div>
             </div>
-
             <div class="my-creations">
                 <h2>My Creations</h2>
                 <div class="item-grid" id="my-creations-grid"></div>
@@ -251,13 +247,12 @@
                 </div>
             </div>
             <div class="profile-content">
-                <h2>Creations</h2>
+                <div class="section-header"><h2>Creations</h2></div>
                 <div class="item-grid" id="profile-creations-grid"></div>
             </div>
         </section>
     </main>
 
-    <!-- Upload Modal -->
     <div class="modal" id="upload-modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeUpload()">&times;</button>
