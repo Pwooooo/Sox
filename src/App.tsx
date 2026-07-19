@@ -1,12 +1,15 @@
-import { Menu } from '@/components/Menu'
+import { Routes, Route } from 'react-router-dom'
+import { Layout } from '@/components/Layout'
+import { Home } from '@/pages/Home'
+import { Profile } from '@/pages/Profile'
 
 export default function App() {
   return (
-    <Menu
-      loggedIn
-      balance={12450}
-      unreadMessages={3}
-      onNav={(href) => console.log('navigate', href)}
-    />
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </Layout>
   )
 }

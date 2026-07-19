@@ -35,6 +35,8 @@ interface MenuProps {
   loggedIn?: boolean
   onNav?: (href: string) => void
   unreadMessages?: number
+  announcementDismissed?: boolean
+  onDismissAnnouncement?: () => void
 }
 
 export function Menu({
@@ -44,9 +46,20 @@ export function Menu({
   loggedIn = false,
   onNav,
   unreadMessages = 0,
+  announcementDismissed: controlledDismissed,
+  onDismissAnnouncement,
 }: MenuProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [announcementDismissed, setAnnouncementDismissed] = useState(false)
+  const [localDismissed, setLocalDismissed] = useState(false)
+  const announcementDismissed = controlledDismissed ?? localDismissed
+
+  const dismissAnnouncement = () => {
+    if (onDismissAnnouncement) {
+      onDismissAnnouncement()
+    } else {
+      setLocalDismissed(true)
+    }
+  }
 
   return (
     <>
@@ -71,7 +84,7 @@ export function Menu({
               type="button"
               aria-label="Dismiss announcement"
               className="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-navbar-foreground/85 transition-colors hover:bg-navbar-foreground/10 hover:text-navbar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
-              onClick={() => setAnnouncementDismissed(true)}
+              onClick={dismissAnnouncement}
             >
               <X className="size-4" aria-hidden="true" />
             </button>
@@ -169,7 +182,7 @@ export function Menu({
                   </Button>
 
                   <div className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1.5 text-sm ml-1">
-                    <span className="text-gold font-bold">B</span>
+                    <img src="/currency.png" alt="" className="size-4" />
                     <span className="font-medium text-navbar-foreground">{balance.toLocaleString()}</span>
                   </div>
 
