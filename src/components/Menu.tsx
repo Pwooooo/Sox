@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Search, Bell, MessageSquare, Home, Store, Plus, User, Users, Package, Paintbrush, ArrowLeftRight, Gift, Trophy, BookOpen, Shield, Gamepad2, Sparkles } from 'lucide-react'
+import { Menu as MenuIcon, X, Search, Bell, MessageSquare, Home, Store, Plus, User, Users, Package, Paintbrush, ArrowLeftRight, Gift, BookOpen, Shield, Gamepad2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -35,8 +35,6 @@ interface MenuProps {
   loggedIn?: boolean
   onNav?: (href: string) => void
   unreadMessages?: number
-  announcementDismissed?: boolean
-  onDismissAnnouncement?: () => void
   headerHidden?: boolean
 }
 
@@ -47,58 +45,16 @@ export function Menu({
   loggedIn = false,
   onNav,
   unreadMessages = 0,
-  announcementDismissed: controlledDismissed,
-  onDismissAnnouncement,
   headerHidden,
 }: MenuProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [localDismissed, setLocalDismissed] = useState(false)
-  const announcementDismissed = controlledDismissed ?? localDismissed
-
-  const dismissAnnouncement = () => {
-    if (onDismissAnnouncement) {
-      onDismissAnnouncement()
-    } else {
-      setLocalDismissed(true)
-    }
-  }
 
   return (
     <>
-      {!announcementDismissed && !headerHidden && (
-        <aside className="relative z-40 w-full border-b border-primary/50 bg-primary py-2 text-navbar-foreground shadow-sm">
-          <div className="flex w-full items-center gap-2 px-3 max-[420px]:px-2">
-            <a
-              href="https://forum.luduvo.com/t/luduvo-game-jam-unfinished/1290"
-              target="_blank"
-              rel="noreferrer"
-              className="flex min-w-0 flex-1 flex-row items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              <Trophy className="size-5 shrink-0 text-navbar-foreground" aria-hidden="true" />
-              <div className="flex min-w-0 flex-wrap gap-x-1">
-                <span className="text-sm text-navbar-foreground">Alpha Jam ends July 4th</span>
-                <span className="inline-flex items-center gap-1 text-sm text-navbar-foreground/85">
-                  Submit your unfinished game!
-                </span>
-              </div>
-            </a>
-            <button
-              type="button"
-              aria-label="Dismiss announcement"
-              className="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-navbar-foreground/85 transition-colors hover:bg-navbar-foreground/10 hover:text-navbar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
-              onClick={dismissAnnouncement}
-            >
-              <X className="size-4" aria-hidden="true" />
-            </button>
-          </div>
-        </aside>
-      )}
-
       <header
         className={cn(
           "flex justify-center w-full bg-primary text-navbar-foreground shadow-sm h-16 z-50",
-          "fixed left-0 right-0",
-          announcementDismissed ? "top-0" : "top-[52px]"
+          "fixed top-0 left-0 right-0"
         )}
         style={{
           transition: "transform 0.3s ease-out, background-color 0.2s ease-out",

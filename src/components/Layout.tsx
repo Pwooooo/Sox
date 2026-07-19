@@ -8,7 +8,6 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const [announcementDismissed, setAnnouncementDismissed] = useState(false)
   const [headerHidden, setHeaderHidden] = useState(false)
   const lastScrollY = useRef(0)
 
@@ -33,16 +32,12 @@ export function Layout({ children }: LayoutProps) {
         balance={12450}
         unreadMessages={3}
         onNav={(href) => console.log('navigate', href)}
-        announcementDismissed={announcementDismissed}
-        onDismissAnnouncement={() => setAnnouncementDismissed(true)}
         headerHidden={headerHidden}
       />
-      <Sidebar announcementDismissed={announcementDismissed} headerHidden={headerHidden} />
+      <Sidebar headerHidden={headerHidden} />
       <main className={cn(
         "pl-[240px] min-h-screen transition-all duration-300",
-        announcementDismissed
-          ? headerHidden ? "" : "pt-16"
-          : headerHidden ? "pt-0" : "pt-[calc(52px+64px)]"
+        headerHidden ? "pt-0" : "pt-16"
       )}>
         {children}
       </main>

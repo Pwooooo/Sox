@@ -26,20 +26,17 @@ const BOTTOM_ITEMS = [
 
 interface SidebarProps {
   className?: string
-  announcementDismissed?: boolean
   headerHidden?: boolean
 }
 
-export function Sidebar({ className, announcementDismissed = true, headerHidden }: SidebarProps) {
+export function Sidebar({ className, headerHidden }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
 
   return (
     <aside className={cn(
       "fixed left-0 bottom-0 w-[240px] bg-background border-r border-border z-40 flex flex-col transition-all duration-300",
-      announcementDismissed
-        ? headerHidden ? "top-0" : "top-16"
-        : headerHidden ? "top-0" : "top-[calc(52px+64px)]",
+      headerHidden ? "top-0" : "top-16",
       className
     )}>
       <div className="flex-1 overflow-y-auto px-3 py-4">
