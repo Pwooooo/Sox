@@ -26,6 +26,10 @@
   --radius: 0.85rem;
 }
 
+html {
+  background: var(--color-background);
+}
+
 * {
   border-color: var(--color-border);
 }
