@@ -1,130 +1,111 @@
 import { useNavigate } from 'react-router-dom'
 import { ITEMS, CREATORS, formatPrice, TYPE_ICONS } from '@/data/items'
-import { Home as HomeIcon, Paintbrush, Store, Users, Package, Trophy, Settings, Search, ChevronRight } from 'lucide-react'
+import { Trophy, ChevronRight, Star, Users, TrendingUp } from 'lucide-react'
 
-const QUICK_NAV = [
-  { label: 'Home', icon: HomeIcon, path: '/' },
-  { label: 'Customize', icon: Paintbrush, path: '/avatar' },
-  { label: 'Marketplace', icon: Store, path: '/marketplace' },
-  { label: 'Create', icon: Package, path: '/create' },
-  { label: 'Groups', icon: Users, path: '/' },
-  { label: 'Friends', icon: Users, path: '/' },
-  { label: 'Inventory', icon: Package, path: '/avatar' },
-  { label: 'Leaderboard', icon: Trophy, path: '/' },
-  { label: 'Settings', icon: Settings, path: '/' },
-]
+const TYPE_GRADIENTS: Record<string, string> = {
+  hat: 'from-amber-900/60 to-amber-950/80',
+  hair: 'from-pink-900/60 to-pink-950/80',
+  face: 'from-cyan-900/60 to-cyan-950/80',
+  clothing: 'from-violet-900/60 to-violet-950/80',
+  accessory: 'from-emerald-900/60 to-emerald-950/80',
+  tool: 'from-sky-900/60 to-sky-950/80',
+}
 
 function PlaceCard({ item, onClick }: { item: typeof ITEMS[0]; onClick: () => void }) {
+  const gradient = TYPE_GRADIENTS[item.type] || 'from-zinc-800/60 to-zinc-950/80'
   return (
     <div
       onClick={onClick}
-      className="min-w-[160px] max-w-[180px] cursor-pointer group"
+      className="min-w-[170px] max-w-[190px] cursor-pointer group flex-shrink-0"
     >
-      <div className="aspect-square bg-card border border-border rounded-[var(--radius)] overflow-hidden mb-2 transition-all group-hover:border-border group-hover:shadow-md group-hover:-translate-y-0.5">
-        <div className="w-full h-full flex items-center justify-center text-4xl bg-secondary/50">
+      <div className={`aspect-square bg-gradient-to-br ${gradient} rounded-[var(--radius)] overflow-hidden mb-2.5 relative transition-all group-hover:shadow-lg group-hover:-translate-y-1`}>
+        <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-80 group-hover:opacity-100 transition-opacity">
           {TYPE_ICONS[item.type] || '📦'}
         </div>
+        <div className="absolute bottom-2 left-2 right-2">
+          <div className="flex items-center gap-1 text-[11px] text-white/80">
+            <Star className="size-3 fill-current" />
+            <span className="font-medium">{item.rating}</span>
+          </div>
+        </div>
+        {item.price === 0 && (
+          <div className="absolute top-2 right-2 bg-green/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+            FREE
+          </div>
+        )}
       </div>
-      <div className="text-sm font-medium truncate">{item.name}</div>
+      <div className="text-[13px] font-semibold truncate group-hover:text-primary transition-colors">{item.name}</div>
       <div className="flex items-center gap-1.5 mt-0.5">
         <span className={`text-xs font-bold ${item.price === 0 ? 'text-green' : 'text-gold'}`}>
           {formatPrice(item.price)}
         </span>
-        <span className="text-[11px] text-muted-foreground">• {item.sales.toLocaleString()} sold</span>
+        <span className="text-[11px] text-muted-foreground">· {item.sales.toLocaleString()} sold</span>
       </div>
+    </div>
+  )
+}
+
+function FriendAvatar({ creator }: { creator: typeof CREATORS[0] }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 min-w-[72px] flex-shrink-0 cursor-pointer group">
+      <div className="w-[60px] h-[60px] rounded-full bg-card border-2 border-border overflow-hidden transition-all group-hover:border-primary group-hover:scale-105">
+        <img
+          src={`https://api.dicebear.com/7.x/bottts/svg?seed=${creator.name}`}
+          alt={creator.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <span className="text-[11px] text-muted-foreground group-hover:text-foreground transition-colors truncate max-w-[72px]">{creator.name}</span>
     </div>
   )
 }
 
 export function Home() {
   const navigate = useNavigate()
-  const continueCreating = [...ITEMS].sort((a, b) => b.id - a.id).slice(0, 10)
-  const communityFavorites = [...ITEMS].sort((a, b) => b.sales - a.sales).slice(0, 10)
+  const recentItems = [...ITEMS].sort((a, b) => b.id - a.id).slice(0, 12)
+  const popular = [...ITEMS].sort((a, b) => b.sales - a.sales).slice(0, 12)
+  const topRated = [...ITEMS].sort((a, b) => b.rating - a.rating).slice(0, 12)
 
   return (
-    <div className="max-w-[1400px] mx-auto px-6 py-6">
-      {/* Quick Nav */}
-      <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-6 px-6">
-        {QUICK_NAV.map((item) => (
-          <button
-            key={item.label}
-            onClick={() => navigate(item.path)}
-            className="flex flex-col items-center gap-1.5 min-w-[68px] px-2 py-2 rounded-[var(--radius)] hover:bg-accent/50 transition-colors cursor-pointer bg-transparent border-none"
-          >
-            <div className="size-10 rounded-full bg-card border border-border flex items-center justify-center transition-colors group-hover:border-border">
-              <item.icon className="size-4.5 text-muted-foreground" />
+    <div className="px-5 py-5">
+      <div className="flex items-center gap-2 mb-6">
+        <h1 className="text-xl font-bold">Home</h1>
+      </div>
+
+      <Section title="Friends" icon={<Users className="size-4" />} onSeeAll={() => navigate('/')}>
+        <div className="flex gap-5 overflow-x-auto no-scrollbar pb-2">
+          <div className="flex flex-col items-center gap-1.5 min-w-[72px] flex-shrink-0 cursor-pointer group">
+            <div className="w-[60px] h-[60px] rounded-full bg-primary/15 border-2 border-primary/30 flex items-center justify-center transition-all group-hover:border-primary group-hover:scale-105">
+              <span className="text-primary text-2xl font-bold">+</span>
             </div>
-            <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">{item.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Daily Reward Banner */}
-      <div className="bg-card border border-border rounded-[var(--radius)] p-4 mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-full bg-primary/15 flex items-center justify-center">
-            <Trophy className="size-5 text-primary" />
+            <span className="text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">Add</span>
           </div>
-          <div>
-            <div className="text-sm font-semibold">Daily Reward Available!</div>
-            <div className="text-xs text-muted-foreground">Log in today to claim your daily bonus</div>
-          </div>
-        </div>
-        <button className="px-4 py-1.5 bg-primary text-white rounded-[calc(var(--radius)-4px)] text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer">
-          Claim
-        </button>
-      </div>
-
-      {/* Continue Creating */}
-      <Section
-        title="Continue Creating"
-        onSeeAll={() => navigate('/create')}
-      >
-        <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6">
-          {continueCreating.map((item) => (
-            <PlaceCard
-              key={item.id}
-              item={item}
-              onClick={() => navigate(`/item/${item.id}`)}
-            />
+          {CREATORS.slice(0, 8).map((c) => (
+            <FriendAvatar key={c.name} creator={c} />
           ))}
         </div>
       </Section>
 
-      {/* Community Favorites */}
-      <Section
-        title="Community Favorites"
-        onSeeAll={() => navigate('/marketplace')}
-      >
-        <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6">
-          {communityFavorites.map((item) => (
-            <PlaceCard
-              key={item.id}
-              item={item}
-              onClick={() => navigate(`/item/${item.id}`)}
-            />
+      <Section title="Recently Added" icon={<TrendingUp className="size-4" />} onSeeAll={() => navigate('/marketplace')}>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+          {recentItems.map((item) => (
+            <PlaceCard key={item.id} item={item} onClick={() => navigate(`/item/${item.id}`)} />
           ))}
         </div>
       </Section>
 
-      {/* Friends */}
-      <Section title="Friends">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {CREATORS.slice(0, 6).map((creator) => (
-            <div
-              key={creator.name}
-              className="bg-card border border-border rounded-[var(--radius)] p-4 flex items-center gap-3 cursor-pointer hover:bg-accent/30 transition-colors"
-            >
-              <img
-                src={`https://api.dicebear.com/7.x/bottts/svg?seed=${creator.name}`}
-                alt={creator.name}
-                className="size-10 rounded-full flex-shrink-0"
-              />
-              <div className="min-w-0">
-                <div className="text-sm font-medium truncate">{creator.name}</div>
-                <div className="text-[11px] text-muted-foreground">{creator.items} items</div>
-              </div>
-            </div>
+      <Section title="Most Popular" icon={<Trophy className="size-4" />} onSeeAll={() => navigate('/marketplace')}>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+          {popular.map((item) => (
+            <PlaceCard key={item.id} item={item} onClick={() => navigate(`/item/${item.id}`)} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Top Rated" icon={<Star className="size-4" />} onSeeAll={() => navigate('/marketplace')}>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+          {topRated.map((item) => (
+            <PlaceCard key={item.id} item={item} onClick={() => navigate(`/item/${item.id}`)} />
           ))}
         </div>
       </Section>
@@ -134,21 +115,26 @@ export function Home() {
 
 function Section({
   title,
+  icon,
   onSeeAll,
   children,
 }: {
   title: string
+  icon?: React.ReactNode
   onSeeAll?: () => void
   children: React.ReactNode
 }) {
   return (
-    <div className="mb-8">
+    <div className="mb-7">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-bold tracking-tight">{title}</h2>
+        <div className="flex items-center gap-2">
+          {icon && <span className="text-muted-foreground">{icon}</span>}
+          <h2 className="text-[15px] font-bold tracking-tight">{title}</h2>
+        </div>
         {onSeeAll && (
           <button
             onClick={onSeeAll}
-            className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-transparent border-none"
+            className="flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-transparent border-none"
           >
             See All <ChevronRight className="size-3.5" />
           </button>

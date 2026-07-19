@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Navbar } from '@/components/Navbar'
+import { Sidebar } from '@/components/Sidebar'
 import { Footer } from '@/components/Footer'
 import { Home } from '@/pages/Home'
 import { Marketplace } from '@/pages/Marketplace'
@@ -14,8 +15,13 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <main className="pt-16">{children}</main>
-      <Footer />
+      <Sidebar />
+      <main className="pt-16 md:ml-[220px] min-h-[calc(100vh-4rem)]">
+        {children}
+      </main>
+      <div className="md:ml-[220px]">
+        <Footer />
+      </div>
     </div>
   )
 }
