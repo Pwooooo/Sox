@@ -14,8 +14,8 @@ const CATEGORIES = [
 
 const games = Array.from({ length: 8 }, (_, i) => ({
   name: `Placeholder Game ${i + 1}`,
-  players: Math.floor(Math.random() * 500) + 1,
-  likes: Math.floor(Math.random() * 5000) + 100,
+  players: 0,
+  likes: 0,
 }))
 
 export function Home() {
@@ -54,18 +54,12 @@ export function Home() {
               {games.map((game) => (
                 <div key={game.name} className="group cursor-pointer w-[180px] shrink-0">
                   <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-card border border-border">
-                    <img
-                      src="/placeholder.webp"
-                      alt={game.name}
-                      className="size-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <div className="size-full bg-gradient-to-br from-card via-accent/50 to-card group-hover:scale-105 transition-transform duration-300" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {game.players > 0 && (
-                      <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 rounded-md px-2 py-0.5">
-                        <span className="size-1.5 rounded-full bg-green" />
-                        <span className="text-[11px] font-medium text-white">{game.players}</span>
-                      </div>
-                    )}
+                    <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 rounded-md px-2 py-0.5">
+                      <span className="size-1.5 rounded-full bg-green" />
+                      <span className="text-[11px] font-medium text-white">{game.players}</span>
+                    </div>
                     <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 rounded-md px-2 py-0.5">
                       <ThumbsUp className="size-3 text-white" />
                       <span className="text-[11px] font-medium text-white">{game.likes.toLocaleString()}</span>
