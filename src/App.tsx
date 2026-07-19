@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
+import { useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Home } from '@/pages/Home'
@@ -7,6 +8,7 @@ import { ItemDetail } from '@/pages/ItemDetail'
 import { Create } from '@/pages/Create'
 import { Avatar } from '@/pages/Avatar'
 import { Profile } from '@/pages/Profile'
+import { Auth } from '@/pages/Auth'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,6 +21,12 @@ function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  if (!isLoggedIn) {
+    return <Auth onAuth={() => setIsLoggedIn(true)} />
+  }
+
   return (
     <Layout>
       <Routes>
