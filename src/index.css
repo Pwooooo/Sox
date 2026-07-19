@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+@theme {
+  --color-navbar-foreground: oklch(100% 0 0);
+}
