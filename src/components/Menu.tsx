@@ -80,9 +80,9 @@ export function Menu({
                 className="flex items-center gap-2 no-underline shrink-0"
               >
                 {logoSrc ? (
-                  <img src={logoSrc} alt="" className="h-8 w-auto" />
+                  <img src={logoSrc} alt="" className="h-16 w-auto" />
                 ) : (
-                  <img src="/logo.png" alt="Logo" className="h-8 w-auto rounded" />
+                  <img src="/logo.png" alt="Logo" className="h-16 w-auto rounded" />
                 )}
               </a>
 
