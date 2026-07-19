@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novelo - UGC Marketplace</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div class="nav-left">
+                <a href="#" class="logo" onclick="navigate('home')">
+                    <span class="logo-icon">N</span>
+                    <span class="logo-text">Novelo</span>
+                </a>
+                <div class="nav-links">
+                    <a href="#" onclick="navigate('marketplace')" class="nav-link">Marketplace</a>
+                    <a href="#" onclick="navigate('create')" class="nav-link">Create</a>
+                    <a href="#" onclick="navigate('avatar')" class="nav-link">Avatar</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="currency-display">
+                    <span class="currency-icon">B</span>
+                    <span id="nav-balance">12,450</span>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="nav-search" placeholder="Search marketplace..." onkeydown="if(event.key==='Enter'){catalogSearch();navigate('marketplace')}">
+                    <button onclick="catalogSearch();navigate('marketplace')">Search</button>
+                </div>
+                <div class="user-avatar" onclick="navigate('profile')">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=novelo1" alt="User">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="app">
+        <!-- HOME PAGE -->
+        <section id="page-home" class="page active">
+            <div class="hero">
+                <div class="hero-bg"></div>
+                <div class="hero-content">
+                    <h1>Welcome to <span class="highlight">Novelo</span></h1>
+                    <p>The ultimate UGC platform. Create, customize, and collect unique items for your avatar.</p>
+                    <div class="hero-buttons">
+                        <button class="btn-primary" onclick="navigate('marketplace')">Explore Marketplace</button>
+                        <button class="btn-secondary" onclick="navigate('create')">Start Creating</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat"><span class="stat-num">50,000+</span><span class="stat-label">Items</span></div>
+                <div class="stat"><span class="stat-num">1.2M</span><span class="stat-label">Creators</span></div>
+                <div class="stat"><span class="stat-num">85M</span><span class="stat-label">Purchases</span></div>
+                <div class="stat"><span class="stat-num">4.8</span><span class="stat-label">Avg Rating</span></div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Featured Items</h2>
+                <div class="item-grid" id="featured-grid"></div>
+            </div>
+
+            <div class="section categories-section">
+                <h2 class="section-title">Browse Categories</h2>
+                <div class="categories-grid" id="categories-grid"></div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Top Creators</h2>
+                <div class="creators-grid" id="creators-grid"></div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-inner">
+                    <div class="footer-brand">
+                        <span class="logo-icon">N</span>
+                        <span class="logo-text">Novelo</span>
+                        <p>The next generation UGC platform.</p>
+                    </div>
+                    <div class="footer-links">
+                        <div class="footer-col">
+                            <h4>Platform</h4>
+                            <a href="#">Marketplace</a>
+                            <a href="#">Create</a>
+                            <a href="#">Avatar</a>
+                            <a href="#">Groups</a>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Support</h4>
+                            <a href="#">Help Center</a>
+                            <a href="#">Safety</a>
+                            <a href="#">Terms</a>
+                            <a href="#">Privacy</a>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Social</h4>
+                            <a href="#">Twitter</a>
+                            <a href="#">Discord</a>
+                            <a href="#">YouTube</a>
+                            <a href="#">Blog</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">&copy; 2026 Novelo. All rights reserved.</div>
+            </footer>
+        </section>
+
+        <!-- MARKETPLACE PAGE -->
+        <section id="page-marketplace" class="page">
+            <div class="marketplace-header">
+                <div class="marketplace-header-inner">
+                    <h1>Marketplace</h1>
+                    <p>Discover millions of UGC items created by the community.</p>
+                </div>
+            </div>
+
+            <div class="marketplace-controls">
+                <div class="filter-bar">
+                    <div class="filter-tabs" id="category-tabs"></div>
+                    <div class="sort-select">
+                        <select id="sort-select" onchange="refreshCatalog()">
+                            <option value="popular">Most Popular</option>
+                            <option value="newest">Newest</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="sales">Top Sales</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="marketplace-content">
+                <div class="item-grid" id="marketplace-grid"></div>
+                <div class="loading" id="marketplace-loading">Loading items...</div>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </section>
+
+        <!-- ITEM DETAIL PAGE -->
+        <section id="page-item" class="page">
+            <button class="back-btn" onclick="navigate('marketplace')">&larr; Back to Marketplace</button>
+            <div class="item-detail" id="item-detail"></div>
+        </section>
+
+        <!-- CREATE PAGE -->
+        <section id="page-create" class="page">
+            <div class="create-header">
+                <h1>Creator Dashboard</h1>
+                <p>Publish your creations to the Novelo marketplace.</p>
+            </div>
+
+            <div class="create-grid">
+                <div class="create-card" onclick="openUpload('model')">
+                    <div class="create-card-icon">M</div>
+                    <h3>Model</h3>
+                    <p>Upload 3D models for accessories, tools, and more.</p>
+                </div>
+                <div class="create-card" onclick="openUpload('clothing')">
+                    <div class="create-card-icon">C</div>
+                    <h3>Clothing</h3>
+                    <p>Design shirts, pants, and full outfits.</p>
+                </div>
+                <div class="create-card" onclick="openUpload('hat')">
+                    <div class="create-card-icon">H</div>
+                    <h3>Hat & Hair</h3>
+                    <p>Create hats, hair styles, and head accessories.</p>
+                </div>
+                <div class="create-card" onclick="openUpload('face')">
+                    <div class="create-card-icon">F</div>
+                    <h3>Face</h3>
+                    <p>Design custom faces and expressions.</p>
+                </div>
+                <div class="create-card" onclick="openUpload('tool')">
+                    <div class="create-card-icon">T</div>
+                    <h3>Tool & Gear</h3>
+                    <p>Build interactive tools and gear items.</p>
+                </div>
+                <div class="create-card" onclick="openUpload('audio')">
+                    <div class="create-card-icon">A</div>
+                    <h3>Audio</h3>
+                    <p>Upload music and sound effects.</p>
+                </div>
+            </div>
+
+            <div class="my-creations">
+                <h2>My Creations</h2>
+                <div class="item-grid" id="my-creations-grid"></div>
+            </div>
+        </section>
+
+        <!-- AVATAR PAGE -->
+        <section id="page-avatar" class="page">
+            <div class="avatar-editor-layout">
+                <div class="avatar-preview-panel">
+                    <div class="avatar-preview-container">
+                        <div class="avatar-preview" id="avatar-preview">
+                            <div class="avatar-head">
+                                <div class="avatar-face"></div>
+                            </div>
+                            <div class="avatar-torso"></div>
+                            <div class="avatar-left-arm"></div>
+                            <div class="avatar-right-arm"></div>
+                            <div class="avatar-left-leg"></div>
+                            <div class="avatar-right-leg"></div>
+                            <div class="avatar-hat" id="avatar-hat"></div>
+                            <div class="avatar-accessory" id="avatar-accessory"></div>
+                        </div>
+                    </div>
+                    <div class="avatar-colors">
+                        <div class="color-row"><label>Head</label><input type="color" value="#f5d6b8" onchange="updateAvatarColor('head', this.value)"></div>
+                        <div class="color-row"><label>Torso</label><input type="color" value="#3b82f6" onchange="updateAvatarColor('torso', this.value)"></div>
+                        <div class="color-row"><label>Arms</label><input type="color" value="#f5d6b8" onchange="updateAvatarColor('arms', this.value)"></div>
+                        <div class="color-row"><label>Legs</label><input type="color" value="#1e40af" onchange="updateAvatarColor('legs', this.value)"></div>
+                    </div>
+                </div>
+                <div class="avatar-inventory-panel">
+                    <h2 style="margin-top:0">My Inventory</h2>
+                    <div class="inventory-tabs" id="inventory-tabs"></div>
+                    <div class="item-grid" id="inventory-grid">
+                        <div class="empty-state">No items in this category yet.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFILE PAGE -->
+        <section id="page-profile" class="page">
+            <div class="profile-header">
+                <div class="profile-cover"></div>
+                <div class="profile-info">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=novelo1" alt="Avatar" class="profile-avatar">
+                    <div class="profile-details">
+                        <h1>NoveloUser</h1>
+                        <div class="profile-badges">
+                            <span class="badge">Creator</span>
+                            <span class="badge premium">Premium</span>
+                        </div>
+                        <p class="profile-bio">Building the future of UGC on Novelo.</p>
+                        <div class="profile-stats">
+                            <div><strong>1,247</strong> Followers</div>
+                            <div><strong>83</strong> Creations</div>
+                            <div><strong>12.5K</strong> Sales</div>
+                            <div><strong>45.2K</strong> Visits</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-content">
+                <h2>Creations</h2>
+                <div class="item-grid" id="profile-creations-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="upload-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeUpload()">&times;</button>
+            <h2 id="upload-title">Upload Creation</h2>
+            <div class="upload-form">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="upload-name" placeholder="My Awesome Creation">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="upload-desc" rows="3" placeholder="Describe your item..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Price (Bricks)</label>
+                    <input type="number" id="upload-price" placeholder="0 = Free" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Upload File</label>
+                    <div class="file-drop" id="file-drop" ondragover="event.preventDefault()" ondrop="handleFileDrop(event)">
+                        <p>Drag & drop your file here, or <span class="browse-link">browse</span></p>
+                        <input type="file" id="file-input" hidden onchange="handleFileSelect(event)">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="publishCreation()">Publish to Marketplace</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
