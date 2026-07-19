@@ -13,7 +13,7 @@
   --color-secondary-foreground: #b0b0b0;
   --color-muted: #2a2a2a;
   --color-muted-foreground: #7a7a7a;
-  --color-accent: #ffffff;
+  --color-accent: rgba(255, 255, 255, 0.1);
   --color-accent-foreground: #181818;
   --color-destructive: oklch(60% 0.25 22);
   --color-destructive-foreground: oklch(100% 0 0);
