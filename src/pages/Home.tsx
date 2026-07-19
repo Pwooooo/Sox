@@ -14,8 +14,8 @@ const CATEGORIES = [
 
 const games = Array.from({ length: 8 }, (_, i) => ({
   name: `Placeholder Game ${i + 1}`,
-  players: 0,
-  likes: 0,
+  players: Math.floor(Math.random() * 500) + 1,
+  likes: Math.floor(Math.random() * 5000) + 100,
 }))
 
 export function Home() {
