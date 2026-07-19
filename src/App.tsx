@@ -1,9 +1,12 @@
-import { Routes, Route } from 'react-router-dom'
+import { Menu } from '@/components/Menu'
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={null} />
-    </Routes>
+    <Menu
+      loggedIn
+      balance={12450}
+      unreadMessages={3}
+      onNav={(href) => console.log('navigate', href)}
+    />
   )
 }
