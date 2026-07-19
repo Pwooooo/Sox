@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Search, Bell, MessageSquare, Home, Store, Plus, User, Users, Package, Paintbrush, ArrowLeftRight, Gift, BookOpen, Shield, Gamepad2, Sparkles } from 'lucide-react'
+import { Menu as MenuIcon, X, Search, Bell, MessageSquare, Home, Store, Plus, User, Users, Package, Paintbrush, ArrowLeftRight, Gift, Trophy, BookOpen, Shield, Gamepad2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -160,7 +160,7 @@ export function Menu({
 
         {mobileOpen && (
           <div className="fixed left-0 right-0 bottom-0 bg-background z-50 overflow-y-auto border-t border-border"
-            style={{ top: announcementDismissed ? '64px' : '116px' }}
+            style={{ top: '64px' }}
           >
             <div className="flex flex-col gap-2 px-4 pb-6 pt-4">
               {MOBILE_NAV.map((item) => (
