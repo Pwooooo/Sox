@@ -48,9 +48,9 @@ export function Home() {
                 See All
               </button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
               {games.map((game) => (
-                <div key={game.name} className="group cursor-pointer">
+                <div key={game.name} className="group cursor-pointer w-[180px] shrink-0">
                   <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-card border border-border">
                     <img
                       src="/placeholder.webp"
