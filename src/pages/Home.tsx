@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Heart } from 'lucide-react'
+import { ThumbsUp, Users } from 'lucide-react'
 
 const CATEGORIES = [
   'Most Players',
@@ -14,8 +14,8 @@ const CATEGORIES = [
 
 const games = Array.from({ length: 8 }, (_, i) => ({
   name: `Placeholder Game ${i + 1}`,
-  players: 0,
-  likes: 0,
+  players: Math.floor(Math.random() * 500) + 1,
+  likes: Math.floor(Math.random() * 5000) + 100,
 }))
 
 export function Home() {
@@ -66,19 +66,23 @@ export function Home() {
                         <span className="text-[11px] font-medium text-white">{game.players}</span>
                       </div>
                     )}
-                    {game.likes > 0 && (
-                      <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 rounded-md px-2 py-0.5">
-                        <Heart className="size-3 fill-white" />
-                        <span className="text-[11px] font-medium text-white">{game.likes}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-2 px-0.5 flex items-center justify-between">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground truncate leading-tight">{game.name}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{game.players.toLocaleString()} playing</p>
+                    <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 rounded-md px-2 py-0.5">
+                      <ThumbsUp className="size-3 text-white" />
+                      <span className="text-[11px] font-medium text-white">{game.likes.toLocaleString()}</span>
                     </div>
-                    <Heart className="size-4 text-muted-foreground shrink-0 ml-2" />
+                  </div>
+                  <div className="mt-2 px-0.5">
+                    <p className="text-sm font-medium text-foreground truncate leading-tight">{game.name}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <div className="flex items-center gap-1">
+                        <ThumbsUp className="size-3 text-muted-foreground" />
+                        <span className="text-[11px] text-muted-foreground">{game.likes.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="size-3 text-muted-foreground" />
+                        <span className="text-[11px] text-muted-foreground">{game.players.toLocaleString()}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
