@@ -1,339 +1,224 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import {
   MoreHorizontal,
-  ChevronLeft,
-  ChevronRight,
-  Trophy,
-  Plus,
   Pencil,
-  Users,
-  UserPlus,
-  Shield,
-  Star,
-  Package,
-  Heart,
-  Gamepad2,
-  AlertCircle,
+  ExternalLink,
+  LayoutGrid,
+  LayoutList,
 } from 'lucide-react'
 
-const TABS = ['About', 'Creations'] as const
-
-const WEARING_ITEMS = [
-  { name: 'Dark Fedora', image: '/placeholder.webp' },
-  { name: 'Red Scarf', image: '/placeholder.webp' },
-  { name: 'Classic Tee', image: '/placeholder.webp' },
-  { name: 'Black Jeans', image: '/placeholder.webp' },
-  { name: 'Sneakers', image: '/placeholder.webp' },
+const GRADIENTS = [
+  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+  'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
+  'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)',
+  'linear-gradient(135deg, #d20a2e 0%, #1a0a1e 100%)',
+  'linear-gradient(135deg, #f5576c 0%, #ff6a88 100%)',
+  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
 ]
 
-const FRIENDS = Array.from({ length: 12 }, (_, i) => ({
+function gradientFor(index: number) {
+  return GRADIENTS[index % GRADIENTS.length]
+}
+
+const FRIENDS = Array.from({ length: 9 }, (_, i) => ({
   name: `User${i + 1}`,
-  avatar: '/placeholder.webp',
+  index: i,
 }))
-
-const GROUPS = [
-  { name: 'Developers', members: 1240, role: 'Owner' },
-  { name: 'Artists', members: 830, role: 'Member' },
-  { name: 'Trading Hub', members: 5600, role: 'Member' },
-]
 
 const BADGES = [
-  { name: 'Early Adopter', icon: '⭐' },
-  { name: 'Game Creator', icon: '🎮' },
-  { name: 'Top Trader', icon: '🔄' },
-  { name: 'Community Star', icon: '🌟' },
-  { name: 'Verified', icon: '✓' },
-  { name: 'Builder', icon: '🔨' },
+  { name: 'Veteran', icon: '🛡️', index: 0 },
+  { name: 'Friendship', icon: '🤝', index: 1 },
+  { name: 'True Heart', icon: '❤️', index: 2 },
+  { name: 'Altitude', icon: '🪂', index: 3 },
+  { name: 'Combat Initiation', icon: '⚔️', index: 4 },
+  { name: 'Warlord', icon: '🗡️', index: 5 },
 ]
 
-const CREATIONS = Array.from({ length: 6 }, (_, i) => ({
-  name: `Game ${i + 1}`,
-  image: '/placeholder.webp',
-  players: Math.floor(Math.random() * 200),
-  likes: Math.floor(Math.random() * 1000),
-}))
-
-const FAVORITES = Array.from({ length: 6 }, (_, i) => ({
-  name: `Favorite Game ${i + 1}`,
-  image: '/placeholder.webp',
-}))
+const CREATIONS = [
+  { name: "Sky's Place", players: 0, visits: 0, index: 0 },
+  { name: 'Obby Challenge', players: 12, visits: 483, index: 1 },
+  { name: 'Building Tycoon', players: 5, visits: 210, index: 2 },
+]
 
 export function Profile() {
-  const [activeTab, setActiveTab] = useState<typeof TABS[number]>('About')
-  const [wearingIndex, setWearingIndex] = useState(0)
-
-  const visibleWearing = WEARING_ITEMS.slice(wearingIndex, wearingIndex + 4)
+  const avatarGradient = useMemo(() => gradientFor(99), [])
 
   return (
-    <div className="max-w-[800px] mx-auto p-4 md:p-6 flex flex-col gap-4">
-      {/* Header Card */}
-      <div className="bg-card rounded-2xl border border-border p-6 flex items-start gap-6">
-        <div className="size-28 md:size-32 rounded-xl overflow-hidden bg-muted shrink-0">
-          <img src="/placeholder.webp" alt="Avatar" className="w-full h-full object-cover" />
-        </div>
+    <div className="max-w-[1100px] mx-auto p-4 md:p-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-start gap-6 mb-6">
+        {/* Avatar */}
+        <div
+          className="size-28 md:size-32 rounded-full shrink-0 border-4 border-card shadow-lg"
+          style={{ background: avatarGradient }}
+        />
+
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold text-foreground">Sky</h1>
-          <p className="text-muted-foreground text-sm">@sky</p>
-          <div className="flex items-center gap-4 mt-3 text-sm">
-            <span className="text-foreground"><strong className="font-semibold">0</strong> <span className="text-muted-foreground">Friends</span></span>
-            <span className="text-foreground"><strong className="font-semibold">0</strong> <span className="text-muted-foreground">Followers</span></span>
-            <span className="text-foreground"><strong className="font-semibold">0</strong> <span className="text-muted-foreground">Following</span></span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/80 transition-colors cursor-pointer border-none">
-            <Pencil className="size-4" />
-            Edit Profile
-          </button>
-          <button className="size-9 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center hover:bg-secondary/80 transition-colors cursor-pointer border-none">
-            <MoreHorizontal className="size-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Tab Bar */}
-      <div className="bg-card rounded-2xl border border-border flex overflow-hidden">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "flex-1 py-3 text-sm font-medium transition-colors cursor-pointer border-none",
-              activeTab === tab
-                ? "bg-secondary text-foreground"
-                : "bg-transparent text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === 'About' && (
-        <>
-          {/* About + Currently Wearing */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <h2 className="text-lg font-bold mb-1">About</h2>
-            <p className="text-muted-foreground text-sm mb-6">Pwo Luduvian</p>
-
-            <h3 className="text-sm font-semibold mb-4">Currently Wearing</h3>
-            <div className="flex items-center gap-6">
-              {/* Full avatar preview */}
-              <div className="size-40 md:size-48 rounded-xl overflow-hidden bg-muted shrink-0">
-                <img src="/placeholder.webp" alt="Full body" className="w-full h-full object-cover" />
-              </div>
-
-              {/* Worn items */}
-              <div className="flex-1 min-w-0">
-                <div className="grid grid-cols-4 gap-3">
-                  {visibleWearing.map((item) => (
-                    <div key={item.name} className="flex flex-col items-center gap-1.5">
-                      <div className="w-full aspect-square rounded-xl bg-muted overflow-hidden border border-border">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      </div>
-                      <span className="text-[11px] text-muted-foreground text-center truncate w-full">{item.name}</span>
-                    </div>
-                  ))}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Sky</h1>
+              <p className="text-muted-foreground text-sm">@sky</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <div className="flex items-center gap-1 bg-secondary px-2.5 py-1 rounded-full text-xs font-medium">
+                  <img src="/currency.png" alt="" className="size-3.5" />
+                  0
                 </div>
-                {WEARING_ITEMS.length > 4 && (
-                  <div className="flex items-center justify-end gap-1 mt-3">
-                    <button
-                      onClick={() => setWearingIndex(Math.max(0, wearingIndex - 1))}
-                      disabled={wearingIndex === 0}
-                      className="size-7 rounded-md bg-secondary flex items-center justify-center disabled:opacity-30 hover:bg-secondary/80 transition-colors cursor-pointer border-none"
-                    >
-                      <ChevronLeft className="size-4 text-muted-foreground" />
-                    </button>
-                    <button
-                      onClick={() => setWearingIndex(Math.min(WEARING_ITEMS.length - 4, wearingIndex + 1))}
-                      disabled={wearingIndex >= WEARING_ITEMS.length - 4}
-                      className="size-7 rounded-md bg-secondary flex items-center justify-center disabled:opacity-30 hover:bg-secondary/80 transition-colors cursor-pointer border-none"
-                    >
-                      <ChevronRight className="size-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
-          </div>
-
-          {/* Trophy Case */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">Trophy Case</h2>
-              <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent">
-                <Plus className="size-4" />
-                Add
-              </button>
-            </div>
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
-              <AlertCircle className="size-4 text-orange-500 shrink-0" />
-              <span className="text-sm text-orange-500">This row is empty, so it will not be visible to others.</span>
-            </div>
-          </div>
-
-          {/* Wishlist */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">Wishlist</h2>
-              <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent">
+            <div className="flex items-center gap-2 shrink-0">
+              <button className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/80 transition-colors cursor-pointer border-none">
                 <Pencil className="size-3.5" />
-                Edit
+                Edit Profile
+              </button>
+              <button className="size-8 rounded-md bg-secondary text-secondary-foreground flex items-center justify-center hover:bg-secondary/80 transition-colors cursor-pointer border-none">
+                <MoreHorizontal className="size-4" />
               </button>
             </div>
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
-              <AlertCircle className="size-4 text-orange-500 shrink-0" />
-              <span className="text-sm text-orange-500">Because this row is empty, it will not be visible to others until it is populated.</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats pills */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-sm text-muted-foreground hover:underline cursor-pointer">
+          <strong className="text-foreground font-semibold">45</strong> Friends
+        </span>
+        <span className="text-sm text-muted-foreground hover:underline cursor-pointer">
+          <strong className="text-foreground font-semibold">4</strong> Followers
+        </span>
+        <span className="text-sm text-muted-foreground hover:underline cursor-pointer">
+          <strong className="text-foreground font-semibold">0</strong> Following
+        </span>
+      </div>
+
+      {/* Two column layout */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left column */}
+        <div className="flex-1 min-w-0 flex flex-col gap-6">
+          {/* About */}
+          <div>
+            <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
+              About
+              <Pencil className="size-3.5 text-muted-foreground cursor-pointer hover:text-foreground" />
+            </h2>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <p className="text-sm text-muted-foreground">Pwo Luduvian</p>
             </div>
           </div>
 
-          {/* Friends */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Users className="size-5" />
-                Friends
-              </h2>
-              <span className="text-sm text-muted-foreground">0</span>
-            </div>
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
-              <AlertCircle className="size-4 text-orange-500 shrink-0" />
-              <span className="text-sm text-orange-500">No friends yet. Add some friends to see them here.</span>
-            </div>
-          </div>
-
-          {/* Groups */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Shield className="size-5" />
-                Groups
-              </h2>
-              <span className="text-sm text-muted-foreground">{GROUPS.length}</span>
-            </div>
-            <div className="flex flex-col gap-3">
-              {GROUPS.map((group) => (
-                <div key={group.name} className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer">
-                  <div className="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <Shield className="size-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{group.name}</p>
-                    <p className="text-xs text-muted-foreground">{group.members.toLocaleString()} members</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-md">{group.role}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Badges */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Star className="size-5" />
-                Badges
-              </h2>
-              <span className="text-sm text-muted-foreground">{BADGES.length}</span>
-            </div>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+          {/* Roblox Badges */}
+          <div>
+            <h2 className="text-lg font-bold mb-3">Roblox Badges</h2>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 gap-3">
               {BADGES.map((badge) => (
-                <div key={badge.name} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer">
-                  <div className="size-12 rounded-full bg-muted flex items-center justify-center text-xl">
+                <div
+                  key={badge.name}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border hover:bg-secondary/50 transition-colors cursor-pointer"
+                >
+                  <div
+                    className="size-14 rounded-full flex items-center justify-center text-2xl"
+                    style={{ background: gradientFor(badge.index) }}
+                  >
                     {badge.icon}
                   </div>
-                  <span className="text-[11px] text-muted-foreground text-center">{badge.name}</span>
+                  <span className="text-[11px] text-muted-foreground text-center leading-tight">{badge.name}</span>
                 </div>
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Favorites */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Heart className="size-5" />
-                Favorites
-              </h2>
-              <span className="text-sm text-muted-foreground">{FAVORITES.length}</span>
-            </div>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-              {FAVORITES.map((fav) => (
-                <div key={fav.name} className="flex flex-col items-center gap-1.5 cursor-pointer group">
-                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-muted border border-border">
-                    <img src={fav.image} alt={fav.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                  </div>
-                  <span className="text-[11px] text-muted-foreground text-center truncate w-full">{fav.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats Bar */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Joined</p>
-                <p className="text-sm font-medium">Jan 2026</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Net Worth</p>
-                <p className="text-sm font-medium flex items-center justify-center gap-1">
-                  <img src="/currency.png" alt="" className="size-4" />
-                  0
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Last Online</p>
-                <p className="text-sm font-medium text-green">Online</p>
+        {/* Right column */}
+        <div className="flex-1 min-w-0 flex flex-col gap-6">
+          {/* Experiences */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">Experiences</h2>
+              <div className="flex items-center gap-1">
+                <button className="size-7 rounded-md bg-secondary flex items-center justify-center cursor-pointer border-none">
+                  <LayoutList className="size-3.5 text-muted-foreground" />
+                </button>
+                <button className="size-7 rounded-md bg-secondary flex items-center justify-center cursor-pointer border-none">
+                  <LayoutGrid className="size-3.5 text-muted-foreground" />
+                </button>
               </div>
             </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'Creations' && (
-        <>
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Gamepad2 className="size-5" />
-                Experiences
-              </h2>
-              <span className="text-sm text-muted-foreground">{CREATIONS.length}</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-4">
               {CREATIONS.map((game) => (
-                <div key={game.name} className="cursor-pointer group">
-                  <div className="aspect-video rounded-xl overflow-hidden bg-muted border border-border">
-                    <img src={game.image} alt={game.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                <div key={game.name} className="bg-card rounded-xl border border-border overflow-hidden cursor-pointer group">
+                  {/* Game name bar */}
+                  <div className="flex items-center justify-between px-4 py-2 bg-secondary/50 border-b border-border">
+                    <span className="text-sm font-medium text-foreground">{game.name}</span>
+                    <MoreHorizontal className="size-4 text-muted-foreground" />
                   </div>
-                  <div className="mt-2">
-                    <p className="text-sm font-medium truncate">{game.name}</p>
-                    <p className="text-xs text-muted-foreground">{game.players} playing · {game.likes} likes</p>
+                  {/* Thumbnail */}
+                  <div className="relative aspect-[16/9] overflow-hidden" style={{ background: gradientFor(game.index) }}>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-white/80 text-3xl font-bold opacity-30">POLYTORIA</span>
+                    </div>
+                    {/* Small thumbnail inset */}
+                    <div className="absolute bottom-2 right-2 w-16 h-12 rounded-md overflow-hidden border-2 border-white/20 shadow-lg" style={{ background: gradientFor(game.index + 3) }}>
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-white/60 text-[8px] font-bold">THUMB</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Info */}
+                  <div className="p-4">
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      This is your very first creation. Check it out, then make it your own!
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <button className="px-6 py-2 rounded-md bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer border-none">
+                        Play
+                      </button>
+                      <div className="flex items-center gap-6 text-sm">
+                        <div className="text-center">
+                          <p className="text-foreground font-semibold">{game.players}</p>
+                          <p className="text-xs text-muted-foreground">Playing</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-foreground font-semibold">{game.visits.toLocaleString()}</p>
+                          <p className="text-xs text-muted-foreground">Visits</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Items Created */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Package className="size-5" />
-                Items
-              </h2>
-              <span className="text-sm text-muted-foreground">0</span>
+          {/* Friends preview */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">Friends</h2>
+              <span className="text-sm text-muted-foreground">45</span>
             </div>
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
-              <AlertCircle className="size-4 text-orange-500 shrink-0" />
-              <span className="text-sm text-orange-500">No items created yet.</span>
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
+              {FRIENDS.map((friend) => (
+                <div
+                  key={friend.name}
+                  className="flex items-center gap-3 p-2 rounded-xl bg-card border border-border hover:bg-secondary/50 transition-colors cursor-pointer"
+                >
+                  <div
+                    className="size-10 rounded-full shrink-0"
+                    style={{ background: gradientFor(friend.index) }}
+                  />
+                  <span className="text-sm font-medium text-foreground truncate">{friend.name}</span>
+                </div>
+              ))}
             </div>
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   )
 }
