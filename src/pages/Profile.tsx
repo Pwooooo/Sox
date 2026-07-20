@@ -32,7 +32,7 @@ export function Profile() {
   const visible = WEARING_ITEMS.slice(wearingIndex, wearingIndex + 4)
 
   return (
-    <div className="max-w-[960px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-3">
+    <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-3">
       {/* Header card */}
       <div className="bg-card rounded-2xl border border-border px-10 py-8">
         <div className="flex items-end justify-between">
@@ -94,16 +94,16 @@ export function Profile() {
             <div className="flex gap-0">
               {/* Avatar */}
               <div
-                className="w-[240px] h-[300px] rounded-2xl shrink-0 border border-border"
+                className="w-[250px] h-[330px] rounded-2xl shrink-0 border border-border"
                 style={{ background: avatarGrad() }}
               />
 
               {/* Text + items */}
-              <div className="flex-1 min-w-0 pl-8 pt-0">
-                <h2 className="text-[16px] font-bold text-foreground mb-0">About</h2>
-                <p className="text-muted-foreground text-[13px] italic mb-4">No bio yet.</p>
+              <div className="flex-1 min-w-0 pl-10 pt-1">
+                <h2 className="text-[16px] font-bold text-foreground mb-1">About</h2>
+                <p className="text-muted-foreground text-[13px] italic mb-5">No bio yet.</p>
 
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-[14px] font-bold text-foreground">Currently Wearing</h3>
                   <div className="flex items-center gap-0.5">
                     <button
@@ -123,10 +123,10 @@ export function Profile() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-3.5">
                   {visible.map((item) => (
-                    <div key={item.index} className="flex flex-col items-center gap-1.5">
-                      <div className="w-full aspect-square rounded-xl bg-[#1e1e1e] p-1.5 border border-[#2a2a2a]">
+                    <div key={item.index} className="flex flex-col items-center gap-2">
+                      <div className="w-full aspect-square rounded-xl bg-[#1e1e1e] p-2 border border-[#2a2a2a]">
                         <div className="w-full h-full rounded-lg" style={{ background: grad(item.index) }} />
                       </div>
                       <span className="text-[11px] text-muted-foreground text-center leading-tight">{item.name}</span>
