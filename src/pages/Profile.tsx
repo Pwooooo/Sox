@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { MoreHorizontal, UserPlus, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const WEARING_ITEMS = [
-  { name: 'Luduvo Default...', index: 0 },
+  { name: 'Dizzy', index: 0 },
   { name: 'Long Ponytail', index: 1 },
   { name: 'Pwo', index: 2 },
   { name: 'Pwo', index: 3 },
@@ -29,13 +29,14 @@ function avatarGrad() {
 export function Profile() {
   const [wearingIndex, setWearingIndex] = useState(0)
   const [activeTab, setActiveTab] = useState<'about' | 'portfolio'>('about')
+  const visible = WEARING_ITEMS.slice(wearingIndex, wearingIndex + 4)
 
   return (
-    <div className="max-w-[900px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-3">
+    <div className="max-w-[960px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-3">
       {/* Header card */}
-      <div className="bg-card rounded-3xl border border-border px-8 py-8">
+      <div className="bg-card rounded-2xl border border-border px-10 py-8">
         <div className="flex items-end justify-between">
-          <div className="flex items-end gap-5">
+          <div className="flex items-end gap-6">
             <div
               className="w-[120px] h-[120px] rounded-full shrink-0 border border-border"
               style={{ background: avatarGrad() }}
@@ -43,7 +44,7 @@ export function Profile() {
             <div className="pb-1">
               <h1 className="text-[32px] font-bold text-foreground leading-tight">Sky</h1>
               <p className="text-muted-foreground text-[15px] mt-0.5">@sky</p>
-              <div className="flex items-center gap-3 mt-3 text-[13px]">
+              <div className="flex items-center gap-4 mt-3 text-[13px]">
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Friends</span>
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Followers</span>
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Following</span>
@@ -89,61 +90,61 @@ export function Profile() {
       {activeTab === 'about' && (
         <>
           {/* About content */}
-          <div className="bg-card rounded-3xl border border-border px-8 py-7">
+          <div className="bg-card rounded-2xl border border-border px-10 py-8">
             <div className="flex gap-0">
               {/* Avatar */}
               <div
-                className="w-[260px] h-[320px] rounded-2xl shrink-0 border border-border"
+                className="w-[280px] h-[380px] rounded-2xl shrink-0 border border-border"
                 style={{ background: avatarGrad() }}
               />
 
               {/* Text + items */}
-              <div className="flex-1 min-w-0 pl-8 pt-1">
+              <div className="flex-1 min-w-0 pl-10 pt-1">
                 <h2 className="text-[17px] font-bold text-foreground mb-0.5">About</h2>
-                <p className="text-muted-foreground text-[14px] italic mb-5">No bio yet.</p>
+                <p className="text-muted-foreground text-[14px] italic mb-6">No bio yet.</p>
 
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-[15px] font-bold text-foreground">Currently Wearing</h3>
-                  {WEARING_ITEMS.length > 1 && (
-                    <div className="flex items-center gap-0.5">
-                      <button
-                        onClick={() => setWearingIndex(Math.max(0, wearingIndex - 1))}
-                        disabled={wearingIndex === 0}
-                        className="size-7 rounded-md flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
-                      >
-                        <ChevronLeft className="size-5 text-muted-foreground" />
-                      </button>
-                      <button
-                        onClick={() => setWearingIndex(Math.min(WEARING_ITEMS.length - 1, wearingIndex + 1))}
-                        disabled={wearingIndex >= WEARING_ITEMS.length - 1}
-                        className="size-7 rounded-md flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
-                      >
-                        <ChevronRight className="size-5 text-muted-foreground" />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      onClick={() => setWearingIndex(Math.max(0, wearingIndex - 1))}
+                      disabled={wearingIndex === 0}
+                      className="size-7 rounded-md flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
+                    >
+                      <ChevronLeft className="size-5 text-muted-foreground" />
+                    </button>
+                    <button
+                      onClick={() => setWearingIndex(Math.min(WEARING_ITEMS.length - 4, wearingIndex + 1))}
+                      disabled={wearingIndex >= WEARING_ITEMS.length - 4}
+                      className="size-7 rounded-md flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
+                    >
+                      <ChevronRight className="size-5 text-muted-foreground" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-[100px] h-[100px] rounded-xl bg-[#1e1e1e] p-2 border border-[#2a2a2a]">
-                    <div className="w-full h-full rounded-lg" style={{ background: grad(wearingIndex) }} />
-                  </div>
-                  <span className="text-[12px] text-muted-foreground text-center leading-tight">
-                    {WEARING_ITEMS[wearingIndex]?.name}
-                  </span>
+                <div className="grid grid-cols-4 gap-3">
+                  {visible.map((item) => (
+                    <div key={item.index} className="flex flex-col items-center gap-2">
+                      <div className="w-full aspect-square rounded-xl bg-[#1e1e1e] p-2 border border-[#2a2a2a]">
+                        <div className="w-full h-full rounded-lg" style={{ background: grad(item.index) }} />
+                      </div>
+                      <span className="text-[12px] text-muted-foreground text-center leading-tight">{item.name}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Novelo Badges */}
-          <div className="bg-card rounded-3xl border border-border px-8 py-5">
+          <div className="bg-card rounded-2xl border border-border px-10 py-5">
             <h3 className="text-[15px] font-bold text-foreground">Novelo Badges</h3>
             <p className="text-muted-foreground text-[13px] mt-1">No badges earned yet.</p>
           </div>
 
           {/* Stats bar */}
-          <div className="bg-card rounded-3xl border border-border px-8 py-4">
+          <div className="bg-card rounded-2xl border border-border px-10 py-4">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-[13px] font-bold text-foreground mb-0.5">Joined</p>
@@ -166,7 +167,7 @@ export function Profile() {
       )}
 
       {activeTab === 'portfolio' && (
-        <div className="bg-card rounded-3xl border border-border p-8">
+        <div className="bg-card rounded-2xl border border-border p-8">
           <p className="text-muted-foreground text-[14px] italic">No portfolio items yet.</p>
         </div>
       )}
