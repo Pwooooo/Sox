@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MoreHorizontal, UserPlus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MoreHorizontal, Pencil, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const WEARING_ITEMS = [
   { name: 'Dizzy', index: 0 },
@@ -53,8 +53,8 @@ export function Profile() {
           </div>
           <div className="flex items-center gap-2 shrink-0 pb-0.5">
             <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-border bg-card text-foreground text-[13px] font-medium hover:bg-secondary transition-colors cursor-pointer">
-              <UserPlus className="size-4" />
-              Add Friend
+              <Pencil className="size-4" />
+              Edit Profile
             </button>
             <button className="size-[30px] rounded-lg border border-border bg-card text-foreground flex items-center justify-center hover:bg-secondary transition-colors cursor-pointer">
               <MoreHorizontal className="size-[18px]" />
