@@ -60,12 +60,12 @@ export function Profile() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-card rounded-2xl border border-border flex overflow-hidden">
+      <div className="bg-card rounded-2xl border border-border flex overflow-hidden h-[42px]">
         {(['about', 'portfolio'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-3 text-[13px] font-medium transition-colors cursor-pointer border-none capitalize ${
+            className={`flex-1 w-full py-3 text-[13px] font-medium transition-colors cursor-pointer border-none capitalize leading-none ${
               activeTab === tab
                 ? 'bg-[#282828] text-foreground'
                 : 'bg-transparent text-muted-foreground hover:text-foreground'
