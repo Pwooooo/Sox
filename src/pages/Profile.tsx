@@ -67,7 +67,7 @@ export function Profile() {
             onClick={() => setActiveTab(tab)}
             className={`flex-1 py-3.5 text-[14px] font-medium transition-colors cursor-pointer border-none capitalize ${
               activeTab === tab
-                ? 'bg-secondary/60 text-foreground'
+                ? 'bg-[#2a2a2a] text-foreground'
                 : 'bg-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -93,7 +93,7 @@ export function Profile() {
                 <div className="grid grid-cols-4 gap-4">
                   {visible.map((item) => (
                     <div key={item.index} className="flex flex-col items-center gap-2.5">
-                      <div className="w-full aspect-square rounded-2xl bg-secondary/30 p-2.5">
+                      <div className="w-full aspect-square rounded-2xl bg-[#1e1e1e] p-2.5 border border-[#2a2a2a]">
                         <div className="w-full h-full rounded-xl" style={{ background: grad(item.index) }} />
                       </div>
                       <span className="text-[13px] text-muted-foreground text-center leading-tight">{item.name}</span>
