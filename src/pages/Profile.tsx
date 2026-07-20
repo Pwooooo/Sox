@@ -28,31 +28,31 @@ export function Profile() {
   const visible = WEARING_ITEMS.slice(wearingIndex, wearingIndex + 4)
 
   return (
-    <div className="max-w-[900px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-4">
+    <div className="max-w-[900px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-3">
       {/* Header card */}
-      <div className="bg-card rounded-3xl border border-border px-8 pt-10 pb-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-8">
+      <div className="bg-card rounded-3xl border border-border px-8 pt-8 pb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
             <div
-              className="w-[130px] h-[130px] rounded-full shrink-0 border-2 border-border shadow-2xl"
+              className="w-[120px] h-[120px] rounded-full shrink-0 border-2 border-border shadow-2xl"
               style={{ background: grad(4) }}
             />
             <div>
-              <h1 className="text-[32px] font-bold text-foreground leading-tight">Sky</h1>
-              <p className="text-muted-foreground text-[16px] mt-1">@sky</p>
-              <div className="flex items-center gap-4 mt-3 text-[14px]">
+              <h1 className="text-[28px] font-bold text-foreground leading-tight">Sky</h1>
+              <p className="text-muted-foreground text-[15px] mt-0.5">@sky</p>
+              <div className="flex items-center gap-3 mt-2 text-[13px]">
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Friends</span>
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Followers</span>
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Following</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-secondary transition-colors cursor-pointer">
+          <div className="flex items-center gap-2 shrink-0 self-end">
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-secondary transition-colors cursor-pointer">
               <Pencil className="size-4" />
               Edit Profile
             </button>
-            <button className="size-10 rounded-xl border border-border bg-card text-foreground flex items-center justify-center hover:bg-secondary transition-colors cursor-pointer">
+            <button className="size-9 rounded-lg border border-border bg-card text-foreground flex items-center justify-center hover:bg-secondary transition-colors cursor-pointer">
               <MoreHorizontal className="size-5" />
             </button>
           </div>
@@ -65,9 +65,9 @@ export function Profile() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-3.5 text-[14px] font-medium transition-colors cursor-pointer border-none capitalize ${
+            className={`flex-1 py-3 text-[13px] font-medium transition-colors cursor-pointer border-none capitalize ${
               activeTab === tab
-                ? 'bg-[#2a2a2a] text-foreground'
+                ? 'bg-[#282828] text-foreground'
                 : 'bg-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -79,43 +79,43 @@ export function Profile() {
       {activeTab === 'about' && (
         <>
           {/* About content */}
-          <div className="bg-card rounded-3xl border border-border p-8">
-            <h2 className="text-[18px] font-bold text-foreground mb-1">About</h2>
-            <p className="text-muted-foreground text-[15px] italic mb-8">No bio yet.</p>
+          <div className="bg-card rounded-3xl border border-border px-10 py-7">
+            <h2 className="text-[17px] font-bold text-foreground mb-0.5 ml-[200px]">About</h2>
+            <p className="text-muted-foreground text-[14px] italic mb-6 ml-[200px]">No bio yet.</p>
 
-            <h3 className="text-[16px] font-bold text-foreground mb-5">Currently Wearing</h3>
-            <div className="flex items-start gap-8">
+            <h3 className="text-[15px] font-bold text-foreground mb-4 ml-[200px]">Currently Wearing</h3>
+            <div className="flex items-start gap-0">
               <div
-                className="w-[220px] h-[300px] rounded-2xl shrink-0 border border-border"
+                className="w-[180px] h-[240px] rounded-2xl shrink-0 border border-border"
                 style={{ background: grad(4) }}
               />
-              <div className="flex-1 min-w-0">
-                <div className="grid grid-cols-4 gap-4">
+              <div className="flex-1 min-w-0 px-4">
+                <div className="grid grid-cols-4 gap-3">
                   {visible.map((item) => (
-                    <div key={item.index} className="flex flex-col items-center gap-2.5">
-                      <div className="w-full aspect-square rounded-2xl bg-[#1e1e1e] p-2.5 border border-[#2a2a2a]">
-                        <div className="w-full h-full rounded-xl" style={{ background: grad(item.index) }} />
+                    <div key={item.index} className="flex flex-col items-center gap-2">
+                      <div className="w-full aspect-square rounded-xl bg-[#1e1e1e] p-2 border border-[#2a2a2a]">
+                        <div className="w-full h-full rounded-lg" style={{ background: grad(item.index) }} />
                       </div>
-                      <span className="text-[13px] text-muted-foreground text-center leading-tight">{item.name}</span>
+                      <span className="text-[12px] text-muted-foreground text-center leading-tight">{item.name}</span>
                     </div>
                   ))}
                 </div>
               </div>
               {WEARING_ITEMS.length > 4 && (
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-0.5 shrink-0 pt-1 pr-1">
                   <button
                     onClick={() => setWearingIndex(Math.max(0, wearingIndex - 1))}
                     disabled={wearingIndex === 0}
-                    className="size-8 rounded-lg flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
+                    className="size-7 rounded-md flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
                   >
-                    <ChevronLeft className="size-6 text-muted-foreground" />
+                    <ChevronLeft className="size-5 text-muted-foreground" />
                   </button>
                   <button
                     onClick={() => setWearingIndex(Math.min(WEARING_ITEMS.length - 4, wearingIndex + 1))}
                     disabled={wearingIndex >= WEARING_ITEMS.length - 4}
-                    className="size-8 rounded-lg flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
+                    className="size-7 rounded-md flex items-center justify-center disabled:opacity-25 hover:bg-secondary transition-colors cursor-pointer border-none bg-transparent"
                   >
-                    <ChevronRight className="size-6 text-muted-foreground" />
+                    <ChevronRight className="size-5 text-muted-foreground" />
                   </button>
                 </div>
               )}
@@ -123,7 +123,7 @@ export function Profile() {
           </div>
 
           {/* Stats bar */}
-          <div className="bg-card rounded-3xl border border-border px-8 py-5">
+          <div className="bg-card rounded-3xl border border-border px-8 py-4">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-[13px] font-bold text-foreground mb-0.5">Joined</p>
@@ -147,7 +147,7 @@ export function Profile() {
 
       {activeTab === 'portfolio' && (
         <div className="bg-card rounded-3xl border border-border p-8">
-          <p className="text-muted-foreground text-[15px] italic">No portfolio items yet.</p>
+          <p className="text-muted-foreground text-[14px] italic">No portfolio items yet.</p>
         </div>
       )}
     </div>
