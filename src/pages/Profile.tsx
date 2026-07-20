@@ -28,7 +28,7 @@ function avatarGrad() {
 
 export function Profile() {
   const [wearingIndex, setWearingIndex] = useState(0)
-  const [activeTab, setActiveTab] = useState<'about' | 'portfolio'>('about')
+  const [activeTab, setActiveTab] = useState<'about' | 'badges' | 'portfolio'>('about')
 
   return (
     <div className="max-w-[900px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-3">
@@ -73,6 +73,16 @@ export function Profile() {
           }`}
         >
           About
+        </button>
+        <button
+          onClick={() => setActiveTab('badges')}
+          className={`h-full flex-1 text-[12px] font-medium cursor-pointer border-none capitalize rounded-lg transition-colors ${
+            activeTab === 'badges'
+              ? 'bg-[#282828] text-foreground shadow-sm'
+              : 'bg-transparent text-[#888] hover:text-foreground'
+          }`}
+        >
+          Novelo Badges
         </button>
         <button
           onClick={() => setActiveTab('portfolio')}
@@ -157,6 +167,12 @@ export function Profile() {
             </div>
           </div>
         </>
+      )}
+
+      {activeTab === 'badges' && (
+        <div className="bg-card rounded-3xl border border-border p-8">
+          <p className="text-muted-foreground text-[14px] italic">No badges yet.</p>
+        </div>
       )}
 
       {activeTab === 'portfolio' && (
