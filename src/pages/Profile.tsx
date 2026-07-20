@@ -32,32 +32,32 @@ export function Profile() {
   const visible = WEARING_ITEMS.slice(wearingIndex, wearingIndex + 4)
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-3">
+    <div className="max-w-[920px] mx-auto px-4 md:px-6 py-5 flex flex-col gap-[10px]">
       {/* Header card */}
-      <div className="bg-card rounded-2xl border border-border px-10 py-8">
+      <div className="bg-card rounded-xl border border-border px-8 py-6">
         <div className="flex items-end justify-between">
-          <div className="flex items-end gap-6">
+          <div className="flex items-end gap-5">
             <div
-              className="w-[120px] h-[120px] rounded-full shrink-0 border border-border"
+              className="w-[110px] h-[110px] rounded-full shrink-0 border border-border"
               style={{ background: avatarGrad() }}
             />
-            <div className="pb-1">
-              <h1 className="text-[32px] font-bold text-foreground leading-tight">Sky</h1>
-              <p className="text-muted-foreground text-[15px] mt-0.5">@sky</p>
-              <div className="flex items-center gap-4 mt-3 text-[13px]">
+            <div className="pb-0.5">
+              <h1 className="text-[28px] font-bold text-foreground leading-tight">Sky</h1>
+              <p className="text-muted-foreground text-[14px] mt-0">@sky</p>
+              <div className="flex items-center gap-3 mt-2.5 text-[12px]">
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Friends</span>
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Followers</span>
                 <span className="text-muted-foreground"><strong className="text-foreground font-semibold">0</strong> Following</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0 pb-1">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-[13px] font-medium hover:bg-secondary transition-colors cursor-pointer">
+          <div className="flex items-center gap-2 shrink-0 pb-0.5">
+            <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-border bg-card text-foreground text-[13px] font-medium hover:bg-secondary transition-colors cursor-pointer">
               <UserPlus className="size-4" />
               Add Friend
             </button>
-            <button className="size-[34px] rounded-lg border border-border bg-card text-foreground flex items-center justify-center hover:bg-secondary transition-colors cursor-pointer">
-              <MoreHorizontal className="size-5" />
+            <button className="size-[30px] rounded-lg border border-border bg-card text-foreground flex items-center justify-center hover:bg-secondary transition-colors cursor-pointer">
+              <MoreHorizontal className="size-[18px]" />
             </button>
           </div>
         </div>
@@ -90,20 +90,20 @@ export function Profile() {
       {activeTab === 'about' && (
         <>
           {/* About content */}
-          <div className="bg-card rounded-2xl border border-border px-10 py-8">
+          <div className="bg-card rounded-xl border border-border px-8 py-7">
             <div className="flex gap-0">
               {/* Avatar */}
               <div
-                className="w-[250px] h-[330px] rounded-2xl shrink-0 border border-border"
+                className="w-[220px] h-[280px] rounded-xl shrink-0 border border-border"
                 style={{ background: avatarGrad() }}
               />
 
               {/* Text + items */}
-              <div className="flex-1 min-w-0 pl-10 pt-1">
-                <h2 className="text-[16px] font-bold text-foreground mb-1">About</h2>
-                <p className="text-muted-foreground text-[13px] italic mb-5">No bio yet.</p>
+              <div className="flex-1 min-w-0 pl-8 pt-0">
+                <h2 className="text-[15px] font-bold text-foreground mb-0.5">About</h2>
+                <p className="text-muted-foreground text-[13px] italic mb-4">No bio yet.</p>
 
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <h3 className="text-[14px] font-bold text-foreground">Currently Wearing</h3>
                   <div className="flex items-center gap-0.5">
                     <button
@@ -123,10 +123,10 @@ export function Profile() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-4 gap-3.5">
+                <div className="grid grid-cols-4 gap-3">
                   {visible.map((item) => (
-                    <div key={item.index} className="flex flex-col items-center gap-2">
-                      <div className="w-full aspect-square rounded-xl bg-[#1e1e1e] p-2 border border-[#2a2a2a]">
+                    <div key={item.index} className="flex flex-col items-center gap-1.5">
+                      <div className="w-full aspect-square rounded-xl bg-[#1e1e1e] p-1.5 border border-[#2a2a2a]">
                         <div className="w-full h-full rounded-lg" style={{ background: grad(item.index) }} />
                       </div>
                       <span className="text-[11px] text-muted-foreground text-center leading-tight">{item.name}</span>
@@ -138,28 +138,28 @@ export function Profile() {
           </div>
 
           {/* Novelo Badges */}
-          <div className="bg-card rounded-2xl border border-border px-10 py-5">
-            <h3 className="text-[15px] font-bold text-foreground">Novelo Badges</h3>
-            <p className="text-muted-foreground text-[13px] mt-1">No badges earned yet.</p>
+          <div className="bg-card rounded-xl border border-border px-8 py-4">
+            <h3 className="text-[14px] font-bold text-foreground">Novelo Badges</h3>
+            <p className="text-muted-foreground text-[12px] mt-1">No badges earned yet.</p>
           </div>
 
           {/* Stats bar */}
-          <div className="bg-card rounded-2xl border border-border px-10 py-4">
+          <div className="bg-card rounded-xl border border-border px-8 py-3.5">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-[13px] font-bold text-foreground mb-0.5">Joined</p>
-                <p className="text-[13px] text-muted-foreground">Jul 5, 2026</p>
+                <p className="text-[12px] font-bold text-foreground mb-0.5">Joined</p>
+                <p className="text-[12px] text-muted-foreground">Jul 5, 2026</p>
               </div>
               <div>
-                <p className="text-[13px] font-bold text-foreground mb-0.5">Net Worth</p>
-                <p className="text-[13px] text-muted-foreground flex items-center justify-center gap-1">
-                  <img src="/currency.png" alt="" className="size-3.5" />
+                <p className="text-[12px] font-bold text-foreground mb-0.5">Net Worth</p>
+                <p className="text-[12px] text-muted-foreground flex items-center justify-center gap-1">
+                  <img src="/currency.png" alt="" className="size-3" />
                   0
                 </p>
               </div>
               <div>
-                <p className="text-[13px] font-bold text-foreground mb-0.5">Last Online</p>
-                <p className="text-[13px] text-muted-foreground">Jul 17, 2026</p>
+                <p className="text-[12px] font-bold text-foreground mb-0.5">Last Online</p>
+                <p className="text-[12px] text-muted-foreground">Jul 17, 2026</p>
               </div>
             </div>
           </div>
@@ -167,7 +167,7 @@ export function Profile() {
       )}
 
       {activeTab === 'portfolio' && (
-        <div className="bg-card rounded-2xl border border-border p-8">
+        <div className="bg-card rounded-xl border border-border p-8">
           <p className="text-muted-foreground text-[14px] italic">No portfolio items yet.</p>
         </div>
       )}
