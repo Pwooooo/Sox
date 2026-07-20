@@ -60,20 +60,27 @@ export function Profile() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-card rounded-xl border border-border flex overflow-hidden h-[34px]">
-        {(['about', 'portfolio'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`flex-1 w-full text-[12px] font-medium transition-colors cursor-pointer border-none capitalize ${
-              activeTab === tab
-                ? 'bg-[#282828] text-foreground'
-                : 'bg-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      <div className="bg-card rounded-xl border border-border overflow-hidden h-[32px] flex items-center p-[3px]">
+        <button
+          onClick={() => setActiveTab('about')}
+          className={`h-full flex-1 text-[12px] font-medium cursor-pointer border-none capitalize rounded-lg transition-colors ${
+            activeTab === 'about'
+              ? 'bg-[#282828] text-foreground shadow-sm'
+              : 'bg-transparent text-[#888] hover:text-foreground'
+          }`}
+        >
+          About
+        </button>
+        <button
+          onClick={() => setActiveTab('portfolio')}
+          className={`h-full flex-1 text-[12px] font-medium cursor-pointer border-none capitalize rounded-lg transition-colors ${
+            activeTab === 'portfolio'
+              ? 'bg-[#282828] text-foreground shadow-sm'
+              : 'bg-transparent text-[#888] hover:text-foreground'
+          }`}
+        >
+          Portfolio
+        </button>
       </div>
 
       {activeTab === 'about' && (
