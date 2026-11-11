@@ -92,32 +92,43 @@ html, body, *, *::before, *::after {
   font-family: var(--font-mono);
 }
 
-/* Animated Wave Background from index (1).html */
+/* Fullscreen Wave Background from index (1).html */
 .page_waveBg {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  user-select: none;
+  background-color: #0a0a0a;
 }
 
-.page_waveBg img,
 .page_waveBg svg {
-  width: 140%;
-  height: 140%;
+  width: 180vw !important;
+  height: 180vh !important;
+  min-width: 180vw !important;
+  min-height: 180vh !important;
   position: absolute;
-  top: -20%;
-  left: -20%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   transform-origin: center center;
   will-change: transform;
   contain: layout style;
   animation: page_swirlDrift 60s linear infinite;
-  object-fit: cover;
   opacity: 0.95;
+  pointer-events: none;
+  user-select: none;
 }
 
 @keyframes page_swirlDrift {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(4deg) scale(1.02); }
-  to { transform: rotate(0deg) scale(1); }
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(4deg) scale(1.05);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
 }

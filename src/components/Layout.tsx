@@ -1,6 +1,7 @@
 import { useState, ReactNode } from 'react'
 import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
+import { WaveBackground } from '@/components/WaveBackground'
 import { cn } from '@/lib/utils'
 
 interface LayoutProps {
@@ -12,11 +13,9 @@ export function Layout({ children }: LayoutProps) {
   const [activeItem, setActiveItem] = useState('Home')
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate">
-      {/* Animated Wave Drift Background from index (1).html */}
-      <div className="page_waveBg" aria-hidden="true">
-        <img src="/wave-bg.svg" alt="" className="pointer-events-none" />
-      </div>
+    <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate select-none">
+      {/* Fullscreen Encoded Wave Drift Background */}
+      <WaveBackground />
 
       {/* Top Navbar */}
       <Navbar
