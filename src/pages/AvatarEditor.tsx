@@ -420,7 +420,7 @@ export function AvatarEditor() {
               <div className="flex items-center justify-between text-xs text-white/60">
                 <span className="font-semibold text-white/70">Hue</span>
               </div>
-              <div className="relative flex items-center h-5 w-full">
+              <div className="relative flex items-center h-5 w-full px-1">
                 <input
                   type="range"
                   min="0"
@@ -440,18 +440,23 @@ export function AvatarEditor() {
               </div>
             </div>
 
-            {/* 3. Skin Tone Swatches Row matching Image 3 */}
-            <div className="flex items-center justify-between gap-1.5 py-1 overflow-x-auto no-scrollbar">
-              {PRESET_SKIN_TONES.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => handlePresetClick(color)}
-                  style={{ backgroundColor: color }}
-                  className={`size-6 rounded-full cursor-pointer transition-transform hover:scale-110 border border-black/20 shrink-0 ${
-                    hexInput.toLowerCase() === color.toLowerCase() ? 'ring-2 ring-white scale-110' : ''
-                  }`}
-                />
-              ))}
+            {/* 3. Skin Tone Swatches Row matching Image 3 (With padding so ends are never cropped) */}
+            <div className="flex items-center justify-between gap-2 px-3 py-2 overflow-x-auto no-scrollbar">
+              {PRESET_SKIN_TONES.map((color) => {
+                const isSelected = hexInput.toLowerCase() === color.toLowerCase()
+                return (
+                  <button
+                    key={color}
+                    onClick={() => handlePresetClick(color)}
+                    style={{ backgroundColor: color }}
+                    className={`size-6 rounded-full cursor-pointer transition-all duration-150 border border-black/30 shrink-0 ${
+                      isSelected
+                        ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0e0e10] scale-110 z-10'
+                        : 'hover:scale-110 opacity-90 hover:opacity-100'
+                    }`}
+                  />
+                )
+              })}
             </div>
 
             {/* 4. Saturation & Brightness Readout matching Image 3 */}
