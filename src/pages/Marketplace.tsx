@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, ChevronDown, SlidersHorizontal, Star, Clock, Palette } from 'lucide-react'
+import { Search, ChevronsUpDown, Filter, Star, Clock, Palette } from 'lucide-react'
 
 interface MarketItem {
   id: string
@@ -68,7 +68,7 @@ export function Marketplace() {
 
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1900px]">
-      {/* Top Search & Filter Header matching Image 3 */}
+      {/* Top Search & Filter Header matching Image 1 */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1 max-w-xl w-full">
@@ -78,18 +78,18 @@ export function Marketplace() {
             placeholder="Search items, creators, or tags"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 pl-10 pr-4 rounded-xl bg-[#121214] border border-white/5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white/20 transition-all"
+            className="w-full h-9 pl-10 pr-4 rounded-[10px] bg-[#111113] border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white/25 transition-all"
           />
         </div>
 
-        {/* Right Dropdowns & Filter Funnel */}
+        {/* Right Dropdowns & Filter Funnel matching Image 1 */}
         <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0 justify-end">
           {/* Category Dropdown */}
           <div className="relative">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="h-10 pl-3.5 pr-8 rounded-xl bg-[#121214] border border-white/5 text-xs text-white/80 focus:outline-none cursor-pointer appearance-none"
+              className="h-9 pl-3.5 pr-8 rounded-[10px] bg-[#111113] border border-white/10 text-xs text-white focus:outline-none cursor-pointer appearance-none font-medium hover:border-white/20 transition-colors"
             >
               <option value="All Categories" className="bg-[#141416]">All Categories</option>
               <option value="Hats" className="bg-[#141416]">Hats</option>
@@ -98,7 +98,7 @@ export function Marketplace() {
               <option value="Clothing" className="bg-[#141416]">Clothing</option>
               <option value="Accessories" className="bg-[#141416]">Accessories</option>
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/40 pointer-events-none" />
+            <ChevronsUpDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-white/50 pointer-events-none" />
           </div>
 
           {/* Relevance Dropdown */}
@@ -106,18 +106,18 @@ export function Marketplace() {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="h-10 pl-3.5 pr-8 rounded-xl bg-[#121214] border border-white/5 text-xs text-white/80 focus:outline-none cursor-pointer appearance-none"
+              className="h-9 pl-3.5 pr-8 rounded-[10px] bg-[#111113] border border-white/10 text-xs text-white focus:outline-none cursor-pointer appearance-none font-medium hover:border-white/20 transition-colors"
             >
               <option value="Relevance" className="bg-[#141416]">Relevance</option>
               <option value="Price: Low to High" className="bg-[#141416]">Price: Low to High</option>
               <option value="Price: High to Low" className="bg-[#141416]">Price: High to Low</option>
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/40 pointer-events-none" />
+            <ChevronsUpDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-white/50 pointer-events-none" />
           </div>
 
-          {/* Filter Funnel Icon */}
-          <button className="size-10 rounded-xl bg-[#121214] border border-white/5 hover:bg-[#18181b] flex items-center justify-center text-white/60 hover:text-white transition-all cursor-pointer">
-            <SlidersHorizontal className="size-4" />
+          {/* Filter Funnel Icon matching Image 1 */}
+          <button className="size-9 rounded-[10px] bg-[#111113] border border-white/10 hover:border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer">
+            <Filter className="size-3.5 stroke-[2]" />
           </button>
         </div>
       </div>
