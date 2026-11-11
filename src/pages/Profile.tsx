@@ -10,61 +10,63 @@ export function Profile() {
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1500px]">
       {/* 1. Header Card Matching Image 1 */}
       <div className="flex flex-col gap-4">
-        {/* Dark Blank Banner */}
-        <div className="h-44 md:h-52 w-full rounded-2xl bg-[#0f0f11] relative overflow-hidden" />
+        {/* Dark Blank Banner with Overlapping Avatar & Action Buttons */}
+        <div className="relative">
+          <div className="h-44 md:h-52 w-full rounded-2xl bg-[#0f0f11] relative overflow-hidden" />
 
-        {/* User Info Line Overlapping Banner */}
-        <div className="px-3 flex flex-col md:flex-row md:items-start justify-between gap-4 -mt-16 md:-mt-20">
-          <div className="flex items-end gap-4">
-            {/* Circular Avatar with Blue Status Dot */}
-            <div className="relative">
-              <div className="size-24 md:size-28 rounded-full bg-[#141416] border-4 border-[#0a0a0a] flex items-center justify-center overflow-hidden shadow-2xl">
-                {/* Blocky Character Headshot */}
-                <div className="relative size-16 flex flex-col items-center justify-center">
-                  <div className="size-11 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm">
-                    <div className="flex gap-2.5 mb-0.5">
-                      <div className="size-1 rounded-full bg-black" />
-                      <div className="size-1 rounded-full bg-black" />
+          {/* User Info Line Overlapping Banner */}
+          <div className="px-3 flex flex-col md:flex-row md:items-end justify-between gap-4 -mt-12 md:-mt-14 relative z-10">
+            <div className="flex items-end gap-4">
+              {/* Circular Avatar with Blue Status Dot */}
+              <div className="relative">
+                <div className="size-24 md:size-28 rounded-full bg-[#141416] border-4 border-[#0a0a0a] flex items-center justify-center overflow-hidden shadow-2xl">
+                  {/* Blocky Character Headshot */}
+                  <div className="relative size-16 flex flex-col items-center justify-center">
+                    <div className="size-11 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm">
+                      <div className="flex gap-2.5 mb-0.5">
+                        <div className="size-1 rounded-full bg-black" />
+                        <div className="size-1 rounded-full bg-black" />
+                      </div>
+                      <div className="w-3.5 h-1 border-b-[1.5px] border-black rounded-b-full" />
                     </div>
-                    <div className="w-3.5 h-1 border-b-[1.5px] border-black rounded-b-full" />
-                  </div>
-                  {/* Collar & Bow */}
-                  <div className="w-14 h-3 bg-neutral-900 -mt-0.5 rounded-b flex items-center justify-center">
-                    <div className="size-2 bg-neutral-400 rotate-45" />
+                    {/* Collar & Bow */}
+                    <div className="w-14 h-3 bg-neutral-900 -mt-0.5 rounded-b flex items-center justify-center">
+                      <div className="size-2 bg-neutral-400 rotate-45" />
+                    </div>
                   </div>
                 </div>
+
+                {/* Blue Online / Verified Dot */}
+                <span className="absolute bottom-1 right-1 size-5 rounded-full bg-[#00a2ff] border-3 border-[#0a0a0a] shadow-sm" />
               </div>
 
-              {/* Blue Online / Verified Dot */}
-              <span className="absolute bottom-1 right-1 size-5 rounded-full bg-[#00a2ff] border-3 border-[#0a0a0a] shadow-sm" />
-            </div>
-
-            {/* Username & Badges */}
-            <div className="flex flex-col mb-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Sky</h1>
-                {/* Cat badge & Rocket badge */}
-                <Cat className="size-4 text-white/80" />
-                <Rocket className="size-4 text-white/80" />
+              {/* Username & Badges */}
+              <div className="flex flex-col mb-1">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Sky</h1>
+                  {/* Cat badge & Rocket badge */}
+                  <Cat className="size-4 text-white/80" />
+                  <Rocket className="size-4 text-white/80" />
+                </div>
+                <span className="text-xs text-white/50 font-medium">@sky</span>
               </div>
-              <span className="text-xs text-white/50 font-medium">@sky</span>
             </div>
-          </div>
 
-          {/* Right Action Buttons matching Image 2 */}
-          <div className="flex items-center gap-2 self-start md:self-center mt-2 md:mt-12">
-            <button
-              onClick={() => alert('Edit Profile modal opened')}
-              className="h-9 px-3.5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
-            >
-              <Edit3 className="size-3.5 stroke-[2]" />
-              <span>Edit Profile</span>
-            </button>
-            <button
-              className="size-9 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
-            >
-              <MoreHorizontal className="size-4" />
-            </button>
+            {/* Right Action Buttons overlapping banner bottom edge matching media_1794431439024_2e83671d.png */}
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() => alert('Edit Profile modal opened')}
+                className="h-9 px-3.5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+              >
+                <Edit3 className="size-3.5 stroke-[2]" />
+                <span>Edit Profile</span>
+              </button>
+              <button
+                className="size-9 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+              >
+                <MoreHorizontal className="size-4" />
+              </button>
+            </div>
           </div>
         </div>
 
