@@ -51,17 +51,17 @@ export function Profile() {
             </div>
           </div>
 
-          {/* Right Action Buttons */}
+          {/* Right Action Buttons matching Image 2 */}
           <div className="flex items-center gap-2 self-start md:self-center mt-2 md:mt-12">
             <button
               onClick={() => alert('Edit Profile modal opened')}
-              className="h-8 px-3.5 rounded-lg bg-[#181818] hover:bg-[#222222] border border-white/10 text-white text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+              className="h-9 px-3.5 rounded-[10px] bg-[#151515] hover:bg-[#202020] text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
             >
-              <Edit3 className="size-3.5" />
+              <Edit3 className="size-3.5 stroke-[2]" />
               <span>Edit Profile</span>
             </button>
             <button
-              className="size-8 rounded-lg bg-[#181818] hover:bg-[#222222] border border-white/10 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+              className="size-9 rounded-[10px] bg-[#151515] hover:bg-[#202020] text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
             >
               <MoreHorizontal className="size-4" />
             </button>
@@ -95,24 +95,21 @@ export function Profile() {
           </div>
         </div>
 
-        {/* Navigation Tabs with Underline */}
-        <div className="flex items-center gap-6 border-b border-white/[0.08] px-3 pt-3">
+        {/* Navigation Tabs matching Image 1: dark rounded #1D1D1D pill when active, no highlight when unselected */}
+        <div className="flex items-center gap-2 px-3 pt-3 overflow-x-auto no-scrollbar">
           {TABS.map((tab) => {
             const isActive = activeTab === tab
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-2.5 text-xs tracking-tight transition-all cursor-pointer border-none bg-transparent relative ${
+                className={`h-8 px-3.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
                   isActive
-                    ? 'font-bold text-white'
-                    : 'font-medium text-white/50 hover:text-white/80'
+                    ? 'bg-[#1d1d1d] text-white font-bold shadow-sm'
+                    : 'bg-transparent text-white/55 hover:text-white'
                 }`}
               >
                 {tab}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full" />
-                )}
               </button>
             )
           })}
