@@ -5,12 +5,13 @@ import { WaveBackground } from '@/components/WaveBackground'
 import { cn } from '@/lib/utils'
 
 interface LayoutProps {
+  activeTab?: string
+  onSelectTab?: (tab: string) => void
   children?: ReactNode
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [activeItem, setActiveItem] = useState('Home')
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate select-none">
@@ -19,19 +20,20 @@ export function Layout({ children }: LayoutProps) {
 
       {/* Top Navbar */}
       <Navbar
-        balance={0}
+        balance={1250}
         unreadNotifications={1}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
         onOpenSettings={() => alert('Settings opened')}
+        onNavigate={onSelectTab}
       />
 
       {/* Left Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
-        activeItem={activeItem}
+        activeItem={activeTab}
         username="Sky"
-        onSelect={(item) => setActiveItem(item)}
+        onSelect={(item) => onSelectTab?.(item)}
         onToggleCollapse={() => setSidebarCollapsed(true)}
       />
 

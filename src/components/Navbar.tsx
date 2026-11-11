@@ -12,14 +12,16 @@ interface NavbarProps {
   sidebarCollapsed?: boolean
   onToggleSidebar?: () => void
   onOpenSettings?: () => void
+  onNavigate?: (tab: string) => void
 }
 
 export function Navbar({
-  balance = 0,
+  balance = 1250,
   unreadNotifications = 1,
   sidebarCollapsed = false,
   onToggleSidebar,
   onOpenSettings,
+  onNavigate,
 }: NavbarProps) {
   return (
     <header
@@ -40,13 +42,16 @@ export function Navbar({
               <MenuIcon className="size-5" />
             </button>
 
-            <a href="#" className="flex items-center gap-2 no-underline group select-none">
+            <button
+              onClick={() => onNavigate?.('Home')}
+              className="flex items-center gap-2 bg-transparent border-none p-0 cursor-pointer group select-none"
+            >
               <img
                 src="/novelo-icon.png"
                 alt="Novelo"
                 className="h-10 w-auto max-h-11 object-contain group-hover:scale-105 transition-transform"
               />
-            </a>
+            </button>
           </div>
         ) : (
           /* Mobile menu toggle when sidebar is active on desktop but hidden on small screens */
@@ -70,7 +75,7 @@ export function Navbar({
 
             <input
               type="text"
-              placeholder="Search"
+              placeholder="Search experiences, items, or players"
               className="w-full h-9 pl-9 pr-4 rounded-lg bg-[#141414]/70 hover:bg-[#181818]/80 border border-white/15 focus:border-white/35 text-sm text-white placeholder:text-[#78849b] focus:outline-none transition-all shadow-inner backdrop-blur-sm"
             />
           </div>
@@ -80,8 +85,9 @@ export function Navbar({
         <div className="flex items-center gap-4 md:gap-5 pr-1 shrink-0">
           {/* 1. Notification Bell with Red Badge */}
           <button
+            onClick={() => onNavigate?.('Messages')}
             className="relative size-7 flex items-center justify-center text-white/75 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
-            title="Notifications"
+            title="Notifications & Messages"
           >
             <Bell className="size-5 stroke-[1.75]" />
             {unreadNotifications > 0 && (
@@ -91,8 +97,12 @@ export function Navbar({
             )}
           </button>
 
-          {/* 2. Currency Icon & Balance */}
-          <div className="flex items-center gap-1.5 cursor-pointer text-white/90 hover:text-white select-none">
+          {/* 2. Currency Icon & Balance (Opens Store) */}
+          <button
+            onClick={() => onNavigate?.('Store')}
+            className="flex items-center gap-1.5 cursor-pointer text-white/90 hover:text-white select-none bg-transparent border-none p-0"
+            title="Novelo Balance (Open Store)"
+          >
             <img
               src="/currency.png"
               alt="Currency"
@@ -101,7 +111,7 @@ export function Navbar({
             <span className="text-sm font-bold tabular-numbers tracking-tight">
               {balance.toLocaleString()}
             </span>
-          </div>
+          </button>
 
           {/* 3. Settings Gear */}
           <button

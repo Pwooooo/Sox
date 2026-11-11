@@ -61,13 +61,16 @@ export function Sidebar({
     <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0a0a0a]/30 backdrop-blur-md border-r border-white/[0.04] flex flex-col select-none overflow-y-auto">
       {/* Top Header in Sidebar: Novelo Logo + Collapse Icon (No divider) */}
       <div className="h-14 px-3.5 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
+        <button
+          onClick={() => onSelect?.('Home')}
+          className="flex items-center gap-2 cursor-pointer group bg-transparent border-none p-0"
+        >
           <img
             src="/novelo-icon.png"
             alt="Novelo"
-            className="h-10 w-auto max-h-11 object-contain"
+            className="h-10 w-auto max-h-11 object-contain group-hover:scale-105 transition-transform"
           />
-        </div>
+        </button>
 
         <button
           onClick={onToggleCollapse}
