@@ -98,18 +98,18 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
             <div className="flex items-center gap-2 pt-2">
               {/* Server / Inspect Cube Button */}
               <button
-                className="size-12 rounded-xl bg-[#00a2ff] hover:bg-[#0091e6] text-white flex items-center justify-center cursor-pointer border-none transition-all shadow-md active:scale-95 shrink-0"
+                className="size-12 rounded-xl bg-white hover:bg-neutral-200 text-black flex items-center justify-center cursor-pointer border-none transition-all shadow-md active:scale-95 shrink-0"
                 title="Servers & Instances"
               >
-                <Box className="size-6 stroke-[2.2]" />
+                <Box className="size-6 stroke-[2.2] text-black" />
               </button>
 
-              {/* Huge Blue Play Button */}
+              {/* Play Button: White with black middle icon */}
               <button
                 onClick={() => alert(`Launching ${game.name} on Novelo client...`)}
-                className="flex-1 h-12 rounded-xl bg-[#00a2ff] hover:bg-[#0091e6] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-white font-extrabold text-base shadow-lg cursor-pointer border-none"
+                className="flex-1 h-12 rounded-xl bg-white hover:bg-neutral-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-black font-extrabold text-base shadow-lg cursor-pointer border-none"
               >
-                <Play className="size-6 fill-current ml-0.5" />
+                <Play className="size-6 fill-black text-black ml-0.5" />
               </button>
             </div>
 
