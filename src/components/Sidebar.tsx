@@ -66,17 +66,14 @@ export function Sidebar({
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0c0c0c] border-r border-white/[0.06] flex flex-col select-none overflow-y-auto">
-      {/* Top Header in Sidebar: NOVELO + Collapse Icon */}
+      {/* Top Header in Sidebar: Novelo Logo + Collapse Icon */}
       <div className="h-14 px-4 flex items-center justify-between border-b border-white/[0.04] shrink-0">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <img
-            src="/entropy.png"
+            src="/novelo-icon.png"
             alt="Novelo"
-            className="h-7 w-auto object-contain"
+            className="h-8 w-auto max-h-9 object-contain"
           />
-          <span className="text-lg font-black tracking-wider text-white uppercase font-sans">
-            Novelo
-          </span>
         </div>
 
         <button
@@ -88,7 +85,7 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* User Avatar & Name in Sidebar (Roblox style) */}
+      {/* User Avatar & Name in Sidebar (Roblox style matching Screenshot 1) */}
       <div className="px-3 pt-3 pb-1">
         <button
           onClick={() => onSelect?.('Profile')}
@@ -127,6 +124,7 @@ export function Sidebar({
                   : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
               )}
             >
+              {/* Icon: filled like YouTube when active, outline when inactive */}
               <item.icon
                 className={cn(
                   "size-4 shrink-0 transition-transform duration-150",
