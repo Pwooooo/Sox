@@ -1,256 +1,242 @@
 import { useState } from 'react'
-import { Calendar, Users, Eye, Trophy, Sparkles, Share2, Edit3, ShieldCheck, Gamepad2, Award } from 'lucide-react'
-import { RECOMMENDED_GAMES } from '@/data/homeGames'
-import { ITEMS } from '@/data/items'
+import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket } from 'lucide-react'
 
 export function Profile() {
-  const [activeTab, setActiveTab] = useState<'about' | 'creations' | 'inventory' | 'badges'>('about')
-  const [statusText, setStatusText] = useState('Grinding The Strongest Battlegrounds ranked 🔥')
-  const [isEditingStatus, setIsEditingStatus] = useState(false)
-  const [newStatus, setNewStatus] = useState(statusText)
+  const [activeTab, setActiveTab] = useState<'About' | 'Portfolio' | 'Creations' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
 
-  const handleSaveStatus = () => {
-    setStatusText(newStatus)
-    setIsEditingStatus(false)
-  }
-
-  const BADGES = [
-    { id: 'b1', name: 'Veteran Builder', desc: 'Active member for over 2 years', icon: Trophy },
-    { id: 'b2', name: 'Top Duelist', desc: 'Won 500+ PvP matches', icon: Award },
-    { id: 'b3', name: 'Early Adopter', desc: 'Joined during Novelo Alpha', icon: Sparkles },
-    { id: 'b4', name: 'Creator Verified', desc: 'Verified experience developer', icon: ShieldCheck },
-  ]
+  const TABS = ['About', 'Portfolio', 'Creations', 'Groups', 'Inventory', 'Wishlist'] as const
 
   return (
-    <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1400px]">
-      {/* Profile Header Card */}
-      <div className="relative rounded-2xl bg-[#121212]/90 border border-white/10 overflow-hidden shadow-2xl">
-        {/* Banner */}
-        <div className="h-36 md:h-48 bg-gradient-to-r from-neutral-900 via-[#181818] to-neutral-800 relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_70%)]" />
-        </div>
+    <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1500px]">
+      {/* 1. Header Card Matching Image 1 */}
+      <div className="flex flex-col gap-4">
+        {/* Dark Blank Banner */}
+        <div className="h-44 md:h-52 w-full rounded-2xl bg-[#0f0f11] relative overflow-hidden" />
 
-        {/* User Info Bar */}
-        <div className="px-6 pb-6 pt-0 relative flex flex-col md:flex-row md:items-end justify-between gap-4">
-          {/* Avatar + Main Details */}
-          <div className="flex flex-col md:flex-row items-start md:items-end gap-4 -mt-16 md:-mt-20">
-            {/* Avatar Headshot */}
-            <div className="size-28 md:size-32 rounded-2xl bg-[#181818] border-4 border-[#121212] flex items-center justify-center overflow-hidden shadow-2xl relative">
-              <div className="relative size-20 flex flex-col items-center justify-center">
-                <div className="size-14 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm">
-                  <div className="flex gap-3 mb-1">
-                    <div className="size-1.5 rounded-full bg-black" />
-                    <div className="size-1.5 rounded-full bg-black" />
+        {/* User Info Line Overlapping Banner */}
+        <div className="px-3 flex flex-col md:flex-row md:items-start justify-between gap-4 -mt-16 md:-mt-20">
+          <div className="flex items-end gap-4">
+            {/* Circular Avatar with Blue Status Dot */}
+            <div className="relative">
+              <div className="size-24 md:size-28 rounded-full bg-[#141416] border-4 border-[#0a0a0a] flex items-center justify-center overflow-hidden shadow-2xl">
+                {/* Blocky Character Headshot */}
+                <div className="relative size-16 flex flex-col items-center justify-center">
+                  <div className="size-11 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm">
+                    <div className="flex gap-2.5 mb-0.5">
+                      <div className="size-1 rounded-full bg-black" />
+                      <div className="size-1 rounded-full bg-black" />
+                    </div>
+                    <div className="w-3.5 h-1 border-b-[1.5px] border-black rounded-b-full" />
                   </div>
-                  <div className="w-4 h-1.5 border-b-2 border-black rounded-b-full" />
-                </div>
-                <div className="w-16 h-4 bg-neutral-900 -mt-1 rounded-b flex items-center justify-center">
-                  <div className="w-3 h-2 bg-white/40 rounded-sm" />
+                  {/* Collar & Bow */}
+                  <div className="w-14 h-3 bg-neutral-900 -mt-0.5 rounded-b flex items-center justify-center">
+                    <div className="size-2 bg-neutral-400 rotate-45" />
+                  </div>
                 </div>
               </div>
+
+              {/* Blue Online / Verified Dot */}
+              <span className="absolute bottom-1 right-1 size-5 rounded-full bg-[#00a2ff] border-3 border-[#0a0a0a] shadow-sm" />
             </div>
 
-            {/* Name, Tag, Join Date */}
-            <div className="flex flex-col">
+            {/* Username & Badges */}
+            <div className="flex flex-col mb-1">
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Sky</h1>
-                <ShieldCheck className="size-5 text-[#00a2ff]" />
+                {/* Cat badge & Rocket badge */}
+                <Cat className="size-4 text-white/80" />
+                <Rocket className="size-4 text-white/80" />
               </div>
-              <span className="text-xs text-white/50">@sky • Joined August 2022</span>
+              <span className="text-xs text-white/50 font-medium">@sky</span>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-2 self-start md:self-center mt-2 md:mt-12">
             <button
-              onClick={() => {
-                navigator.clipboard?.writeText(window.location.href)
-                alert('Profile link copied to clipboard!')
-              }}
-              className="h-9 px-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border-none"
-            >
-              <Share2 className="size-3.5" />
-              <span>Share</span>
-            </button>
-            <button
-              onClick={() => alert('Settings opened')}
-              className="h-9 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border-none shadow-md"
+              onClick={() => alert('Edit Profile modal opened')}
+              className="h-8 px-3.5 rounded-lg bg-[#181818] hover:bg-[#222222] border border-white/10 text-white text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Edit3 className="size-3.5" />
               <span>Edit Profile</span>
             </button>
-          </div>
-        </div>
-
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 border-t border-white/[0.08] divide-x divide-white/[0.08] bg-[#0e0e0e]/50 py-3 text-center">
-          <div>
-            <span className="text-xs text-white/50 block">Friends</span>
-            <span className="text-base font-black text-white tabular-numbers">142</span>
-          </div>
-          <div>
-            <span className="text-xs text-white/50 block">Followers</span>
-            <span className="text-base font-black text-white tabular-numbers">1.2K</span>
-          </div>
-          <div>
-            <span className="text-xs text-white/50 block">Following</span>
-            <span className="text-base font-black text-white tabular-numbers">89</span>
-          </div>
-          <div>
-            <span className="text-xs text-white/50 block">Place Visits</span>
-            <span className="text-base font-black text-white tabular-numbers">45.2K</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Status Bar */}
-      <div className="p-4 rounded-xl bg-[#121212]/80 border border-white/10 flex items-center justify-between gap-3">
-        {isEditingStatus ? (
-          <div className="flex-1 flex items-center gap-2">
-            <input
-              type="text"
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              className="flex-1 h-9 px-3 rounded-lg bg-[#1a1a1a] border border-white/10 text-xs text-white focus:outline-none"
-              autoFocus
-            />
             <button
-              onClick={handleSaveStatus}
-              className="h-9 px-3.5 rounded-lg bg-white text-black text-xs font-bold cursor-pointer border-none"
+              className="size-8 rounded-lg bg-[#181818] hover:bg-[#222222] border border-white/10 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer"
             >
-              Save
+              <MoreHorizontal className="size-4" />
             </button>
           </div>
-        ) : (
-          <div className="flex items-center gap-2 text-xs text-white/80">
-            <span className="font-bold text-white/50">Status:</span>
-            <span className="italic">"{statusText}"</span>
-          </div>
-        )}
+        </div>
 
-        {!isEditingStatus && (
-          <button
-            onClick={() => {
-              setNewStatus(statusText)
-              setIsEditingStatus(true)
-            }}
-            className="text-xs text-white/50 hover:text-white cursor-pointer bg-transparent border-none flex items-center gap-1"
-          >
-            <Edit3 className="size-3" />
-            <span>Update</span>
-          </button>
-        )}
-      </div>
+        {/* Subtitle & Metadata Line */}
+        <div className="px-3 flex flex-col gap-1.5">
+          <span className="text-xs font-bold text-white/90">Pwo Luduvian</span>
 
-      {/* Tabs (No outline, matching Luduvo tab animations) */}
-      <div className="flex items-center gap-2 border-b border-white/[0.08] pb-2">
-        {(['about', 'creations', 'inventory', 'badges'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold capitalize transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
-              activeTab === tab
-                ? 'bg-white text-black shadow-md font-bold'
-                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === 'about' && (
-        <div className="flex flex-col gap-5">
-          {/* About Box */}
-          <div className="p-5 rounded-2xl bg-[#121212]/80 border border-white/10 flex flex-col gap-2">
-            <h3 className="text-sm font-bold text-white">About</h3>
-            <p className="text-xs text-white/70 leading-relaxed">
-              Hey! I am Sky. I make fast-paced PvP and battleground games on Novelo.
-              Feel free to send a trade or friend request if we played together.
-              Currently working on a major combat update.
-            </p>
-          </div>
-
-          {/* Currently Wearing Showcase */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-bold text-white">Currently Wearing</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-              {ITEMS.slice(0, 6).map((item) => (
-                <div
-                  key={item.id}
-                  className="p-3 rounded-xl bg-[#141414] border border-white/10 flex flex-col items-center gap-2 text-center"
-                >
-                  <div className="size-16 rounded-lg bg-neutral-900 border border-white/5 flex items-center justify-center text-xs text-white/50">
-                    <Sparkles className="size-6 text-white/30" />
-                  </div>
-                  <span className="text-xs font-bold text-white truncate max-w-full">{item.name}</span>
-                  <span className="text-[10px] text-white/40 capitalize">{item.type}</span>
-                </div>
-              ))}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/50">
+            <div className="flex items-center gap-1.5">
+              <Users className="size-3.5" />
+              <span>4 friends</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Calendar className="size-3.5" />
+              <span>Joined 5/22/2026</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Clock className="size-3.5" />
+              <span>Online Now</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain opacity-70" />
+              <span>0</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span>No past usernames</span>
             </div>
           </div>
         </div>
-      )}
 
-      {activeTab === 'creations' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {RECOMMENDED_GAMES.slice(0, 3).map((game) => (
-            <div
-              key={game.id}
-              className="rounded-xl bg-[#141414] border border-white/10 overflow-hidden flex flex-col"
-            >
-              <div className="aspect-[16/9] w-full overflow-hidden">
-                <img src={game.thumbnail} alt={game.name} className="size-full object-cover" />
-              </div>
-              <div className="p-3.5 flex flex-col gap-1">
-                <h4 className="text-sm font-bold text-white truncate">{game.name}</h4>
-                <div className="flex items-center justify-between text-xs text-white/50">
-                  <span>{game.players} Playing</span>
-                  <span>{game.likePercent}% Rating</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {activeTab === 'inventory' && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-          {ITEMS.map((item) => (
-            <div
-              key={item.id}
-              className="p-3 rounded-xl bg-[#141414] border border-white/10 flex flex-col items-center gap-2 text-center hover:border-white/20 transition-all cursor-pointer"
-            >
-              <div className="size-16 rounded-lg bg-neutral-900 border border-white/5 flex items-center justify-center text-xs text-white/50">
-                <Sparkles className="size-6 text-white/30" />
-              </div>
-              <span className="text-xs font-bold text-white truncate max-w-full">{item.name}</span>
-              <span className="text-[10px] text-white/40">{item.price === 0 ? 'FREE' : `${item.price} Novelo`}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {activeTab === 'badges' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {BADGES.map((b) => {
-            const Icon = b.icon
+        {/* Navigation Tabs with Underline */}
+        <div className="flex items-center gap-6 border-b border-white/[0.08] px-3 pt-3">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab
             return (
-              <div
-                key={b.id}
-                className="p-4 rounded-xl bg-[#141414] border border-white/10 flex items-center gap-3"
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`pb-2.5 text-xs tracking-tight transition-all cursor-pointer border-none bg-transparent relative ${
+                  isActive
+                    ? 'font-bold text-white'
+                    : 'font-medium text-white/50 hover:text-white/80'
+                }`}
               >
-                <div className="size-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-amber-400 shrink-0">
-                  <Icon className="size-6" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-white">{b.name}</h4>
-                  <p className="text-[11px] text-white/50 mt-0.5">{b.desc}</p>
-                </div>
-              </div>
+                {tab}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full" />
+                )}
+              </button>
             )
           })}
+        </div>
+      </div>
+
+      {/* 2. Main Content Row: Left 3D Character Card + Right Game Showcase */}
+      {activeTab === 'About' && (
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+          {/* Left Column: 3D Full-Body Character Card */}
+          <div className="md:col-span-4 rounded-2xl bg-[#0f0f12] border border-white/[0.05] p-6 flex flex-col items-center justify-center min-h-[380px] shadow-xl relative overflow-hidden">
+            {/* Ground Ambient Glow */}
+            <div className="absolute bottom-10 w-44 h-8 bg-black/80 rounded-full blur-md" />
+
+            {/* Blocky Character Standing */}
+            <div className="relative flex flex-col items-center transition-transform hover:scale-105 duration-300">
+              {/* Head */}
+              <div className="size-16 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm z-10">
+                <div className="flex gap-3 mb-1">
+                  <div className="size-1.5 rounded-full bg-black" />
+                  <div className="size-1.5 rounded-full bg-black" />
+                </div>
+                <div className="w-4 h-1 border-b-2 border-black rounded-b-full" />
+              </div>
+
+              {/* Torso & Uniform with Collar and Buttons */}
+              <div className="flex items-start gap-1 mt-1 z-10">
+                {/* Left Arm */}
+                <div className="w-8 h-24 bg-[#141416] rounded-sm shadow-md" />
+
+                {/* Torso */}
+                <div className="w-20 h-24 bg-[#141416] rounded-sm shadow-md flex flex-col items-center pt-1 relative">
+                  {/* Collar frills */}
+                  <div className="w-16 h-3 bg-white/90 rounded-sm flex items-center justify-center mb-1">
+                    <div className="size-2 bg-neutral-900 rotate-45" />
+                  </div>
+                  {/* Uniform Double Buttons */}
+                  <div className="flex flex-col gap-2 mt-1">
+                    <div className="flex gap-4">
+                      <div className="size-1 rounded-full bg-neutral-400" />
+                      <div className="size-1 rounded-full bg-neutral-400" />
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="size-1 rounded-full bg-neutral-400" />
+                      <div className="size-1 rounded-full bg-neutral-400" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Arm */}
+                <div className="w-8 h-24 bg-[#141416] rounded-sm shadow-md" />
+              </div>
+
+              {/* Legs with Frills & Stockings */}
+              <div className="flex items-center gap-1 mt-1 z-10">
+                {/* Left Leg */}
+                <div className="w-9 h-24 bg-[#141416] rounded-b-sm flex flex-col justify-start">
+                  <div className="w-full h-4 bg-white/95 rounded-t-xs" />
+                </div>
+                {/* Right Leg */}
+                <div className="w-9 h-24 bg-[#141416] rounded-b-sm flex flex-col justify-start">
+                  <div className="w-full h-4 bg-white/95 rounded-t-xs flex items-center justify-center">
+                    <div className="size-1 bg-black rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Game Showcase Card */}
+          <div className="md:col-span-8 rounded-2xl bg-[#0f0f12] border border-white/[0.05] p-5 flex flex-col gap-4 shadow-xl">
+            {/* Title with Arrow */}
+            <div className="flex items-center gap-1 text-sm font-bold text-white tracking-tight cursor-pointer hover:text-white/80 transition-colors">
+              <span>Game Showcase</span>
+              <ChevronRight className="size-4" />
+            </div>
+
+            {/* Showcase Cards Grid matching Image 1 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Card 1 */}
+              <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
+                <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
+                  {/* Clean Roblox Baseplate rendering */}
+                  <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-center justify-center">
+                    <div className="w-20 h-10 bg-white/90 border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.6)] rounded-sm" />
+                  </div>
+                </div>
+                <div className="p-3 flex flex-col gap-1">
+                  <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
+                    new update
+                  </h4>
+                  <div className="flex items-center gap-2 text-[10px] text-white/40">
+                    <span>N/A</span>
+                    <span>👤 0</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
+                <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-end justify-center">
+                    <div className="w-32 h-20 bg-neutral-200/90 rounded-t-sm shadow-md" />
+                  </div>
+                </div>
+                <div className="p-3 flex flex-col gap-1">
+                  <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
+                    hi read desc (i cant update my games)
+                  </h4>
+                  <div className="flex items-center gap-2 text-[10px] text-white/40">
+                    <span>N/A</span>
+                    <span>👤 0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Other tabs placeholder */}
+      {activeTab !== 'About' && (
+        <div className="py-20 text-center text-xs text-white/40">
+          No items found in {activeTab}.
         </div>
       )}
     </div>

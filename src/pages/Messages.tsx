@@ -117,11 +117,11 @@ export function Messages() {
 
   return (
     <div className="p-4 md:p-6 lg:p-7 max-w-[1700px] h-[calc(100vh-4rem)] flex flex-col">
-      <div className="flex-1 flex flex-col md:flex-row rounded-2xl bg-[#111111]/80 backdrop-blur-md border border-white/10 overflow-hidden shadow-2xl">
-        {/* Left Side: Conversations List */}
-        <div className="w-full md:w-80 lg:w-96 border-b md:border-b-0 md:border-r border-white/10 flex flex-col bg-[#0e0e0e]/90 shrink-0">
+      <div className="flex-1 flex flex-col md:flex-row rounded-2xl bg-[#0e0e10]/80 backdrop-blur-md overflow-hidden shadow-2xl">
+        {/* Left Side: Conversations List (No dividers) */}
+        <div className="w-full md:w-80 lg:w-96 flex flex-col bg-[#0b0b0d]/90 shrink-0">
           {/* Header & Search */}
-          <div className="p-4 flex flex-col gap-3 border-b border-white/[0.08]">
+          <div className="p-4 flex flex-col gap-3">
             <h2 className="text-xl font-black text-white tracking-tight">Messages</h2>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/40" />
@@ -130,20 +130,20 @@ export function Messages() {
                 placeholder="Search conversations..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-8 pr-3 rounded-xl bg-[#161616] border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                className="w-full h-9 pl-8 pr-3 rounded-xl bg-[#141416] text-xs text-white placeholder:text-white/40 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Conversations */}
-          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/[0.04]">
+          <div className="flex-1 overflow-y-auto no-scrollbar p-2 flex flex-col gap-1">
             {filteredConvos.map((convo) => {
               const isSelected = convo.id === selectedId
               return (
                 <button
                   key={convo.id}
                   onClick={() => setSelectedId(convo.id)}
-                  className={`w-full p-3.5 flex items-start gap-3 text-left transition-all cursor-pointer border-none ${
+                  className={`w-full p-3 rounded-xl flex items-start gap-3 text-left transition-all cursor-pointer border-none ${
                     isSelected
                       ? 'bg-white/[0.08]'
                       : 'bg-transparent hover:bg-white/[0.04]'
@@ -152,14 +152,14 @@ export function Messages() {
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div
-                      className="size-10 rounded-full border border-white/10 flex items-center justify-center shadow-xs"
+                      className="size-10 rounded-full flex items-center justify-center shadow-xs"
                       style={{ backgroundColor: convo.avatarColor }}
                     >
                       <div className="size-2 rounded-full bg-black/60" />
                     </div>
                     {convo.status !== 'offline' && (
                       <span
-                        className={`absolute bottom-0 right-0 size-2.5 rounded-full border border-[#0e0e0e] ${
+                        className={`absolute bottom-0 right-0 size-2.5 rounded-full border border-[#0b0b0d] ${
                           convo.status === 'in-game' ? 'bg-blue-500' : 'bg-emerald-500'
                         }`}
                       />
@@ -186,13 +186,13 @@ export function Messages() {
           </div>
         </div>
 
-        {/* Right Side: Chat Window */}
-        <div className="flex-1 flex flex-col bg-[#0c0c0c]/80 min-w-0">
+        {/* Right Side: Chat Window (No dividers) */}
+        <div className="flex-1 flex flex-col bg-[#09090b]/80 min-w-0">
           {/* Active Chat Header */}
-          <div className="h-16 px-5 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#111111]/50">
+          <div className="h-16 px-5 flex items-center justify-between shrink-0 bg-[#0e0e10]/40">
             <div className="flex items-center gap-3">
               <div
-                className="size-9 rounded-full border border-white/10 flex items-center justify-center shadow-xs"
+                className="size-9 rounded-full flex items-center justify-center shadow-xs"
                 style={{ backgroundColor: activeConvo.avatarColor }}
               >
                 <div className="size-1.5 rounded-full bg-black/60" />
@@ -223,7 +223,7 @@ export function Messages() {
                   className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm leading-relaxed ${
                     msg.isMe
                       ? 'bg-white text-black font-medium rounded-br-xs shadow-md'
-                      : 'bg-[#1e1e1e] text-white border border-white/10 rounded-bl-xs'
+                      : 'bg-[#18181a] text-white rounded-bl-xs'
                   }`}
                 >
                   {msg.text}
@@ -236,14 +236,14 @@ export function Messages() {
           {/* Input Bar */}
           <form
             onSubmit={handleSend}
-            className="p-3.5 border-t border-white/10 bg-[#111111]/70 flex items-center gap-2"
+            className="p-3.5 bg-[#0e0e10]/60 flex items-center gap-2"
           >
             <input
               type="text"
               placeholder={`Message ${activeConvo.name}...`}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 h-10 px-4 rounded-xl bg-[#181818] border border-white/10 text-xs md:text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-all"
+              className="flex-1 h-10 px-4 rounded-xl bg-[#141416] text-xs md:text-sm text-white placeholder:text-white/40 focus:outline-none transition-all"
             />
             <button
               type="submit"

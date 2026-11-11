@@ -1,249 +1,261 @@
 import { useState } from 'react'
-import { Plus, Hammer, Play, BarChart3, Users, Globe, Lock, ExternalLink, Settings, Sparkles } from 'lucide-react'
-import { RECOMMENDED_GAMES } from '@/data/homeGames'
+import { Plus, Download, MoreHorizontal, Play, Lock, Globe, ExternalLink } from 'lucide-react'
 
-interface Experience {
+interface StudioExperience {
   id: string
   name: string
-  thumbnail: string
-  isPublic: boolean
-  visits: string
-  activePlayers: string
-  createdDate: string
+  privacy: 'Playtesters' | 'Public'
+  concurrent: number
+  dau: string
+  retention: string
+  revenue: string
+  playtime: string
+  thumbnailColor: string
 }
 
-const MY_EXPERIENCES: Experience[] = [
+const EXPERIENCES_DATA: StudioExperience[] = [
   {
-    id: 'e1',
-    name: 'Sword Fighting Arena [Alpha]',
-    thumbnail: RECOMMENDED_GAMES[1].thumbnail,
-    isPublic: true,
-    visits: '24.5K',
-    activePlayers: '84',
-    createdDate: '10/12/2023',
+    id: 'exp1',
+    name: 'Cat Battles',
+    privacy: 'Playtesters',
+    concurrent: 0,
+    dau: '—',
+    retention: '—',
+    revenue: '—',
+    playtime: '—',
+    thumbnailColor: '#2563eb',
   },
   {
-    id: 'e2',
-    name: 'Dungeon Crawl & Boss Raids',
-    thumbnail: RECOMMENDED_GAMES[0].thumbnail,
-    isPublic: true,
-    visits: '18.2K',
-    activePlayers: '112',
-    createdDate: '01/15/2024',
+    id: 'exp2',
+    name: 'Lifting Haven',
+    privacy: 'Playtesters',
+    concurrent: 0,
+    dau: '—',
+    retention: '—',
+    revenue: '—',
+    playtime: '—',
+    thumbnailColor: '#16a34a',
   },
   {
-    id: 'e3',
-    name: 'Test Place (Uncopylocked)',
-    thumbnail: RECOMMENDED_GAMES[2].thumbnail,
-    isPublic: false,
-    visits: '340',
-    activePlayers: '0',
-    createdDate: '03/04/2024',
+    id: 'exp3',
+    name: 'Pookie Dinosaur World',
+    privacy: 'Playtesters',
+    concurrent: 0,
+    dau: '—',
+    retention: '—',
+    revenue: '—',
+    playtime: '—',
+    thumbnailColor: '#059669',
+  },
+  {
+    id: 'exp4',
+    name: 'Steal A Noob',
+    privacy: 'Playtesters',
+    concurrent: 0,
+    dau: '—',
+    retention: '—',
+    revenue: '—',
+    playtime: '—',
+    thumbnailColor: '#ea580c',
+  },
+  {
+    id: 'exp5',
+    name: "Sky's Starter Place",
+    privacy: 'Playtesters',
+    concurrent: 0,
+    dau: '—',
+    retention: '—',
+    revenue: '—',
+    playtime: '—',
+    thumbnailColor: '#0284c7',
   },
 ]
 
 export function Create() {
-  const [experiences, setExperiences] = useState(MY_EXPERIENCES)
-  const [activeTab, setActiveTab] = useState<'experiences' | 'models' | 'analytics'>('experiences')
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [newName, setNewName] = useState('')
+  const [experiences, setExperiences] = useState(EXPERIENCES_DATA)
+  const [showModal, setShowModal] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreateExp = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newName.trim()) return
+    if (!newTitle.trim()) return
 
-    const created: Experience = {
+    const newExp: StudioExperience = {
       id: Date.now().toString(),
-      name: newName.trim(),
-      thumbnail: RECOMMENDED_GAMES[4].thumbnail,
-      isPublic: false,
-      visits: '0',
-      activePlayers: '0',
-      createdDate: new Date().toLocaleDateString(),
+      name: newTitle.trim(),
+      privacy: 'Playtesters',
+      concurrent: 0,
+      dau: '—',
+      retention: '—',
+      revenue: '—',
+      playtime: '—',
+      thumbnailColor: '#4f46e5',
     }
-    setExperiences([created, ...experiences])
-    setNewName('')
-    setShowCreateModal(false)
-  }
-
-  const togglePublic = (id: string) => {
-    setExperiences((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, isPublic: !e.isPublic } : e))
-    )
+    setExperiences([newExp, ...experiences])
+    setNewTitle('')
+    setShowModal(false)
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1700px]">
-      {/* Title & Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-8 max-w-[1700px]">
+      {/* 1. Get Started Hero Banner matching Image 6 */}
+      <div className="rounded-2xl bg-[#121214] border border-white/[0.04] p-6 flex flex-col gap-4 shadow-xl">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Creator Hub
-          </h1>
-          <p className="text-xs md:text-sm text-white/50 mt-0.5">
-            Manage your experiences, publish updates, and view analytics on Novelo Studio
+          <h2 className="text-base md:text-lg font-bold text-white tracking-tight">Get Started</h2>
+          <p className="text-xs text-white/50 mt-0.5">
+            Watch a quick introduction to creating on Novelo, then jump into Studio
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="h-10 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 transition-all font-bold text-xs flex items-center gap-1.5 cursor-pointer border-none shadow-md"
-          >
-            <Plus className="size-4" />
-            <span>Create New Experience</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Analytics Highlights */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-[#141414]/90 border border-white/10 flex flex-col gap-2">
-          <span className="text-xs text-white/50">Total Experience Visits</span>
-          <span className="text-2xl font-black text-white tabular-numbers">43,040</span>
-          <span className="text-[11px] text-emerald-400 font-semibold">+12.4% past 30 days</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-[#141414]/90 border border-white/10 flex flex-col gap-2">
-          <span className="text-xs text-white/50">Active Concurrent Players</span>
-          <span className="text-2xl font-black text-white tabular-numbers">196</span>
-          <span className="text-[11px] text-white/40">Across 2 public places</span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-[#141414]/90 border border-white/10 flex flex-col gap-2">
-          <span className="text-xs text-white/50">DevEx Pending Revenue</span>
-          <div className="flex items-center gap-2">
-            <img src="/novelo-currency.png" alt="Currency" className="size-5 object-contain" />
-            <span className="text-2xl font-black text-white tabular-numbers">18,500</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Video / Intro Box */}
+          <div className="rounded-xl bg-[#0b0b0d] border border-white/[0.03] min-h-[180px] flex items-center justify-center cursor-pointer group hover:bg-[#101012] transition-colors relative overflow-hidden">
+            <div className="size-12 rounded-full bg-white text-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <Play className="size-5 fill-current ml-0.5" />
+            </div>
           </div>
-          <span className="text-[11px] text-white/40">Eligible for developer payout</span>
+
+          {/* Download Studio Box */}
+          <div className="rounded-xl bg-[#0b0b0d] border border-white/[0.03] min-h-[180px] flex flex-col items-center justify-center gap-3 p-6 text-center">
+            <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center text-white">
+              <span className="font-black text-sm tracking-widest">N</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Get Novelo Studio</h3>
+              <p className="text-xs text-white/50 mt-0.5">
+                Use our all-in-one creation engine to build anything you can imagine
+              </p>
+            </div>
+            <button
+              onClick={() => alert('Downloading Novelo Studio installer...')}
+              className="h-9 px-5 rounded-xl bg-white text-black hover:bg-neutral-200 font-bold text-xs flex items-center gap-2 cursor-pointer border-none shadow-md transition-all active:scale-95"
+            >
+              <Download className="size-3.5" />
+              <span>Download</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Tabs (No outline, matching Luduvo tab animations) */}
-      <div className="flex items-center gap-2 border-b border-white/[0.08] pb-2">
-        {(['experiences', 'models', 'analytics'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold capitalize transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
-              activeTab === tab
-                ? 'bg-white text-black shadow-md font-bold'
-                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      {/* 2. Experiences Section matching Image 6 */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 cursor-pointer hover:text-white/80 transition-colors">
+            <h2 className="text-base md:text-lg font-bold text-white tracking-tight">Experiences</h2>
+            <span className="text-white/40">›</span>
+          </div>
 
-      {/* Experiences List */}
-      {activeTab === 'experiences' && (
-        <div className="flex flex-col gap-3">
+          <button
+            onClick={() => setShowModal(true)}
+            className="h-8 px-3.5 rounded-lg bg-white text-black hover:bg-neutral-200 font-bold text-xs flex items-center gap-1.5 cursor-pointer border-none shadow-md transition-all active:scale-95"
+          >
+            <Plus className="size-3.5" />
+            <span>Create Experience</span>
+          </button>
+        </div>
+
+        {/* Minimalist Cards Grid matching Image 6 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
           {experiences.map((exp) => (
             <div
               key={exp.id}
-              className="p-4 rounded-2xl bg-[#141414]/90 border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4"
+              className="rounded-2xl bg-[#121214] hover:bg-[#161618] border border-white/[0.04] hover:border-white/10 transition-all p-4 flex flex-col gap-3 group shadow-md"
             >
-              {/* Left Details */}
-              <div className="flex items-center gap-4">
-                <div className="w-24 h-16 rounded-xl overflow-hidden bg-neutral-900 border border-white/10 shrink-0">
-                  <img src={exp.thumbnail} alt={exp.name} className="size-full object-cover" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-sm font-bold text-white">{exp.name}</h3>
-                  <div className="flex items-center gap-3 text-xs text-white/50">
-                    <button
-                      onClick={() => togglePublic(exp.id)}
-                      className={`flex items-center gap-1 font-semibold cursor-pointer border-none bg-transparent ${
-                        exp.isPublic ? 'text-emerald-400' : 'text-neutral-400'
-                      }`}
-                    >
-                      {exp.isPublic ? <Globe className="size-3" /> : <Lock className="size-3" />}
-                      <span>{exp.isPublic ? 'Public' : 'Private'}</span>
-                    </button>
-                    <span>• {exp.visits} Visits</span>
-                    <span>• {exp.activePlayers} Playing</span>
-                    <span>• Created {exp.createdDate}</span>
-                  </div>
-                </div>
+              {/* Top Privacy Tag & More Options */}
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-white/60 font-medium">
+                  <Lock className="size-2.5" />
+                  <span>{exp.privacy}</span>
+                </span>
+                <button className="size-6 rounded-md hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-colors cursor-pointer border-none bg-transparent">
+                  <MoreHorizontal className="size-3.5" />
+                </button>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => alert(`Launching Novelo Studio for "${exp.name}"...`)}
-                  className="px-4 py-2 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border-none shadow-md"
+              {/* Title & Square Thumbnail */}
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="size-7 rounded-lg shrink-0 flex items-center justify-center text-white/80 font-black text-xs shadow-inner"
+                  style={{ backgroundColor: exp.thumbnailColor }}
                 >
-                  <Hammer className="size-3.5" />
-                  <span>Edit in Studio</span>
-                </button>
-                <button
-                  onClick={() => alert(`Configuring "${exp.name}"...`)}
-                  className="size-9 rounded-xl bg-white/10 hover:bg-white/15 text-white flex items-center justify-center cursor-pointer border-none transition-colors"
-                >
-                  <Settings className="size-4" />
-                </button>
+                  {exp.name.charAt(0)}
+                </div>
+                <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
+                  {exp.name}
+                </h4>
+              </div>
+
+              {/* Stats Rows matching Image 6 */}
+              <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.03] text-[11px]">
+                <div className="flex flex-col">
+                  <span className="text-white/40 text-[10px]">Concurrent users</span>
+                  <span className="font-bold text-white tabular-numbers">{exp.concurrent}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-white/50">
+                  <span>Daily active users</span>
+                  <span>{exp.dau}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-white/50">
+                  <span>D1 retention</span>
+                  <span>{exp.retention}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-white/50">
+                  <span>Daily revenue</span>
+                  <span>{exp.revenue}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-white/50">
+                  <span>Avg. playtime</span>
+                  <span>{exp.playtime}</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
-      )}
+      </div>
 
-      {activeTab === 'models' && (
-        <div className="py-16 text-center text-white/40 text-xs">
-          No published models or assets yet. Export models from Novelo Studio to see them here.
-        </div>
-      )}
-
-      {activeTab === 'analytics' && (
-        <div className="p-6 rounded-2xl bg-[#141414] border border-white/10 flex flex-col gap-4">
-          <h3 className="text-sm font-bold text-white">Engagement Overview</h3>
-          <p className="text-xs text-white/60">
-            Average Playtime: 14.2 minutes • Retention Day 1: 42% • Total Play Sessions: 89,400
-          </p>
-        </div>
-      )}
-
-      {/* Create Experience Modal */}
-      {showCreateModal && (
+      {/* Modal to Create Experience */}
+      {showModal && (
         <div
           className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
-          onClick={() => setShowCreateModal(false)}
+          onClick={() => setShowModal(false)}
         >
           <form
-            onSubmit={handleCreate}
-            className="w-full max-w-md rounded-2xl bg-[#141414] border border-white/10 p-6 flex flex-col gap-4 text-white shadow-2xl"
+            onSubmit={handleCreateExp}
+            className="w-full max-w-md rounded-2xl bg-[#141416] border border-white/10 p-6 flex flex-col gap-4 text-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-white">Create Experience</h3>
+            <h3 className="text-base font-bold text-white">New Experience</h3>
             <p className="text-xs text-white/50">
-              Enter a name for your new starter place. You can open and edit it anytime in Novelo Studio.
+              Enter a name for your place. You can edit building blocks and scripts in Novelo Studio.
             </p>
 
             <input
               type="text"
-              placeholder="Experience Name..."
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="h-10 px-3.5 rounded-xl bg-[#1a1a1a] border border-white/10 text-xs text-white focus:outline-none"
+              placeholder="e.g. Sword Arena 2026..."
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              className="h-10 px-3.5 rounded-xl bg-[#1c1c1f] border border-white/10 text-xs text-white focus:outline-none"
               autoFocus
             />
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
-                onClick={() => setShowCreateModal(false)}
+                onClick={() => setShowModal(false)}
                 className="px-4 py-2 rounded-xl bg-white/10 text-white/80 hover:bg-white/20 text-xs font-bold cursor-pointer border-none"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={!newName.trim()}
+                disabled={!newTitle.trim()}
                 className="px-4 py-2 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold cursor-pointer border-none shadow-md"
               >
-                Create
+                Create Place
               </button>
             </div>
           </form>
