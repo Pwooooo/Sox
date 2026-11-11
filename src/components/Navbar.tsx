@@ -21,7 +21,7 @@ export function Navbar({
   onOpenSettings,
 }: NavbarProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#0a0a0a] border-b border-white/[0.08]">
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#0a0a0a]/60 backdrop-blur-md border-none">
       <div className="h-full px-3 md:px-5 flex items-center justify-between gap-4">
         {/* Left Section: Brand Logo & Sidebar Toggle */}
         <div className="flex items-center gap-3">
@@ -33,7 +33,7 @@ export function Navbar({
             <MenuIcon className="size-5" />
           </button>
 
-          {/* Novelo Logo - Enlarged */}
+          {/* Novelo Logo */}
           <a href="#" className="flex items-center gap-2 no-underline group select-none">
             <img
               src="/novelo-icon.png"
@@ -53,7 +53,7 @@ export function Navbar({
             <input
               type="text"
               placeholder="Search"
-              className="w-full h-9 pl-9 pr-4 rounded-lg bg-[#141414] hover:bg-[#181818] border border-white/15 focus:border-white/35 text-sm text-white placeholder:text-[#78849b] focus:outline-none transition-all shadow-inner"
+              className="w-full h-9 pl-9 pr-4 rounded-lg bg-[#141414]/80 hover:bg-[#181818]/90 border border-white/15 focus:border-white/35 text-sm text-white placeholder:text-[#78849b] focus:outline-none transition-all shadow-inner backdrop-blur-sm"
             />
           </div>
         </div>

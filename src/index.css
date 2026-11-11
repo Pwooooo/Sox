@@ -104,10 +104,10 @@ html, body, *, *::before, *::after {
 }
 
 .page_waveBg svg {
-  width: 180vw !important;
-  height: 180vh !important;
-  min-width: 180vw !important;
-  min-height: 180vh !important;
+  width: 220vw !important;
+  height: 220vh !important;
+  min-width: 220vw !important;
+  min-height: 220vh !important;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -126,7 +126,7 @@ html, body, *, *::before, *::after {
     transform: translate(-50%, -50%) rotate(0deg) scale(1);
   }
   50% {
-    transform: translate(-50%, -50%) rotate(4deg) scale(1.05);
+    transform: translate(-50%, -50%) rotate(4deg) scale(1.06);
   }
   100% {
     transform: translate(-50%, -50%) rotate(0deg) scale(1);

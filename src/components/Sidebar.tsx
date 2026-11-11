@@ -58,9 +58,9 @@ export function Sidebar({
   }
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0c0c0c] border-r border-white/[0.06] flex flex-col select-none overflow-y-auto">
-      {/* Top Header in Sidebar: Novelo Logo + Collapse Icon */}
-      <div className="h-14 px-3.5 flex items-center justify-between border-b border-white/[0.04] shrink-0">
+    <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0a0a0a]/60 backdrop-blur-md border-r border-white/[0.04] flex flex-col select-none overflow-y-auto">
+      {/* Top Header in Sidebar: Novelo Logo + Collapse Icon (No divider) */}
+      <div className="h-14 px-3.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <img
             src="/novelo-icon.png"
@@ -79,13 +79,13 @@ export function Sidebar({
       </div>
 
       {/* User Avatar & Name in Sidebar */}
-      <div className="px-2.5 pt-2.5 pb-1">
+      <div className="px-2.5 pt-1 pb-1">
         <button
           onClick={() => onSelect?.('Profile')}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-[#141414] transition-colors cursor-pointer border-none bg-transparent text-left group"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-white/[0.06] transition-colors cursor-pointer border-none bg-transparent text-left group"
         >
           {/* Avatar circular headshot */}
-          <div className="size-7 rounded-full bg-[#1a1a1a] border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-white/30 transition-colors">
+          <div className="size-7 rounded-full bg-[#1a1a1a]/80 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-white/30 transition-colors">
             <div className="relative size-5 flex flex-col items-center justify-center">
               <div className="w-4 h-1.5 bg-emerald-700 rounded-t-sm -mb-0.5 z-10" />
               <div className="size-3 rounded-sm bg-neutral-300 flex items-center justify-center gap-0.5">
@@ -113,8 +113,8 @@ export function Sidebar({
               className={cn(
                 "w-full flex items-center gap-3.5 px-3 h-10 rounded-[10px] text-[13.5px] font-medium transition-all cursor-pointer border-none text-left",
                 isActive
-                  ? "bg-[#161616] text-white shadow-sm font-semibold"
-                  : "bg-transparent text-white/70 hover:text-white hover:bg-[#141414]"
+                  ? "bg-[#161616]/90 text-white shadow-sm font-semibold"
+                  : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
               )}
             >
               {/* Icon: filled when active, outline when inactive */}
