@@ -12,7 +12,12 @@ export function Layout({ children }: LayoutProps) {
   const [activeItem, setActiveItem] = useState('Home')
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate">
+      {/* Animated Wave Drift Background from index (1).html */}
+      <div className="page_waveBg" aria-hidden="true">
+        <img src="/wave-bg.svg" alt="" className="pointer-events-none" />
+      </div>
+
       {/* Top Navbar */}
       <Navbar
         balance={0}
@@ -34,7 +39,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Main Content Area */}
       <main
         className={cn(
-          "min-h-screen pt-14 transition-all duration-300",
+          "relative z-10 min-h-screen pt-14 transition-all duration-300",
           sidebarCollapsed ? "pl-0" : "pl-[230px]"
         )}
       >

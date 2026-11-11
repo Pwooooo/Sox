@@ -79,16 +79,16 @@ export function Sidebar({
       </div>
 
       {/* User Avatar & Name in Sidebar */}
-      <div className="px-3 pt-3 pb-1">
+      <div className="px-2.5 pt-2.5 pb-1">
         <button
           onClick={() => onSelect?.('Profile')}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.06] transition-colors cursor-pointer border-none bg-transparent text-left group"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-[#141414] transition-colors cursor-pointer border-none bg-transparent text-left group"
         >
           {/* Avatar circular headshot */}
-          <div className="size-8 rounded-full bg-[#1a1a1a] border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-white/30 transition-colors">
-            <div className="relative size-6 flex flex-col items-center justify-center">
-              <div className="w-5 h-2 bg-emerald-700 rounded-t-sm -mb-0.5 z-10" />
-              <div className="size-4 rounded-sm bg-neutral-300 flex items-center justify-center gap-0.5">
+          <div className="size-7 rounded-full bg-[#1a1a1a] border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-white/30 transition-colors">
+            <div className="relative size-5 flex flex-col items-center justify-center">
+              <div className="w-4 h-1.5 bg-emerald-700 rounded-t-sm -mb-0.5 z-10" />
+              <div className="size-3 rounded-sm bg-neutral-300 flex items-center justify-center gap-0.5">
                 <div className="size-0.5 rounded-full bg-black" />
                 <div className="size-0.5 rounded-full bg-black" />
               </div>
@@ -96,14 +96,14 @@ export function Sidebar({
           </div>
 
           {/* Username */}
-          <span className="text-sm font-bold text-white group-hover:text-white truncate">
+          <span className="text-[13.5px] font-semibold text-white group-hover:text-white truncate">
             {username}
           </span>
         </button>
       </div>
 
-      {/* Navigation list */}
-      <div className="flex-1 py-1 px-2 flex flex-col gap-0.5">
+      {/* Navigation list matching Luduvo pill highlight shape */}
+      <div className="flex-1 py-1 px-2.5 flex flex-col gap-1">
         {SIDEBAR_ITEMS.map((item) => {
           const isActive = activeItem === item.label
           return (
@@ -111,22 +111,22 @@ export function Sidebar({
               key={item.label}
               onClick={() => onSelect?.(item.label)}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-semibold transition-all cursor-pointer border-none text-left",
+                "w-full flex items-center gap-3.5 px-3 h-10 rounded-[10px] text-[13.5px] font-medium transition-all cursor-pointer border-none text-left",
                 isActive
-                  ? "bg-[#1e1e1e] text-white shadow-sm font-bold"
-                  : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
+                  ? "bg-[#161616] text-white shadow-sm font-semibold"
+                  : "bg-transparent text-white/70 hover:text-white hover:bg-[#141414]"
               )}
             >
-              {/* Icon: filled like YouTube when active, outline when inactive */}
+              {/* Icon: filled when active, outline when inactive */}
               <item.icon
                 className={cn(
-                  "size-4 shrink-0 transition-transform duration-150",
+                  "size-[18px] shrink-0 transition-transform duration-150",
                   isActive
                     ? "fill-current text-white scale-105"
                     : "fill-none text-white/70"
                 )}
               />
-              <span className="flex-1 truncate">{item.label}</span>
+              <span className="flex-1 truncate tracking-tight">{item.label}</span>
 
               {item.badge ? (
                 <span className="bg-[#ef4444] text-white text-[11px] font-bold rounded-md px-1.5 py-0.5 min-w-[20px] text-center leading-tight">
