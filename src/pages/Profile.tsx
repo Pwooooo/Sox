@@ -52,17 +52,17 @@ export function Profile() {
               </div>
             </div>
 
-            {/* Right Action Buttons overlapping banner bottom edge matching media_1794431439024_2e83671d.png */}
+            {/* Right Action Buttons matching reference #1d1d1d */}
             <div className="flex items-center gap-2 mb-2">
               <button
                 onClick={() => alert('Edit Profile modal opened')}
-                className="h-9 px-3.5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+                className="h-9 px-3.5 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
               >
                 <Edit3 className="size-3.5 stroke-[2]" />
                 <span>Edit Profile</span>
               </button>
               <button
-                className="size-9 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+                className="size-9 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
               >
                 <MoreHorizontal className="size-4" />
               </button>
@@ -97,7 +97,7 @@ export function Profile() {
           </div>
         </div>
 
-        {/* Navigation Tabs matching Image 1: soft translucent pill when active, transparent when unselected */}
+        {/* Navigation Tabs matching reference: solid #1d1d1d when active, transparent when unselected */}
         <div className="flex items-center gap-2 px-3 pt-3 overflow-x-auto no-scrollbar">
           {TABS.map((tab) => {
             const isActive = activeTab === tab
@@ -107,8 +107,8 @@ export function Profile() {
                 onClick={() => setActiveTab(tab)}
                 className={`h-8 px-3.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
                   isActive
-                    ? 'bg-white/[0.08] backdrop-blur-sm text-white font-bold shadow-xs'
-                    : 'bg-transparent text-white/55 hover:text-white hover:bg-white/[0.03]'
+                    ? 'bg-[#1d1d1d] text-white font-bold shadow-sm'
+                    : 'bg-transparent text-white/55 hover:text-white hover:bg-[#1d1d1d]/40'
                 }`}
               >
                 {tab}
