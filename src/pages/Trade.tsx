@@ -93,28 +93,34 @@ export function Trade() {
           </p>
         </div>
 
-        {/* Trade Tabs */}
+        {/* Trade Tabs (No outline, matching Luduvo tab animations) */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setTradeTab('create')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${
-              tradeTab === 'create' ? 'bg-white text-black' : 'bg-white/10 text-white/70'
+            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
+              tradeTab === 'create'
+                ? 'bg-white text-black shadow-md font-bold'
+                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
             }`}
           >
             New Trade
           </button>
           <button
             onClick={() => setTradeTab('inbound')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${
-              tradeTab === 'inbound' ? 'bg-white text-black' : 'bg-white/10 text-white/70'
+            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
+              tradeTab === 'inbound'
+                ? 'bg-white text-black shadow-md font-bold'
+                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
             }`}
           >
             Inbound (1)
           </button>
           <button
             onClick={() => setTradeTab('outbound')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${
-              tradeTab === 'outbound' ? 'bg-white text-black' : 'bg-white/10 text-white/70'
+            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
+              tradeTab === 'outbound'
+                ? 'bg-white text-black shadow-md font-bold'
+                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
             }`}
           >
             Outbound (0)

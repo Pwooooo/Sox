@@ -3,6 +3,7 @@ import { Search, Flame, Trophy, Sparkles, Swords, Compass, Ghost, Shield, Slider
 import { GameCard } from '@/components/GameCard'
 import { GameDetailModal } from '@/components/GameDetailModal'
 import { RECOMMENDED_GAMES, CONTINUE_GAMES, GameDetailData } from '@/data/homeGames'
+import { cn } from '@/lib/utils'
 
 const CATEGORIES = [
   { id: 'all', label: 'All Experiences', icon: Sparkles },
@@ -113,7 +114,7 @@ export function Games() {
         </div>
       </div>
 
-      {/* Category Filter Pills */}
+      {/* Category Filter Pills (No outline, matching Luduvo sidebar tab animations) */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" style={{ scrollbarWidth: 'none' }}>
         {CATEGORIES.map((cat) => {
           const Icon = cat.icon
@@ -122,14 +123,22 @@ export function Games() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 cursor-pointer transition-all border ${
+              className={cn(
+                "group flex items-center gap-2 px-3.5 h-9 rounded-[10px] text-xs font-semibold shrink-0 cursor-pointer transition-all duration-150 border-none outline-none select-none active:scale-[0.97]",
                 isActive
-                  ? 'bg-white text-black border-white shadow-md'
-                  : 'bg-[#141414]/80 text-white/70 hover:text-white hover:bg-white/[0.08] border-white/10'
-              }`}
+                  ? "bg-white text-black shadow-md font-bold"
+                  : "bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]"
+              )}
             >
-              <Icon className={`size-3.5 ${isActive ? 'text-black' : 'text-white/60'}`} />
-              <span>{cat.label}</span>
+              <Icon
+                className={cn(
+                  "size-3.5 shrink-0 transition-transform duration-150",
+                  isActive
+                    ? "fill-current text-black scale-105"
+                    : "fill-none text-white/60 group-hover:scale-110 group-hover:text-white"
+                )}
+              />
+              <span className="tracking-tight">{cat.label}</span>
             </button>
           )
         })}

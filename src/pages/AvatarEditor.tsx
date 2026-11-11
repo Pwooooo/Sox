@@ -213,16 +213,16 @@ export function AvatarEditor() {
 
           {/* Items & Wardrobe Section */}
           <div className="p-5 rounded-2xl bg-[#121212]/90 border border-white/10 flex flex-col gap-4 shadow-xl">
-            {/* Category Tabs */}
+            {/* Category Tabs (No outline, matching Luduvo tab animations) */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
               {(['hat', 'hair', 'face', 'clothing', 'accessory'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize shrink-0 transition-all cursor-pointer border-none ${
+                  className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold capitalize shrink-0 transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
                     activeCategory === cat
-                      ? 'bg-white text-black shadow-md'
-                      : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+                      ? 'bg-white text-black shadow-md font-bold'
+                      : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
                   }`}
                 >
                   {cat}s

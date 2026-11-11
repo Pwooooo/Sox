@@ -120,16 +120,16 @@ export function Create() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs (No outline, matching Luduvo tab animations) */}
       <div className="flex items-center gap-2 border-b border-white/[0.08] pb-2">
         {(['experiences', 'models', 'analytics'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer border-none ${
+            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold capitalize transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
               activeTab === tab
-                ? 'bg-white text-black shadow-md'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.05]'
+                ? 'bg-white text-black shadow-md font-bold'
+                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
             }`}
           >
             {tab}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Search, ShoppingBag, Sparkles, Check, ChevronDown, Tag, Star } from 'lucide-react'
 import { ITEMS, CATEGORIES, Item } from '@/data/items'
+import { cn } from '@/lib/utils'
 
 export function Marketplace() {
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -61,7 +62,7 @@ export function Marketplace() {
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Categories */}
+        {/* Categories (No outline, matching Luduvo tab animations) */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           {CATEGORIES.map((cat) => {
             const isActive = selectedCategory === cat.key
@@ -69,11 +70,12 @@ export function Marketplace() {
               <button
                 key={cat.key || 'all'}
                 onClick={() => setSelectedCategory(cat.key)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all cursor-pointer border ${
+                className={cn(
+                  "px-3.5 h-9 rounded-[10px] text-xs font-semibold shrink-0 transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97]",
                   isActive
-                    ? 'bg-white text-black border-white shadow-md'
-                    : 'bg-[#141414]/80 text-white/70 hover:text-white hover:bg-white/[0.08] border-white/10'
-                }`}
+                    ? "bg-white text-black shadow-md font-bold"
+                    : "bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]"
+                )}
               >
                 {cat.name}
               </button>

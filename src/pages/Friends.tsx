@@ -142,15 +142,15 @@ export function Friends() {
         </form>
       </div>
 
-      {/* Tabs Row */}
+      {/* Tabs Row (No outline, matching Luduvo tab animations) */}
       <div className="flex items-center justify-between gap-4 border-b border-white/[0.08] pb-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${
+            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
               activeTab === 'all'
-                ? 'bg-white text-black shadow-md'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.05]'
+                ? 'bg-white text-black shadow-md font-bold'
+                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
             }`}
           >
             All ({friends.length})
@@ -158,10 +158,10 @@ export function Friends() {
 
           <button
             onClick={() => setActiveTab('online')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${
+            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
               activeTab === 'online'
-                ? 'bg-white text-black shadow-md'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.05]'
+                ? 'bg-white text-black shadow-md font-bold'
+                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
             }`}
           >
             Online ({friends.filter((f) => f.status !== 'offline').length})
@@ -169,10 +169,10 @@ export function Friends() {
 
           <button
             onClick={() => setActiveTab('requests')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none flex items-center gap-1.5 ${
+            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center gap-1.5 ${
               activeTab === 'requests'
-                ? 'bg-white text-black shadow-md'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.05]'
+                ? 'bg-white text-black shadow-md font-bold'
+                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
             }`}
           >
             <span>Requests</span>
