@@ -15,17 +15,18 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Top Navbar */}
       <Navbar
-        balance={12450}
-        unreadMessages={3}
+        balance={0}
         unreadNotifications={1}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onOpenSettings={() => alert('Settings opened')}
       />
 
-      {/* Left Sidebar matching Screenshot 1 */}
+      {/* Left Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
         activeItem={activeItem}
+        username="Sky"
         onSelect={(item) => setActiveItem(item)}
         onToggleCollapse={() => setSidebarCollapsed(true)}
       />

@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils'
 interface SidebarProps {
   collapsed?: boolean
   activeItem?: string
+  username?: string
   onSelect?: (item: string) => void
   onToggleCollapse?: () => void
 }
@@ -55,6 +56,7 @@ const SIDEBAR_ITEMS: NavItemDef[] = [
 export function Sidebar({
   collapsed = false,
   activeItem = 'Home',
+  username = 'Sky',
   onSelect,
   onToggleCollapse,
 }: SidebarProps) {
@@ -65,7 +67,7 @@ export function Sidebar({
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0c0c0c] border-r border-white/[0.06] flex flex-col select-none overflow-y-auto">
       {/* Top Header in Sidebar: NOVELO + Collapse Icon */}
-      <div className="h-14 px-4 flex items-center justify-between border-b border-white/[0.04]">
+      <div className="h-14 px-4 flex items-center justify-between border-b border-white/[0.04] shrink-0">
         <div className="flex items-center gap-2">
           <img
             src="/entropy.png"
@@ -86,8 +88,34 @@ export function Sidebar({
         </button>
       </div>
 
+      {/* User Avatar & Name in Sidebar (Roblox style matching Screenshot 1) */}
+      <div className="px-3 pt-3 pb-1">
+        <button
+          onClick={() => onSelect?.('Profile')}
+          className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.06] transition-colors cursor-pointer border-none bg-transparent text-left group"
+        >
+          {/* Avatar circular headshot */}
+          <div className="size-8 rounded-full bg-[#1a1a1a] border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-white/30 transition-colors">
+            <div className="relative size-6 flex flex-col items-center justify-center">
+              {/* Green beanie / hat hint from screenshot */}
+              <div className="w-5 h-2 bg-emerald-700 rounded-t-sm -mb-0.5 z-10" />
+              {/* Head */}
+              <div className="size-4 rounded-sm bg-neutral-300 flex items-center justify-center gap-0.5">
+                <div className="size-0.5 rounded-full bg-black" />
+                <div className="size-0.5 rounded-full bg-black" />
+              </div>
+            </div>
+          </div>
+
+          {/* Username */}
+          <span className="text-sm font-bold text-white group-hover:text-white truncate">
+            {username}
+          </span>
+        </button>
+      </div>
+
       {/* Navigation list matching Screenshot 1 */}
-      <div className="flex-1 py-2 px-2 flex flex-col gap-0.5">
+      <div className="flex-1 py-1 px-2 flex flex-col gap-0.5">
         {SIDEBAR_ITEMS.map((item) => {
           const isActive = activeItem === item.label
           return (
