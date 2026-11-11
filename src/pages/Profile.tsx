@@ -55,13 +55,13 @@ export function Profile() {
           <div className="flex items-center gap-2 self-start md:self-center mt-2 md:mt-12">
             <button
               onClick={() => alert('Edit Profile modal opened')}
-              className="h-9 px-3.5 rounded-[10px] bg-[#151515] hover:bg-[#202020] text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+              className="h-9 px-3.5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
             >
               <Edit3 className="size-3.5 stroke-[2]" />
               <span>Edit Profile</span>
             </button>
             <button
-              className="size-9 rounded-[10px] bg-[#151515] hover:bg-[#202020] text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+              className="size-9 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.12] backdrop-blur-sm text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
             >
               <MoreHorizontal className="size-4" />
             </button>
@@ -95,7 +95,7 @@ export function Profile() {
           </div>
         </div>
 
-        {/* Navigation Tabs matching Image 1: dark rounded #1D1D1D pill when active, no highlight when unselected */}
+        {/* Navigation Tabs matching Image 1: soft translucent pill when active, transparent when unselected */}
         <div className="flex items-center gap-2 px-3 pt-3 overflow-x-auto no-scrollbar">
           {TABS.map((tab) => {
             const isActive = activeTab === tab
@@ -105,8 +105,8 @@ export function Profile() {
                 onClick={() => setActiveTab(tab)}
                 className={`h-8 px-3.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
                   isActive
-                    ? 'bg-[#1d1d1d] text-white font-bold shadow-sm'
-                    : 'bg-transparent text-white/55 hover:text-white'
+                    ? 'bg-white/[0.08] backdrop-blur-sm text-white font-bold shadow-xs'
+                    : 'bg-transparent text-white/55 hover:text-white hover:bg-white/[0.03]'
                 }`}
               >
                 {tab}

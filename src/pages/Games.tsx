@@ -114,7 +114,7 @@ export function Games() {
         </div>
       </div>
 
-      {/* Category Filter Pills (Selected: dark rounded pill #171717; Unselected: no highlight/transparent) */}
+      {/* Category Filter Pills (Soft, semi-transparent highlight letting background drift through) */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" style={{ scrollbarWidth: 'none' }}>
         {CATEGORIES.map((cat) => {
           const Icon = cat.icon
@@ -126,8 +126,8 @@ export function Games() {
               className={cn(
                 "group flex items-center gap-2 px-3.5 h-9 rounded-[10px] text-xs font-semibold shrink-0 cursor-pointer transition-all duration-150 border-none outline-none select-none active:scale-[0.97]",
                 isActive
-                  ? "bg-[#171717] text-white shadow-sm font-bold"
-                  : "bg-transparent text-white/50 hover:text-white"
+                  ? "bg-white/[0.08] backdrop-blur-sm text-white font-bold shadow-xs"
+                  : "bg-transparent text-white/50 hover:text-white hover:bg-white/[0.03]"
               )}
             >
               <Icon

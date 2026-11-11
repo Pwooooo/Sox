@@ -120,7 +120,7 @@ export function Forum() {
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Category Pills (Selected: dark rounded pill #171717; Unselected: no highlight/transparent) */}
+        {/* Category Pills (Soft translucent highlight when active, transparent when unselected) */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
           {FORUM_CATEGORIES.map((cat) => {
             const isActive = selectedCategory === cat
@@ -131,8 +131,8 @@ export function Forum() {
                 className={cn(
                   "px-3.5 h-9 rounded-[10px] text-xs font-semibold shrink-0 transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97]",
                   isActive
-                    ? "bg-[#171717] text-white shadow-sm font-bold"
-                    : "bg-transparent text-white/50 hover:text-white"
+                    ? "bg-white/[0.08] backdrop-blur-sm text-white font-bold shadow-xs"
+                    : "bg-transparent text-white/50 hover:text-white hover:bg-white/[0.03]"
                 )}
               >
                 {cat}
