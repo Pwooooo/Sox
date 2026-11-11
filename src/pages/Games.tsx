@@ -114,8 +114,8 @@ export function Games() {
         </div>
       </div>
 
-      {/* Category Filter Pills (No outline, matching Luduvo sidebar tab animations) */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" style={{ scrollbarWidth: 'none' }}>
+      {/* Category Filter Pills (Selected: dark rounded pill #171717; Unselected: no highlight/transparent) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" style={{ scrollbarWidth: 'none' }}>
         {CATEGORIES.map((cat) => {
           const Icon = cat.icon
           const isActive = selectedCategory === cat.id
@@ -126,16 +126,16 @@ export function Games() {
               className={cn(
                 "group flex items-center gap-2 px-3.5 h-9 rounded-[10px] text-xs font-semibold shrink-0 cursor-pointer transition-all duration-150 border-none outline-none select-none active:scale-[0.97]",
                 isActive
-                  ? "bg-white text-black shadow-md font-bold"
-                  : "bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]"
+                  ? "bg-[#171717] text-white shadow-sm font-bold"
+                  : "bg-transparent text-white/50 hover:text-white"
               )}
             >
               <Icon
                 className={cn(
                   "size-3.5 shrink-0 transition-transform duration-150",
                   isActive
-                    ? "fill-current text-black scale-105"
-                    : "fill-none text-white/60 group-hover:scale-110 group-hover:text-white"
+                    ? "fill-current text-white scale-105"
+                    : "fill-none text-white/50 group-hover:scale-105 group-hover:text-white"
                 )}
               />
               <span className="tracking-tight">{cat.label}</span>
