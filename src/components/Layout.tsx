@@ -26,20 +26,23 @@ export function Layout({ children }: LayoutProps) {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Menu
         loggedIn
         balance={12450}
         unreadMessages={3}
-        onNav={(href) => console.log('navigate', href)}
         headerHidden={headerHidden}
       />
       <Sidebar headerHidden={headerHidden} />
-      <main className={cn(
-        "pl-[240px] min-h-screen transition-all duration-300",
-        headerHidden ? "pt-0" : "pt-16"
-      )}>
-        {children}
+      <main
+        className={cn(
+          "w-full md:pl-[240px] min-h-screen transition-all duration-300",
+          headerHidden ? "pt-2" : "pt-16"
+        )}
+      >
+        <div className="w-full max-w-[1550px] mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   )

@@ -1,178 +1,275 @@
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Search, Bell, MessageSquare, Home, Store, Plus, User, Users, Package, Paintbrush, ArrowLeftRight, Gift, Trophy, BookOpen, Shield, Gamepad2, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useNavigate, useLocation } from 'react-router-dom'
+import {
+  Menu as MenuIcon,
+  X,
+  Search,
+  Bell,
+  MessageSquare,
+  Home,
+  Gamepad2,
+  Store,
+  Coins,
+  User,
+  Users,
+  Paintbrush,
+  Package,
+  ArrowLeftRight,
+  Sparkles,
+  Settings,
+  LogOut,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const NAV_ITEMS = [
-  { href: '/', icon: Home, label: 'Home' },
-  { href: '/games', icon: Gamepad2, label: 'Games' },
-  { href: '/marketplace', icon: Store, label: 'Marketplace' },
+const MAIN_NAV = [
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/games', label: 'Games', icon: Gamepad2 },
+  { href: '/marketplace', label: 'Marketplace', icon: Store },
 ]
 
-const MOBILE_NAV = [
-  { href: '/', icon: Home, label: 'Home' },
-  { href: '/games', icon: Gamepad2, label: 'Games' },
-  { href: '/marketplace', icon: Store, label: 'Marketplace' },
-  { href: '/profile', icon: User, label: 'Profile' },
-  { href: '/messages', icon: MessageSquare, label: 'Messages' },
-  { href: '/friends', icon: Users, label: 'Friends' },
-  { href: '/customize', icon: Paintbrush, label: 'Customize' },
-  { href: '/inventory', icon: Package, label: 'Inventory' },
-  { href: '/trades', icon: ArrowLeftRight, label: 'Trades' },
-  { href: '/gifts', icon: Gift, label: 'Gifts' },
-  { href: '/store', icon: Sparkles, label: 'Store' },
-  { href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-  { href: '/groups', icon: Users, label: 'Groups' },
-  { href: '/studio', icon: Plus, label: 'Studio' },
-  { href: '/forum', icon: BookOpen, label: 'Forum' },
-  { href: '/trust-safety', icon: Shield, label: 'Trust & Safety' },
+const MOBILE_MENU_ITEMS = [
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/games', label: 'Games', icon: Gamepad2 },
+  { href: '/marketplace', label: 'Marketplace', icon: Store },
+  { href: '/profile', label: 'Profile', icon: User },
+  { href: '/friends', label: 'Friends', icon: Users },
+  { href: '/avatar', label: 'Avatar', icon: Paintbrush },
+  { href: '/inventory', label: 'Inventory', icon: Package },
+  { href: '/trades', label: 'Trades', icon: ArrowLeftRight },
 ]
 
 interface MenuProps {
   logoSrc?: string
-  logoLabel?: string
   balance?: number
   loggedIn?: boolean
-  onNav?: (href: string) => void
   unreadMessages?: number
+  unreadNotifications?: number
   headerHidden?: boolean
+  onNav?: (href: string) => void
 }
 
 export function Menu({
   logoSrc,
-  logoLabel = 'N',
-  balance = 0,
-  loggedIn = false,
+  balance = 12450,
+  loggedIn = true,
+  unreadMessages = 3,
+  unreadNotifications = 1,
+  headerHidden = false,
   onNav,
-  unreadMessages = 0,
-  headerHidden,
 }: MenuProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleNavigate = (href: string) => {
+    navigate(href)
+    onNav?.(href)
+    setMobileOpen(false)
+    setUserDropdownOpen(false)
+  }
 
   return (
     <>
       <header
         className={cn(
-          "flex justify-center w-full bg-primary text-navbar-foreground shadow-sm h-16 z-50",
-          "fixed top-0 left-0 right-0"
+          "fixed top-0 left-0 right-0 z-50 h-16 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/[0.08] transition-transform duration-300",
+          headerHidden ? "-translate-y-full" : "translate-y-0"
         )}
-        style={{
-          transition: "transform 0.3s ease-out, background-color 0.2s ease-out",
-          transform: headerHidden ? "translateY(-100%)" : "translateY(0)",
-        }}
       >
-        <nav aria-label="Primary" className="relative flex items-stretch h-full w-full px-3 py-3 max-[420px]:px-2 overflow-hidden">
-          <div className="flex items-stretch h-full gap-2 md:gap-4 w-full justify-between">
-            <div className="flex flex-row items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={mobileOpen ? "Close menu" : "Open menu"}
-                className="text-navbar-foreground hover:bg-white/10 size-10 flex md:hidden"
-                onClick={() => setMobileOpen(!mobileOpen)}
-              >
-                {mobileOpen ? <X className="size-6" /> : <MenuIcon className="size-6" />}
-              </Button>
+        <div className="max-w-[1700px] mx-auto h-full px-4 md:px-6 flex items-center justify-between gap-4">
+          {/* Left section: Logo & Nav items */}
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden size-9 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-white/80 hover:text-white"
+              aria-label="Toggle Navigation"
+            >
+              {mobileOpen ? <X className="size-5" /> : <MenuIcon className="size-5" />}
+            </button>
 
-              <a
-                href="/"
-                onClick={(e) => { e.preventDefault(); onNav?.('/') }}
-                className="flex items-center gap-2 no-underline shrink-0"
-              >
-                {logoSrc ? (
-                  <img src={logoSrc} alt="" className="h-16 w-auto" />
-                ) : (
-                  <img src="/logo.png" alt="Logo" className="h-16 w-auto rounded" />
-                )}
-              </a>
+            {/* Brand Logo */}
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault()
+                handleNavigate('/')
+              }}
+              className="flex items-center gap-2.5 text-white no-underline group"
+            >
+              {logoSrc ? (
+                <img src={logoSrc} alt="Sox" className="h-7 w-auto" />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="size-8 rounded-lg bg-white text-black font-extrabold flex items-center justify-center text-lg tracking-tighter">
+                    S
+                  </div>
+                  <span className="text-lg font-bold tracking-tight text-white group-hover:text-white/90">
+                    Sox
+                  </span>
+                </div>
+              )}
+            </a>
 
-              <div className="hidden md:flex items-stretch gap-0.5">
-                {NAV_ITEMS.map((item) => (
-                  <a
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center gap-1">
+              {MAIN_NAV.map((item) => {
+                const isActive = location.pathname === item.href
+                return (
+                  <button
                     key={item.href}
-                    href={item.href}
-                    onClick={(e) => { e.preventDefault(); onNav?.(item.href) }}
-                    className="flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors no-underline text-navbar-foreground/75 hover:text-navbar-foreground hover:bg-white/10"
+                    onClick={() => handleNavigate(item.href)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer border-none",
+                      isActive
+                        ? "bg-white/10 text-white"
+                        : "bg-transparent text-white/60 hover:text-white hover:bg-white/[0.05]"
+                    )}
                   >
                     {item.label}
-                  </a>
-                ))}
-              </div>
-            </div>
+                  </button>
+                )
+              })}
+            </nav>
+          </div>
 
-            <div className="flex items-center gap-1.5">
-              {!loggedIn ? (
-                <>
-                  <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-navbar-foreground hover:bg-white/20 hover:text-navbar-foreground">
-                    Log In
-                  </Button>
-                  <Button variant="secondary" size="sm">
-                    Sign Up
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-navbar-foreground/75 hover:text-navbar-foreground hover:bg-white/10 size-9"
-                  >
-                    <Search className="size-[19px]" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-navbar-foreground/75 hover:text-navbar-foreground hover:bg-white/10 size-9 relative"
-                  >
-                    <Bell className="size-[19px]" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-navbar-foreground/75 hover:text-navbar-foreground hover:bg-white/10 size-9 relative"
-                  >
-                    <MessageSquare className="size-[19px]" />
-                    {unreadMessages > 0 && (
-                      <span className="absolute top-1.5 right-1.5 flex size-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" />
-                        <span className="relative inline-flex size-2 rounded-full bg-destructive" />
-                      </span>
-                    )}
-                  </Button>
-
-                  <div className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1.5 text-sm ml-1">
-                    <img src="/currency.png" alt="" className="size-4" />
-                    <span className="font-medium text-navbar-foreground">{balance.toLocaleString()}</span>
-                  </div>
-
-                  <div
-                    className="size-8 rounded-full bg-white/20 flex items-center justify-center cursor-pointer hover:bg-white/30 transition-colors ml-0.5"
-                  >
-                    <span className="text-xs font-bold text-navbar-foreground">U</span>
-                  </div>
-                </>
-              )}
+          {/* Center: Search input */}
+          <div className="hidden lg:flex items-center flex-1 max-w-md mx-4">
+            <div className="relative w-full">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/40" />
+              <input
+                type="text"
+                placeholder="Search games, creators, catalog..."
+                className="w-full h-9 pl-9 pr-14 rounded-lg bg-[#141414] border border-white/[0.08] text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all"
+              />
+              <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.1] text-[10px] text-white/50 font-mono">
+                ⌘K
+              </kbd>
             </div>
           </div>
-        </nav>
 
-        {mobileOpen && (
-          <div className="fixed left-0 right-0 bottom-0 bg-background z-50 overflow-y-auto border-t border-border"
-            style={{ top: '64px' }}
-          >
-            <div className="flex flex-col gap-2 px-4 pb-6 pt-4">
-              {MOBILE_NAV.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => { e.preventDefault(); onNav?.(item.href); setMobileOpen(false) }}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors hover:text-accent-foreground text-foreground no-underline"
+          {/* Right section: Balance, Notifications & User */}
+          <div className="flex items-center gap-2.5">
+            {loggedIn ? (
+              <>
+                {/* Lune / Currency Balance Pill */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141414] border border-white/[0.08] text-white">
+                  <Coins className="size-4 text-amber-400 shrink-0" />
+                  <span className="text-sm font-bold tabular-numbers tracking-tight">
+                    {balance.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Messages button */}
+                <button
+                  onClick={() => handleNavigate('/messages')}
+                  className="relative size-9 rounded-lg bg-[#141414] hover:bg-[#1c1c1c] border border-white/[0.08] flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
+                  title="Messages"
                 >
-                  <item.icon className="size-5 text-muted-foreground" />
-                  <span>{item.label}</span>
-                </a>
-              ))}
+                  <MessageSquare className="size-4" />
+                  {unreadMessages > 0 && (
+                    <span className="absolute -top-1 -right-1 size-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-[#0a0a0a]">
+                      {unreadMessages}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notifications button */}
+                <button
+                  onClick={() => handleNavigate('/notifications')}
+                  className="relative size-9 rounded-lg bg-[#141414] hover:bg-[#1c1c1c] border border-white/[0.08] flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
+                  title="Notifications"
+                >
+                  <Bell className="size-4" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute top-2 right-2 size-2 rounded-full bg-red-500" />
+                  )}
+                </button>
+
+                {/* User Profile Pill / Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    className="flex items-center gap-2 p-1 pl-1.5 rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer border-none bg-transparent"
+                  >
+                    <div className="size-7 rounded-full bg-gradient-to-tr from-neutral-700 to-neutral-500 border border-white/20 flex items-center justify-center text-xs font-bold text-white">
+                      P
+                    </div>
+                  </button>
+
+                  {userDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 rounded-xl bg-[#111111] border border-white/[0.1] shadow-2xl py-1 z-50">
+                      <div className="px-3.5 py-2 border-b border-white/[0.08]">
+                        <p className="text-sm font-bold text-white leading-tight">Pwo</p>
+                        <p className="text-xs text-white/50">@pwo</p>
+                      </div>
+
+                      <button
+                        onClick={() => handleNavigate('/profile')}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer border-none bg-transparent"
+                      >
+                        <User className="size-3.5" />
+                        Profile
+                      </button>
+                      <button
+                        onClick={() => handleNavigate('/settings')}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer border-none bg-transparent"
+                      >
+                        <Settings className="size-3.5" />
+                        Settings
+                      </button>
+                      <div className="my-1 border-t border-white/[0.08]" />
+                      <button
+                        onClick={() => handleNavigate('/login')}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer border-none bg-transparent"
+                      >
+                        <LogOut className="size-3.5" />
+                        Log Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleNavigate('/login')}
+                  className="px-3.5 py-1.5 rounded-lg text-sm font-semibold text-white/80 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer border-none bg-transparent"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={() => handleNavigate('/signup')}
+                  className="px-3.5 py-1.5 rounded-lg text-sm font-bold bg-white text-black hover:bg-white/90 transition-colors cursor-pointer border-none"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Fullscreen Navigation Dropdown */}
+        {mobileOpen && (
+          <div className="fixed inset-x-0 top-16 bottom-0 bg-[#0a0a0a] z-50 p-4 overflow-y-auto border-t border-white/[0.08] flex flex-col gap-2">
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/40" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full h-10 pl-9 pr-4 rounded-lg bg-[#141414] border border-white/[0.08] text-sm text-white"
+              />
             </div>
+            {MOBILE_MENU_ITEMS.map((item) => (
+              <button
+                key={item.href}
+                onClick={() => handleNavigate(item.href)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer border-none bg-transparent"
+              >
+                <item.icon className="size-4 text-white/50" />
+                <span>{item.label}</span>
+              </button>
+            ))}
           </div>
         )}
       </header>
