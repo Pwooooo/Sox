@@ -1,14 +1,16 @@
 import { useRef } from 'react'
 import { ChevronRight, ChevronLeft } from 'lucide-react'
-import { GameCard, GameItem } from '@/components/GameCard'
+import { GameCard } from '@/components/GameCard'
+import { GameDetailData } from '@/data/homeGames'
 import { cn } from '@/lib/utils'
 
 interface GameSectionProps {
   title: string
   hasChevronTitle?: boolean
-  games: GameItem[]
+  games: GameDetailData[]
+  aspect?: '16/9' | '1/1'
   onTitleClick?: () => void
-  onSelectGame?: (game: GameItem) => void
+  onSelectGame?: (game: GameDetailData) => void
   className?: string
 }
 
@@ -16,6 +18,7 @@ export function GameSection({
   title,
   hasChevronTitle = false,
   games,
+  aspect = '1/1',
   onTitleClick,
   onSelectGame,
   className,
@@ -54,7 +57,7 @@ export function GameSection({
           <ChevronLeft className="size-4" />
         </button>
 
-        {/* Right Scroll Chevron Button matching Screenshot 2 */}
+        {/* Right Scroll Chevron Button */}
         <button
           onClick={() => scroll('right')}
           aria-label="Scroll right"
@@ -73,6 +76,7 @@ export function GameSection({
             <GameCard
               key={game.id}
               game={game}
+              aspect={aspect}
               onClick={() => onSelectGame?.(game)}
             />
           ))}

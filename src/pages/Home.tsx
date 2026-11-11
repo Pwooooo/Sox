@@ -1,84 +1,70 @@
 import { useState } from 'react'
-import { Play } from 'lucide-react'
+import { ArrowRight, ChevronRight, ChevronLeft } from 'lucide-react'
 import { FriendsHeader } from '@/components/FriendsHeader'
-import { GameSection } from '@/components/GameSection'
-import { CONTINUE_PLAYING_GAMES, RECOMMENDED_FOR_YOU_GAMES } from '@/data/homeGames'
-import { GameItem } from '@/components/GameCard'
+import { GameCard } from '@/components/GameCard'
+import { GameDetailModal } from '@/components/GameDetailModal'
+import { RECOMMENDED_GAMES, CONTINUE_GAMES, GameDetailData } from '@/data/homeGames'
 
 export function Home() {
-  const [selectedGame, setSelectedGame] = useState<GameItem | null>(null)
+  const [selectedGame, setSelectedGame] = useState<GameDetailData | null>(null)
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 flex flex-col gap-8 max-w-[1550px]">
-      {/* 1. Friends & Greeting at the top matching Screenshot 5 */}
+    <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-8 max-w-[1700px]">
+      {/* 1. Friends & Greeting at top */}
       <FriendsHeader username="Sky" />
 
-      {/* 2. Continue Playing section matching Screenshot 2 */}
-      <GameSection
-        title="Continue Playing"
-        hasChevronTitle={false}
-        games={CONTINUE_PLAYING_GAMES}
-        onSelectGame={(g) => setSelectedGame(g)}
-      />
-
-      {/* 3. Recommended For You section matching Screenshot 2 */}
-      <GameSection
-        title="Recommended For You"
-        hasChevronTitle={true}
-        games={RECOMMENDED_FOR_YOU_GAMES}
-        onSelectGame={(g) => setSelectedGame(g)}
-      />
-
-      {/* Game Quick View / Play Modal */}
-      {selectedGame && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
-          onClick={() => setSelectedGame(null)}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl bg-[#111111] border border-white/[0.1] p-6 flex flex-col gap-4 shadow-2xl relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex gap-4 items-center">
-              {selectedGame.thumbnail ? (
-                <img
-                  src={selectedGame.thumbnail}
-                  alt={selectedGame.name}
-                  className="size-20 rounded-xl object-cover border border-white/10 shrink-0"
-                />
-              ) : (
-                <div className="size-20 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center shrink-0">
-                  <span className="text-xl font-bold text-white/50">✦</span>
-                </div>
-              )}
-              <div className="flex flex-col gap-1 min-w-0">
-                <h3 className="text-base font-bold text-white leading-snug">
-                  {selectedGame.name}
-                </h3>
-                <div className="flex items-center gap-3 text-xs text-white/60">
-                  <span>☺ {typeof selectedGame.likePercent === 'number' ? `${selectedGame.likePercent}%` : selectedGame.likePercent}</span>
-                  <span>👤 {selectedGame.players} Playing</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 pt-2">
-              <button
-                onClick={() => alert(`Launching ${selectedGame.name}...`)}
-                className="flex-1 py-2.5 rounded-xl bg-white text-black font-bold text-sm hover:bg-white/90 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border-none shadow-lg"
-              >
-                <Play className="size-4 fill-current ml-0.5" />
-                Play Now
-              </button>
-              <button
-                onClick={() => setSelectedGame(null)}
-                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-sm font-semibold transition-colors cursor-pointer border-none"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+      {/* 2. Recommended For You: 16:9 Cards matching Screenshot 1 */}
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center justify-between px-0.5">
+          <h2 className="text-base md:text-lg font-bold text-white tracking-tight">
+            Recommended For You
+          </h2>
         </div>
+
+        {/* 6-Column Responsive Grid with 16:9 thumbnails */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 md:gap-4">
+          {RECOMMENDED_GAMES.map((game) => (
+            <GameCard
+              key={game.id}
+              game={game}
+              aspect="16/9"
+              onClick={() => setSelectedGame(game)}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 3. Continue → Section: 1:1 Square Thumbnails matching Screenshot 1 */}
+      <section className="flex flex-col gap-3 group/continue">
+        <div className="flex items-center justify-between px-0.5">
+          <button className="flex items-center gap-1.5 text-base md:text-lg font-bold text-white tracking-tight hover:text-white/80 transition-colors cursor-pointer border-none bg-transparent group/title">
+            <span>Continue</span>
+            <ArrowRight className="size-4 text-white/70 group-hover/title:translate-x-0.5 group-hover/title:text-white transition-all" />
+          </button>
+        </div>
+
+        {/* Horizontal Row with 1:1 Square Cards */}
+        <div
+          className="flex items-start gap-3 md:gap-3.5 overflow-x-auto pb-2 scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {CONTINUE_GAMES.map((game) => (
+            <GameCard
+              key={game.id}
+              game={game}
+              aspect="1/1"
+              onClick={() => setSelectedGame(game)}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 4. Roblox Game Detail Modal matching Screenshot 2 */}
+      {selectedGame && (
+        <GameDetailModal
+          game={selectedGame}
+          onClose={() => setSelectedGame(null)}
+        />
       )}
     </div>
   )
