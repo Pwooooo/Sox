@@ -1,14 +1,13 @@
 import { useState } from 'react'
-import { ThumbsUp, User } from 'lucide-react'
+import { Sparkles, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface GameItem {
   id: string
   name: string
-  thumbnail: string
-  likePercent: number
-  players: string
-  creator?: string
+  thumbnail?: string
+  likePercent: number | 'N/A'
+  players: number | string
 }
 
 interface GameCardProps {
@@ -18,58 +17,52 @@ interface GameCardProps {
 }
 
 export function GameCard({ game, className, onClick }: GameCardProps) {
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
   return (
     <div
       onClick={onClick}
       className={cn(
-        "group flex flex-col w-[130px] md:w-[145px] shrink-0 cursor-pointer select-none",
+        "group flex flex-col w-[136px] md:w-[144px] shrink-0 cursor-pointer select-none",
         className
       )}
     >
-      {/* 1:1 Square Thumbnail */}
-      <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-[#161616] border border-white/[0.08] group-hover:border-white/25 transition-all duration-200 group-hover:shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
-        {/* Placeholder shimmer while loading */}
-        {!imageLoaded && (
-          <div className="absolute inset-0 bg-[#1e1e1e] animate-pulse" />
+      {/* 1:1 Square Thumbnail matching Screenshot 2 */}
+      <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-[#161616] border border-white/[0.06] group-hover:border-white/20 transition-all duration-200">
+        {game.thumbnail && !imageError ? (
+          <img
+            src={game.thumbnail}
+            alt={game.name}
+            onError={() => setImageError(true)}
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          /* Placeholder thumbnail with 4-pointed star / sparkle as seen in Screenshot 2 */
+          <div className="size-full flex items-center justify-center bg-[#151515]">
+            <Sparkles className="size-8 text-white/30 group-hover:text-white/50 transition-colors" />
+          </div>
         )}
 
-        <img
-          src={game.thumbnail}
-          alt={game.name}
-          onLoad={() => setImageLoaded(true)}
-          className={cn(
-            "size-full object-cover transition-transform duration-300 group-hover:scale-105",
-            imageLoaded ? "opacity-100" : "opacity-0"
-          )}
-          onError={(e) => {
-            // High quality fallback SVG badge if image fails to load
-            e.currentTarget.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%231a1a1a"/><text x="50%" y="45%" fill="%23555555" font-family="sans-serif" font-weight="bold" font-size="16" dominant-baseline="middle" text-anchor="middle">SOX</text><text x="50%" y="60%" fill="%23777777" font-family="sans-serif" font-size="11" dominant-baseline="middle" text-anchor="middle">GAME</text></svg>`
-            setImageLoaded(true)
-          }}
-        />
-
-        {/* Subtle hover gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
-      {/* Game Title */}
-      <div className="mt-1.5 px-0.5 flex flex-col">
-        <h4 className="text-[13px] font-bold text-white group-hover:text-white/90 line-clamp-2 leading-[1.25] tracking-tight min-h-[32px]">
+      {/* Title & Stats */}
+      <div className="mt-2 flex flex-col gap-0.5 px-0.5">
+        <h4 className="text-[12.5px] font-semibold text-white truncate leading-tight group-hover:text-white/90">
           {game.name}
         </h4>
 
-        {/* Stats Row: Thumbs Up & Active Players */}
-        <div className="flex items-center gap-3 mt-1 text-[11px] text-white/50">
-          <div className="flex items-center gap-1 font-medium">
-            <ThumbsUp className="size-3 text-white/40 shrink-0" />
-            <span className="tabular-numbers">{game.likePercent}%</span>
+        {/* Stats Row matching screenshot 2: rating icon & player count */}
+        <div className="flex items-center gap-2 text-[11px] text-white/45 font-medium tabular-numbers">
+          <div className="flex items-center gap-1">
+            <span className="text-[10px]">☺</span>
+            <span>{typeof game.likePercent === 'number' ? `${game.likePercent}%` : game.likePercent}</span>
           </div>
 
-          <div className="flex items-center gap-1 font-medium">
-            <User className="size-3 text-white/40 shrink-0" />
-            <span className="tabular-numbers">{game.players}</span>
+          <div className="flex items-center gap-1">
+            <span className="text-[10px]">👤</span>
+            <span>{game.players}</span>
           </div>
         </div>
       </div>

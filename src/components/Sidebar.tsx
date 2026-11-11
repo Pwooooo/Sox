@@ -1,13 +1,21 @@
 import {
+  Search,
   Home,
-  Compass,
-  User,
+  Gamepad2,
   Users,
+  MessageSquare,
+  User,
   Paintbrush,
   Package,
+  Store,
+  ShoppingBag,
   ArrowLeftRight,
-  Globe,
-  Settings,
+  Hammer,
+  ExternalLink,
+  MessagesSquare,
+  Shield,
+  Download,
+  PanelLeftClose,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -15,58 +23,96 @@ interface SidebarProps {
   collapsed?: boolean
   activeItem?: string
   onSelect?: (item: string) => void
+  onToggleCollapse?: () => void
 }
 
-const SIDEBAR_NAV = [
+interface NavItemDef {
+  label: string
+  icon: any
+  badge?: number
+  isExternal?: boolean
+}
+
+const SIDEBAR_ITEMS: NavItemDef[] = [
+  { label: 'Search', icon: Search },
   { label: 'Home', icon: Home },
-  { label: 'Discover', icon: Compass },
+  { label: 'Games', icon: Gamepad2 },
+  { label: 'Friends', icon: Users, badge: 6 },
+  { label: 'Messages', icon: MessageSquare },
+  { label: 'Groups', icon: Users },
+  { label: 'Profile', icon: User },
   { label: 'Avatar', icon: Paintbrush },
   { label: 'Inventory', icon: Package },
+  { label: 'Marketplace', icon: Store },
+  { label: 'Store', icon: ShoppingBag },
   { label: 'Trade', icon: ArrowLeftRight },
-  { label: 'Friends', icon: Users, badge: 12 },
-  { label: 'Communities', icon: Globe },
-  { label: 'Settings', icon: Settings },
+  { label: 'Create', icon: Hammer, isExternal: true },
+  { label: 'Forum', icon: MessagesSquare, isExternal: true },
+  { label: 'Safety', icon: Shield },
+  { label: 'Download', icon: Download },
 ]
 
 export function Sidebar({
   collapsed = false,
   activeItem = 'Home',
   onSelect,
+  onToggleCollapse,
 }: SidebarProps) {
+  if (collapsed) {
+    return null
+  }
+
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-14 bottom-0 z-40 bg-[#0a0a0a] border-r border-white/[0.08] transition-all duration-300 flex flex-col justify-between py-3",
-        collapsed ? "w-[60px] px-2" : "w-[210px] px-3"
-      )}
-    >
-      <div className="flex flex-col gap-1">
-        {SIDEBAR_NAV.map((item) => {
+    <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0c0c0c] border-r border-white/[0.06] flex flex-col select-none overflow-y-auto">
+      {/* Top Header in Sidebar: NOVELO + Collapse Icon */}
+      <div className="h-14 px-4 flex items-center justify-between border-b border-white/[0.04]">
+        <div className="flex items-center gap-2">
+          <img
+            src="/entropy.png"
+            alt="Novelo"
+            className="size-6 rounded-md object-contain"
+          />
+          <span className="text-lg font-black tracking-wider text-white uppercase font-sans">
+            Novelo
+          </span>
+        </div>
+
+        <button
+          onClick={onToggleCollapse}
+          aria-label="Collapse sidebar"
+          className="size-7 rounded-md hover:bg-white/[0.08] flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
+        >
+          <PanelLeftClose className="size-4" />
+        </button>
+      </div>
+
+      {/* Navigation list matching Screenshot 1 */}
+      <div className="flex-1 py-2 px-2 flex flex-col gap-0.5">
+        {SIDEBAR_ITEMS.map((item) => {
           const isActive = activeItem === item.label
           return (
             <button
               key={item.label}
               onClick={() => onSelect?.(item.label)}
-              title={collapsed ? item.label : undefined}
               className={cn(
-                "w-full flex items-center rounded-xl text-xs font-semibold transition-all cursor-pointer border-none",
-                collapsed ? "justify-center h-10 px-0" : "gap-3 px-3 py-2.5",
+                "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-semibold transition-all cursor-pointer border-none text-left",
                 isActive
-                  ? "bg-white/10 text-white shadow-sm"
-                  : "bg-transparent text-white/60 hover:text-white hover:bg-white/[0.05]"
+                  ? "bg-[#1e1e1e] text-white shadow-sm font-bold"
+                  : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
               )}
             >
-              <item.icon className="size-4 shrink-0" />
-              {!collapsed && (
-                <>
-                  <span className="flex-1 text-left truncate">{item.label}</span>
-                  {item.badge ? (
-                    <span className="bg-white/10 text-white text-[10px] font-bold rounded-full min-w-[18px] h-4 flex items-center justify-center px-1 tabular-numbers border border-white/10">
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </>
-              )}
+              <item.icon className="size-4 shrink-0 text-white/80" />
+              <span className="flex-1 truncate">{item.label}</span>
+
+              {item.badge ? (
+                <span className="bg-[#ef4444] text-white text-[11px] font-bold rounded-md px-1.5 py-0.5 min-w-[20px] text-center leading-tight">
+                  {item.badge}
+                </span>
+              ) : null}
+
+              {item.isExternal ? (
+                <ExternalLink className="size-3 text-white/40 shrink-0" />
+              ) : null}
             </button>
           )
         })}

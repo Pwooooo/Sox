@@ -18,24 +18,26 @@ export function Layout({ children }: LayoutProps) {
         balance={12450}
         unreadMessages={3}
         unreadNotifications={1}
+        sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
-      {/* Left Sidebar */}
+      {/* Left Sidebar matching Screenshot 1 */}
       <Sidebar
         collapsed={sidebarCollapsed}
         activeItem={activeItem}
         onSelect={(item) => setActiveItem(item)}
+        onToggleCollapse={() => setSidebarCollapsed(true)}
       />
 
       {/* Main Content Area */}
       <main
         className={cn(
           "min-h-screen pt-14 transition-all duration-300",
-          sidebarCollapsed ? "pl-[60px]" : "pl-[210px]"
+          sidebarCollapsed ? "pl-0" : "pl-[230px]"
         )}
       >
-        <div className="w-full max-w-[1650px] mx-auto">
+        <div className="w-full">
           {children}
         </div>
       </main>
