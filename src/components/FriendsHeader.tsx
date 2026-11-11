@@ -87,7 +87,7 @@ export function FriendsHeader({ username = 'Sky' }: { username?: string }) {
           Friends
         </h2>
 
-        <div className="flex items-center gap-4 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {FRIENDS_DATA.map((friend) => (
             <div
               key={friend.id}

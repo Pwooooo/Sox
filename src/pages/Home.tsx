@@ -45,7 +45,7 @@ export function Home() {
 
         {/* Horizontal Row with 1:1 Square Cards */}
         <div
-          className="flex items-start gap-3 md:gap-3.5 overflow-x-auto pb-2 scroll-smooth"
+          className="flex items-start gap-3 md:gap-3.5 overflow-x-auto no-scrollbar pb-2 scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {CONTINUE_GAMES.map((game) => (

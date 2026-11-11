@@ -62,29 +62,66 @@ body {
   position: relative;
 }
 
-/* Custom Sleek Scrollbar */
-html, body, *, *::before, *::after {
+/* Custom Sleek Vertical Scrollbar (Hidden for Horizontal) */
+html, body {
   scrollbar-width: thin !important;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
 }
 
-::-webkit-scrollbar, *::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 6px !important;
-  height: 6px !important;
+  height: 0px !important;
 }
 
-::-webkit-scrollbar-track, *::-webkit-scrollbar-track {
+::-webkit-scrollbar:horizontal {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-track {
   background: transparent !important;
 }
 
-::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2) !important;
   border-radius: 9999px !important;
   transition: background 0.18s ease;
 }
 
-::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.45) !important;
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-corner {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Completely remove and hide all horizontal scrollbars */
+.no-scrollbar,
+.overflow-x-auto,
+[style*="overflow-x"],
+div[class*="overflow-x"] {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+[style*="overflow-x"]::-webkit-scrollbar,
+div[class*="overflow-x"]::-webkit-scrollbar,
+*::-webkit-scrollbar:horizontal {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 .tabular-numbers {
