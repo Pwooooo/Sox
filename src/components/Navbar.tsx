@@ -1,11 +1,8 @@
-import { useState } from 'react'
 import {
   Menu as MenuIcon,
   Search,
   MessageSquare,
   Bell,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -26,7 +23,7 @@ export function Navbar({
 }: NavbarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#0a0a0a] border-b border-white/[0.08]">
-      <div className="h-full px-3 md:px-4 flex items-center justify-between gap-4">
+      <div className="h-full px-3 md:px-5 flex items-center justify-between gap-4">
         {/* Left Section: Brand Logo & Sidebar Toggle */}
         <div className="flex items-center gap-3">
           <button
@@ -50,18 +47,20 @@ export function Navbar({
           </a>
         </div>
 
-        {/* Center: Search input */}
-        <div className="flex items-center flex-1 max-w-md mx-3">
+        {/* Center: Roblox-Style Search Bar (matches uploaded screenshot) */}
+        <div className="flex items-center flex-1 max-w-xl mx-2 md:mx-6">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/40" />
+            {/* Search Icon */}
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#8892a0]">
+              <Search className="size-4 stroke-[1.75]" />
+            </div>
+
+            {/* Roblox search input styling: rounded-md/lg, subtle gray border, bluish-slate placeholder */}
             <input
               type="text"
               placeholder="Search"
-              className="w-full h-8 pl-8 pr-12 rounded-lg bg-[#141414] border border-white/[0.08] text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-all"
+              className="w-full h-9 pl-9 pr-4 rounded-lg bg-[#141414] hover:bg-[#181818] border border-white/15 focus:border-white/35 text-sm text-white placeholder:text-[#78849b] focus:outline-none transition-all shadow-inner"
             />
-            <kbd className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center px-1.5 py-0.5 rounded bg-white/[0.06] text-[10px] text-white/40 font-mono">
-              ⌘K
-            </kbd>
           </div>
         </div>
 

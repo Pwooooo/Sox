@@ -101,7 +101,15 @@ export function Sidebar({
                   : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
               )}
             >
-              <item.icon className="size-4 shrink-0 text-white/80" />
+              {/* Icon: filled like YouTube when active, outline when inactive */}
+              <item.icon
+                className={cn(
+                  "size-4 shrink-0 transition-transform duration-150",
+                  isActive
+                    ? "fill-current text-white scale-105"
+                    : "fill-none text-white/70"
+                )}
+              />
               <span className="flex-1 truncate">{item.label}</span>
 
               {item.badge ? (
