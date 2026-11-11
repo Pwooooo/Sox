@@ -2,7 +2,6 @@ import { useState } from 'react'
 import {
   X,
   Play,
-  Box,
   Star,
   Bell,
   ThumbsUp,
@@ -95,21 +94,13 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
             </div>
 
             {/* Big Action Buttons Row */}
-            <div className="flex items-center gap-2 pt-2">
-              {/* Server / Inspect Cube Button */}
-              <button
-                className="size-12 rounded-xl bg-white hover:bg-neutral-200 text-black flex items-center justify-center cursor-pointer border-none transition-all shadow-md active:scale-95 shrink-0"
-                title="Servers & Instances"
-              >
-                <Box className="size-6 stroke-[2.2] text-black" />
-              </button>
-
-              {/* Play Button: White with black middle icon */}
+            <div className="pt-2">
+              {/* Classic Roblox Green Play Button */}
               <button
                 onClick={() => alert(`Launching ${game.name} on Novelo client...`)}
-                className="flex-1 h-12 rounded-xl bg-white hover:bg-neutral-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-black font-extrabold text-base shadow-lg cursor-pointer border-none"
+                className="w-full h-12 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-white font-extrabold text-base shadow-lg cursor-pointer border-none"
               >
-                <Play className="size-6 fill-black text-black ml-0.5" />
+                <Play className="size-6 fill-white text-white ml-0.5" />
               </button>
             </div>
 
