@@ -1,5 +1,4 @@
 import {
-  Search,
   Home,
   Gamepad2,
   Users,
@@ -13,8 +12,6 @@ import {
   Hammer,
   ExternalLink,
   MessagesSquare,
-  Shield,
-  Download,
   PanelLeftClose,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -35,12 +32,10 @@ interface NavItemDef {
 }
 
 const SIDEBAR_ITEMS: NavItemDef[] = [
-  { label: 'Search', icon: Search },
   { label: 'Home', icon: Home },
   { label: 'Games', icon: Gamepad2 },
   { label: 'Friends', icon: Users, badge: 6 },
   { label: 'Messages', icon: MessageSquare },
-  { label: 'Groups', icon: Users },
   { label: 'Profile', icon: User },
   { label: 'Avatar', icon: Paintbrush },
   { label: 'Inventory', icon: Package },
@@ -49,8 +44,6 @@ const SIDEBAR_ITEMS: NavItemDef[] = [
   { label: 'Trade', icon: ArrowLeftRight },
   { label: 'Create', icon: Hammer, isExternal: true },
   { label: 'Forum', icon: MessagesSquare, isExternal: true },
-  { label: 'Safety', icon: Shield },
-  { label: 'Download', icon: Download },
 ]
 
 export function Sidebar({
@@ -85,7 +78,7 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* User Avatar & Name in Sidebar (Roblox style matching Screenshot 1) */}
+      {/* User Avatar & Name in Sidebar */}
       <div className="px-3 pt-3 pb-1">
         <button
           onClick={() => onSelect?.('Profile')}
