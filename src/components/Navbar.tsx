@@ -38,7 +38,7 @@ export function Navbar({
             <img
               src="/entropy.png"
               alt="Novelo"
-              className="size-7 rounded-lg object-contain group-hover:scale-105 transition-transform"
+              className="h-7 w-auto object-contain group-hover:scale-105 transition-transform"
             />
             <span className="text-lg font-black tracking-wider text-white uppercase font-sans">
               Novelo
@@ -63,7 +63,7 @@ export function Navbar({
 
         {/* Right Section: Roblox Top-Right Bar (Bell with badge, Currency + balance, Settings Gear) */}
         <div className="flex items-center gap-4 md:gap-5 pr-1">
-          {/* 1. Notification Bell with Red Badge matching Screenshot 2 */}
+          {/* 1. Notification Bell with Red Badge */}
           <button
             className="relative size-7 flex items-center justify-center text-white/75 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
             title="Notifications"
@@ -76,7 +76,7 @@ export function Navbar({
             )}
           </button>
 
-          {/* 2. Currency Icon & Balance matching Screenshot 2 */}
+          {/* 2. Currency Icon & Balance */}
           <div className="flex items-center gap-1.5 cursor-pointer text-white/90 hover:text-white select-none">
             <img
               src="/currency.png"
@@ -88,7 +88,7 @@ export function Navbar({
             </span>
           </div>
 
-          {/* 3. Settings Gear matching Screenshot 2 */}
+          {/* 3. Settings Gear */}
           <button
             onClick={onOpenSettings}
             className="size-7 flex items-center justify-center text-white/75 hover:text-white transition-colors cursor-pointer border-none bg-transparent"

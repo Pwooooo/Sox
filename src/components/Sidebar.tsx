@@ -68,11 +68,11 @@ export function Sidebar({
     <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0c0c0c] border-r border-white/[0.06] flex flex-col select-none overflow-y-auto">
       {/* Top Header in Sidebar: NOVELO + Collapse Icon */}
       <div className="h-14 px-4 flex items-center justify-between border-b border-white/[0.04] shrink-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <img
             src="/entropy.png"
             alt="Novelo"
-            className="size-6 rounded-md object-contain"
+            className="h-7 w-auto object-contain"
           />
           <span className="text-lg font-black tracking-wider text-white uppercase font-sans">
             Novelo
@@ -88,7 +88,7 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* User Avatar & Name in Sidebar (Roblox style matching Screenshot 1) */}
+      {/* User Avatar & Name in Sidebar (Roblox style) */}
       <div className="px-3 pt-3 pb-1">
         <button
           onClick={() => onSelect?.('Profile')}
@@ -97,9 +97,7 @@ export function Sidebar({
           {/* Avatar circular headshot */}
           <div className="size-8 rounded-full bg-[#1a1a1a] border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-white/30 transition-colors">
             <div className="relative size-6 flex flex-col items-center justify-center">
-              {/* Green beanie / hat hint from screenshot */}
               <div className="w-5 h-2 bg-emerald-700 rounded-t-sm -mb-0.5 z-10" />
-              {/* Head */}
               <div className="size-4 rounded-sm bg-neutral-300 flex items-center justify-center gap-0.5">
                 <div className="size-0.5 rounded-full bg-black" />
                 <div className="size-0.5 rounded-full bg-black" />
@@ -114,7 +112,7 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* Navigation list matching Screenshot 1 */}
+      {/* Navigation list */}
       <div className="flex-1 py-1 px-2 flex flex-col gap-0.5">
         {SIDEBAR_ITEMS.map((item) => {
           const isActive = activeItem === item.label
@@ -129,7 +127,6 @@ export function Sidebar({
                   : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
               )}
             >
-              {/* Icon: filled like YouTube when active, outline when inactive */}
               <item.icon
                 className={cn(
                   "size-4 shrink-0 transition-transform duration-150",
