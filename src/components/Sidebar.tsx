@@ -58,7 +58,7 @@ export function Sidebar({
   }
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0a0a0a]/60 backdrop-blur-md border-r border-white/[0.04] flex flex-col select-none overflow-y-auto">
+    <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0a0a0a]/30 backdrop-blur-md border-r border-white/[0.04] flex flex-col select-none overflow-y-auto">
       {/* Top Header in Sidebar: Novelo Logo + Collapse Icon (No divider) */}
       <div className="h-14 px-3.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
@@ -113,7 +113,7 @@ export function Sidebar({
               className={cn(
                 "w-full flex items-center gap-3.5 px-3 h-10 rounded-[10px] text-[13.5px] font-medium transition-all cursor-pointer border-none text-left",
                 isActive
-                  ? "bg-[#161616]/90 text-white shadow-sm font-semibold"
+                  ? "bg-[#161616]/80 text-white shadow-sm font-semibold"
                   : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
               )}
             >

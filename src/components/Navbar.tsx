@@ -4,6 +4,7 @@ import {
   Bell,
   Settings,
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface NavbarProps {
   balance?: number
@@ -21,30 +22,47 @@ export function Navbar({
   onOpenSettings,
 }: NavbarProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#0a0a0a]/60 backdrop-blur-md border-none">
-      <div className="h-full px-3 md:px-5 flex items-center justify-between gap-4">
-        {/* Left Section: Brand Logo & Sidebar Toggle */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onToggleSidebar}
-            aria-label="Toggle Sidebar"
-            className="size-8 rounded-lg hover:bg-white/[0.08] flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
-          >
-            <MenuIcon className="size-5" />
-          </button>
+    <header
+      className={cn(
+        "fixed top-0 right-0 z-40 h-14 bg-[#0a0a0a]/30 backdrop-blur-md border-none transition-all duration-300",
+        sidebarCollapsed ? "left-0 px-3 md:px-5" : "left-0 md:left-[230px] px-3 md:px-6"
+      )}
+    >
+      <div className="h-full flex items-center justify-between gap-4">
+        {/* Left Section: Only visible when sidebar is collapsed */}
+        {sidebarCollapsed ? (
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={onToggleSidebar}
+              aria-label="Open Sidebar"
+              className="size-8 rounded-lg hover:bg-white/[0.08] flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
+            >
+              <MenuIcon className="size-5" />
+            </button>
 
-          {/* Novelo Logo */}
-          <a href="#" className="flex items-center gap-2 no-underline group select-none">
-            <img
-              src="/novelo-icon.png"
-              alt="Novelo"
-              className="h-10 w-auto max-h-11 object-contain group-hover:scale-105 transition-transform"
-            />
-          </a>
-        </div>
+            <a href="#" className="flex items-center gap-2 no-underline group select-none">
+              <img
+                src="/novelo-icon.png"
+                alt="Novelo"
+                className="h-10 w-auto max-h-11 object-contain group-hover:scale-105 transition-transform"
+              />
+            </a>
+          </div>
+        ) : (
+          /* Mobile menu toggle when sidebar is active on desktop but hidden on small screens */
+          <div className="flex md:hidden items-center gap-3 shrink-0">
+            <button
+              onClick={onToggleSidebar}
+              aria-label="Toggle Sidebar"
+              className="size-8 rounded-lg hover:bg-white/[0.08] flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
+            >
+              <MenuIcon className="size-5" />
+            </button>
+          </div>
+        )}
 
         {/* Center: Roblox-Style Search Bar */}
-        <div className="flex items-center flex-1 max-w-xl mx-2 md:mx-6">
+        <div className="flex items-center flex-1 max-w-xl mx-2 md:mx-4">
           <div className="relative w-full">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#8892a0]">
               <Search className="size-4 stroke-[1.75]" />
@@ -53,13 +71,13 @@ export function Navbar({
             <input
               type="text"
               placeholder="Search"
-              className="w-full h-9 pl-9 pr-4 rounded-lg bg-[#141414]/80 hover:bg-[#181818]/90 border border-white/15 focus:border-white/35 text-sm text-white placeholder:text-[#78849b] focus:outline-none transition-all shadow-inner backdrop-blur-sm"
+              className="w-full h-9 pl-9 pr-4 rounded-lg bg-[#141414]/70 hover:bg-[#181818]/80 border border-white/15 focus:border-white/35 text-sm text-white placeholder:text-[#78849b] focus:outline-none transition-all shadow-inner backdrop-blur-sm"
             />
           </div>
         </div>
 
         {/* Right Section: Roblox Top-Right Bar (Bell with badge, Currency + balance, Settings Gear) */}
-        <div className="flex items-center gap-4 md:gap-5 pr-1">
+        <div className="flex items-center gap-4 md:gap-5 pr-1 shrink-0">
           {/* 1. Notification Bell with Red Badge */}
           <button
             className="relative size-7 flex items-center justify-center text-white/75 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
