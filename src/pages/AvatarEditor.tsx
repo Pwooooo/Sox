@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Sparkles, Check, Save } from 'lucide-react'
 import { ITEMS } from '@/data/items'
 
@@ -13,26 +13,72 @@ interface BodyColors {
   rightLeg: string
 }
 
-const SKIN_TONES = [
-  '#f5cd2f', // Classic Yellow
-  '#eab308', // Gold
-  '#fcd34d', // Light Yellow
-  '#d4a373', // Tan
-  '#a98467', // Warm Brown
-  '#6f4e37', // Brown
-  '#3e2723', // Deep Brown
-  '#ffffff', // White
-  '#d1d5db', // Grey
-  '#18181b', // Black / Obsidian
-  '#3b82f6', // Bright Blue
-  '#0284c7', // Sky Blue
-  '#10b981', // Green
-  '#15803d', // Dark Green
-  '#ef4444', // Red
-  '#b91c1c', // Dark Red
-  '#a855f7', // Purple
-  '#ec4899', // Pink
+// Quick skin tone dots under the hue bar matching Image 3
+const PRESET_SKIN_TONES = [
+  '#2a1b18',
+  '#3f271d',
+  '#593826',
+  '#784c33',
+  '#996242',
+  '#b87a52',
+  '#d19366',
+  '#e2aa80',
+  '#ebbfa0',
+  '#f2d2b8',
+  '#f7e1cf',
+  '#faeee2',
+  '#ffffff',
 ]
+
+// HSV Color utilities
+function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
+  s = s / 100
+  v = v / 100
+  const i = Math.floor((h / 60) % 6)
+  const f = h / 60 - i
+  const p = v * (1 - s)
+  const q = v * (1 - f * s)
+  const t = v * (1 - (1 - f) * s)
+  let r = 0, g = 0, b = 0
+  switch (i) {
+    case 0: r = v; g = t; b = p; break
+    case 1: r = q; g = v; b = p; break
+    case 2: r = p; g = v; b = t; break
+    case 3: r = p; g = q; b = v; break
+    case 4: r = t; g = p; b = v; break
+    case 5: r = v; g = p; b = q; break
+  }
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('').toUpperCase()
+}
+
+function hexToRgb(hex: string): [number, number, number] | null {
+  const clean = hex.replace('#', '')
+  if (clean.length !== 6) return null
+  const num = parseInt(clean, 16)
+  if (isNaN(num)) return null
+  return [(num >> 16) & 255, (num >> 8) & 255, num & 255]
+}
+
+function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
+  r /= 255; g /= 255; b /= 255
+  const max = Math.max(r, g, b), min = Math.min(r, g, b)
+  const diff = max - min
+  let h = 0
+  if (diff !== 0) {
+    if (max === r) h = ((g - b) / diff) % 6
+    else if (max === g) h = (b - r) / diff + 2
+    else h = (r - g) / diff + 4
+    h = Math.round(h * 60)
+    if (h < 0) h += 360
+  }
+  const s = max === 0 ? 0 : (diff / max) * 100
+  const v = max * 100
+  return [h, Math.round(s), Math.round(v)]
+}
 
 export function AvatarEditor() {
   const [bodyColors, setBodyColors] = useState<BodyColors>({
@@ -49,20 +95,123 @@ export function AvatarEditor() {
   const [equippedIds, setEquippedIds] = useState<number[]>([1])
   const [savedNotification, setSavedNotification] = useState(false)
 
-  const handleColorSelect = (color: string) => {
-    if (selectedPart === 'all') {
-      setBodyColors({
-        head: color,
-        torso: color,
-        leftArm: color,
-        rightArm: color,
-        leftLeg: color,
-        rightLeg: color,
-      })
-    } else {
+  // Color picker HSV state
+  const [hue, setHue] = useState(0)
+  const [saturation, setSaturation] = useState(0)
+  const [value, setValue] = useState(100)
+  const [hexInput, setHexInput] = useState('#FFFFFF')
+
+  const spectrumRef = useRef<HTMLDivElement>(null)
+  const isDraggingRef = useRef(false)
+
+  // Sync color changes to body part
+  const applyColor = useCallback((h: number, s: number, v: number) => {
+    const [r, g, b] = hsvToRgb(h, s, v)
+    const hex = rgbToHex(r, g, b)
+    setHexInput(hex)
+
+    setBodyColors((prev) => {
+      if (selectedPart === 'all') {
+        return {
+          head: hex,
+          torso: hex,
+          leftArm: hex,
+          rightArm: hex,
+          leftLeg: hex,
+          rightLeg: hex,
+        }
+      }
+      return {
+        ...prev,
+        [selectedPart]: hex,
+      }
+    })
+  }, [selectedPart])
+
+  // When selected part changes, sync HSV to that part's current color
+  useEffect(() => {
+    const currentColor = selectedPart === 'all' ? bodyColors.head : bodyColors[selectedPart as keyof BodyColors]
+    const rgb = hexToRgb(currentColor)
+    if (rgb) {
+      const [h, s, v] = rgbToHsv(...rgb)
+      setHue(h)
+      setSaturation(s)
+      setValue(v)
+      setHexInput(currentColor.toUpperCase())
+    }
+  }, [selectedPart])
+
+  // 2D Saturation / Value picker handler
+  const handleSpectrumMove = useCallback((e: MouseEvent | React.MouseEvent) => {
+    if (!spectrumRef.current) return
+    const rect = spectrumRef.current.getBoundingClientRect()
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
+    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top))
+    const s = Math.round((x / rect.width) * 100)
+    const v = Math.round((1 - y / rect.height) * 100)
+    setSaturation(s)
+    setValue(v)
+    applyColor(hue, s, v)
+  }, [hue, applyColor])
+
+  const handleSpectrumDown = (e: React.MouseEvent) => {
+    isDraggingRef.current = true
+    handleSpectrumMove(e)
+  }
+
+  useEffect(() => {
+    const handleUp = () => {
+      isDraggingRef.current = false
+    }
+    const handleMove = (e: MouseEvent) => {
+      if (isDraggingRef.current) {
+        handleSpectrumMove(e)
+      }
+    }
+    window.addEventListener('mouseup', handleUp)
+    window.addEventListener('mousemove', handleMove)
+    return () => {
+      window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('mousemove', handleMove)
+    }
+  }, [handleSpectrumMove])
+
+  // Hex text input change
+  const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value
+    if (!val.startsWith('#')) val = '#' + val
+    setHexInput(val)
+    if (val.length === 7) {
+      const rgb = hexToRgb(val)
+      if (rgb) {
+        const [h, s, v] = rgbToHsv(...rgb)
+        setHue(h)
+        setSaturation(s)
+        setValue(v)
+        setBodyColors((prev) => ({
+          ...prev,
+          ...(selectedPart === 'all'
+            ? { head: val, torso: val, leftArm: val, rightArm: val, leftLeg: val, rightLeg: val }
+            : { [selectedPart]: val }),
+        }))
+      }
+    }
+  }
+
+  // Quick preset click
+  const handlePresetClick = (hex: string) => {
+    setHexInput(hex.toUpperCase())
+    const rgb = hexToRgb(hex)
+    if (rgb) {
+      const [h, s, v] = rgbToHsv(...rgb)
+      setHue(h)
+      setSaturation(s)
+      setValue(v)
       setBodyColors((prev) => ({
         ...prev,
-        [selectedPart]: color,
+        ...(selectedPart === 'all'
+          ? { head: hex, torso: hex, leftArm: hex, rightArm: hex, leftLeg: hex, rightLeg: hex }
+          : { [selectedPart]: hex }),
       }))
     }
   }
@@ -114,10 +263,10 @@ export function AvatarEditor() {
         </button>
       </div>
 
-      {/* Main Upper Workspace: THE Single Interactive Character (Image 2) on Left + Color Swatches on Right */}
+      {/* Main Workspace: Character on Left + Image 3 Color Wheel on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left: The Only Character — Exact Replica of Image 2 */}
-        <div className="lg:col-span-5 rounded-2xl bg-[#0e0e10] border border-white/[0.04] p-8 flex flex-col items-center justify-center min-h-[520px] shadow-2xl relative select-none">
+        {/* Left: The Single Clean Character (Black Selection Outline) */}
+        <div className="lg:col-span-5 rounded-2xl bg-[#0e0e10] border border-white/[0.04] p-8 flex flex-col items-center justify-center min-h-[540px] shadow-2xl relative select-none">
           {/* Top Control: All Toggle */}
           <div className="w-full flex items-center justify-between mb-4">
             <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider">Body Parts</span>
@@ -125,7 +274,7 @@ export function AvatarEditor() {
               onClick={() => setSelectedPart(selectedPart === 'all' ? 'torso' : 'all')}
               className={`px-3 py-1 rounded-[8px] text-xs font-bold transition-all cursor-pointer border-none ${
                 selectedPart === 'all'
-                  ? 'bg-red-500 text-white shadow-md'
+                  ? 'bg-black text-white border border-white/20 shadow-md'
                   : 'bg-white/10 text-white/60 hover:text-white'
               }`}
             >
@@ -133,15 +282,15 @@ export function AvatarEditor() {
             </button>
           </div>
 
-          {/* Interactive Roblox Humanoid Structure matching Image 2 */}
+          {/* Interactive Roblox Humanoid Structure (Black Selection Outlines, Not Too Round) */}
           <div className="flex flex-col items-center select-none py-2">
             {/* Head */}
             <button
               onClick={() => setSelectedPart('head')}
               title="Head"
-              className={`w-28 h-28 rounded-2xl mb-2.5 transition-all cursor-pointer relative ${
+              className={`w-28 h-28 rounded-[14px] mb-2.5 transition-all cursor-pointer relative ${
                 selectedPart === 'head' || selectedPart === 'all'
-                  ? 'border-[2.5px] border-[#ef4444] shadow-[0_0_12px_rgba(239,68,68,0.3)]'
+                  ? 'border-[3px] border-black shadow-[0_0_0_1px_rgba(255,255,255,0.2)] scale-[1.02]'
                   : 'border border-black/20 hover:brightness-105'
               }`}
               style={{ backgroundColor: bodyColors.head }}
@@ -153,9 +302,9 @@ export function AvatarEditor() {
               <button
                 onClick={() => setSelectedPart('leftArm')}
                 title="Left Arm"
-                className={`w-20 h-40 rounded-2xl transition-all cursor-pointer ${
+                className={`w-20 h-40 rounded-[14px] transition-all cursor-pointer ${
                   selectedPart === 'leftArm' || selectedPart === 'all'
-                    ? 'border-[2.5px] border-[#ef4444] shadow-[0_0_12px_rgba(239,68,68,0.3)]'
+                    ? 'border-[3px] border-black shadow-[0_0_0_1px_rgba(255,255,255,0.2)] scale-[1.02]'
                     : 'border border-black/20 hover:brightness-105'
                 }`}
                 style={{ backgroundColor: bodyColors.leftArm }}
@@ -165,9 +314,9 @@ export function AvatarEditor() {
               <button
                 onClick={() => setSelectedPart('torso')}
                 title="Torso"
-                className={`w-44 h-40 rounded-2xl transition-all cursor-pointer relative ${
+                className={`w-44 h-40 rounded-[14px] transition-all cursor-pointer relative ${
                   selectedPart === 'torso' || selectedPart === 'all'
-                    ? 'border-[2.5px] border-[#ef4444] shadow-[0_0_12px_rgba(239,68,68,0.3)]'
+                    ? 'border-[3px] border-black shadow-[0_0_0_1px_rgba(255,255,255,0.2)] scale-[1.02]'
                     : 'border border-black/20 hover:brightness-105'
                 }`}
                 style={{ backgroundColor: bodyColors.torso }}
@@ -177,9 +326,9 @@ export function AvatarEditor() {
               <button
                 onClick={() => setSelectedPart('rightArm')}
                 title="Right Arm"
-                className={`w-20 h-40 rounded-2xl transition-all cursor-pointer ${
+                className={`w-20 h-40 rounded-[14px] transition-all cursor-pointer ${
                   selectedPart === 'rightArm' || selectedPart === 'all'
-                    ? 'border-[2.5px] border-[#ef4444] shadow-[0_0_12px_rgba(239,68,68,0.3)]'
+                    ? 'border-[3px] border-black shadow-[0_0_0_1px_rgba(255,255,255,0.2)] scale-[1.02]'
                     : 'border border-black/20 hover:brightness-105'
                 }`}
                 style={{ backgroundColor: bodyColors.rightArm }}
@@ -192,9 +341,9 @@ export function AvatarEditor() {
               <button
                 onClick={() => setSelectedPart('leftLeg')}
                 title="Left Leg"
-                className={`w-21 h-44 rounded-2xl transition-all cursor-pointer ${
+                className={`w-21 h-44 rounded-[14px] transition-all cursor-pointer ${
                   selectedPart === 'leftLeg' || selectedPart === 'all'
-                    ? 'border-[2.5px] border-[#ef4444] shadow-[0_0_12px_rgba(239,68,68,0.3)]'
+                    ? 'border-[3px] border-black shadow-[0_0_0_1px_rgba(255,255,255,0.2)] scale-[1.02]'
                     : 'border border-black/20 hover:brightness-105'
                 }`}
                 style={{ backgroundColor: bodyColors.leftLeg }}
@@ -204,9 +353,9 @@ export function AvatarEditor() {
               <button
                 onClick={() => setSelectedPart('rightLeg')}
                 title="Right Leg"
-                className={`w-21 h-44 rounded-2xl transition-all cursor-pointer ${
+                className={`w-21 h-44 rounded-[14px] transition-all cursor-pointer ${
                   selectedPart === 'rightLeg' || selectedPart === 'all'
-                    ? 'border-[2.5px] border-[#ef4444] shadow-[0_0_12px_rgba(239,68,68,0.3)]'
+                    ? 'border-[3px] border-black shadow-[0_0_0_1px_rgba(255,255,255,0.2)] scale-[1.02]'
                     : 'border border-black/20 hover:brightness-105'
                 }`}
                 style={{ backgroundColor: bodyColors.rightLeg }}
@@ -214,43 +363,123 @@ export function AvatarEditor() {
             </div>
           </div>
 
-          {/* Selected Part Label matching Image 2 */}
-          <span className="text-sm font-semibold text-cyan-400 tracking-wide mt-4">
+          {/* White Part Label matching Image 1 request */}
+          <span className="text-sm font-bold text-white tracking-wide mt-4">
             {getPartLabel(selectedPart)}
           </span>
         </div>
 
-        {/* Right: Color Swatches & Options */}
+        {/* Right: Full 2D Color Picker matching Image 3 */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          {/* Color Palette Box */}
-          <div className="p-6 rounded-2xl bg-[#0e0e10] border border-white/[0.04] flex flex-col gap-4 shadow-xl">
+          <div className="p-6 rounded-2xl bg-[#0e0e10] border border-white/[0.04] flex flex-col gap-5 shadow-2xl">
+            {/* Header */}
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white">
-                Skin Color: <span className="text-cyan-400 font-bold">{getPartLabel(selectedPart)}</span>
-              </h3>
-              <span className="text-xs text-white/40">Select a body part, then choose color</span>
+              <span className="text-sm font-bold text-white">
+                Coloring: <span className="text-white font-extrabold">{getPartLabel(selectedPart)}</span>
+              </span>
+              <span className="text-xs text-white/40">Drag spectrum or pick from skin presets</span>
             </div>
 
-            {/* Swatches Grid */}
-            <div className="grid grid-cols-6 gap-3 pt-2">
-              {SKIN_TONES.map((color) => {
-                const currentPartColor = selectedPart === 'all' ? bodyColors.head : bodyColors[selectedPart as keyof BodyColors]
-                const isSelected = currentPartColor === color
-                return (
-                  <button
-                    key={color}
-                    onClick={() => handleColorSelect(color)}
-                    style={{ backgroundColor: color }}
-                    className={`aspect-square rounded-xl cursor-pointer transition-all border border-black/30 ${
-                      isSelected ? 'ring-2 ring-white scale-105 shadow-xl' : 'hover:scale-105 opacity-90 hover:opacity-100'
-                    }`}
-                  />
-                )
-              })}
+            {/* 1. Large 2D Saturation / Value Gradient Canvas matching Image 3 */}
+            <div
+              ref={spectrumRef}
+              onMouseDown={handleSpectrumDown}
+              className="relative w-full h-72 rounded-2xl cursor-crosshair overflow-hidden shadow-inner select-none"
+              style={{
+                backgroundColor: `hsl(${hue}, 100%, 50%)`,
+              }}
+            >
+              {/* White to Transparent (Horizontal Saturation) */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(to right, #ffffff, transparent)',
+                }}
+              />
+              {/* Transparent to Black (Vertical Value / Brightness) */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(to top, #000000, transparent)',
+                }}
+              />
+
+              {/* Draggable Circle Selector Point matching Image 3 */}
+              <div
+                className="absolute size-4 rounded-full border-2 border-white shadow-[0_0_4px_rgba(0,0,0,0.8)] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                style={{
+                  left: `${saturation}%`,
+                  top: `${100 - value}%`,
+                  backgroundColor: hexInput,
+                }}
+              />
+            </div>
+
+            {/* 2. Rainbow Hue Slider matching Image 3 */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between text-xs text-white/60">
+                <span className="font-semibold text-white/70">Hue</span>
+              </div>
+              <div className="relative flex items-center h-5 w-full">
+                <input
+                  type="range"
+                  min="0"
+                  max="360"
+                  value={hue}
+                  onChange={(e) => {
+                    const h = Number(e.target.value)
+                    setHue(h)
+                    applyColor(h, saturation, value)
+                  }}
+                  className="hue-slider w-full h-2.5 rounded-full cursor-pointer outline-none"
+                  style={{
+                    background:
+                      'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* 3. Skin Tone Swatches Row matching Image 3 */}
+            <div className="flex items-center justify-between gap-1.5 py-1 overflow-x-auto no-scrollbar">
+              {PRESET_SKIN_TONES.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => handlePresetClick(color)}
+                  style={{ backgroundColor: color }}
+                  className={`size-6 rounded-full cursor-pointer transition-transform hover:scale-110 border border-black/20 shrink-0 ${
+                    hexInput.toLowerCase() === color.toLowerCase() ? 'ring-2 ring-white scale-110' : ''
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* 4. Saturation & Brightness Readout matching Image 3 */}
+            <div className="flex items-center justify-between text-xs text-white/50 pt-1">
+              <span>Saturation {saturation}%</span>
+              <span>Brightness {value}%</span>
+            </div>
+
+            {/* 5. Hex Input Box matching Image 3 */}
+            <div className="flex items-center gap-3 pt-2 border-t border-white/[0.04]">
+              <span className="text-xs font-semibold text-white/70">Hex</span>
+              <div className="flex-1 flex items-center justify-between h-9 px-3.5 rounded-[10px] bg-[#141416] border border-white/10">
+                <input
+                  type="text"
+                  value={hexInput}
+                  onChange={handleHexChange}
+                  maxLength={7}
+                  className="w-full bg-transparent text-xs font-mono font-bold text-white focus:outline-none tracking-wider uppercase"
+                />
+                <div
+                  className="size-5 rounded-md border border-white/20 shrink-0 ml-2"
+                  style={{ backgroundColor: hexInput }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Wardrobe Items Drawer */}
+          {/* Wardrobe Items Section */}
           <div className="p-6 rounded-2xl bg-[#0e0e10] border border-white/[0.04] flex flex-col gap-4 shadow-xl">
             {/* Category Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
