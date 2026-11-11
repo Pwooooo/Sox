@@ -60,12 +60,12 @@ export function Sidebar({
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0c0c0c] border-r border-white/[0.06] flex flex-col select-none overflow-y-auto">
       {/* Top Header in Sidebar: Novelo Logo + Collapse Icon */}
-      <div className="h-14 px-4 flex items-center justify-between border-b border-white/[0.04] shrink-0">
+      <div className="h-14 px-3.5 flex items-center justify-between border-b border-white/[0.04] shrink-0">
         <div className="flex items-center gap-2">
           <img
             src="/novelo-icon.png"
             alt="Novelo"
-            className="h-8 w-auto max-h-9 object-contain"
+            className="h-10 w-auto max-h-11 object-contain"
           />
         </div>
 

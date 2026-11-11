@@ -33,12 +33,12 @@ export function Navbar({
             <MenuIcon className="size-5" />
           </button>
 
-          {/* Novelo Logo */}
+          {/* Novelo Logo - Enlarged */}
           <a href="#" className="flex items-center gap-2 no-underline group select-none">
             <img
               src="/novelo-icon.png"
               alt="Novelo"
-              className="h-8 w-auto max-h-9 object-contain group-hover:scale-105 transition-transform"
+              className="h-10 w-auto max-h-11 object-contain group-hover:scale-105 transition-transform"
             />
           </a>
         </div>
