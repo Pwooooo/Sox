@@ -906,7 +906,7 @@ export function Create({ onClose }: CreateProps) {
             <img
               src="/novelo-icon.png"
               alt="Novelo"
-              className="size-6 object-contain"
+              className="h-8 w-auto max-h-9 object-contain"
             />
             <span className="text-xs font-black tracking-wider text-white uppercase">
               Creator
