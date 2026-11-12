@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Search, ChevronsUpDown, Filter, Star, Clock, Palette } from 'lucide-react'
+import { Search, Filter, Star, Clock, Palette, Flame } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
+import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 
 interface MarketItem {
   id: string
@@ -67,6 +68,40 @@ export function Marketplace() {
     return matchesSearch && matchesCat
   })
 
+  const categoryOptions: DropdownOption[] = [
+    { value: 'All Categories', label: 'All Categories' },
+    { value: 'Hats', label: 'Hats' },
+    { value: 'Hair', label: 'Hair' },
+    { value: 'Faces', label: 'Faces' },
+    { value: 'Clothing', label: 'Clothing' },
+    { value: 'Accessories', label: 'Accessories' },
+  ]
+
+  const sortOptions: DropdownOption[] = [
+    { value: 'Relevance', label: 'Relevance' },
+    {
+      value: 'Popular',
+      label: 'Popular',
+      icon: <Flame className="size-3.5 text-orange-400 stroke-[2.2]" />,
+    },
+    {
+      value: 'Newest',
+      label: 'Newest',
+      icon: <Clock className="size-3.5 text-white/80 stroke-[2.2]" />,
+    },
+    { value: 'Price: Low to High', label: 'Price: Low to High' },
+    { value: 'Price: High to Low', label: 'Price: High to Low' },
+  ]
+
+  let sortedItems = [...filteredItems]
+  if (sort === 'Price: Low to High') {
+    sortedItems.sort((a, b) => a.price - b.price)
+  } else if (sort === 'Price: High to Low') {
+    sortedItems.sort((a, b) => b.price - a.price)
+  } else if (sort === 'Popular') {
+    sortedItems.sort((a, b) => b.price - a.price)
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1900px]">
       {/* Top Search & Filter Header matching Image 1 */}
@@ -83,38 +118,21 @@ export function Marketplace() {
           />
         </div>
 
-        {/* Right Dropdowns & Filter Funnel matching Image 1 */}
+        {/* Right Dropdowns & Filter Funnel matching Image 1 & 3 */}
         <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0 justify-end">
           {/* Category Dropdown */}
-          <div className="relative">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="h-9 pl-3.5 pr-8 rounded-[10px] bg-[#111113] border border-white/10 text-xs text-white focus:outline-none cursor-pointer appearance-none font-medium hover:border-white/20 transition-colors"
-            >
-              <option value="All Categories" className="bg-[#141416]">All Categories</option>
-              <option value="Hats" className="bg-[#141416]">Hats</option>
-              <option value="Hair" className="bg-[#141416]">Hair</option>
-              <option value="Faces" className="bg-[#141416]">Faces</option>
-              <option value="Clothing" className="bg-[#141416]">Clothing</option>
-              <option value="Accessories" className="bg-[#141416]">Accessories</option>
-            </select>
-            <ChevronsUpDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-white/50 pointer-events-none" />
-          </div>
+          <CustomDropdown
+            value={category}
+            onChange={setCategory}
+            options={categoryOptions}
+          />
 
-          {/* Relevance Dropdown */}
-          <div className="relative">
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="h-9 pl-3.5 pr-8 rounded-[10px] bg-[#111113] border border-white/10 text-xs text-white focus:outline-none cursor-pointer appearance-none font-medium hover:border-white/20 transition-colors"
-            >
-              <option value="Relevance" className="bg-[#141416]">Relevance</option>
-              <option value="Price: Low to High" className="bg-[#141416]">Price: Low to High</option>
-              <option value="Price: High to Low" className="bg-[#141416]">Price: High to Low</option>
-            </select>
-            <ChevronsUpDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-white/50 pointer-events-none" />
-          </div>
+          {/* Relevance Dropdown matching Image 3 */}
+          <CustomDropdown
+            value={sort}
+            onChange={setSort}
+            options={sortOptions}
+          />
 
           {/* Filter Funnel Icon matching Image 1 */}
           <button className="size-9 rounded-[10px] bg-[#111113] border border-white/10 hover:border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer">
@@ -125,7 +143,7 @@ export function Marketplace() {
 
       {/* 10-Column Catalog Grid matching Image 3 */}
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
-        {filteredItems.map((item) => (
+        {sortedItems.map((item) => (
           <div
             key={item.id}
             onClick={() => handleBuy(item)}

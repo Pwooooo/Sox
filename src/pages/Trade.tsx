@@ -13,6 +13,7 @@ import {
   Search,
 } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
+import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 
 export interface TradeItem {
   id: string
@@ -528,6 +529,13 @@ export function Trade() {
   const modalReceiveTotal = selectedReceiveItems.reduce((s, i) => s + i.value, 0)
   const modalDiff = modalReceiveTotal - modalGiveTotal
 
+  const categoryOptions: DropdownOption<TradeCategory>[] = [
+    { value: 'Inbound', label: `Inbound (${trades.filter((t) => t.category === 'Inbound').length})` },
+    { value: 'Outbound', label: `Outbound (${trades.filter((t) => t.category === 'Outbound').length})` },
+    { value: 'Completed', label: `Completed (${trades.filter((t) => t.category === 'Completed').length})` },
+    { value: 'Inactive', label: `Inactive (${trades.filter((t) => t.category === 'Inactive').length})` },
+  ]
+
   return (
     <div className="p-4 md:p-6 lg:p-7 max-w-[1400px] flex flex-col gap-6">
       {/* Toast Notification */}
@@ -558,25 +566,17 @@ export function Trade() {
             </div>
 
             <div className="flex items-center justify-between">
-              {/* Category Dropdown */}
-              <div className="relative">
-                <select
-                  value={tradeCategory}
-                  onChange={(e) => {
-                    const cat = e.target.value as TradeCategory
-                    setTradeCategory(cat)
-                    const firstInCat = trades.find((t) => t.category === cat)
-                    if (firstInCat) setSelectedTradeId(firstInCat.id)
-                  }}
-                  className="h-8 pl-3 pr-8 rounded-[10px] bg-[#1c1c1f] hover:bg-[#242428] text-xs font-semibold text-white focus:outline-none cursor-pointer appearance-none transition-colors border-none"
-                >
-                  <option value="Inbound">Inbound ({trades.filter((t) => t.category === 'Inbound').length})</option>
-                  <option value="Outbound">Outbound ({trades.filter((t) => t.category === 'Outbound').length})</option>
-                  <option value="Completed">Completed ({trades.filter((t) => t.category === 'Completed').length})</option>
-                  <option value="Inactive">Inactive ({trades.filter((t) => t.category === 'Inactive').length})</option>
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-white/50 pointer-events-none" />
-              </div>
+              {/* Category Custom Dropdown matching Image 3 */}
+              <CustomDropdown<TradeCategory>
+                value={tradeCategory}
+                onChange={(cat) => {
+                  setTradeCategory(cat)
+                  const firstInCat = trades.find((t) => t.category === cat)
+                  if (firstInCat) setSelectedTradeId(firstInCat.id)
+                }}
+                options={categoryOptions}
+                buttonClassName="h-8 pl-3 pr-2.5 rounded-[10px] bg-[#1c1c1f] hover:bg-[#242428] border-none text-xs"
+              />
 
               {/* How do I trade link */}
               <button
@@ -889,7 +889,7 @@ export function Trade() {
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="size-8 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none transition-colors"
+                className="size-8 rounded-[6px] bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none transition-colors"
               >
                 <X className="size-4" />
               </button>
@@ -1262,7 +1262,7 @@ export function Trade() {
               </h3>
               <button
                 onClick={() => setShowHowToTrade(false)}
-                className="size-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none"
+                className="size-7 rounded-[6px] bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none"
               >
                 <X className="size-4" />
               </button>
