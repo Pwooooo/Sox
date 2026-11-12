@@ -48,7 +48,7 @@ interface Experience {
   description?: string
   genre?: string
   subgenre?: string
-  privacy: 'Playtesters' | 'Public'
+  privacy: 'Public' | 'Private' | 'Playtesters'
   thumbnail?: string
   fallbackType: 'ocean' | 'autumn' | 'baseplate' | 'house' | 'mountain'
   updatedDate: string
@@ -277,7 +277,7 @@ export function Create({ onClose }: CreateProps) {
   const [formDesc, setFormDesc] = useState('')
   const [formGenre, setFormGenre] = useState('Genre')
   const [formSubgenre, setFormSubgenre] = useState('None')
-  const [formPrivacy, setFormPrivacy] = useState<'Playtesters' | 'Public'>('Playtesters')
+  const [formPrivacy, setFormPrivacy] = useState<'Public' | 'Private' | 'Playtesters'>('Playtesters')
 
   // Dashboard Filters State
   const [dashboardTab, setDashboardTab] = useState<'My Experiences' | 'Shared With Me'>('My Experiences')
@@ -354,7 +354,6 @@ export function Create({ onClose }: CreateProps) {
       subgenre: formSubgenre,
       privacy: formPrivacy,
     }))
-    showToast('Changes saved successfully!')
     setViewMode('dashboard')
   }
 
@@ -862,12 +861,13 @@ export function Create({ onClose }: CreateProps) {
             </span>
           </div>
 
-          {/* Field 5: Privacy / Visibility Setting (Subtle monochrome selection - Image 2) */}
+          {/* Field 5: Privacy / Visibility Setting (3 Options: Public, Private, Playtesters) */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-white tracking-tight">
               Privacy / Visibility
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-2xl">
+              {/* Option 1: Public */}
               <div
                 onClick={() => setFormPrivacy('Public')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
@@ -895,6 +895,35 @@ export function Create({ onClose }: CreateProps) {
                 </div>
               </div>
 
+              {/* Option 2: Private */}
+              <div
+                onClick={() => setFormPrivacy('Private')}
+                className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
+                  formPrivacy === 'Private'
+                    ? 'bg-white/[0.06] border-white/30 text-white shadow-sm'
+                    : 'bg-[#121216] border-white/10 text-white/50 hover:text-white hover:border-white/20 hover:bg-white/[0.02]'
+                }`}
+              >
+                <div
+                  className={`size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                    formPrivacy === 'Private'
+                      ? 'border-white bg-white/10'
+                      : 'border-white/25 bg-transparent'
+                  }`}
+                >
+                  {formPrivacy === 'Private' && <div className="size-2 rounded-full bg-white" />}
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className={`text-xs font-bold ${formPrivacy === 'Private' ? 'text-white' : 'text-white/80'}`}>
+                    Private
+                  </span>
+                  <span className={`text-[11px] leading-snug ${formPrivacy === 'Private' ? 'text-white/60' : 'text-white/40'}`}>
+                    Only you can edit and play this game
+                  </span>
+                </div>
+              </div>
+
+              {/* Option 3: Playtesters */}
               <div
                 onClick={() => setFormPrivacy('Playtesters')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
@@ -914,7 +943,7 @@ export function Create({ onClose }: CreateProps) {
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <span className={`text-xs font-bold ${formPrivacy === 'Playtesters' ? 'text-white' : 'text-white/80'}`}>
-                    Playtesters (Private)
+                    Playtesters
                   </span>
                   <span className={`text-[11px] leading-snug ${formPrivacy === 'Playtesters' ? 'text-white/60' : 'text-white/40'}`}>
                     Only you and approved playtesters can join
@@ -949,16 +978,8 @@ export function Create({ onClose }: CreateProps) {
   // -------------------------------------------------------------
   return (
     <div className="fixed inset-0 z-50 bg-[#0b0b0e] text-white select-none flex flex-col overflow-hidden font-sans">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 border border-white/20 text-white shadow-2xl text-xs font-semibold animate-in fade-in slide-in-from-top-3 duration-200">
-          <Sparkles className="size-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Top Application Bar with Return to Novelo Client & Search */}
-      <div className="h-12 bg-[#0e0e12] border-b border-white/[0.06] flex items-center justify-between px-4 shrink-0 z-20">
+      {/* Top Application Bar with Return to Novelo Client & Search (No bottom divider border) */}
+      <div className="h-12 bg-[#0e0e12] flex items-center justify-between px-4 shrink-0 z-20">
         <div className="flex items-center gap-3">
           {onClose && (
             <button
@@ -1020,8 +1041,8 @@ export function Create({ onClose }: CreateProps) {
 
       {/* Main Container: Sidebar + Subnav + Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Primary Creator Hub Sidebar matching Reference Image (No vertical divider border) */}
-        <div className="w-16 md:w-52 bg-[#0e0e12] flex flex-col justify-between py-4 shrink-0">
+        {/* Left Primary Creator Hub Sidebar (With sidebar divider re-added) */}
+        <div className="w-16 md:w-52 bg-[#0e0e12] border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
           <div className="flex flex-col gap-3 px-2.5">
             {/* Category: Create */}
             <div className="flex flex-col gap-1">
@@ -1373,6 +1394,8 @@ export function Create({ onClose }: CreateProps) {
                       <div className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/[0.06] text-[10px] font-semibold text-white/70">
                         {exp.privacy === 'Public' ? (
                           <Globe className="size-2 text-white/50" />
+                        ) : exp.privacy === 'Playtesters' ? (
+                          <Users className="size-2 text-white/50" />
                         ) : (
                           <Lock className="size-2 text-white/50" />
                         )}
