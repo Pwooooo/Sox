@@ -11,6 +11,7 @@ import {
   ArrowLeftRight,
   Hammer,
   ExternalLink,
+  MessagesSquare,
   PanelLeftClose,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -42,6 +43,7 @@ const SIDEBAR_ITEMS: NavItemDef[] = [
   { label: 'Store', icon: ShoppingBag },
   { label: 'Trade', icon: ArrowLeftRight },
   { label: 'Create', icon: Hammer, isExternal: true },
+  { label: 'Forum', icon: MessagesSquare, isExternal: true },
 ]
 
 export function Sidebar({

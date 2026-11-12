@@ -36,6 +36,7 @@ import {
   FileText,
   Users,
   Frown,
+  Globe,
 } from 'lucide-react'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { StockAvatar } from '@/pages/Trade'
@@ -861,7 +862,7 @@ export function Create({ onClose }: CreateProps) {
             </span>
           </div>
 
-          {/* Field 5: Privacy / Visibility Setting */}
+          {/* Field 5: Privacy / Visibility Setting (Subtle monochrome selection - Image 2) */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-white tracking-tight">
               Privacy / Visibility
@@ -869,35 +870,55 @@ export function Create({ onClose }: CreateProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
               <div
                 onClick={() => setFormPrivacy('Public')}
-                className={`flex items-start gap-3 p-3 rounded-[8px] border cursor-pointer transition-all ${
+                className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Public'
-                    ? 'bg-blue-600/10 border-blue-500 text-white shadow-sm'
-                    : 'bg-[#121216] border-white/10 text-white/60 hover:text-white hover:border-white/20'
+                    ? 'bg-white/[0.06] border-white/30 text-white shadow-sm'
+                    : 'bg-[#121216] border-white/10 text-white/50 hover:text-white hover:border-white/20 hover:bg-white/[0.02]'
                 }`}
               >
-                <div className={`size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${formPrivacy === 'Public' ? 'border-blue-500 bg-blue-500/20' : 'border-white/30'}`}>
-                  {formPrivacy === 'Public' && <div className="size-2 rounded-full bg-blue-500" />}
+                <div
+                  className={`size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                    formPrivacy === 'Public'
+                      ? 'border-white bg-white/10'
+                      : 'border-white/25 bg-transparent'
+                  }`}
+                >
+                  {formPrivacy === 'Public' && <div className="size-2 rounded-full bg-white" />}
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-bold text-white">Public</span>
-                  <span className="text-[11px] text-white/40 leading-snug">Anyone on Novelo can discover and play</span>
+                  <span className={`text-xs font-bold ${formPrivacy === 'Public' ? 'text-white' : 'text-white/80'}`}>
+                    Public
+                  </span>
+                  <span className={`text-[11px] leading-snug ${formPrivacy === 'Public' ? 'text-white/60' : 'text-white/40'}`}>
+                    Anyone on Novelo can discover and play
+                  </span>
                 </div>
               </div>
 
               <div
                 onClick={() => setFormPrivacy('Playtesters')}
-                className={`flex items-start gap-3 p-3 rounded-[8px] border cursor-pointer transition-all ${
+                className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Playtesters'
-                    ? 'bg-blue-600/10 border-blue-500 text-white shadow-sm'
-                    : 'bg-[#121216] border-white/10 text-white/60 hover:text-white hover:border-white/20'
+                    ? 'bg-white/[0.06] border-white/30 text-white shadow-sm'
+                    : 'bg-[#121216] border-white/10 text-white/50 hover:text-white hover:border-white/20 hover:bg-white/[0.02]'
                 }`}
               >
-                <div className={`size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${formPrivacy === 'Playtesters' ? 'border-blue-500 bg-blue-500/20' : 'border-white/30'}`}>
-                  {formPrivacy === 'Playtesters' && <div className="size-2 rounded-full bg-blue-500" />}
+                <div
+                  className={`size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                    formPrivacy === 'Playtesters'
+                      ? 'border-white bg-white/10'
+                      : 'border-white/25 bg-transparent'
+                  }`}
+                >
+                  {formPrivacy === 'Playtesters' && <div className="size-2 rounded-full bg-white" />}
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-bold text-white">Playtesters (Private)</span>
-                  <span className="text-[11px] text-white/40 leading-snug">Only you and approved playtesters can join</span>
+                  <span className={`text-xs font-bold ${formPrivacy === 'Playtesters' ? 'text-white' : 'text-white/80'}`}>
+                    Playtesters (Private)
+                  </span>
+                  <span className={`text-[11px] leading-snug ${formPrivacy === 'Playtesters' ? 'text-white/60' : 'text-white/40'}`}>
+                    Only you and approved playtesters can join
+                  </span>
                 </div>
               </div>
             </div>
@@ -1350,7 +1371,11 @@ export function Create({ onClose }: CreateProps) {
                         <span>0</span>
                       </div>
                       <div className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/[0.06] text-[10px] font-semibold text-white/70">
-                        <Lock className="size-2 text-white/50" />
+                        {exp.privacy === 'Public' ? (
+                          <Globe className="size-2 text-white/50" />
+                        ) : (
+                          <Lock className="size-2 text-white/50" />
+                        )}
                         <span>{exp.privacy}</span>
                       </div>
                     </div>
