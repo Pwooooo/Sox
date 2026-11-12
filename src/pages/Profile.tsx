@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket } from 'lucide-react'
+import { UnderConstruction } from '@/components/UnderConstruction'
 
 export function Profile() {
   const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
@@ -276,9 +277,7 @@ export function Profile() {
 
       {/* Other tabs placeholder */}
       {activeTab !== 'About' && activeTab !== 'Games' && (
-        <div className="py-20 text-center text-xs text-white/40">
-          No items found in {activeTab}.
-        </div>
+        <UnderConstruction onGoBack={() => setActiveTab('About')} />
       )}
     </div>
   )

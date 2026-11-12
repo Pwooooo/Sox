@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Search, Sparkles } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
+import { UnderConstruction } from '@/components/UnderConstruction'
 
 interface InventoryItem {
   id: string
@@ -128,45 +129,54 @@ export function Inventory() {
       </div>
 
       {/* 3. Cards Grid matching Luduvo style from Image 2 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3.5">
-        {filteredItems.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => setSelectedItem(item)}
-            className="group rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
-          >
-            {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
-            <IsometricMannequin
-              name={item.name}
-              type={item.type}
-              shirtType={item.shirtType}
-              faceType={item.faceType}
-            />
+      {filteredItems.length === 0 ? (
+        <UnderConstruction
+          onGoBack={() => {
+            setActiveTab('All')
+            setSearch('')
+          }}
+        />
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3.5">
+          {filteredItems.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => setSelectedItem(item)}
+              className="group rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
+            >
+              {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
+              <IsometricMannequin
+                name={item.name}
+                type={item.type}
+                shirtType={item.shirtType}
+                faceType={item.faceType}
+              />
 
-            {/* Bottom Info matching Image 1 */}
-            <div className="flex flex-col gap-0.5 text-left pt-1">
-              <h4 className="text-xs md:text-sm font-bold text-white leading-tight truncate group-hover:text-white">
-                {item.name}
-              </h4>
-              <span className="text-[11px] text-white/50 truncate">
-                By <span className="text-white/80 font-medium">{item.creator}</span>
-              </span>
-              <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
-                {item.isOffSale ? (
-                  <span className="text-[11px] text-white/40 font-medium">Off Sale</span>
-                ) : item.priceDisplay === 'Free' ? (
-                  <span className="text-[11px] text-white/80 font-bold">Free</span>
-                ) : (
-                  <>
-                    <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
-                    <span>{item.priceDisplay}</span>
-                  </>
-                )}
+              {/* Bottom Info matching Image 1 */}
+              <div className="flex flex-col gap-0.5 text-left pt-1">
+                <h4 className="text-xs md:text-sm font-bold text-white leading-tight truncate group-hover:text-white">
+                  {item.name}
+                </h4>
+                <span className="text-[11px] text-white/50 truncate">
+                  By <span className="text-white/80 font-medium">{item.creator}</span>
+                </span>
+                <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
+                  {item.isOffSale ? (
+                    <span className="text-[11px] text-white/40 font-medium">Off Sale</span>
+                  ) : item.priceDisplay === 'Free' ? (
+                    <span className="text-[11px] text-white/80 font-bold">Free</span>
+                  ) : (
+                    <>
+                      <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
+                      <span>{item.priceDisplay}</span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

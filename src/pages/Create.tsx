@@ -41,6 +41,7 @@ import {
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { StockAvatar } from '@/pages/Trade'
 import { WaveBackground } from '@/components/WaveBackground'
+import { UnderConstruction } from '@/components/UnderConstruction'
 
 interface Experience {
   id: string
@@ -1165,7 +1166,14 @@ export function Create({ onClose }: CreateProps) {
               <ChevronDown className="hidden md:block size-3 text-white/40 shrink-0" />
             </div>
 
-            <button className="w-full flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+            <button
+              onClick={() => setPrimarySidebarTab('All tools')}
+              className={`w-full flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                primarySidebarTab === 'All tools'
+                  ? 'bg-white/[0.1] text-white font-bold'
+                  : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+              }`}
+            >
               <Grid className="size-4 shrink-0" />
               <span className="hidden md:inline text-xs font-semibold">All tools</span>
             </button>
@@ -1173,247 +1181,297 @@ export function Create({ onClose }: CreateProps) {
         </div>
 
         {/* Creations Sub-navigation Sidebar (No vertical divider border) */}
-        <div className="hidden lg:flex w-48 bg-transparent flex-col py-6 px-3 shrink-0 gap-4">
-          <span className="px-3 text-xs font-bold text-white uppercase tracking-wider">
-            Creations
-          </span>
+        {primarySidebarTab === 'Games' && (
+          <div className="hidden lg:flex w-48 bg-transparent flex-col py-6 px-3 shrink-0 gap-4">
+            <span className="px-3 text-xs font-bold text-white uppercase tracking-wider">
+              Creations
+            </span>
 
-          <div className="flex flex-col gap-1">
-            <button
-              onClick={() => setSubSidebarTab('Experiences')}
-              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-                subSidebarTab === 'Experiences'
-                  ? 'bg-white/[0.08] text-white font-bold'
-                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-              }`}
-            >
-              Experiences
-            </button>
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => setSubSidebarTab('Experiences')}
+                className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                  subSidebarTab === 'Experiences'
+                    ? 'bg-white/[0.08] text-white font-bold'
+                    : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+                }`}
+              >
+                Experiences
+              </button>
 
-            <button
-              onClick={() => setSubSidebarTab('Share links')}
-              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-                subSidebarTab === 'Share links'
-                  ? 'bg-white/[0.08] text-white font-bold'
-                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-              }`}
-            >
-              Share links
-            </button>
+              <button
+                onClick={() => setSubSidebarTab('Share links')}
+                className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                  subSidebarTab === 'Share links'
+                    ? 'bg-white/[0.08] text-white font-bold'
+                    : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+                }`}
+              >
+                Share links
+              </button>
 
-            <button
-              onClick={() => setSubSidebarTab('Avatar items')}
-              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-                subSidebarTab === 'Avatar items'
-                  ? 'bg-white/[0.08] text-white font-bold'
-                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-              }`}
-            >
-              Avatar items
-            </button>
+              <button
+                onClick={() => setSubSidebarTab('Avatar items')}
+                className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                  subSidebarTab === 'Avatar items'
+                    ? 'bg-white/[0.08] text-white font-bold'
+                    : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+                }`}
+              >
+                Avatar items
+              </button>
 
-            <button
-              onClick={() => setSubSidebarTab('Development items')}
-              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-                subSidebarTab === 'Development items'
-                  ? 'bg-white/[0.08] text-white font-bold'
-                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-              }`}
-            >
-              Development items
-            </button>
+              <button
+                onClick={() => setSubSidebarTab('Development items')}
+                className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                  subSidebarTab === 'Development items'
+                    ? 'bg-white/[0.08] text-white font-bold'
+                    : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+                }`}
+              >
+                Development items
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Main Workspace matching Reference Image */}
         <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar bg-transparent">
-          {/* Header Bar */}
-          <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-              <Menu className="size-4 text-white/70" />
-              <h1 className="text-lg md:text-xl font-black text-white tracking-tight">
-                Experiences
-              </h1>
-            </div>
-          </div>
-
-          {/* Content Body */}
-          <div className="p-6 md:p-8 flex flex-col gap-6 max-w-[1600px]">
-            {/* Filter Bar with Tabs and Switches */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-wrap">
-              {/* Tabs with Novelo Highlight Animation (Image 3) */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setDashboardTab('My Experiences')}
-                  className={`px-3.5 h-8.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
-                    dashboardTab === 'My Experiences'
-                      ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
-                      : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
-                  }`}
-                >
-                  My Experiences
-                </button>
-                <button
-                  onClick={() => setDashboardTab('Shared With Me')}
-                  className={`px-3.5 h-8.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
-                    dashboardTab === 'Shared With Me'
-                      ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
-                      : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
-                  }`}
-                >
-                  Shared With Me
-                </button>
+          {primarySidebarTab !== 'Games' ? (
+            <>
+              <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <Menu className="size-4 text-white/70" />
+                  <h1 className="text-lg md:text-xl font-black text-white tracking-tight">
+                    {primarySidebarTab}
+                  </h1>
+                </div>
+              </div>
+              <UnderConstruction
+                onGoBack={() => setPrimarySidebarTab('Games')}
+                onGoHome={onClose}
+              />
+            </>
+          ) : subSidebarTab !== 'Experiences' ? (
+            <>
+              <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <Menu className="size-4 text-white/70" />
+                  <h1 className="text-lg md:text-xl font-black text-white tracking-tight">
+                    {subSidebarTab}
+                  </h1>
+                </div>
+              </div>
+              <UnderConstruction
+                onGoBack={() => setSubSidebarTab('Experiences')}
+                onGoHome={onClose}
+              />
+            </>
+          ) : (
+            <>
+              {/* Header Bar */}
+              <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <Menu className="size-4 text-white/70" />
+                  <h1 className="text-lg md:text-xl font-black text-white tracking-tight">
+                    Experiences
+                  </h1>
+                </div>
               </div>
 
-              {/* Switches & Sort (Boxes matching Image 6) */}
-              <div className="flex items-center gap-5 flex-wrap">
-                <div className="flex items-center gap-4 text-xs text-white/70">
-                  <span className="font-semibold text-white/40">Show:</span>
-
-                  {/* Public Checkbox Box */}
-                  <label
-                    onClick={() => setShowPublic(!showPublic)}
-                    className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
-                  >
-                    <div
-                      className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
-                        showPublic
-                          ? 'border-2 border-white'
-                          : 'border border-white/30 hover:border-white/50'
+              {/* Content Body */}
+              <div className="p-6 md:p-8 flex flex-col gap-6 max-w-[1600px] flex-1">
+                {/* Filter Bar with Tabs and Switches */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-wrap">
+                  {/* Tabs with Novelo Highlight Animation (Image 3) */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setDashboardTab('My Experiences')}
+                      className={`px-3.5 h-8.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
+                        dashboardTab === 'My Experiences'
+                          ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                          : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
                       }`}
                     >
-                      {showPublic && <div className="size-2 rounded-[2px] bg-white" />}
-                    </div>
-                    <span>Public</span>
-                  </label>
-
-                  {/* Impacted Checkbox Box */}
-                  <label
-                    onClick={() => setShowImpacted(!showImpacted)}
-                    className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
-                  >
-                    <div
-                      className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
-                        showImpacted
-                          ? 'border-2 border-white'
-                          : 'border border-white/30 hover:border-white/50'
+                      My Experiences
+                    </button>
+                    <button
+                      onClick={() => setDashboardTab('Shared With Me')}
+                      className={`px-3.5 h-8.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
+                        dashboardTab === 'Shared With Me'
+                          ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                          : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
                       }`}
                     >
-                      {showImpacted && <div className="size-2 rounded-[2px] bg-white" />}
-                    </div>
-                    <span>Impacted</span>
-                  </label>
+                      Shared With Me
+                    </button>
+                  </div>
 
-                  {/* Archived Checkbox Box */}
-                  <label
-                    onClick={() => setShowArchived(!showArchived)}
-                    className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
-                  >
-                    <div
-                      className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
-                        showArchived
-                          ? 'border-2 border-white'
-                          : 'border border-white/30 hover:border-white/50'
-                      }`}
-                    >
-                      {showArchived && <div className="size-2 rounded-[2px] bg-white" />}
+                  {/* Switches & Sort (Boxes matching Image 6) */}
+                  <div className="flex items-center gap-5 flex-wrap">
+                    <div className="flex items-center gap-4 text-xs text-white/70">
+                      <span className="font-semibold text-white/40">Show:</span>
+
+                      {/* Public Checkbox Box */}
+                      <label
+                        onClick={() => setShowPublic(!showPublic)}
+                        className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
+                      >
+                        <div
+                          className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
+                            showPublic
+                              ? 'border-2 border-white'
+                              : 'border border-white/30 hover:border-white/50'
+                          }`}
+                        >
+                          {showPublic && <div className="size-2 rounded-[2px] bg-white" />}
+                        </div>
+                        <span>Public</span>
+                      </label>
+
+                      {/* Impacted Checkbox Box */}
+                      <label
+                        onClick={() => setShowImpacted(!showImpacted)}
+                        className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
+                      >
+                        <div
+                          className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
+                            showImpacted
+                              ? 'border-2 border-white'
+                              : 'border border-white/30 hover:border-white/50'
+                          }`}
+                        >
+                          {showImpacted && <div className="size-2 rounded-[2px] bg-white" />}
+                        </div>
+                        <span>Impacted</span>
+                      </label>
+
+                      {/* Archived Checkbox Box */}
+                      <label
+                        onClick={() => setShowArchived(!showArchived)}
+                        className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
+                      >
+                        <div
+                          className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
+                            showArchived
+                              ? 'border-2 border-white'
+                              : 'border border-white/30 hover:border-white/50'
+                          }`}
+                        >
+                          {showArchived && <div className="size-2 rounded-[2px] bg-white" />}
+                        </div>
+                        <span>Archived</span>
+                      </label>
                     </div>
-                    <span>Archived</span>
-                  </label>
+
+                    <CustomDropdown
+                      value={sortBy}
+                      onChange={setSortBy}
+                      options={sortOptions}
+                      buttonClassName="h-8 px-3 rounded-[8px] bg-white/[0.04] hover:bg-white/[0.08] border-none text-xs"
+                    />
+                  </div>
                 </div>
 
-                <CustomDropdown
-                  value={sortBy}
-                  onChange={setSortBy}
-                  options={sortOptions}
-                  buttonClassName="h-8 px-3 rounded-[8px] bg-white/[0.04] hover:bg-white/[0.08] border-none text-xs"
-                />
+                {dashboardTab === 'Shared With Me' || showImpacted || showArchived || filteredExperiences.length === 0 ? (
+                  <UnderConstruction
+                    onGoBack={() => {
+                      setDashboardTab('My Experiences')
+                      setShowPublic(false)
+                      setShowImpacted(false)
+                      setShowArchived(false)
+                    }}
+                    onGoHome={onClose}
+                  />
+                ) : (
+                  <>
+                    {/* Create Experience Button (White - Image 4) */}
+                    <div>
+                      <button
+                        onClick={() => {
+                          const newExpName = `New Experience #${experiences.length + 1}`
+                          const newExp: Experience = {
+                            id: 'exp_' + Date.now(),
+                            name: newExpName,
+                            privacy: 'Playtesters',
+                            fallbackType: 'baseplate',
+                            updatedDate: 'Today',
+                            visits: '0',
+                            createdDate: 'Today',
+                          }
+                          setExperiences((prev) => [newExp, ...prev])
+                          openGameDetails(newExp)
+                        }}
+                        className="h-9 px-4 rounded-[8px] bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center gap-2 transition-all cursor-pointer border-none shadow-md active:scale-95"
+                      >
+                        <span>Create Experience</span>
+                        <SquareArrowOutUpRight className="size-3.5 text-black" />
+                      </button>
+                    </div>
+
+                    {/* Experiences Grid with Banner + Overlapping Thumbnail matching Image 1 */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                      {filteredExperiences.map((exp) => (
+                        <div
+                          key={exp.id}
+                          onClick={() => openGameDetails(exp)}
+                          className="flex flex-col group cursor-pointer"
+                        >
+                          {/* Banner + Overlapping Thumbnail Container */}
+                          <div className="relative">
+                            {/* Landscape Banner */}
+                            <div className="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#16161a] relative shadow-md group-hover:ring-2 group-hover:ring-white/20 transition-all">
+                              <ExperienceCardThumbnail exp={exp} />
+
+                              {/* Hover Overlay with Game Details Button */}
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 z-10">
+                                <span className="px-3 py-1.5 rounded-[6px] bg-white text-black font-bold text-xs shadow-lg">
+                                  Game Details
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Overlapping Square Thumbnail (matching Image 1) */}
+                            <div className="absolute -bottom-4 left-3 size-12 md:size-13 rounded-xl overflow-hidden border-2 border-[#0b0b0e] bg-[#16161a] shadow-lg z-20 group-hover:scale-105 transition-transform">
+                              <ExperienceCardThumbnail exp={exp} />
+                            </div>
+                          </div>
+
+                          {/* Card Details below banner */}
+                          <div className="pt-5 flex flex-col gap-1 px-1">
+                            <span className="text-sm font-bold text-white transition-colors truncate w-full">
+                              {exp.name}
+                            </span>
+
+                            <div className="flex items-center gap-2.5 text-white/50 text-xs">
+                              <div className="flex items-center gap-1">
+                                <Frown className="size-3 text-white/40" />
+                                <span>N/A</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Users className="size-3 text-white/40" />
+                                <span>0</span>
+                              </div>
+                              <div className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/[0.06] text-[10px] font-semibold text-white/70">
+                                {exp.privacy === 'Public' ? (
+                                  <Globe className="size-2 text-white/50" />
+                                ) : exp.privacy === 'Playtesters' ? (
+                                  <Users className="size-2 text-white/50" />
+                                ) : (
+                                  <Lock className="size-2 text-white/50" />
+                                )}
+                                <span>{exp.privacy}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
-
-            {/* Create Experience Button (White - Image 4) */}
-            <div>
-              <button
-                onClick={() => {
-                  const newExpName = `New Experience #${experiences.length + 1}`
-                  const newExp: Experience = {
-                    id: 'exp_' + Date.now(),
-                    name: newExpName,
-                    privacy: 'Playtesters',
-                    fallbackType: 'baseplate',
-                    updatedDate: 'Today',
-                    visits: '0',
-                    createdDate: 'Today',
-                  }
-                  setExperiences((prev) => [newExp, ...prev])
-                  openGameDetails(newExp)
-                }}
-                className="h-9 px-4 rounded-[8px] bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center gap-2 transition-all cursor-pointer border-none shadow-md active:scale-95"
-              >
-                <span>Create Experience</span>
-                <SquareArrowOutUpRight className="size-3.5 text-black" />
-              </button>
-            </div>
-
-            {/* Experiences Grid with Banner + Overlapping Thumbnail matching Image 1 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {filteredExperiences.map((exp) => (
-                <div
-                  key={exp.id}
-                  onClick={() => openGameDetails(exp)}
-                  className="flex flex-col group cursor-pointer"
-                >
-                  {/* Banner + Overlapping Thumbnail Container */}
-                  <div className="relative">
-                    {/* Landscape Banner */}
-                    <div className="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#16161a] relative shadow-md group-hover:ring-2 group-hover:ring-white/20 transition-all">
-                      <ExperienceCardThumbnail exp={exp} />
-
-                      {/* Hover Overlay with Game Details Button */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 z-10">
-                        <span className="px-3 py-1.5 rounded-[6px] bg-white text-black font-bold text-xs shadow-lg">
-                          Game Details
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Overlapping Square Thumbnail (matching Image 1) */}
-                    <div className="absolute -bottom-4 left-3 size-12 md:size-13 rounded-xl overflow-hidden border-2 border-[#0b0b0e] bg-[#16161a] shadow-lg z-20 group-hover:scale-105 transition-transform">
-                      <ExperienceCardThumbnail exp={exp} />
-                    </div>
-                  </div>
-
-                  {/* Card Details below banner */}
-                  <div className="pt-5 flex flex-col gap-1 px-1">
-                    <span className="text-sm font-bold text-white transition-colors truncate w-full">
-                      {exp.name}
-                    </span>
-
-                    <div className="flex items-center gap-2.5 text-white/50 text-xs">
-                      <div className="flex items-center gap-1">
-                        <Frown className="size-3 text-white/40" />
-                        <span>N/A</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="size-3 text-white/40" />
-                        <span>0</span>
-                      </div>
-                      <div className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/[0.06] text-[10px] font-semibold text-white/70">
-                        {exp.privacy === 'Public' ? (
-                          <Globe className="size-2 text-white/50" />
-                        ) : exp.privacy === 'Playtesters' ? (
-                          <Users className="size-2 text-white/50" />
-                        ) : (
-                          <Lock className="size-2 text-white/50" />
-                        )}
-                        <span>{exp.privacy}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>
