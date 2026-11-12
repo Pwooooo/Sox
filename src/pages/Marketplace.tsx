@@ -82,7 +82,7 @@ export function Marketplace() {
     {
       value: 'Popular',
       label: 'Popular',
-      icon: <Flame className="size-3.5 text-orange-400 stroke-[2.2]" />,
+      icon: <Flame className="size-3.5 text-white stroke-[2.2]" />,
     },
     {
       value: 'Newest',
