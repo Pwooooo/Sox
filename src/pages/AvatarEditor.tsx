@@ -422,22 +422,22 @@ export function AvatarEditor() {
             </div>
 
             {/* Equipped Items Horizontal Slot Strip matching Screenshot 2 */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pt-2.5 pb-2 px-1">
               {equippedItemsList.map((item) => (
                 <div
                   key={item.id}
-                  className="relative size-14 rounded-xl bg-[#151518] border border-white/10 flex flex-col items-center justify-center p-1 shrink-0 group/slot"
+                  className="relative size-14 rounded-xl bg-[#151518] border border-white/10 flex flex-col items-center justify-center p-1 shrink-0 group/slot overflow-visible"
                 >
                   <Sparkles className="size-5 text-white/50" />
                   <span className="text-[9px] font-bold text-white/70 truncate w-full text-center">
                     {item.name.slice(0, 7)}..
                   </span>
 
-                  {/* Red X to unequip directly matching Screenshot 2 */}
+                  {/* Red X to unequip directly matching Screenshot 2 (No clipping) */}
                   <button
                     onClick={() => toggleEquip(item.id)}
                     title={`Unequip ${item.name}`}
-                    className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center cursor-pointer border-none shadow-md transition-transform hover:scale-110"
+                    className="absolute -top-1 -right-1 size-4 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center cursor-pointer border border-black/40 shadow-md transition-transform hover:scale-110 z-20"
                   >
                     <X className="size-2.5 stroke-[3]" />
                   </button>
