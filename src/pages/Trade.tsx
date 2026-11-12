@@ -575,7 +575,7 @@ export function Trade() {
                   if (firstInCat) setSelectedTradeId(firstInCat.id)
                 }}
                 options={categoryOptions}
-                buttonClassName="h-8 pl-3 pr-2.5 rounded-[10px] bg-[#1c1c1f] hover:bg-[#242428] border-none text-xs"
+                buttonClassName="h-8 pl-3 pr-2.5 rounded-[8px] bg-[#1c1c1f] hover:bg-[#242428] border-none text-xs"
               />
 
               {/* How do I trade link */}

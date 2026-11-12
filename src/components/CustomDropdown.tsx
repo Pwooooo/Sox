@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, ReactNode } from 'react'
-import { ChevronsUpDown, Check } from 'lucide-react'
+import { ChevronsUpDown } from 'lucide-react'
 
 export interface DropdownOption<T extends string = string> {
   value: T
@@ -44,20 +44,20 @@ export function CustomDropdown<T extends string = string>({
 
   return (
     <div ref={containerRef} className={`relative inline-block ${className}`}>
-      {/* Trigger Button matching Screenshot 3 */}
+      {/* Trigger Button with tighter radius matching Screenshot 2 */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`h-9 pl-3.5 pr-3 rounded-[10px] bg-[#111113] hover:bg-[#18181b] border border-white/10 flex items-center justify-between gap-2.5 text-xs font-semibold text-white cursor-pointer select-none transition-colors ${buttonClassName}`}
+        className={`h-8.5 pl-3 pr-2.5 rounded-[8px] bg-[#141416] hover:bg-[#1a1a1d] border border-white/10 flex items-center justify-between gap-2.5 text-xs font-semibold text-white cursor-pointer select-none transition-colors ${buttonClassName}`}
       >
         <span className="truncate">{selectedOption?.label || placeholder}</span>
         <ChevronsUpDown className="size-3 text-white/50 shrink-0" />
       </button>
 
-      {/* Dropdown Menu Popup matching Screenshot 3 */}
+      {/* Dropdown Menu Popup with crisp corners and no checkmarks matching Screenshot 2 */}
       {isOpen && (
         <div
-          className={`absolute left-0 top-full mt-1.5 z-50 min-w-full w-max max-w-xs rounded-xl bg-[#141416] border border-white/10 p-1 shadow-2xl flex flex-col gap-0.5 animate-in fade-in-50 zoom-in-95 duration-100 ${menuClassName}`}
+          className={`absolute left-0 top-full mt-1.5 z-50 min-w-full w-max max-w-xs rounded-[8px] bg-[#141416] border border-white/10 p-1 shadow-2xl flex flex-col gap-0.5 animate-in fade-in-50 zoom-in-95 duration-100 ${menuClassName}`}
         >
           {options.map((option) => {
             const isSelected = option.value === value
@@ -69,23 +69,17 @@ export function CustomDropdown<T extends string = string>({
                   onChange(option.value)
                   setIsOpen(false)
                 }}
-                className={`w-full px-2.5 py-2 rounded-[8px] flex items-center gap-2.5 text-xs font-semibold transition-colors cursor-pointer border-none text-left ${
+                className={`w-full px-2.5 py-1.5 rounded-[6px] flex items-center gap-2 text-xs font-semibold transition-colors cursor-pointer border-none text-left ${
                   isSelected
                     ? 'bg-white/[0.08] text-white font-bold'
-                    : 'bg-transparent text-white/80 hover:text-white hover:bg-white/[0.05]'
+                    : 'bg-transparent text-white/70 hover:text-white hover:bg-white/[0.04]'
                 }`}
               >
-                {/* Checkmark for selected item OR custom icon OR spacer */}
-                <div className="size-3.5 flex items-center justify-center shrink-0">
-                  {isSelected ? (
-                    <Check className="size-3.5 text-white" />
-                  ) : option.icon ? (
-                    option.icon
-                  ) : (
-                    <span className="size-3.5" />
-                  )}
-                </div>
-
+                {option.icon && (
+                  <div className="size-3.5 flex items-center justify-center shrink-0">
+                    {option.icon}
+                  </div>
+                )}
                 <span className="truncate">{option.label}</span>
               </button>
             )
