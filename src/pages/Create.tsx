@@ -893,10 +893,10 @@ export function Create({ onClose }: CreateProps) {
             <button
               onClick={onClose}
               className="h-7 px-2.5 rounded-[6px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border-none"
-              title="Return to Novelo Client"
+              title="Return to Novelo"
             >
               <ArrowLeft className="size-3.5" />
-              <span>Novelo Client</span>
+              <span>Novelo</span>
             </button>
           )}
 
@@ -951,15 +951,7 @@ export function Create({ onClose }: CreateProps) {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Primary Creator Hub Sidebar matching Reference Image */}
         <div className="w-16 md:w-52 bg-[#0e0e12] border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
-          <div className="flex flex-col gap-5 px-2.5">
-            <div className="hidden md:flex items-center justify-between p-2 rounded-[8px] bg-white/[0.04] border border-white/[0.04]">
-              <div className="flex items-center gap-2 min-w-0">
-                <StockAvatar className="size-6 shrink-0" />
-                <span className="text-xs font-semibold truncate text-white">JadexDraft1337</span>
-              </div>
-              <ChevronDown className="size-3.5 text-white/50 shrink-0" />
-            </div>
-
+          <div className="flex flex-col gap-2 px-2.5">
             <div className="flex flex-col gap-1">
               <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
                 <Home className="size-4 shrink-0" />
@@ -1010,7 +1002,21 @@ export function Create({ onClose }: CreateProps) {
             </div>
           </div>
 
-          <div className="px-2.5">
+          <div className="px-2.5 flex flex-col gap-1.5">
+            {/* Account Selector (Thinner, placed directly above All tools) */}
+            <div
+              className="flex items-center justify-between px-2 py-1 rounded-[6px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04] cursor-pointer transition-colors"
+              title="JadexDraft1337"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <StockAvatar className="size-5 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold truncate text-white">
+                  JadexDraft1337
+                </span>
+              </div>
+              <ChevronDown className="hidden md:block size-3 text-white/50 shrink-0" />
+            </div>
+
             <button className="w-full flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
               <Grid className="size-4 shrink-0" />
               <span className="hidden md:inline text-xs font-semibold">All tools</span>
