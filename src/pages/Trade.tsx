@@ -10,6 +10,7 @@ import {
   Clock,
   ArrowRight,
   Sparkles,
+  Search,
 } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 
@@ -358,6 +359,7 @@ export function Trade() {
 
   // Active Dropdown for Item Selection: 'give' or 'receive'
   const [activeDropdownSide, setActiveDropdownSide] = useState<'give' | 'receive' | null>(null)
+  const [dropdownSearch, setDropdownSearch] = useState('')
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
@@ -419,6 +421,7 @@ export function Trade() {
     setSelectedGiveItems([])
     setSelectedReceiveItems([])
     setActiveDropdownSide(null)
+    setDropdownSearch('')
     setTradeNote('')
     setIsModalOpen(true)
   }
@@ -431,6 +434,7 @@ export function Trade() {
     setSelectedGiveItems([...activeTrade.giveItems])
     setSelectedReceiveItems([...activeTrade.receiveItems])
     setActiveDropdownSide(null)
+    setDropdownSearch('')
     setTradeNote(`Countering previous offer with adjusted items.`)
     setIsModalOpen(true)
   }
@@ -438,6 +442,23 @@ export function Trade() {
   // Partner data in modal
   const currentPartnerData =
     PARTNERS.find((p) => p.name === selectedPartnerName) || PARTNERS[0]
+
+  // Filtered inventories for dropdowns
+  const filteredGiveInventory = USER_INVENTORY.filter(
+    (item) =>
+      !selectedGiveItems.some((i) => i.id === item.id) &&
+      (dropdownSearch === '' ||
+        item.name.toLowerCase().includes(dropdownSearch.toLowerCase()) ||
+        item.creator.toLowerCase().includes(dropdownSearch.toLowerCase()))
+  )
+
+  const filteredReceiveInventory = currentPartnerData.pool.filter(
+    (item) =>
+      !selectedReceiveItems.some((i) => i.id === item.id) &&
+      (dropdownSearch === '' ||
+        item.name.toLowerCase().includes(dropdownSearch.toLowerCase()) ||
+        item.creator.toLowerCase().includes(dropdownSearch.toLowerCase()))
+  )
 
   // Remove item from Give list
   const removeGiveItem = (item: TradeItem) => {
@@ -457,6 +478,7 @@ export function Trade() {
     }
     setSelectedGiveItems((prev) => [...prev, item])
     setActiveDropdownSide(null)
+    setDropdownSearch('')
   }
 
   // Add item to Receive list
@@ -467,6 +489,7 @@ export function Trade() {
     }
     setSelectedReceiveItems((prev) => [...prev, item])
     setActiveDropdownSide(null)
+    setDropdownSearch('')
   }
 
   // Handle Send Trade Request
@@ -974,30 +997,44 @@ export function Trade() {
 
                   {/* DROPDOWN INVENTORY SELECTION FOR YOUR OFFER (Image 7 replaced with dropdown) */}
                   {activeDropdownSide === 'give' && (
-                    <div className="mt-2 p-2.5 rounded-xl bg-[#121214] flex flex-col gap-1.5 shadow-xl animate-in fade-in-50 duration-150">
-                      <div className="flex items-center justify-between px-1 pb-1">
+                    <div className="mt-2 p-2.5 rounded-xl bg-[#121214] flex flex-col gap-2 shadow-xl animate-in fade-in-50 duration-150">
+                      <div className="flex items-center justify-between px-1">
                         <span className="text-[11px] font-bold text-white/70">
                           Select item from your Inventory:
                         </span>
                         <button
-                          onClick={() => setActiveDropdownSide(null)}
+                          onClick={() => {
+                            setActiveDropdownSide(null)
+                            setDropdownSearch('')
+                          }}
                           className="text-[11px] text-white/40 hover:text-white bg-transparent border-none cursor-pointer"
                         >
                           Close
                         </button>
                       </div>
 
+                      {/* Search Bar for Your Inventory */}
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-white/40 pointer-events-none" />
+                        <input
+                          type="text"
+                          placeholder="Search your inventory..."
+                          value={dropdownSearch}
+                          onChange={(e) => setDropdownSearch(e.target.value)}
+                          className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#18181c] text-xs text-white placeholder:text-white/30 focus:outline-none border-none"
+                          autoFocus
+                        />
+                      </div>
+
                       <div className="flex flex-col gap-1 max-h-48 overflow-y-auto no-scrollbar pr-0.5">
-                        {USER_INVENTORY.filter(
-                          (item) => !selectedGiveItems.some((i) => i.id === item.id)
-                        ).length === 0 ? (
+                        {filteredGiveInventory.length === 0 ? (
                           <div className="text-center py-3 text-xs text-white/40">
-                            All inventory items already selected
+                            {dropdownSearch
+                              ? `No items match "${dropdownSearch}"`
+                              : 'All inventory items already selected'}
                           </div>
                         ) : (
-                          USER_INVENTORY.filter(
-                            (item) => !selectedGiveItems.some((i) => i.id === item.id)
-                          ).map((item) => (
+                          filteredGiveInventory.map((item) => (
                             <button
                               key={item.id}
                               onClick={() => addGiveItem(item)}
@@ -1088,30 +1125,44 @@ export function Trade() {
 
                   {/* DROPDOWN INVENTORY SELECTION FOR THEIR OFFER (Image 7 replaced with dropdown) */}
                   {activeDropdownSide === 'receive' && (
-                    <div className="mt-2 p-2.5 rounded-xl bg-[#121214] flex flex-col gap-1.5 shadow-xl animate-in fade-in-50 duration-150">
-                      <div className="flex items-center justify-between px-1 pb-1">
+                    <div className="mt-2 p-2.5 rounded-xl bg-[#121214] flex flex-col gap-2 shadow-xl animate-in fade-in-50 duration-150">
+                      <div className="flex items-center justify-between px-1">
                         <span className="text-[11px] font-bold text-white/70">
                           Select item from {currentPartnerData.name}'s items:
                         </span>
                         <button
-                          onClick={() => setActiveDropdownSide(null)}
+                          onClick={() => {
+                            setActiveDropdownSide(null)
+                            setDropdownSearch('')
+                          }}
                           className="text-[11px] text-white/40 hover:text-white bg-transparent border-none cursor-pointer"
                         >
                           Close
                         </button>
                       </div>
 
+                      {/* Search Bar for Partner's Inventory */}
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-white/40 pointer-events-none" />
+                        <input
+                          type="text"
+                          placeholder={`Search ${currentPartnerData.name}'s items...`}
+                          value={dropdownSearch}
+                          onChange={(e) => setDropdownSearch(e.target.value)}
+                          className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#18181c] text-xs text-white placeholder:text-white/30 focus:outline-none border-none"
+                          autoFocus
+                        />
+                      </div>
+
                       <div className="flex flex-col gap-1 max-h-48 overflow-y-auto no-scrollbar pr-0.5">
-                        {currentPartnerData.pool.filter(
-                          (item) => !selectedReceiveItems.some((i) => i.id === item.id)
-                        ).length === 0 ? (
+                        {filteredReceiveInventory.length === 0 ? (
                           <div className="text-center py-3 text-xs text-white/40">
-                            All partner items already selected
+                            {dropdownSearch
+                              ? `No items match "${dropdownSearch}"`
+                              : 'All partner items already selected'}
                           </div>
                         ) : (
-                          currentPartnerData.pool.filter(
-                            (item) => !selectedReceiveItems.some((i) => i.id === item.id)
-                          ).map((item) => (
+                          filteredReceiveInventory.map((item) => (
                             <button
                               key={item.id}
                               onClick={() => addReceiveItem(item)}
