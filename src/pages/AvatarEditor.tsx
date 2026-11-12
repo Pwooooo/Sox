@@ -391,8 +391,13 @@ export function AvatarEditor() {
 
           {/* 2. Outfit Cost readout matching Screenshot 2 */}
           <div className="flex items-center justify-between text-xs text-white/50 px-1">
-            <span>
-              Outfit Cost: <strong className="text-white font-mono">◎ 0</strong> <span className="text-white/40">• 6 offsale</span>
+            <span className="flex items-center gap-1.5">
+              Outfit Cost:
+              <span className="inline-flex items-center gap-1 text-white font-mono font-bold">
+                <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain" />
+                0
+              </span>
+              <span className="text-white/40">• 6 offsale</span>
             </span>
           </div>
 
@@ -738,8 +743,15 @@ export function AvatarEditor() {
                         <span className="text-xs font-bold truncate max-w-full text-white/90">
                           {item.name}
                         </span>
-                        <span className="text-[11px] text-white/40 mt-0.5">
-                          {item.price === 0 ? 'Free' : `◎ ${item.price}`}
+                        <span className="text-[11px] text-white/40 mt-0.5 flex items-center justify-center gap-1">
+                          {item.price === 0 ? (
+                            'Free'
+                          ) : (
+                            <>
+                              <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
+                              <span>{item.price}</span>
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>
