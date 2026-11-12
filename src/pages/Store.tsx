@@ -1,31 +1,29 @@
 import { useState } from 'react'
-import { Sparkles, Tag, Gift, Shield, Check, Info, ArrowRight } from 'lucide-react'
+import { Sparkles, Tag, Gift, Shield, ArrowRight, CreditCard, Check, Ticket } from 'lucide-react'
 
 interface PackageItem {
   id: string
   amount: string
-  strikethrough: string
-  bonus: string
+  bonus?: string
   price: string
-  isForYou?: boolean
+  popular?: boolean
 }
 
-const BONUS_PACKAGES: PackageItem[] = [
-  { id: 'b1', amount: '24,000', strikethrough: '22,500', bonus: '+ 1,500 more', price: '€239.99' },
-  { id: 'b2', amount: '11,000', strikethrough: '10,000', bonus: '+ 1,000 more', price: '€119.99' },
-  { id: 'b3', amount: '5,250', strikethrough: '4,500', bonus: '+ 750 more', price: '€59.99' },
-  { id: 'b4', amount: '3,625', strikethrough: '3,150', bonus: '+ 475 more', price: '€39.99', isForYou: true },
-  { id: 'b5', amount: '2,000', strikethrough: '1,700', bonus: '+ 300 more', price: '€23.99' },
-]
-
-const STANDARD_PACKAGES: PackageItem[] = [
-  { id: 's1', amount: '1,500', strikethrough: '1,200', bonus: '+ 300 more', price: '€17.99' },
-  { id: 's2', amount: '1,000', strikethrough: '800', bonus: '+ 200 more', price: '€11.99' },
-  { id: 's3', amount: '500', strikethrough: '400', bonus: '+ 100 more', price: '€5.99' },
+const NOVELO_PACKAGES: PackageItem[] = [
+  { id: 'p1', amount: '24,000', bonus: '+1,500 bonus', price: '€239.99' },
+  { id: 'p2', amount: '11,000', bonus: '+1,000 bonus', price: '€119.99' },
+  { id: 'p3', amount: '5,250', bonus: '+750 bonus', price: '€59.99' },
+  { id: 'p4', amount: '3,625', bonus: '+475 bonus', price: '€39.99', popular: true },
+  { id: 'p5', amount: '2,000', bonus: '+300 bonus', price: '€23.99' },
+  { id: 'p6', amount: '1,500', bonus: '+200 bonus', price: '€17.99' },
+  { id: 'p7', amount: '1,000', bonus: '+100 bonus', price: '€11.99' },
+  { id: 'p8', amount: '500', price: '€5.99' },
 ]
 
 export function Store() {
   const [purchasingId, setPurchasingId] = useState<string | null>(null)
+  const [promoCode, setPromoCode] = useState('')
+  const [promoApplied, setPromoApplied] = useState(false)
 
   const handleBuy = (item: PackageItem) => {
     setPurchasingId(item.id)
@@ -35,189 +33,208 @@ export function Store() {
     }, 700)
   }
 
+  const handleRedeem = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!promoCode.trim()) return
+    setPromoApplied(true)
+    setTimeout(() => {
+      alert(`Code "${promoCode.toUpperCase()}" applied! Bonus added to your account.`)
+      setPromoCode('')
+      setPromoApplied(false)
+    }, 800)
+  }
+
   return (
-    <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-8 max-w-[850px] mx-auto">
-      {/* 1. Bonus Item We Picked For You */}
-      <section className="flex flex-col gap-3">
-        <h2 className="text-base md:text-lg font-bold text-white tracking-tight">
-          Bonus item we picked for you
-        </h2>
-
-        <div className="rounded-2xl bg-[#121214] border border-white/[0.06] overflow-hidden flex flex-col shadow-xl">
-          {/* Top Bundle Hero Banner */}
-          <div className="h-28 bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-neutral-900 p-4 flex items-center gap-4 relative overflow-hidden">
-            <div className="size-16 rounded-2xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shadow-md">
-              <Gift className="size-8" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-extrabold text-white tracking-wide uppercase">RIVALS</span>
-                <Info className="size-3 text-white/50" />
-              </div>
-              <span className="text-xs text-white/80 font-medium">RPG Bundle!</span>
-            </div>
-          </div>
-
-          {/* List of Bonus Packages */}
-          <div className="p-4 flex flex-col gap-3">
-            {BONUS_PACKAGES.map((pkg) => (
-              <div
-                key={pkg.id}
-                className="flex items-center justify-between gap-4 py-2 border-b border-white/[0.04] last:border-none"
-              >
-                {/* Left Amount & Bonus tag */}
-                <div className="flex items-center gap-3">
-                  {/* Currency Icon */}
-                  <img src="/novelo-currency.png" alt="Currency" className="size-5 object-contain" />
-
-                  {/* Primary Amount */}
-                  <span className="text-base md:text-lg font-black text-white tabular-numbers">
-                    {pkg.amount}
-                  </span>
-
-                  {/* Strikethrough Value */}
-                  <span className="text-xs text-white/40 line-through tabular-numbers">
-                    {pkg.strikethrough}
-                  </span>
-
-                  {/* Bonus Badge */}
-                  <span className="text-[11px] font-bold text-white/70 bg-white/5 px-2 py-0.5 rounded-md">
-                    {pkg.bonus}
-                  </span>
-
-                  {/* "For you" Pill */}
-                  {pkg.isForYou && (
-                    <span className="text-[11px] font-bold text-white/90 bg-white/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <span>👁</span>
-                      <span>For you</span>
-                    </span>
-                  )}
-                </div>
-
-                {/* Right Purchase Button */}
-                <button
-                  onClick={() => handleBuy(pkg)}
-                  className={`h-9 px-6 rounded-xl font-bold text-xs transition-all cursor-pointer border-none shadow-md ${
-                    pkg.isForYou
-                      ? 'bg-[#00a2ff] hover:bg-[#0091e6] text-white'
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
-                >
-                  {purchasingId === pkg.id ? 'Loading...' : pkg.price}
-                </button>
-              </div>
-            ))}
-          </div>
+    <div className="p-4 md:p-6 lg:p-8 flex flex-col gap-8 max-w-[900px] mx-auto select-none">
+      {/* 1. Header with Current Balance */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.04]">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+            Novelo Store
+          </h1>
+          <p className="text-xs md:text-sm text-white/50 mt-1">
+            Purchase Novelo currency to unlock exclusive items, upgrades, and experiences
+          </p>
         </div>
-      </section>
 
-      {/* 2. Novelo Packages */}
-      <section className="flex flex-col gap-3">
-        <h2 className="text-base md:text-lg font-bold text-white tracking-tight">
-          Novelo packages
-        </h2>
+        {/* Balance Badge */}
+        <div className="flex items-center gap-2.5 px-4 h-10 rounded-[12px] bg-[#141416] border border-white/[0.06] shadow-sm self-start sm:self-auto shrink-0">
+          <span className="text-xs text-white/40">Balance:</span>
+          <img src="/novelo-currency.png" alt="Currency" className="size-4 object-contain" />
+          <span className="text-sm font-bold text-white font-mono">1,450</span>
+        </div>
+      </div>
 
-        <div className="rounded-2xl bg-[#121214] border border-white/[0.06] p-4 flex flex-col gap-3 shadow-xl">
-          {STANDARD_PACKAGES.map((pkg) => (
+      {/* 2. Novelo Currency Packages List */}
+      <section className="flex flex-col gap-3.5">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base md:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <img src="/novelo-currency.png" alt="Currency" className="size-4 object-contain" />
+            <span>Novelo Packages</span>
+          </h2>
+          <span className="text-xs text-white/40">Instant digital delivery</span>
+        </div>
+
+        <div className="rounded-2xl bg-[#101012] border border-white/[0.05] p-2.5 sm:p-4 flex flex-col gap-1 shadow-2xl overflow-hidden">
+          {NOVELO_PACKAGES.map((pkg) => (
             <div
               key={pkg.id}
-              className="flex items-center justify-between gap-4 py-2 border-b border-white/[0.04] last:border-none"
+              className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 ${
+                pkg.popular
+                  ? 'bg-white/[0.04] hover:bg-white/[0.07]'
+                  : 'hover:bg-white/[0.03]'
+              }`}
             >
-              {/* Left Amount & Bonus */}
-              <div className="flex items-center gap-3">
-                <img src="/novelo-currency.png" alt="Currency" className="size-5 object-contain" />
+              {/* Left Side: Currency Icon + Amount + Bonus */}
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src="/novelo-currency.png"
+                  alt="Currency"
+                  className="size-5 sm:size-6 object-contain shrink-0"
+                />
 
-                <span className="text-base md:text-lg font-black text-white tabular-numbers">
+                <span className="text-base sm:text-lg font-black text-white font-mono tabular-numbers tracking-tight">
                   {pkg.amount}
                 </span>
 
-                <span className="text-xs text-white/40 line-through tabular-numbers">
-                  {pkg.strikethrough}
-                </span>
+                {pkg.bonus && (
+                  <span className="text-[10px] sm:text-[11px] font-bold text-white/80 bg-white/[0.08] px-2 py-0.5 rounded-md shrink-0">
+                    {pkg.bonus}
+                  </span>
+                )}
 
-                <span className="text-[11px] font-bold text-white/70 bg-white/5 px-2 py-0.5 rounded-md">
-                  {pkg.bonus}
-                </span>
+                {pkg.popular && (
+                  <span className="hidden sm:inline-flex text-[10px] font-extrabold text-black bg-white px-2 py-0.5 rounded-full shrink-0">
+                    Most Popular
+                  </span>
+                )}
               </div>
 
-              {/* Purchase Button */}
+              {/* Right Side: Buy Button */}
               <button
                 onClick={() => handleBuy(pkg)}
-                className="h-9 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all cursor-pointer border-none shadow-md"
+                className={`h-9 px-5 rounded-[10px] font-bold text-xs transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] shrink-0 ${
+                  pkg.popular
+                    ? 'bg-white hover:bg-neutral-200 text-black shadow-md'
+                    : 'bg-white/[0.08] hover:bg-white/[0.14] text-white'
+                }`}
               >
-                {purchasingId === pkg.id ? 'Loading...' : pkg.price}
+                {purchasingId === pkg.id ? 'Processing...' : pkg.price}
               </button>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 3. New on Novelo (Novelo Plus Membership Card) */}
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <img src="/novelo-currency.png" alt="Currency" className="size-4 object-contain" />
-          <h2 className="text-base md:text-lg font-bold text-white tracking-tight">
-            New on Novelo
-          </h2>
-        </div>
+      {/* 3. Novelo Plus Membership Card */}
+      <section className="flex flex-col gap-3.5">
+        <h2 className="text-base md:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <Sparkles className="size-4 text-white/60" />
+          <span>Novelo Plus Membership</span>
+        </h2>
 
-        <div className="rounded-2xl bg-[#121214] border border-white/[0.06] p-5 flex flex-col gap-5 shadow-xl">
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-            <div className="flex items-center gap-2">
-              <img src="/novelo-currency.png" alt="Currency" className="size-5 object-contain" />
-              <h3 className="text-sm font-bold text-white">Get Novelo Plus</h3>
+        <div className="rounded-2xl bg-[#101012] border border-white/[0.05] p-5 sm:p-6 flex flex-col gap-5 shadow-2xl relative overflow-hidden">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute top-0 right-0 w-80 h-40 bg-white/[0.02] rounded-full blur-2xl pointer-events-none" />
+
+          {/* Header Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.05]">
+            <div className="flex items-center gap-3">
+              <div className="size-11 rounded-xl bg-white/[0.08] border border-white/10 flex items-center justify-center shrink-0">
+                <img src="/novelo-currency.png" alt="Currency" className="size-6 object-contain" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-white">Get Novelo Plus</h3>
+                  <span className="text-[10px] font-bold text-black bg-white px-1.5 py-0.5 rounded-sm">
+                    VIP
+                  </span>
+                </div>
+                <p className="text-xs text-white/50 mt-0.5">Cancel or modify anytime</p>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-bold text-white">
-              <span className="line-through text-white/40">€5.99</span>
-              <span className="text-emerald-400">Free</span>
+
+            <div className="flex items-baseline gap-1.5 self-start sm:self-auto">
+              <span className="text-xl font-black text-white font-mono">€5.99</span>
+              <span className="text-xs text-white/40">/ month</span>
             </div>
           </div>
 
-          {/* 2-Column Perks */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3.5 gap-x-6 text-xs text-white/70">
-            <div className="flex items-center gap-2.5">
-              <Tag className="size-4 text-white/50 shrink-0" />
-              <span>10% off in-game items, avatars, and more</span>
+          {/* 2-Column Perks Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-6 text-xs text-white/70">
+            <div className="flex items-center gap-3">
+              <Tag className="size-4 text-white/40 shrink-0" />
+              <span>10% extra Novelo bonus on all package purchases</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain opacity-60 shrink-0" />
-              <span>Send Novelo for free</span>
+            <div className="flex items-center gap-3">
+              <Gift className="size-4 text-white/40 shrink-0" />
+              <span>Exclusive limited avatar items delivered monthly</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <Sparkles className="size-4 text-white/50 shrink-0" />
-              <span>20% off these items after 2 months</span>
+            <div className="flex items-center gap-3">
+              <Shield className="size-4 text-white/40 shrink-0" />
+              <span>Trade and resell limited items in the Marketplace</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <Shield className="size-4 text-white/50 shrink-0" />
-              <span>Trade and resell limited items</span>
+            <div className="flex items-center gap-3">
+              <Sparkles className="size-4 text-white/40 shrink-0" />
+              <span>Send and gift Novelo currency with zero commission</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <Gift className="size-4 text-white/50 shrink-0" />
-              <span>Free private servers</span>
+            <div className="flex items-center gap-3">
+              <CreditCard className="size-4 text-white/40 shrink-0" />
+              <span>Free VIP private servers for supported experiences</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <ArrowRight className="size-4 text-white/50 shrink-0" />
-              <span>Publish games and avatar items</span>
+            <div className="flex items-center gap-3">
+              <ArrowRight className="size-4 text-white/40 shrink-0" />
+              <span>Publish experiences and create catalog assets</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
             <button
               onClick={() => alert('Novelo Plus activated successfully!')}
-              className="flex-1 h-10 rounded-xl bg-white hover:bg-neutral-200 text-black font-bold text-xs transition-all cursor-pointer border-none shadow-md"
+              className="w-full sm:flex-1 h-10 rounded-[10px] bg-white hover:bg-neutral-200 text-black font-bold text-xs transition-all cursor-pointer border-none shadow-md active:scale-[0.97]"
             >
-              Try it for free
+              Start 30-Day Free Trial
             </button>
             <button
-              onClick={() => alert('Novelo Plus detailed terms and benefits.')}
-              className="flex-1 h-10 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all cursor-pointer border-none"
+              onClick={() => alert('Novelo Plus Terms: Membership renews automatically monthly. Cancel anytime under Account Settings.')}
+              className="w-full sm:w-auto h-10 px-5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.14] text-white font-bold text-xs transition-all cursor-pointer border-none active:scale-[0.97]"
             >
-              Learn more
+              Membership Terms
             </button>
           </div>
         </div>
+      </section>
+
+      {/* 4. Redeem Gift Card / Promo Code Box */}
+      <section className="rounded-2xl bg-[#101012] border border-white/[0.05] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="size-10 rounded-xl bg-white/[0.08] flex items-center justify-center shrink-0">
+            <Ticket className="size-5 text-white/60" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-white">Have a Gift Card or Promo Code?</h3>
+            <p className="text-[11px] text-white/40 mt-0.5">
+              Enter your code to redeem Novelo currency or exclusive virtual goods
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleRedeem} className="flex items-center gap-2 w-full sm:w-auto">
+          <input
+            type="text"
+            placeholder="ENTER CODE"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            className="h-9 px-3.5 rounded-[10px] bg-[#161618] border border-white/10 text-xs font-mono font-bold text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 tracking-wider uppercase w-full sm:w-44"
+          />
+          <button
+            type="submit"
+            className="h-9 px-4 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.14] text-white font-bold text-xs transition-all cursor-pointer border-none shrink-0 active:scale-[0.97]"
+          >
+            {promoApplied ? 'Applied!' : 'Redeem'}
+          </button>
+        </form>
       </section>
     </div>
   )
