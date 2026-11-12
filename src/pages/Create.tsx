@@ -999,8 +999,8 @@ export function Create({ onClose }: CreateProps) {
 
       {/* Main Container: Sidebar + Subnav + Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Primary Creator Hub Sidebar matching Reference Image */}
-        <div className="w-16 md:w-52 bg-[#0e0e12] border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
+        {/* Left Primary Creator Hub Sidebar matching Reference Image (No vertical divider border) */}
+        <div className="w-16 md:w-52 bg-[#0e0e12] flex flex-col justify-between py-4 shrink-0">
           <div className="flex flex-col gap-3 px-2.5">
             {/* Category: Create */}
             <div className="flex flex-col gap-1">
@@ -1123,8 +1123,8 @@ export function Create({ onClose }: CreateProps) {
           </div>
         </div>
 
-        {/* Creations Sub-navigation Sidebar */}
-        <div className="hidden lg:flex w-48 bg-[#0c0c10] border-r border-white/[0.04] flex-col py-6 px-3 shrink-0 gap-4">
+        {/* Creations Sub-navigation Sidebar (No vertical divider border) */}
+        <div className="hidden lg:flex w-48 bg-[#0c0c10] flex-col py-6 px-3 shrink-0 gap-4">
           <span className="px-3 text-xs font-bold text-white uppercase tracking-wider">
             Creations
           </span>
@@ -1192,66 +1192,82 @@ export function Create({ onClose }: CreateProps) {
           <div className="p-6 md:p-8 flex flex-col gap-6 max-w-[1600px]">
             {/* Filter Bar with Tabs and Switches */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
+              {/* Tabs with Novelo Highlight Animation (Image 3) */}
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setDashboardTab('My Experiences')}
-                  className={`h-8 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                  className={`px-3.5 h-8.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
                     dashboardTab === 'My Experiences'
-                      ? 'bg-white text-black font-bold border-white shadow-sm'
-                      : 'bg-transparent text-white/60 hover:text-white border-white/10'
+                      ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                      : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
                   }`}
                 >
                   My Experiences
                 </button>
                 <button
                   onClick={() => setDashboardTab('Shared With Me')}
-                  className={`h-8 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                  className={`px-3.5 h-8.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
                     dashboardTab === 'Shared With Me'
-                      ? 'bg-white text-black font-bold border-white shadow-sm'
-                      : 'bg-transparent text-white/60 hover:text-white border-white/10'
+                      ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                      : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
                   }`}
                 >
                   Shared With Me
                 </button>
               </div>
 
-              {/* Switches & Sort */}
+              {/* Switches & Sort (Boxes matching Image 6) */}
               <div className="flex items-center gap-5 flex-wrap">
-                <div className="flex items-center gap-3.5 text-xs text-white/60">
+                <div className="flex items-center gap-4 text-xs text-white/70">
                   <span className="font-semibold text-white/40">Show:</span>
 
-                  <label className="flex items-center gap-1.5 cursor-pointer">
+                  {/* Public Checkbox Box */}
+                  <label
+                    onClick={() => setShowPublic(!showPublic)}
+                    className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
+                  >
                     <div
-                      onClick={() => setShowPublic(!showPublic)}
-                      className={`w-7 h-4 rounded-full transition-colors relative ${
-                        showPublic ? 'bg-blue-600' : 'bg-white/20'
+                      className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
+                        showPublic
+                          ? 'border-2 border-white'
+                          : 'border border-white/30 hover:border-white/50'
                       }`}
                     >
-                      <div className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${showPublic ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                      {showPublic && <div className="size-2 rounded-[2px] bg-white" />}
                     </div>
                     <span>Public</span>
                   </label>
 
-                  <label className="flex items-center gap-1.5 cursor-pointer">
+                  {/* Impacted Checkbox Box */}
+                  <label
+                    onClick={() => setShowImpacted(!showImpacted)}
+                    className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
+                  >
                     <div
-                      onClick={() => setShowImpacted(!showImpacted)}
-                      className={`w-7 h-4 rounded-full transition-colors relative ${
-                        showImpacted ? 'bg-blue-600' : 'bg-white/20'
+                      className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
+                        showImpacted
+                          ? 'border-2 border-white'
+                          : 'border border-white/30 hover:border-white/50'
                       }`}
                     >
-                      <div className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${showImpacted ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                      {showImpacted && <div className="size-2 rounded-[2px] bg-white" />}
                     </div>
                     <span>Impacted</span>
                   </label>
 
-                  <label className="flex items-center gap-1.5 cursor-pointer">
+                  {/* Archived Checkbox Box */}
+                  <label
+                    onClick={() => setShowArchived(!showArchived)}
+                    className="flex items-center gap-2 cursor-pointer select-none transition-colors hover:text-white"
+                  >
                     <div
-                      onClick={() => setShowArchived(!showArchived)}
-                      className={`w-7 h-4 rounded-full transition-colors relative ${
-                        showArchived ? 'bg-blue-600' : 'bg-white/20'
+                      className={`size-4 rounded-[4px] flex items-center justify-center transition-all ${
+                        showArchived
+                          ? 'border-2 border-white'
+                          : 'border border-white/30 hover:border-white/50'
                       }`}
                     >
-                      <div className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${showArchived ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                      {showArchived && <div className="size-2 rounded-[2px] bg-white" />}
                     </div>
                     <span>Archived</span>
                   </label>
@@ -1266,7 +1282,7 @@ export function Create({ onClose }: CreateProps) {
               </div>
             </div>
 
-            {/* Create Experience Button */}
+            {/* Create Experience Button (White - Image 4) */}
             <div>
               <button
                 onClick={() => {
@@ -1283,10 +1299,10 @@ export function Create({ onClose }: CreateProps) {
                   setExperiences((prev) => [newExp, ...prev])
                   openGameDetails(newExp)
                 }}
-                className="h-9 px-4 rounded-[8px] bg-[#0055ff] hover:bg-[#0047d4] text-white font-bold text-xs flex items-center gap-2 transition-all cursor-pointer border-none shadow-md"
+                className="h-9 px-4 rounded-[8px] bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center gap-2 transition-all cursor-pointer border-none shadow-md active:scale-95"
               >
                 <span>Create Experience</span>
-                <SquareArrowOutUpRight className="size-3.5" />
+                <SquareArrowOutUpRight className="size-3.5 text-black" />
               </button>
             </div>
 
@@ -1320,7 +1336,7 @@ export function Create({ onClose }: CreateProps) {
 
                   {/* Card Details below banner */}
                   <div className="pt-5 flex flex-col gap-1 px-1">
-                    <span className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors truncate w-full">
+                    <span className="text-sm font-bold text-white transition-colors truncate w-full">
                       {exp.name}
                     </span>
 
