@@ -267,155 +267,225 @@ export function AvatarEditor() {
   const hasEquippedHat = equippedItemsList.some((i) => i.type === 'hat')
   const hasEquippedFace = equippedItemsList.some((i) => i.type === 'face')
 
-  // Render Mannequin Thumbnail matching user reference screenshot
+  // Render 3D Isometric Mannequin matching Image 1 reference
   const renderCardThumbnail = (item: Item) => {
+    const isShirt = item.type === 'clothing'
+    const isHat = item.type === 'hat'
+    const isHair = item.type === 'hair'
+    const isFace = item.type === 'face'
+    const isAccessory = item.type === 'accessory' || item.type === 'tool'
+
+    // Shirt & clothing styles
+    const isCatShirt = item.name === 'i like cats'
+    let shirtColor = '#e4e4e7'
+    let shirtSideColor = '#cbd5e1'
+    if (isShirt) {
+      if (isCatShirt) {
+        shirtColor = '#141416'
+        shirtSideColor = '#0a0a0c'
+      } else if (item.name === 'Samurai Armor') {
+        shirtColor = '#991b1b'
+        shirtSideColor = '#7f1d1d'
+      } else if (item.name === 'Cyberpunk Jacket') {
+        shirtColor = '#0f172a'
+        shirtSideColor = '#020617'
+      } else if (item.name === 'Tuxedo Suit') {
+        shirtColor = '#18181b'
+        shirtSideColor = '#09090b'
+      }
+    }
+
     return (
-      <div className="w-full aspect-square rounded-[8px] bg-[#161618] overflow-hidden relative flex flex-col items-center justify-end select-none">
-        {/* Subtle studio glow */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+      <div className="w-full h-44 flex items-center justify-center relative select-none">
+        <svg
+          viewBox="0 0 160 190"
+          className="w-full h-full max-h-44 object-contain filter drop-shadow-[0_10px_16px_rgba(0,0,0,0.45)]"
+        >
+          <defs>
+            {/* Smooth 3D lighting gradients matching Image 1 */}
+            <linearGradient id="headFrontGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#d4d4d8" />
+            </linearGradient>
+            <linearGradient id="headSideGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#d4d4d8" />
+              <stop offset="100%" stopColor="#a1a1aa" />
+            </linearGradient>
+            <linearGradient id="legFrontGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#f4f4f5" />
+              <stop offset="100%" stopColor="#e2e8f0" />
+            </linearGradient>
+            <linearGradient id="legRightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#cbd5e1" />
+              <stop offset="100%" stopColor="#94a3b8" />
+            </linearGradient>
+          </defs>
 
-        {/* Head */}
-        <div className="w-16 h-16 rounded-[12px] bg-[#d1d5db] mb-1 flex flex-col items-center justify-center relative shadow-xs z-10">
-          {/* 1. Single Celled ... Face matching reference */}
-          {item.name === 'Single Celled ...' && (
-            <div className="flex flex-col items-center gap-1.5 pointer-events-none">
-              <div className="flex items-center gap-4">
-                <div className="size-1 rounded-full bg-black" />
-                <div className="size-1 rounded-full bg-black" />
-              </div>
-              <div className="w-4 h-1.5 border-b-2 border-black rounded-b-full rotate-[-10deg]" />
-            </div>
+          {/* 1. Ground Drop Shadow */}
+          <ellipse cx="80" cy="180" rx="44" ry="8" fill="rgba(0, 0, 0, 0.45)" />
+
+          {/* 2. Accessories Behind (e.g. Wings) */}
+          {isAccessory && item.name.includes('Wings') && (
+            <g opacity="0.95">
+              <path d="M 50 65 Q 15 35 10 75 Q 35 85 55 85 Z" fill="#a855f7" />
+              <path d="M 110 65 Q 145 35 150 75 Q 125 85 105 85 Z" fill="#9333ea" />
+            </g>
           )}
 
-          {/* 2. D-Delayed? Face matching reference */}
-          {item.name === 'D-Delayed?' && (
-            <div className="flex flex-col items-center gap-0.5 pointer-events-none">
-              {/* Eyebrow */}
-              <div className="flex items-center justify-end w-6 mb-0.5">
-                <div className="w-2.5 h-0.5 bg-black rotate-[-12deg]" />
-              </div>
-              {/* Tired Oval Eyes with dark bags */}
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-3 rounded-full border border-black bg-white flex items-center justify-center">
-                  <div className="size-1 rounded-full bg-black" />
-                </div>
-                <div className="w-2.5 h-3 rounded-full border border-black bg-white flex items-center justify-center">
-                  <div className="size-1 rounded-full bg-black" />
-                </div>
-              </div>
-              {/* Dark eye bags */}
-              <div className="flex items-center gap-2 -mt-0.5">
-                <div className="w-2.5 h-0.5 border-b border-black/40 rounded-full" />
-                <div className="w-2.5 h-0.5 border-b border-black/40 rounded-full" />
-              </div>
-              {/* Smirk mouth */}
-              <div className="w-3.5 h-1 border-b-2 border-black rounded-b-md rotate-[-8deg] mt-0.5" />
-            </div>
+          {/* 3. Legs (Full 3D White Mannequin Legs matching Image 1) */}
+          {/* Left Leg */}
+          <rect x="58" y="104" width="21" height="66" rx="4" fill="url(#legFrontGrad)" />
+          {item.name === 'Ripped Jeans' && (
+            <rect x="58" y="104" width="21" height="50" rx="3" fill="#2563eb" />
           )}
 
-          {/* Other Faces */}
-          {item.type === 'face' && item.name !== 'Single Celled ...' && item.name !== 'D-Delayed?' && (
-            <div className="flex flex-col items-center gap-1 pointer-events-none">
-              {item.name === 'Neon Shades' ? (
-                <div className="w-11 h-3.5 bg-black rounded-full border border-cyan-400 flex items-center justify-center">
-                  <div className="w-7 h-1 bg-cyan-400 rounded-full" />
-                </div>
-              ) : item.name === 'Monocle' ? (
-                <div className="flex items-center gap-2">
-                  <div className="size-1 rounded-full bg-black" />
-                  <div className="size-3 rounded-full border-2 border-amber-400 flex items-center justify-center">
-                    <div className="size-1 rounded-full bg-black" />
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3">
-                    <div className="size-1 rounded-full bg-black" />
-                    <div className="size-1 rounded-full bg-black" />
-                  </div>
-                  <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
-                </>
-              )}
-            </div>
+          {/* Right Leg (Angled side depth) */}
+          <rect x="80" y="101" width="21" height="66" rx="4" fill="url(#legRightGrad)" />
+          {item.name === 'Ripped Jeans' && (
+            <rect x="80" y="101" width="21" height="50" rx="3" fill="#1d4ed8" />
+          )}
+
+          {/* 4. Torso */}
+          {/* Front Face */}
+          <rect
+            x="54"
+            y="52"
+            width="48"
+            height="52"
+            rx="4"
+            fill={shirtColor}
+          />
+          {/* Right Side 3D Depth Face */}
+          <polygon
+            points="102,52 108,46 108,96 102,104"
+            fill={shirtSideColor}
+          />
+
+          {/* Cat Shirt Graphic matching Image 1 */}
+          {isCatShirt ? (
+            <g>
+              <rect x="62" y="58" width="32" height="34" rx="2" fill="#242427" />
+              <image href="/entropy.png" x="64" y="60" width="28" height="28" preserveAspectRatio="xMidYMid slice" />
+              {/* Lollipop Stick & Candy matching Image 1 */}
+              <line x1="88" y1="88" x2="94" y2="76" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="95" cy="74" r="3.5" fill="#ef4444" />
+            </g>
+          ) : isShirt && item.name === 'Samurai Armor' ? (
+            <g>
+              <rect x="60" y="58" width="36" height="40" rx="2" fill="#7f1d1d" />
+              <line x1="60" y1="70" x2="96" y2="70" stroke="#f59e0b" strokeWidth="2" />
+              <line x1="60" y1="84" x2="96" y2="84" stroke="#f59e0b" strokeWidth="2" />
+            </g>
+          ) : (
+            !isShirt && (
+              <circle cx="78" cy="78" r="5" fill="#cbd5e1" opacity="0.5" />
+            )
+          )}
+
+          {/* 5. Left Arm (Angled block matching Image 1) */}
+          <rect
+            x="32"
+            y="54"
+            width="20"
+            height="50"
+            rx="4"
+            fill={isCatShirt ? '#141416' : shirtColor}
+          />
+          {isCatShirt && (
+            <rect x="32" y="76" width="20" height="28" rx="3" fill="#e4e4e7" />
+          )}
+
+          {/* 6. Right Arm (Angled back with 3D depth matching Image 1) */}
+          <rect
+            x="104"
+            y="50"
+            width="20"
+            height="50"
+            rx="4"
+            fill={isCatShirt ? '#0a0a0c' : shirtSideColor}
+          />
+          {isCatShirt && (
+            <rect x="104" y="72" width="20" height="28" rx="3" fill="#cbd5e1" />
+          )}
+
+          {/* 7. Head (3D Cylinder Head with authentic round cap) */}
+          <rect x="65" y="16" width="32" height="34" rx="9" fill="url(#headFrontGrad)" />
+          <path d="M 87 16 Q 97 16 97 25 L 97 41 Q 97 50 87 50 Z" fill="url(#headSideGrad)" opacity="0.65" />
+
+          {/* Face Features */}
+          {item.name === 'Single Celled ...' ? (
+            <g>
+              <circle cx="75" cy="30" r="1.5" fill="#000000" />
+              <circle cx="89" cy="30" r="1.5" fill="#000000" />
+              <path d="M 77 39 Q 82 45 87 40" fill="none" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" />
+            </g>
+          ) : item.name === 'D-Delayed?' ? (
+            <g>
+              <line x1="88" y1="20" x2="94" y2="22" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" />
+              <ellipse cx="76" cy="27" rx="2.5" ry="3.5" fill="#ffffff" stroke="#000000" strokeWidth="1.2" />
+              <ellipse cx="88" cy="27" rx="2.5" ry="3.5" fill="#ffffff" stroke="#000000" strokeWidth="1.2" />
+              <circle cx="76" cy="27" r="1" fill="#000000" />
+              <circle cx="88" cy="27" r="1" fill="#000000" />
+              <path d="M 74 32 Q 76 34 78 32" fill="none" stroke="#000000" strokeWidth="1" opacity="0.6" />
+              <path d="M 86 32 Q 88 34 90 32" fill="none" stroke="#000000" strokeWidth="1" opacity="0.6" />
+              <path d="M 77 39 Q 82 42 87 39" fill="none" stroke="#000000" strokeWidth="1.6" strokeLinecap="round" />
+            </g>
+          ) : item.name === 'Neon Shades' ? (
+            <g>
+              <rect x="68" y="26" width="26" height="8" rx="2" fill="#09090b" />
+              <line x1="70" y1="30" x2="92" y2="30" stroke="#06b6d4" strokeWidth="2" />
+            </g>
+          ) : item.name === 'Monocle' ? (
+            <g>
+              <circle cx="75" cy="30" r="1.5" fill="#000000" />
+              <circle cx="88" cy="30" r="4.5" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
+              <circle cx="88" cy="30" r="1.5" fill="#000000" />
+              <path d="M 88 35 Q 92 40 94 48" fill="none" stroke="#f59e0b" strokeWidth="1" />
+              <path d="M 78 38 Q 81 41 84 38" fill="none" stroke="#000000" strokeWidth="1.4" />
+            </g>
+          ) : (
+            !isFace && (
+              <g opacity="0.5">
+                <circle cx="76" cy="30" r="1.2" fill="#000000" />
+                <circle cx="86" cy="30" r="1.2" fill="#000000" />
+                <path d="M 78 37 Q 81 40 84 37" fill="none" stroke="#000000" strokeWidth="1.2" />
+              </g>
+            )
           )}
 
           {/* Hats */}
-          {item.type === 'hat' && (
-            <>
-              <div className="absolute -top-3.5 z-20 flex items-center justify-center pointer-events-none">
-                {item.name === 'Crown of Novelo' && (
-                  <div className="px-2 py-0.5 bg-amber-500 rounded-t-sm text-[8px] font-bold text-amber-950 border border-amber-600">
-                    👑
-                  </div>
-                )}
-                {item.name === 'Angel Halo' && (
-                  <div className="w-8 h-2 rounded-full border-2 border-amber-300 shadow-[0_0_6px_rgba(251,191,36,0.6)]" />
-                )}
-                {item.name === 'Top Hat' && (
-                  <div className="flex flex-col items-center">
-                    <div className="w-5 h-4 bg-black rounded-t-xs" />
-                    <div className="w-8 h-1 bg-black rounded-full" />
-                  </div>
-                )}
-                {item.name === 'Pink Bomber' && (
-                  <div className="px-2 py-0.5 rounded-t-lg bg-pink-500 text-[8px] text-white">
-                    Bomber
-                  </div>
-                )}
-                {item.name === 'Viking Helmet' && (
-                  <div className="px-2 py-0.5 bg-neutral-600 rounded-t-sm text-[8px] text-white">
-                    ⚔️
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col items-center gap-1 pointer-events-none mt-1">
-                <div className="flex items-center gap-3">
-                  <div className="size-1 rounded-full bg-black" />
-                  <div className="size-1 rounded-full bg-black" />
-                </div>
-                <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
-              </div>
-            </>
+          {isHat && (
+            <g>
+              {item.name === 'Crown of Novelo' && (
+                <path d="M 64 16 L 68 8 L 74 14 L 81 6 L 88 14 L 94 8 L 98 16 Z" fill="#eab308" stroke="#ca8a04" strokeWidth="1" />
+              )}
+              {item.name === 'Angel Halo' && (
+                <ellipse cx="81" cy="8" rx="16" ry="4" fill="none" stroke="#facc15" strokeWidth="2.5" />
+              )}
+              {item.name === 'Top Hat' && (
+                <g>
+                  <rect x="71" y="2" width="20" height="15" rx="1" fill="#18181b" />
+                  <ellipse cx="81" cy="16" rx="16" ry="3" fill="#18181b" />
+                </g>
+              )}
+              {item.name === 'Pink Bomber' && (
+                <path d="M 63 16 Q 81 8 99 16 L 97 22 Q 81 18 65 22 Z" fill="#ec4899" />
+              )}
+              {item.name === 'Viking Helmet' && (
+                <g>
+                  <path d="M 64 20 Q 81 8 98 20 Z" fill="#475569" />
+                  <path d="M 64 20 Q 56 12 58 6" fill="none" stroke="#e2e8f0" strokeWidth="3" strokeLinecap="round" />
+                  <path d="M 98 20 Q 106 12 104 6" fill="none" stroke="#e2e8f0" strokeWidth="3" strokeLinecap="round" />
+                </g>
+              )}
+            </g>
           )}
 
           {/* Hair */}
-          {item.type === 'hair' && (
-            <>
-              <div className="absolute -top-2 w-12 h-4 rounded-t-xl bg-amber-900 pointer-events-none" />
-              <div className="flex flex-col items-center gap-1 pointer-events-none mt-1">
-                <div className="flex items-center gap-3">
-                  <div className="size-1 rounded-full bg-black" />
-                  <div className="size-1 rounded-full bg-black" />
-                </div>
-                <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
-              </div>
-            </>
+          {isHair && (
+            <path d="M 63 22 Q 81 10 99 22 Q 95 12 81 12 Q 67 12 63 22 Z" fill="#78350f" />
           )}
-
-          {/* Other Categories */}
-          {(item.type === 'clothing' || item.type === 'accessory' || item.type === 'tool') && (
-            <div className="flex flex-col items-center gap-1 pointer-events-none">
-              <div className="flex items-center gap-3">
-                <div className="size-1 rounded-full bg-black" />
-                <div className="size-1 rounded-full bg-black" />
-              </div>
-              <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
-            </div>
-          )}
-        </div>
-
-        {/* Shoulders & Torso with Seam Lines matching reference */}
-        <div className="w-full h-8 bg-[#d1d5db] flex items-stretch border-t border-black/10 overflow-hidden relative">
-          <div className="w-1/4 h-full border-r border-black/10" />
-          <div className="w-2/4 h-full flex items-center justify-center relative">
-            {item.type === 'clothing' && (
-              <div className="absolute inset-0 bg-[#27272a] flex items-center justify-center">
-                <div className="size-2 rounded-full bg-white/20" />
-              </div>
-            )}
-          </div>
-          <div className="w-1/4 h-full border-l border-black/10" />
-        </div>
+        </svg>
       </div>
     )
   }

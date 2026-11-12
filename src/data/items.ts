@@ -36,6 +36,7 @@ export const ITEMS: Item[] = [
   { id: 24, name: 'Monocle', type: 'face', price: 55, sales: 12400, creator: 'ClassicCuts', rating: 4.2, desc: 'A sophisticated monocle with gold chain.' },
   { id: 25, name: 'Single Celled ...', type: 'face', price: 1, sales: 84000, creator: 'Luduvo', rating: 4.9, desc: 'A simple single-celled expression for the carefree soul.' },
   { id: 26, name: 'D-Delayed?', type: 'face', price: 30, sales: 51200, creator: 'Luduvo', rating: 4.8, desc: 'Perpetually exhausted, running late, and slightly amused.' },
+  { id: 27, name: 'i like cats', type: 'clothing', price: 10, sales: 94000, creator: 'sky', rating: 5.0, desc: 'A comfortable classic black tee with a cat graphic.' },
 ]
 
 export const CATEGORIES = [
