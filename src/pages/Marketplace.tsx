@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Search, ChevronsUpDown, Filter, Star, Clock, Palette } from 'lucide-react'
+import { IsometricMannequin } from '@/components/IsometricMannequin'
 
 interface MarketItem {
   id: string
@@ -128,53 +129,33 @@ export function Marketplace() {
           <div
             key={item.id}
             onClick={() => handleBuy(item)}
-            className="rounded-xl bg-[#101012] hover:bg-[#161618] border border-white/[0.04] hover:border-white/10 transition-all p-2.5 flex flex-col gap-2 cursor-pointer group"
+            className="group rounded-[14px] p-2.5 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none relative"
           >
-            {/* Mannequin Preview Area */}
-            <div className="aspect-[4/5] w-full rounded-lg bg-[#141416] flex flex-col items-center justify-center relative overflow-hidden">
-              {/* Limited Time Left Banner (Top Left) */}
-              {item.timeLeft && (
-                <div className="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded-full bg-red-600/90 text-white text-[9px] font-bold flex items-center gap-1 shadow-sm">
-                  <Clock className="size-2.5" />
-                  <span>{item.timeLeft}</span>
-                </div>
-              )}
-
-              {/* Mannequin Blocky Figure */}
-              <div className="relative flex flex-col items-center justify-center transition-transform group-hover:scale-105 duration-200">
-                {/* Head */}
-                <div className="size-6 bg-neutral-300 rounded-xs mb-0.5" />
-                {/* Torso & Arms */}
-                <div className="flex gap-0.5">
-                  <div className="w-2 h-7 bg-neutral-300 rounded-xs" />
-                  <div className="w-5 h-7 bg-neutral-300 rounded-xs" />
-                  <div className="w-2 h-7 bg-neutral-300 rounded-xs" />
-                </div>
+            {/* Limited Time Left Banner (Top Left) */}
+            {item.timeLeft && (
+              <div className="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-full bg-red-600/90 text-white text-[9px] font-bold flex items-center gap-1 shadow-sm">
+                <Clock className="size-2.5" />
+                <span>{item.timeLeft}</span>
               </div>
+            )}
 
-              {/* Rainbow Palette Icon (Bottom Left) */}
-              {item.hasRainbow && (
-                <div className="absolute bottom-1.5 left-1.5 text-xs">
-                  🌈
-                </div>
-              )}
-
-              {/* Blue Star Banner (Bottom Full Width) */}
-              {item.hasStarBanner && (
-                <div className="absolute bottom-0 inset-x-0 h-4 bg-[#00a2ff] flex items-center justify-center shadow-md">
-                  <Star className="size-2.5 fill-white text-white" />
-                </div>
-              )}
-            </div>
+            {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
+            <IsometricMannequin
+              name={item.name}
+              type={item.category.toLowerCase()}
+              className="h-36 max-h-36"
+            />
 
             {/* Title, Creator, Price */}
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <h4 className="text-xs font-bold text-white leading-tight truncate group-hover:text-white">
+            <div className="flex flex-col gap-0.5 min-w-0 text-left pt-1">
+              <h4 className="text-xs md:text-sm font-bold text-white leading-tight truncate group-hover:text-white">
                 {item.name}
               </h4>
-              <span className="text-[11px] text-white/50 truncate">By {item.creator}</span>
-              <div className="flex items-center gap-1 mt-0.5 text-xs font-bold text-white">
-                <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain" />
+              <span className="text-[11px] text-white/50 truncate">
+                By <span className="text-white/80 font-medium">{item.creator}</span>
+              </span>
+              <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
+                <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
                 <span>{item.price.toLocaleString()}</span>
               </div>
             </div>

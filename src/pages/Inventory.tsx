@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Search, Sparkles } from 'lucide-react'
+import { IsometricMannequin } from '@/components/IsometricMannequin'
 
 interface InventoryItem {
   id: string
@@ -133,126 +134,34 @@ export function Inventory() {
           <div
             key={item.id}
             onClick={() => setSelectedItem(item)}
-            className="rounded-xl bg-[#101012] hover:bg-[#161618] border border-white/[0.04] hover:border-white/10 transition-all p-3 flex flex-col gap-2.5 cursor-pointer group"
+            className="group rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
           >
-            {/* Mannequin Preview Container */}
-            <div className="aspect-[4/5] w-full rounded-lg bg-[#141416] flex items-center justify-center relative overflow-hidden">
-              {/* Mannequin Model wearing item */}
-              <div className="relative flex flex-col items-center justify-center transition-transform group-hover:scale-105 duration-200">
-                {/* Antlers accessory */}
-                {item.type === 'antlers' && (
-                  <div className="flex flex-col items-center">
-                    <div className="text-purple-400 -mb-1 animate-pulse">
-                      <Sparkles className="size-6 text-purple-400" />
-                    </div>
-                    {/* Head */}
-                    <div className="size-6 bg-neutral-300 rounded-xs mb-0.5" />
-                    {/* Torso & Arms */}
-                    <div className="flex gap-0.5">
-                      <div className="w-2 h-7 bg-neutral-300 rounded-xs" />
-                      <div className="w-5 h-7 bg-neutral-300 rounded-xs" />
-                      <div className="w-2 h-7 bg-neutral-300 rounded-xs" />
-                    </div>
-                  </div>
-                )}
+            {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
+            <IsometricMannequin
+              name={item.name}
+              type={item.type}
+              shirtType={item.shirtType}
+              faceType={item.faceType}
+            />
 
-                {/* Face expressions on blocky head */}
-                {item.type === 'face' && (
-                  <div className="flex flex-col items-center">
-                    <div className="size-16 rounded-md bg-neutral-200 flex flex-col items-center justify-center shadow-sm">
-                      {item.faceType === 'derp' && (
-                        <>
-                          <div className="flex gap-3 mb-1">
-                            <div className="size-1 rounded-full bg-black" />
-                            <div className="size-1 rounded-full bg-black" />
-                          </div>
-                          <div className="w-3 h-1 border-b-2 border-black rounded-b-full rotate-[-12deg]" />
-                        </>
-                      )}
-                      {item.faceType === 'smirk' && (
-                        <>
-                          <div className="flex gap-2.5 mb-1">
-                            <span className="text-[10px] font-bold text-black leading-none">O</span>
-                            <span className="text-[10px] font-bold text-black leading-none">O</span>
-                          </div>
-                          <div className="w-3 h-0.5 border-b border-black rounded-b-full" />
-                        </>
-                      )}
-                      {item.faceType === 'smile' && (
-                        <>
-                          <div className="flex gap-3 mb-1">
-                            <div className="size-1.5 rounded-full bg-black" />
-                            <div className="size-1.5 rounded-full bg-black" />
-                          </div>
-                          <div className="w-4 h-1.5 border-b-2 border-black rounded-b-full" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Shirts on Torso */}
-                {item.type === 'shirt' && (
-                  <div className="flex flex-col items-center">
-                    {/* Head */}
-                    <div className="size-5 bg-neutral-300 rounded-xs mb-0.5" />
-                    {/* Shirt Torso */}
-                    <div className="flex items-start gap-0.5">
-                      <div
-                        className="w-2.5 h-9 rounded-xs"
-                        style={{
-                          backgroundColor:
-                            item.shirtType === 'white' ? '#f4f4f5' : '#18181b',
-                        }}
-                      />
-                      <div
-                        className="w-7 h-9 rounded-xs flex items-center justify-center relative overflow-hidden"
-                        style={{
-                          backgroundColor:
-                            item.shirtType === 'white' ? '#f4f4f5' : '#18181b',
-                        }}
-                      >
-                        {item.shirtType === 'cat' && (
-                          <div className="size-4 bg-black/60 rounded-xs flex items-center justify-center text-[8px]">
-                            🐱
-                          </div>
-                        )}
-                        {item.shirtType === 'white' && (
-                          <div className="size-2 bg-neutral-800 rounded-full" />
-                        )}
-                        {item.shirtType === 'black' && (
-                          <div className="w-5 h-2 bg-white/90 rounded-xs" />
-                        )}
-                      </div>
-                      <div
-                        className="w-2.5 h-9 rounded-xs"
-                        style={{
-                          backgroundColor:
-                            item.shirtType === 'white' ? '#f4f4f5' : '#18181b',
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Bottom Info matching Image 2 */}
-            <div className="flex flex-col gap-0.5">
-              <h4 className="text-xs font-bold text-white leading-tight truncate group-hover:text-white">
+            {/* Bottom Info matching Image 1 */}
+            <div className="flex flex-col gap-0.5 text-left pt-1">
+              <h4 className="text-xs md:text-sm font-bold text-white leading-tight truncate group-hover:text-white">
                 {item.name}
               </h4>
-              <span className="text-[11px] text-white/50 truncate">By {item.creator}</span>
-              <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-[11px] text-white/50 truncate">
+                By <span className="text-white/80 font-medium">{item.creator}</span>
+              </span>
+              <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
                 {item.isOffSale ? (
                   <span className="text-[11px] text-white/40 font-medium">Off Sale</span>
                 ) : item.priceDisplay === 'Free' ? (
                   <span className="text-[11px] text-white/80 font-bold">Free</span>
                 ) : (
-                  <div className="flex items-center gap-1 text-[11px] font-bold text-white">
-                    <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain" />
+                  <>
+                    <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
                     <span>{item.priceDisplay}</span>
-                  </div>
+                  </>
                 )}
               </div>
             </div>
