@@ -673,12 +673,12 @@ export function Create({ onClose }: CreateProps) {
   // -------------------------------------------------------------
   if (viewMode === 'game_details') {
     return (
-      <div className="fixed inset-0 z-50 bg-[#0a0a0a] text-white select-none flex flex-col overflow-y-auto no-scrollbar font-sans relative isolate">
+      <div className="fixed inset-0 z-50 bg-[#0a0a0a] text-white select-none flex flex-col overflow-y-auto no-scrollbar font-sans isolate">
         {/* Fullscreen Encoded Wave Drift Background */}
         <WaveBackground />
 
         {/* Top Breadcrumb Header Bar */}
-        <div className="h-14 px-6 md:px-12 border-b border-white/[0.04] flex items-center justify-between shrink-0 bg-[#0e0e12]/85 backdrop-blur-md relative z-10">
+        <div className="h-14 px-6 md:px-12 border-b border-white/[0.04] flex items-center justify-between shrink-0 bg-[#0a0a0a]/30 backdrop-blur-md relative z-10">
           <div className="flex items-center gap-2.5 text-xs text-white/60">
             <button
               onClick={() => setViewMode('dashboard')}
@@ -982,12 +982,12 @@ export function Create({ onClose }: CreateProps) {
   // VIEW 3: NOVELO CREATOR DASHBOARD (STANDALONE FULLSCREEN SEPARATE UI)
   // -------------------------------------------------------------
   return (
-    <div className="fixed inset-0 z-50 bg-[#0a0a0a] text-white select-none flex flex-col overflow-hidden font-sans relative isolate">
+    <div className="fixed inset-0 h-screen w-screen z-50 bg-[#0a0a0a] text-white select-none flex flex-col overflow-hidden font-sans isolate">
       {/* Fullscreen Encoded Wave Drift Background */}
       <WaveBackground />
 
       {/* Top Application Bar with Return to Novelo Client & Search (No bottom divider border) */}
-      <div className="h-12 bg-[#0a0a0a]/80 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-20">
+      <div className="h-12 bg-[#0a0a0a]/30 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-20">
         <div className="flex items-center gap-3">
           {onClose && (
             <button
@@ -1050,7 +1050,7 @@ export function Create({ onClose }: CreateProps) {
       {/* Main Container: Sidebar + Subnav + Content */}
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Left Primary Creator Hub Sidebar (With sidebar divider re-added) */}
-        <div className="w-16 md:w-52 bg-[#0a0a0a]/40 backdrop-blur-md border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
+        <div className="w-16 md:w-52 h-full bg-[#0a0a0a]/30 backdrop-blur-md border-r border-white/[0.04] flex flex-col justify-between pt-4 pb-6 shrink-0">
           <div className="flex flex-col gap-3 px-2.5">
             {/* Category: Create */}
             <div className="flex flex-col gap-1">
@@ -1151,7 +1151,7 @@ export function Create({ onClose }: CreateProps) {
             </div>
           </div>
 
-          <div className="px-2.5 flex flex-col gap-1.5">
+          <div className="px-2.5 pt-8 pb-2 mt-auto flex flex-col gap-1.5">
             {/* Account Selector (Thinner, no background - matching Image 2) */}
             <div
               className="flex items-center justify-between px-2 py-0.5 rounded-[4px] hover:bg-white/[0.04] cursor-pointer transition-colors"
