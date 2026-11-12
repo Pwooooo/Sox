@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket } from 'lucide-react'
 
 export function Profile() {
-  const [activeTab, setActiveTab] = useState<'About' | 'Portfolio' | 'Creations' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
+  const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
 
-  const TABS = ['About', 'Portfolio', 'Creations', 'Groups', 'Inventory', 'Wishlist'] as const
+  const TABS = ['About', 'Games', 'Groups', 'Inventory', 'Wishlist'] as const
 
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1500px]">
@@ -232,8 +232,50 @@ export function Profile() {
         </div>
       )}
 
+      {/* Games Tab */}
+      {activeTab === 'Games' && (
+        <div className="flex flex-col gap-4">
+          <h3 className="text-sm font-bold text-white tracking-tight">Created Experiences</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
+              <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-center justify-center">
+                  <div className="w-20 h-10 bg-white/90 border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.6)] rounded-sm" />
+                </div>
+              </div>
+              <div className="p-3 flex flex-col gap-1">
+                <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
+                  new update
+                </h4>
+                <div className="flex items-center gap-2 text-[10px] text-white/40">
+                  <span>N/A</span>
+                  <span>👤 0</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
+              <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-end justify-center">
+                  <div className="w-32 h-20 bg-neutral-200/90 rounded-t-sm shadow-md" />
+                </div>
+              </div>
+              <div className="p-3 flex flex-col gap-1">
+                <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
+                  hi read desc (i cant update my games)
+                </h4>
+                <div className="flex items-center gap-2 text-[10px] text-white/40">
+                  <span>N/A</span>
+                  <span>👤 0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Other tabs placeholder */}
-      {activeTab !== 'About' && (
+      {activeTab !== 'About' && activeTab !== 'Games' && (
         <div className="py-20 text-center text-xs text-white/40">
           No items found in {activeTab}.
         </div>
