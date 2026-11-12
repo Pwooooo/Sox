@@ -96,7 +96,6 @@ export function AvatarEditor() {
   const [equippedIds, setEquippedIds] = useState<number[]>([1, 4])
   const [savedNotification, setSavedNotification] = useState(false)
   const [is2DMode, setIs2DMode] = useState(true)
-  const [avatarType, setAvatarType] = useState<'R6' | 'R15'>('R6')
   const [isSpinning, setIsSpinning] = useState(false)
 
   // Color picker HSV state
@@ -405,11 +404,11 @@ export function AvatarEditor() {
                 <p className="text-[11px] text-white/40">Click the red X to unequip items.</p>
               </div>
 
-              {/* Redraw Avatar Button matching Screenshot 2 */}
+              {/* Redraw Avatar Button (Clean White) */}
               <button
                 onClick={handleRedraw}
                 title="Redraw Avatar"
-                className="px-2.5 py-1 rounded-[8px] bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1 transition-all cursor-pointer border-none shadow-sm active:scale-95"
+                className="px-2.5 py-1 rounded-[8px] bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center gap-1 transition-all cursor-pointer border-none shadow-sm active:scale-95"
               >
                 <RotateCw className={`size-3 ${isSpinning ? 'animate-spin' : ''}`} />
                 <span>Redraw</span>
@@ -447,39 +446,6 @@ export function AvatarEditor() {
               >
                 <Plus className="size-4" />
               </button>
-            </div>
-          </div>
-
-          {/* 4. Body Selector Section matching Screenshot 2 */}
-          <div className="p-4 rounded-xl bg-[#0e0e10] border border-white/[0.04] flex flex-col gap-3 shadow-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white">Body Selector</span>
-              <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
-                <button
-                  onClick={() => setAvatarType('R6')}
-                  className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer border-none ${
-                    avatarType === 'R6'
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-transparent text-white/40 hover:text-white'
-                  }`}
-                >
-                  R6
-                </button>
-                <button
-                  onClick={() => setAvatarType('R15')}
-                  className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer border-none ${
-                    avatarType === 'R15'
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-transparent text-white/40 hover:text-white'
-                  }`}
-                >
-                  R15
-                </button>
-              </div>
-            </div>
-
-            <div className="p-2.5 rounded-lg bg-black/30 border border-white/5 text-[11px] text-white/40 text-center">
-              Body adjustment is available in {avatarType} mode
             </div>
           </div>
         </div>
