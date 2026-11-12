@@ -107,8 +107,8 @@ export function Profile() {
                 onClick={() => setActiveTab(tab)}
                 className={`h-8 px-3.5 rounded-[10px] text-xs font-semibold tracking-tight transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center justify-center shrink-0 ${
                   isActive
-                    ? 'bg-[#1d1d1d] text-white font-bold shadow-sm'
-                    : 'bg-transparent text-white/55 hover:text-white hover:bg-[#1d1d1d]/40'
+                    ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                    : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
                 }`}
               >
                 {tab}

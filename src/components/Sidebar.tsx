@@ -116,8 +116,8 @@ export function Sidebar({
               className={cn(
                 "w-full flex items-center gap-3.5 px-3 h-10 rounded-[10px] text-[13.5px] font-medium transition-all cursor-pointer border-none text-left",
                 isActive
-                  ? "bg-[#161616]/80 text-white shadow-sm font-semibold"
-                  : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.05]"
+                  ? "bg-white/[0.08] backdrop-blur-xs text-white shadow-xs font-semibold"
+                  : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.04]"
               )}
             >
               {/* Icon: filled when active, outline when inactive */}

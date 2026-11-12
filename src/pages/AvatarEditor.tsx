@@ -492,8 +492,8 @@ export function AvatarEditor() {
                     onClick={() => setSelectedPart(selectedPart === 'all' ? 'torso' : 'all')}
                     className={`px-3 py-1 rounded-[8px] text-xs font-bold transition-all cursor-pointer border-none ${
                       selectedPart === 'all'
-                        ? 'bg-black text-white border border-white/20 shadow-md'
-                        : 'bg-white/10 text-white/60 hover:text-white'
+                        ? 'bg-white/[0.08] backdrop-blur-xs text-white border border-white/20 shadow-xs'
+                        : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
                     Color All

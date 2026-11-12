@@ -199,9 +199,9 @@ export function Trade() {
                 <button
                   key={trade.id}
                   onClick={() => setSelectedTradeId(trade.id)}
-                  className={`p-3.5 flex items-center justify-between gap-3 text-left transition-all cursor-pointer border-none ${
+                  className={`p-3.5 flex items-center justify-between gap-3 text-left transition-all cursor-pointer border-none rounded-xl ${
                     isSelected
-                      ? 'bg-[#38383c] text-white'
+                      ? 'bg-white/[0.08] backdrop-blur-xs text-white'
                       : 'bg-transparent hover:bg-white/[0.04] text-white/80'
                   }`}
                 >

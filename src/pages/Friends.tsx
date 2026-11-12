@@ -149,8 +149,8 @@ export function Friends() {
             onClick={() => setActiveTab('all')}
             className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
               activeTab === 'all'
-                ? 'bg-white text-black shadow-md font-bold'
-                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
+                ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
             All ({friends.length})
@@ -160,8 +160,8 @@ export function Friends() {
             onClick={() => setActiveTab('online')}
             className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
               activeTab === 'online'
-                ? 'bg-white text-black shadow-md font-bold'
-                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
+                ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
             Online ({friends.filter((f) => f.status !== 'offline').length})
@@ -171,8 +171,8 @@ export function Friends() {
             onClick={() => setActiveTab('requests')}
             className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center gap-1.5 ${
               activeTab === 'requests'
-                ? 'bg-white text-black shadow-md font-bold'
-                : 'bg-white/[0.06] text-white/70 hover:text-white hover:bg-white/[0.12]'
+                ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
             <span>Requests</span>
