@@ -90,13 +90,15 @@ export function IsometricMannequin({
 
   const isJeans = name.includes('Jeans') || name.includes('Pants')
 
+  const hasCustomHeight = className.includes('h-')
+
   return (
     <div
-      className={`w-full h-44 flex items-center justify-center relative select-none ${className}`}
+      className={`w-full ${hasCustomHeight ? '' : 'h-44'} flex items-center justify-center relative select-none ${className}`}
     >
       <svg
         viewBox="0 0 160 190"
-        className="w-full h-full max-h-44 object-contain filter drop-shadow-[0_10px_16px_rgba(0,0,0,0.45)]"
+        className="w-full h-full object-contain filter drop-shadow-[0_10px_16px_rgba(0,0,0,0.45)]"
       >
         <defs>
           <linearGradient id="isoHeadFront" x1="0%" y1="0%" x2="100%" y2="100%">

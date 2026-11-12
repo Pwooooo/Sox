@@ -7,9 +7,7 @@ import {
   Check,
   AlertCircle,
   HelpCircle,
-  Search,
   Clock,
-  ShieldCheck,
   ArrowRight,
   Sparkles,
 } from 'lucide-react'
@@ -36,7 +34,6 @@ export interface TradeRequest {
   receiveItems: TradeItem[]
   giveItems: TradeItem[]
   note?: string
-  partnerAvatarColor: string
 }
 
 // User's tradeable inventory
@@ -60,7 +57,6 @@ const PARTNERS = [
   {
     name: 'GOODEVER',
     tag: '@goodever',
-    color: '#3b82f6',
     pool: [
       { id: 'p_g1', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat' as const, value: 780 },
       { id: 'p_g2', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 450 },
@@ -70,7 +66,6 @@ const PARTNERS = [
   {
     name: 'ActuallyDot',
     tag: '@actually_dot',
-    color: '#8b5cf6',
     pool: [
       { id: 'p_a1', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 450 },
       { id: 'p_a2', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 300 },
@@ -80,7 +75,6 @@ const PARTNERS = [
   {
     name: 'BeetleSlugger',
     tag: '@beetle_s',
-    color: '#10b981',
     pool: [
       { id: 'p_b1', name: 'Neon Shades', creator: 'CyberStyle', type: 'face' as const, value: 35 },
       { id: 'p_b2', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool' as const, value: 320 },
@@ -90,7 +84,6 @@ const PARTNERS = [
   {
     name: 'Flaminndragon',
     tag: '@flaminndragon',
-    color: '#ef4444',
     pool: [
       { id: 'p_f1', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool' as const, value: 320 },
       { id: 'p_f2', name: 'Laser Gun', creator: 'TechTitan', type: 'tool' as const, value: 280 },
@@ -100,7 +93,6 @@ const PARTNERS = [
   {
     name: 'forzch',
     tag: '@forzch',
-    color: '#f59e0b',
     pool: [
       { id: 'p_z1', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory' as const, value: 500 },
       { id: 'p_z2', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory' as const, value: 200 },
@@ -110,7 +102,6 @@ const PARTNERS = [
   {
     name: 'RblxMellodas',
     tag: '@rblx_mellodas',
-    color: '#06b6d4',
     pool: [
       { id: 'p_m1', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory' as const, value: 600 },
       { id: 'p_m2', name: 'Crown of Novelo', creator: 'PixelMaster', type: 'hat' as const, value: 250 },
@@ -120,7 +111,6 @@ const PARTNERS = [
   {
     name: 'BlahBlahNoodles',
     tag: '@noodles',
-    color: '#ec4899',
     pool: [
       { id: 'p_n1', name: 'Laser Gun', creator: 'TechTitan', type: 'tool' as const, value: 280 },
       { id: 'p_n2', name: 'Pink Bomber', creator: 'UrbanWear', type: 'hat' as const, value: 50 },
@@ -130,7 +120,6 @@ const PARTNERS = [
   {
     name: 'Disincline',
     tag: '@disincline',
-    color: '#6366f1',
     pool: [
       { id: 'p_d1', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 300 },
       { id: 'p_d2', name: 'Viking Helmet', creator: 'NordicNorse', type: 'hat' as const, value: 130 },
@@ -140,7 +129,6 @@ const PARTNERS = [
   {
     name: 'smokedmen',
     tag: '@smokedmen',
-    color: '#84cc16',
     pool: [
       { id: 'p_s1', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory' as const, value: 200 },
       { id: 'p_s2', name: 'Flame Skull', creator: 'HellfireHUD', type: 'face' as const, value: 120 },
@@ -157,8 +145,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@goodever',
     date: '4/2/20',
     expiresDate: '4/7/20',
-    status: 'Pending',
-    partnerAvatarColor: '#3b82f6',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri1', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat', value: 780 },
     ],
@@ -173,8 +160,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@actually_dot',
     date: '4/2/20',
     expiresDate: '4/7/20',
-    status: 'Pending',
-    partnerAvatarColor: '#8b5cf6',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri2', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory', value: 450 },
     ],
@@ -189,8 +175,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@beetle_s',
     date: '4/2/20',
     expiresDate: '4/7/20',
-    status: 'Pending',
-    partnerAvatarColor: '#10b981',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri3', name: 'Neon Shades', creator: 'CyberStyle', type: 'face', value: 35 },
     ],
@@ -205,8 +190,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@flaminndragon',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Pending',
-    partnerAvatarColor: '#ef4444',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri4', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool', value: 320 },
     ],
@@ -221,8 +205,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@forzch',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Pending',
-    partnerAvatarColor: '#f59e0b',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri5', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory', value: 500 },
     ],
@@ -237,8 +220,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@rblx_mellodas',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Pending',
-    partnerAvatarColor: '#06b6d4',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri6', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory', value: 600 },
     ],
@@ -253,8 +235,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@noodles',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Pending',
-    partnerAvatarColor: '#ec4899',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri7', name: 'Laser Gun', creator: 'TechTitan', type: 'tool', value: 280 },
     ],
@@ -269,8 +250,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@disincline',
     date: '3/28/20',
     expiresDate: '4/2/20',
-    status: 'Pending',
-    partnerAvatarColor: '#6366f1',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri8', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory', value: 300 },
     ],
@@ -285,8 +265,7 @@ const INITIAL_TRADES: TradeRequest[] = [
     partnerTag: '@smokedmen',
     date: '3/28/20',
     expiresDate: '4/2/20',
-    status: 'Pending',
-    partnerAvatarColor: '#84cc16',
+    status: 'Unknown',
     receiveItems: [
       { id: 'ri9', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory', value: 200 },
     ],
@@ -303,7 +282,6 @@ const INITIAL_TRADES: TradeRequest[] = [
     date: '4/1/20',
     expiresDate: '4/6/20',
     status: 'Pending',
-    partnerAvatarColor: '#8b5cf6',
     receiveItems: [
       { id: 'ri_out1', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory', value: 300 },
     ],
@@ -320,7 +298,6 @@ const INITIAL_TRADES: TradeRequest[] = [
     date: '3/20/20',
     expiresDate: 'Completed',
     status: 'Completed',
-    partnerAvatarColor: '#f59e0b',
     receiveItems: [
       { id: 'ri_c1', name: 'Laser Gun', creator: 'TechTitan', type: 'tool', value: 280 },
     ],
@@ -329,6 +306,40 @@ const INITIAL_TRADES: TradeRequest[] = [
     ],
   },
 ]
+
+// Authentic Stock Avatar matching Screenshot 10
+export function StockAvatar({ className = '' }: { className?: string }) {
+  return (
+    <div
+      className={`size-9 rounded-full bg-[#202024] flex items-center justify-center overflow-hidden shrink-0 shadow-inner ${className}`}
+    >
+      <svg
+        viewBox="0 0 32 32"
+        className="w-full h-full object-contain"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Head */}
+        <rect x="10" y="7" width="12" height="11" rx="2.5" fill="#d4d4d8" />
+        {/* Eyes */}
+        <circle cx="13" cy="12" r="1" fill="#18181b" />
+        <circle cx="19" cy="12" r="1" fill="#18181b" />
+        {/* Smile */}
+        <path
+          d="M14 14.8C14.5 15.8 17.5 15.8 18 14.8"
+          stroke="#18181b"
+          strokeWidth="0.9"
+          strokeLinecap="round"
+        />
+        {/* Torso / Shoulders */}
+        <path
+          d="M8 21C8 19.5 10 18.5 16 18.5C22 18.5 24 19.5 24 21V32H8V21Z"
+          fill="#3f3f46"
+        />
+      </svg>
+    </div>
+  )
+}
 
 export function Trade() {
   const [tradeCategory, setTradeCategory] = useState<TradeCategory>('Inbound')
@@ -341,10 +352,12 @@ export function Trade() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'new' | 'counter'>('new')
   const [selectedPartnerName, setSelectedPartnerName] = useState('GOODEVER')
-  const [partnerSearch, setPartnerSearch] = useState('')
   const [selectedGiveItems, setSelectedGiveItems] = useState<TradeItem[]>([])
   const [selectedReceiveItems, setSelectedReceiveItems] = useState<TradeItem[]>([])
   const [tradeNote, setTradeNote] = useState('')
+
+  // Active Dropdown for Item Selection: 'give' or 'receive'
+  const [activeDropdownSide, setActiveDropdownSide] = useState<'give' | 'receive' | null>(null)
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
@@ -405,6 +418,7 @@ export function Trade() {
     setSelectedPartnerName(PARTNERS[0].name)
     setSelectedGiveItems([])
     setSelectedReceiveItems([])
+    setActiveDropdownSide(null)
     setTradeNote('')
     setIsModalOpen(true)
   }
@@ -414,9 +428,9 @@ export function Trade() {
     if (!activeTrade) return
     setModalMode('counter')
     setSelectedPartnerName(activeTrade.partner)
-    // Pre-fill with current trade items
     setSelectedGiveItems([...activeTrade.giveItems])
     setSelectedReceiveItems([...activeTrade.receiveItems])
+    setActiveDropdownSide(null)
     setTradeNote(`Countering previous offer with adjusted items.`)
     setIsModalOpen(true)
   }
@@ -425,30 +439,34 @@ export function Trade() {
   const currentPartnerData =
     PARTNERS.find((p) => p.name === selectedPartnerName) || PARTNERS[0]
 
-  // Toggle item in Give list
-  const toggleGiveItem = (item: TradeItem) => {
-    if (selectedGiveItems.some((i) => i.id === item.id)) {
-      setSelectedGiveItems((prev) => prev.filter((i) => i.id !== item.id))
-    } else {
-      if (selectedGiveItems.length >= 4) {
-        showToast('Maximum 4 items allowed per side')
-        return
-      }
-      setSelectedGiveItems((prev) => [...prev, item])
-    }
+  // Remove item from Give list
+  const removeGiveItem = (item: TradeItem) => {
+    setSelectedGiveItems((prev) => prev.filter((i) => i.id !== item.id))
   }
 
-  // Toggle item in Receive list
-  const toggleReceiveItem = (item: TradeItem) => {
-    if (selectedReceiveItems.some((i) => i.id === item.id)) {
-      setSelectedReceiveItems((prev) => prev.filter((i) => i.id !== item.id))
-    } else {
-      if (selectedReceiveItems.length >= 4) {
-        showToast('Maximum 4 items allowed per side')
-        return
-      }
-      setSelectedReceiveItems((prev) => [...prev, item])
+  // Remove item from Receive list
+  const removeReceiveItem = (item: TradeItem) => {
+    setSelectedReceiveItems((prev) => prev.filter((i) => i.id !== item.id))
+  }
+
+  // Add item to Give list
+  const addGiveItem = (item: TradeItem) => {
+    if (selectedGiveItems.length >= 4) {
+      showToast('Maximum 4 items allowed per side')
+      return
     }
+    setSelectedGiveItems((prev) => [...prev, item])
+    setActiveDropdownSide(null)
+  }
+
+  // Add item to Receive list
+  const addReceiveItem = (item: TradeItem) => {
+    if (selectedReceiveItems.length >= 4) {
+      showToast('Maximum 4 items allowed per side')
+      return
+    }
+    setSelectedReceiveItems((prev) => [...prev, item])
+    setActiveDropdownSide(null)
   }
 
   // Handle Send Trade Request
@@ -467,7 +485,6 @@ export function Trade() {
       date: 'Today',
       expiresDate: 'In 5 days',
       status: 'Pending',
-      partnerAvatarColor: currentPartnerData.color,
       giveItems: selectedGiveItems,
       receiveItems: selectedReceiveItems,
       note: tradeNote,
@@ -498,19 +515,19 @@ export function Trade() {
         </div>
       )}
 
-      {/* Main Trade Window matching User Reference */}
-      <div className="flex flex-col md:flex-row rounded-2xl bg-[#121214] border border-white/[0.06] overflow-hidden shadow-2xl min-h-[680px]">
+      {/* Main Trade Window (Seamless dark surface matching image 5) */}
+      <div className="flex flex-col md:flex-row rounded-2xl bg-[#121214] overflow-hidden shadow-2xl min-h-[680px]">
         {/* Left Column: Trades List */}
-        <div className="w-full md:w-80 lg:w-84 bg-[#141416] flex flex-col shrink-0 border-r border-white/[0.04]">
+        <div className="w-full md:w-80 lg:w-84 bg-[#141416] flex flex-col shrink-0">
           {/* Header */}
-          <div className="p-4 pb-3 flex flex-col gap-3 border-b border-white/[0.04]">
+          <div className="p-4 pb-3 flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2">
               <h1 className="text-xl font-black text-white tracking-tight">Trades</h1>
 
               {/* Send Trade Request Button */}
               <button
                 onClick={openNewTradeModal}
-                className="h-8 px-3 rounded-[10px] bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shrink-0"
+                className="h-8 px-3 rounded-[10px] bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shrink-0 border-none"
               >
                 <Plus className="size-3.5" />
                 <span>New Trade</span>
@@ -528,7 +545,7 @@ export function Trade() {
                     const firstInCat = trades.find((t) => t.category === cat)
                     if (firstInCat) setSelectedTradeId(firstInCat.id)
                   }}
-                  className="h-8 pl-3 pr-8 rounded-[10px] bg-[#1c1c1f] hover:bg-[#242428] border border-white/10 text-xs font-semibold text-white focus:outline-none cursor-pointer appearance-none transition-colors"
+                  className="h-8 pl-3 pr-8 rounded-[10px] bg-[#1c1c1f] hover:bg-[#242428] text-xs font-semibold text-white focus:outline-none cursor-pointer appearance-none transition-colors border-none"
                 >
                   <option value="Inbound">Inbound ({trades.filter((t) => t.category === 'Inbound').length})</option>
                   <option value="Outbound">Outbound ({trades.filter((t) => t.category === 'Outbound').length})</option>
@@ -579,31 +596,17 @@ export function Trade() {
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      {/* Avatar with initial */}
-                      <div
-                        className="size-9 rounded-full flex items-center justify-center shrink-0 border border-white/10"
-                        style={{ backgroundColor: trade.partnerAvatarColor || '#262626' }}
-                      >
-                        <span className="text-xs font-bold text-white uppercase">
-                          {trade.partner.charAt(0)}
-                        </span>
-                      </div>
+                      {/* Stock Avatar matching image 3 */}
+                      <StockAvatar />
+
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs font-bold truncate leading-tight text-white">
                           {trade.partner}
                         </span>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span
-                            className={`size-1.5 rounded-full ${
-                              trade.status === 'Completed'
-                                ? 'bg-emerald-400'
-                                : trade.status === 'Declined' || trade.status === 'Cancelled'
-                                ? 'bg-rose-400'
-                                : 'bg-amber-400'
-                            }`}
-                          />
-                          <span className="text-[10px] text-white/40">{trade.status}</span>
-                        </div>
+                        {/* Status text without circle dot matching image 2 */}
+                        <span className="text-[10px] text-white/40 mt-0.5 leading-none">
+                          {trade.status}
+                        </span>
                       </div>
                     </div>
 
@@ -628,7 +631,7 @@ export function Trade() {
                     <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
                       Trade with {activeTrade.partner}
                     </h2>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/[0.06] text-white/60 font-semibold border border-white/5">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/[0.06] text-white/60 font-semibold">
                       {activeTrade.category}
                     </span>
                   </div>
@@ -666,7 +669,7 @@ export function Trade() {
                   {activeTrade.receiveItems.map((item) => (
                     <div
                       key={item.id}
-                      className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] border border-white/[0.04] select-none"
+                      className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
                     >
                       <IsometricMannequin
                         name={item.name}
@@ -704,7 +707,7 @@ export function Trade() {
               </div>
 
               {/* Section 2: Items you will give */}
-              <div className="flex flex-col gap-3 pt-5 border-t border-white/[0.06]">
+              <div className="flex flex-col gap-3 pt-5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-1.5">
                     <span>Items you will give</span>
@@ -719,7 +722,7 @@ export function Trade() {
                   {activeTrade.giveItems.map((item) => (
                     <div
                       key={item.id}
-                      className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] border border-white/[0.04] select-none"
+                      className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
                     >
                       <IsometricMannequin
                         name={item.name}
@@ -746,7 +749,7 @@ export function Trade() {
                   ))}
                 </div>
 
-                {/* Give Total Value & Win/Loss indicator */}
+                {/* Give Total Value & Plain Text Win/Loss indicator matching Image 1 */}
                 <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
                   <div className="flex items-center gap-2 text-xs font-bold text-white">
                     <span className="text-white/50">Total Value:</span>
@@ -756,18 +759,18 @@ export function Trade() {
                     </div>
                   </div>
 
-                  {/* Value Summary Badge */}
+                  {/* Plain Text Red/Green Value indicator without background matching Image 1 */}
                   <div className="flex items-center gap-2">
                     {valueDiff > 0 ? (
-                      <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                      <span className="text-xs font-bold text-emerald-400">
                         +{valueDiff.toLocaleString()} Gain in your favor
                       </span>
                     ) : valueDiff < 0 ? (
-                      <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                      <span className="text-xs font-bold text-red-500">
                         {valueDiff.toLocaleString()} Giving more value
                       </span>
                     ) : (
-                      <span className="text-[11px] font-bold text-white/70 bg-white/[0.06] px-2.5 py-1 rounded-full border border-white/10">
+                      <span className="text-xs font-bold text-white/50">
                         Equal Value Trade
                       </span>
                     )}
@@ -776,7 +779,7 @@ export function Trade() {
               </div>
 
               {/* Bottom Buttons matching Image 5 and Roblox Client Trading */}
-              <div className="flex items-center gap-3 pt-5 border-t border-white/[0.06]">
+              <div className="flex items-center gap-3 pt-5">
                 {activeTrade.category === 'Inbound' && (
                   <>
                     <button
@@ -787,13 +790,13 @@ export function Trade() {
                     </button>
                     <button
                       onClick={openCounterModal}
-                      className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-[#2c2c30] text-white font-bold text-xs transition-all cursor-pointer border border-white/5"
+                      className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-[#2c2c30] text-white font-bold text-xs transition-all cursor-pointer border-none"
                     >
                       Counter
                     </button>
                     <button
                       onClick={handleDecline}
-                      className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-red-500/20 hover:text-red-400 text-white font-bold text-xs transition-all cursor-pointer border border-white/5"
+                      className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-red-500/20 hover:text-red-400 text-white font-bold text-xs transition-all cursor-pointer border-none"
                     >
                       Decline
                     </button>
@@ -803,21 +806,21 @@ export function Trade() {
                 {activeTrade.category === 'Outbound' && (
                   <button
                     onClick={handleCancelOutbound}
-                    className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-red-500/20 hover:text-red-400 text-white font-bold text-xs transition-all cursor-pointer border border-white/5"
+                    className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-red-500/20 hover:text-red-400 text-white font-bold text-xs transition-all cursor-pointer border-none"
                   >
                     Cancel Request
                   </button>
                 )}
 
                 {activeTrade.category === 'Completed' && (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl">
                     <Check className="size-4" />
                     <span>This trade was successfully completed</span>
                   </div>
                 )}
 
                 {activeTrade.category === 'Inactive' && (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-white/50 bg-white/[0.04] px-4 py-2 rounded-xl border border-white/5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-white/50 bg-white/[0.04] px-4 py-2 rounded-xl">
                     <AlertCircle className="size-4" />
                     <span>This trade is inactive ({activeTrade.status})</span>
                   </div>
@@ -833,7 +836,7 @@ export function Trade() {
               </p>
               <button
                 onClick={openNewTradeModal}
-                className="mt-2 h-9 px-4 rounded-[10px] bg-white text-black font-bold text-xs hover:bg-neutral-200 transition-all cursor-pointer shadow-md"
+                className="mt-2 h-9 px-4 rounded-[10px] bg-white text-black font-bold text-xs hover:bg-neutral-200 transition-all cursor-pointer shadow-md border-none"
               >
                 Propose New Trade
               </button>
@@ -842,12 +845,12 @@ export function Trade() {
         </div>
       </div>
 
-      {/* SEND TRADE REQUEST / COUNTER MODAL */}
+      {/* SEND TRADE REQUEST / COUNTER MODAL (Borderless dark aesthetic matching Image 5) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
-          <div className="w-full max-w-4xl bg-[#121214] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[92vh]">
+          <div className="w-full max-w-3xl bg-[#121214] rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[92vh]">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-white/[0.06] flex items-center justify-between">
+            <div className="p-4 sm:p-5 flex items-center justify-between">
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
                   <ArrowLeftRight className="size-5 text-white" />
@@ -858,7 +861,7 @@ export function Trade() {
                   </span>
                 </h2>
                 <p className="text-xs text-white/50 mt-0.5">
-                  Select up to 4 items from your inventory and up to 4 from your partner's.
+                  Click an empty slot to choose an item from the dropdown inventory.
                 </p>
               </div>
               <button
@@ -870,8 +873,8 @@ export function Trade() {
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-6 no-scrollbar">
-              {/* Partner Picker */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-5 no-scrollbar">
+              {/* Partner Picker with Stock Avatars */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-white/70 uppercase tracking-wider">
                   Trade Partner
@@ -884,27 +887,22 @@ export function Trade() {
                         key={partner.name}
                         onClick={() => {
                           setSelectedPartnerName(partner.name)
-                          // Clear receive items if partner changes
                           setSelectedReceiveItems([])
+                          setActiveDropdownSide(null)
                         }}
-                        className={`p-2.5 rounded-xl flex items-center gap-2.5 text-left transition-all cursor-pointer border ${
+                        className={`p-2.5 rounded-xl flex items-center gap-2.5 text-left transition-all cursor-pointer border-none ${
                           isSelected
-                            ? 'bg-white/[0.1] border-white/30 text-white'
-                            : 'bg-[#18181c] border-white/[0.04] text-white/70 hover:bg-[#202026]'
+                            ? 'bg-white/[0.12] text-white'
+                            : 'bg-[#18181c] text-white/70 hover:bg-[#202026]'
                         }`}
                       >
-                        <div
-                          className="size-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                          style={{ backgroundColor: partner.color }}
-                        >
-                          {partner.name.charAt(0)}
-                        </div>
+                        <StockAvatar className="size-7" />
                         <div className="flex flex-col min-w-0">
                           <span className="text-xs font-bold truncate text-white">
                             {partner.name}
                           </span>
                           <span className="text-[10px] text-white/40 truncate">
-                            {partner.pool.length} items available
+                            {partner.pool.length} items
                           </span>
                         </div>
                       </button>
@@ -913,10 +911,10 @@ export function Trade() {
                 </div>
               </div>
 
-              {/* Two Column Offer Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Two Column Offer Section (Giving & Receiving) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Your Offer */}
-                <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#161618] border border-white/[0.04]">
+                <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#161618] relative">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
@@ -932,73 +930,105 @@ export function Trade() {
                     </div>
                   </div>
 
-                  {/* Selected Slots */}
-                  <div className="grid grid-cols-4 gap-2">
+                  {/* 4 Square Slots matching Image 4 & 8 */}
+                  <div className="grid grid-cols-4 gap-2.5">
                     {[0, 1, 2, 3].map((slotIdx) => {
                       const item = selectedGiveItems[slotIdx]
                       return item ? (
+                        /* Filled Slot (Square aspect ratio, perfectly scaled item matching Image 4 fix) */
                         <div
                           key={item.id}
-                          onClick={() => toggleGiveItem(item)}
-                          className="relative aspect-square rounded-xl bg-[#121214] border border-white/20 p-1.5 flex flex-col items-center justify-between cursor-pointer group hover:border-red-400/50"
+                          className="relative aspect-square w-full rounded-2xl bg-[#121214] p-1.5 flex flex-col items-center justify-between overflow-hidden group select-none"
                         >
-                          <button className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm">
+                          <button
+                            onClick={() => removeGiveItem(item)}
+                            className="absolute top-1 right-1 size-4 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow-sm z-10 cursor-pointer border-none"
+                            title="Remove"
+                          >
                             ✕
                           </button>
-                          <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full" />
-                          <span className="text-[9px] font-bold text-white truncate w-full text-center">
-                            {item.name}
-                          </span>
+                          <div className="w-full flex-1 flex items-center justify-center overflow-hidden pt-1">
+                            <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full max-h-12" />
+                          </div>
+                          <div className="w-full text-center pb-0.5 px-0.5">
+                            <span className="text-[9.5px] font-bold text-white truncate block w-full leading-tight">
+                              {item.name}
+                            </span>
+                          </div>
                         </div>
                       ) : (
-                        <div
+                        /* Empty Slot matching Image 8: click opens dropdown inventory selection */
+                        <button
                           key={slotIdx}
-                          className="aspect-square rounded-xl border border-dashed border-white/10 bg-[#121214]/50 flex items-center justify-center text-white/20"
+                          onClick={() =>
+                            setActiveDropdownSide(activeDropdownSide === 'give' ? null : 'give')
+                          }
+                          className="aspect-square w-full rounded-2xl border border-dashed border-white/15 bg-[#121214]/60 hover:bg-white/[0.04] hover:border-white/30 flex items-center justify-center text-white/30 hover:text-white transition-all cursor-pointer border-none"
+                          title="Click to add item from inventory"
                         >
-                          <Plus className="size-4" />
-                        </div>
+                          <Plus className="size-5" />
+                        </button>
                       )
                     })}
                   </div>
 
-                  {/* Inventory Picker */}
-                  <div className="mt-2 flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold text-white/60">
-                      Choose from your Inventory:
-                    </span>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto no-scrollbar pr-1">
-                      {USER_INVENTORY.map((item) => {
-                        const isPicked = selectedGiveItems.some((i) => i.id === item.id)
-                        return (
-                          <button
-                            key={item.id}
-                            onClick={() => toggleGiveItem(item)}
-                            className={`p-2 rounded-lg text-left transition-all cursor-pointer border flex flex-col justify-between ${
-                              isPicked
-                                ? 'bg-white/[0.14] border-white/40 text-white'
-                                : 'bg-[#121214] border-white/[0.04] text-white/70 hover:bg-[#1a1a1e]'
-                            }`}
-                          >
-                            <span className="text-[11px] font-bold truncate text-white">
-                              {item.name}
-                            </span>
-                            <div className="flex items-center gap-1 text-[10px] font-semibold text-white/80 mt-1">
-                              <img
-                                src="/novelo-currency.png"
-                                alt="Currency"
-                                className="size-2.5 object-contain"
-                              />
-                              <span>{item.value.toLocaleString()}</span>
-                            </div>
-                          </button>
-                        )
-                      })}
+                  {/* DROPDOWN INVENTORY SELECTION FOR YOUR OFFER (Image 7 replaced with dropdown) */}
+                  {activeDropdownSide === 'give' && (
+                    <div className="mt-2 p-2.5 rounded-xl bg-[#121214] flex flex-col gap-1.5 shadow-xl animate-in fade-in-50 duration-150">
+                      <div className="flex items-center justify-between px-1 pb-1">
+                        <span className="text-[11px] font-bold text-white/70">
+                          Select item from your Inventory:
+                        </span>
+                        <button
+                          onClick={() => setActiveDropdownSide(null)}
+                          className="text-[11px] text-white/40 hover:text-white bg-transparent border-none cursor-pointer"
+                        >
+                          Close
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col gap-1 max-h-48 overflow-y-auto no-scrollbar pr-0.5">
+                        {USER_INVENTORY.filter(
+                          (item) => !selectedGiveItems.some((i) => i.id === item.id)
+                        ).length === 0 ? (
+                          <div className="text-center py-3 text-xs text-white/40">
+                            All inventory items already selected
+                          </div>
+                        ) : (
+                          USER_INVENTORY.filter(
+                            (item) => !selectedGiveItems.some((i) => i.id === item.id)
+                          ).map((item) => (
+                            <button
+                              key={item.id}
+                              onClick={() => addGiveItem(item)}
+                              className="w-full p-2 rounded-lg bg-[#18181c] hover:bg-[#222228] flex items-center justify-between gap-2 transition-colors cursor-pointer border-none text-left"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="size-7 rounded-md bg-[#121214] flex items-center justify-center overflow-hidden shrink-0">
+                                  <IsometricMannequin name={item.name} type={item.type} className="h-6 w-6" />
+                                </div>
+                                <span className="text-xs font-bold text-white truncate">
+                                  {item.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs font-bold text-white shrink-0">
+                                <img
+                                  src="/novelo-currency.png"
+                                  alt="Currency"
+                                  className="size-3 object-contain"
+                                />
+                                <span>{item.value.toLocaleString()}</span>
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Their Offer */}
-                <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#161618] border border-white/[0.04]">
+                <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#161618] relative">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
@@ -1014,74 +1044,106 @@ export function Trade() {
                     </div>
                   </div>
 
-                  {/* Selected Slots */}
-                  <div className="grid grid-cols-4 gap-2">
+                  {/* 4 Square Slots matching Image 4 & 8 */}
+                  <div className="grid grid-cols-4 gap-2.5">
                     {[0, 1, 2, 3].map((slotIdx) => {
                       const item = selectedReceiveItems[slotIdx]
                       return item ? (
+                        /* Filled Slot (Square aspect ratio, perfectly scaled item matching Image 4 fix) */
                         <div
                           key={item.id}
-                          onClick={() => toggleReceiveItem(item)}
-                          className="relative aspect-square rounded-xl bg-[#121214] border border-white/20 p-1.5 flex flex-col items-center justify-between cursor-pointer group hover:border-red-400/50"
+                          className="relative aspect-square w-full rounded-2xl bg-[#121214] p-1.5 flex flex-col items-center justify-between overflow-hidden group select-none"
                         >
-                          <button className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm">
+                          <button
+                            onClick={() => removeReceiveItem(item)}
+                            className="absolute top-1 right-1 size-4 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow-sm z-10 cursor-pointer border-none"
+                            title="Remove"
+                          >
                             ✕
                           </button>
-                          <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full" />
-                          <span className="text-[9px] font-bold text-white truncate w-full text-center">
-                            {item.name}
-                          </span>
+                          <div className="w-full flex-1 flex items-center justify-center overflow-hidden pt-1">
+                            <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full max-h-12" />
+                          </div>
+                          <div className="w-full text-center pb-0.5 px-0.5">
+                            <span className="text-[9.5px] font-bold text-white truncate block w-full leading-tight">
+                              {item.name}
+                            </span>
+                          </div>
                         </div>
                       ) : (
-                        <div
+                        /* Empty Slot matching Image 8: click opens dropdown inventory selection */
+                        <button
                           key={slotIdx}
-                          className="aspect-square rounded-xl border border-dashed border-white/10 bg-[#121214]/50 flex items-center justify-center text-white/20"
+                          onClick={() =>
+                            setActiveDropdownSide(activeDropdownSide === 'receive' ? null : 'receive')
+                          }
+                          className="aspect-square w-full rounded-2xl border border-dashed border-white/15 bg-[#121214]/60 hover:bg-white/[0.04] hover:border-white/30 flex items-center justify-center text-white/30 hover:text-white transition-all cursor-pointer border-none"
+                          title="Click to add item from partner"
                         >
-                          <Plus className="size-4" />
-                        </div>
+                          <Plus className="size-5" />
+                        </button>
                       )
                     })}
                   </div>
 
-                  {/* Partner Items Picker */}
-                  <div className="mt-2 flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold text-white/60">
-                      Choose from {currentPartnerData.name}'s Items:
-                    </span>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto no-scrollbar pr-1">
-                      {currentPartnerData.pool.map((item) => {
-                        const isPicked = selectedReceiveItems.some((i) => i.id === item.id)
-                        return (
-                          <button
-                            key={item.id}
-                            onClick={() => toggleReceiveItem(item)}
-                            className={`p-2 rounded-lg text-left transition-all cursor-pointer border flex flex-col justify-between ${
-                              isPicked
-                                ? 'bg-white/[0.14] border-white/40 text-white'
-                                : 'bg-[#121214] border-white/[0.04] text-white/70 hover:bg-[#1a1a1e]'
-                            }`}
-                          >
-                            <span className="text-[11px] font-bold truncate text-white">
-                              {item.name}
-                            </span>
-                            <div className="flex items-center gap-1 text-[10px] font-semibold text-white/80 mt-1">
-                              <img
-                                src="/novelo-currency.png"
-                                alt="Currency"
-                                className="size-2.5 object-contain"
-                              />
-                              <span>{item.value.toLocaleString()}</span>
-                            </div>
-                          </button>
-                        )
-                      })}
+                  {/* DROPDOWN INVENTORY SELECTION FOR THEIR OFFER (Image 7 replaced with dropdown) */}
+                  {activeDropdownSide === 'receive' && (
+                    <div className="mt-2 p-2.5 rounded-xl bg-[#121214] flex flex-col gap-1.5 shadow-xl animate-in fade-in-50 duration-150">
+                      <div className="flex items-center justify-between px-1 pb-1">
+                        <span className="text-[11px] font-bold text-white/70">
+                          Select item from {currentPartnerData.name}'s items:
+                        </span>
+                        <button
+                          onClick={() => setActiveDropdownSide(null)}
+                          className="text-[11px] text-white/40 hover:text-white bg-transparent border-none cursor-pointer"
+                        >
+                          Close
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col gap-1 max-h-48 overflow-y-auto no-scrollbar pr-0.5">
+                        {currentPartnerData.pool.filter(
+                          (item) => !selectedReceiveItems.some((i) => i.id === item.id)
+                        ).length === 0 ? (
+                          <div className="text-center py-3 text-xs text-white/40">
+                            All partner items already selected
+                          </div>
+                        ) : (
+                          currentPartnerData.pool.filter(
+                            (item) => !selectedReceiveItems.some((i) => i.id === item.id)
+                          ).map((item) => (
+                            <button
+                              key={item.id}
+                              onClick={() => addReceiveItem(item)}
+                              className="w-full p-2 rounded-lg bg-[#18181c] hover:bg-[#222228] flex items-center justify-between gap-2 transition-colors cursor-pointer border-none text-left"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="size-7 rounded-md bg-[#121214] flex items-center justify-center overflow-hidden shrink-0">
+                                  <IsometricMannequin name={item.name} type={item.type} className="h-6 w-6" />
+                                </div>
+                                <span className="text-xs font-bold text-white truncate">
+                                  {item.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs font-bold text-white shrink-0">
+                                <img
+                                  src="/novelo-currency.png"
+                                  alt="Currency"
+                                  className="size-3 object-contain"
+                                />
+                                <span>{item.value.toLocaleString()}</span>
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
-              {/* Trade Balance Indicator */}
-              <div className="p-3.5 rounded-xl bg-[#161618] border border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
+              {/* Trade Balance Indicator (Plain text red/green without background, SafeTrade text removed) */}
+              <div className="p-3 rounded-xl bg-[#161618] flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-white/60">Difference:</span>
                   {modalDiff > 0 ? (
@@ -1089,19 +1151,14 @@ export function Trade() {
                       +{modalDiff.toLocaleString()} in your favor
                     </span>
                   ) : modalDiff < 0 ? (
-                    <span className="text-xs font-bold text-amber-400">
+                    <span className="text-xs font-bold text-red-500">
                       {modalDiff.toLocaleString()} giving more value
                     </span>
                   ) : (
-                    <span className="text-xs font-bold text-white/70">
+                    <span className="text-xs font-bold text-white/50">
                       0 (Equal Value)
                     </span>
                   )}
-                </div>
-
-                <div className="flex items-center gap-2 text-xs text-white/50">
-                  <ShieldCheck className="size-4 text-emerald-400" />
-                  <span>Novelo SafeTrade protection active</span>
                 </div>
               </div>
 
@@ -1115,13 +1172,13 @@ export function Trade() {
                   placeholder="e.g. Looking for fair trade!"
                   value={tradeNote}
                   onChange={(e) => setTradeNote(e.target.value)}
-                  className="w-full h-10 px-3 rounded-[10px] bg-[#161618] border border-white/10 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+                  className="w-full h-10 px-3 rounded-[10px] bg-[#161618] text-xs text-white placeholder:text-white/30 focus:outline-none border-none"
                 />
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 sm:p-5 border-t border-white/[0.06] flex items-center justify-end gap-3 bg-[#141416]">
+            <div className="p-4 sm:p-5 flex items-center justify-end gap-3 bg-[#141416]">
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 h-9 rounded-[10px] bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-bold transition-all cursor-pointer border-none"
@@ -1146,7 +1203,7 @@ export function Trade() {
       {/* HOW TO TRADE GUIDE POPUP */}
       {showHowToTrade && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#121214] border border-white/10 rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+          <div className="w-full max-w-md bg-[#121214] rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black text-white flex items-center gap-2">
                 <HelpCircle className="size-5 text-amber-400" />
@@ -1161,25 +1218,25 @@ export function Trade() {
             </div>
 
             <div className="flex flex-col gap-3 text-xs text-white/70 leading-relaxed">
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+              <div className="p-3 rounded-xl bg-white/[0.04] flex gap-2.5">
                 <span className="font-bold text-white shrink-0">1.</span>
                 <span>
                   <strong className="text-white">Collectibles & Limiteds:</strong> Only tradeable limited accessories, hats, and clothing can be traded.
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+              <div className="p-3 rounded-xl bg-white/[0.04] flex gap-2.5">
                 <span className="font-bold text-white shrink-0">2.</span>
                 <span>
                   <strong className="text-white">Up to 4 Items:</strong> You and your trading partner may offer up to 4 items each per proposal.
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+              <div className="p-3 rounded-xl bg-white/[0.04] flex gap-2.5">
                 <span className="font-bold text-white shrink-0">3.</span>
                 <span>
                   <strong className="text-white">Reviewing Values:</strong> Check item values before accepting. Once accepted, items transfer automatically to your inventory.
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+              <div className="p-3 rounded-xl bg-white/[0.04] flex gap-2.5">
                 <span className="font-bold text-white shrink-0">4.</span>
                 <span>
                   <strong className="text-white">Expiration:</strong> Pending requests expire automatically after 5 days if not accepted or countered.
