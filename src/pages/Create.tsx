@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Folder,
   Home,
@@ -14,24 +14,19 @@ import {
   Search,
   Bell,
   Lock,
-  Globe,
   SquareArrowOutUpRight,
   Play,
   Square,
-  RotateCcw,
   Box,
   Move,
   Maximize2,
-  Layers,
-  Settings,
-  ChevronRight,
-  ChevronDown,
-  Eye,
   Plus,
   ArrowLeft,
   Upload,
-  Check,
   Compass,
+  ChevronDown,
+  X,
+  ExternalLink,
 } from 'lucide-react'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { StockAvatar } from '@/pages/Trade'
@@ -40,10 +35,160 @@ interface Experience {
   id: string
   name: string
   privacy: 'Playtesters' | 'Public'
-  thumbnail: string
+  thumbnail?: string
+  fallbackType: 'ocean' | 'autumn' | 'baseplate' | 'house' | 'mountain'
   updatedDate: string
   visits: string
   createdDate: string
+}
+
+// Visual In-Engine Vector Thumbnails (Guaranteed never to 404 or show broken image)
+function ThumbnailCanvas({ type }: { type: 'ocean' | 'autumn' | 'baseplate' | 'house' | 'mountain' }) {
+  if (type === 'ocean') {
+    return (
+      <svg viewBox="0 0 200 200" className="w-full h-full object-cover">
+        <defs>
+          <linearGradient id="oceanSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fde047" />
+            <stop offset="35%" stopColor="#fdba74" />
+            <stop offset="70%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#0284c7" />
+          </linearGradient>
+          <linearGradient id="oceanWater" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0284c7" />
+            <stop offset="60%" stopColor="#0369a1" />
+            <stop offset="100%" stopColor="#0c4a6e" />
+          </linearGradient>
+        </defs>
+        <rect width="200" height="110" fill="url(#oceanSky)" />
+        <circle cx="100" cy="80" r="26" fill="#fef08a" opacity="0.9" filter="blur(2px)" />
+        <rect y="110" width="200" height="90" fill="url(#oceanWater)" />
+        {/* Sun reflection */}
+        <polygon points="100,110 80,200 120,200" fill="#fef08a" opacity="0.25" />
+        {/* Beach shore curve */}
+        <path d="M0,165 Q100,140 200,175 L200,200 L0,200 Z" fill="#e0d0b0" />
+      </svg>
+    )
+  }
+
+  if (type === 'autumn') {
+    return (
+      <svg viewBox="0 0 200 200" className="w-full h-full object-cover">
+        <defs>
+          <linearGradient id="autumnSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fed7aa" />
+            <stop offset="60%" stopColor="#f472b6" />
+            <stop offset="100%" stopColor="#c084fc" />
+          </linearGradient>
+        </defs>
+        <rect width="200" height="110" fill="url(#autumnSky)" />
+        {/* Distant Mountains */}
+        <polygon points="-20,110 50,45 120,110" fill="#475569" opacity="0.6" />
+        <polygon points="80,110 150,30 220,110" fill="#334155" opacity="0.8" />
+        {/* Autumn Valley */}
+        <rect y="110" width="200" height="90" fill="#eab308" />
+        <path d="M-20,130 Q90,110 220,140 L220,200 L-20,200 Z" fill="#ca8a04" />
+        {/* River */}
+        <path d="M70,110 Q90,150 140,200 L110,200 Q75,150 60,110 Z" fill="#38bdf8" opacity="0.7" />
+      </svg>
+    )
+  }
+
+  if (type === 'baseplate') {
+    // Authentic Roblox Studio Baseplate Render
+    return (
+      <svg viewBox="0 0 200 200" className="w-full h-full object-cover bg-[#16161a]">
+        <defs>
+          <linearGradient id="darkStudioSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1e1e24" />
+            <stop offset="100%" stopColor="#0f0f13" />
+          </linearGradient>
+        </defs>
+        <rect width="200" height="110" fill="url(#darkStudioSky)" />
+        {/* Horizon line */}
+        <line x1="0" y1="110" x2="200" y2="110" stroke="#33333d" strokeWidth="1" />
+        {/* 3D Baseplate Plane */}
+        <polygon points="100,110 210,165 100,195 -10,165" fill="#2d2d35" stroke="#3e3e48" strokeWidth="1" />
+        {/* Baseplate Grid lines */}
+        <line x1="45" y1="137" x2="155" y2="180" stroke="#4a4a56" strokeWidth="0.8" opacity="0.6" />
+        <line x1="155" y1="137" x2="45" y2="180" stroke="#4a4a56" strokeWidth="0.8" opacity="0.6" />
+        {/* Spawn Pad */}
+        <polygon points="100,138 125,150 100,162 75,150" fill="#10b981" stroke="#34d399" strokeWidth="1" />
+        <circle cx="100" cy="150" r="3.5" fill="#ffffff" />
+        {/* Dummy character standing on spawn */}
+        <rect x="97" y="128" width="6" height="6" rx="1" fill="#d4d4d8" />
+        <rect x="95" y="134" width="10" height="9" rx="1" fill="#3b82f6" />
+      </svg>
+    )
+  }
+
+  if (type === 'house') {
+    return (
+      <svg viewBox="0 0 200 200" className="w-full h-full object-cover">
+        <defs>
+          <linearGradient id="nordicSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#64748b" />
+            <stop offset="100%" stopColor="#94a3b8" />
+          </linearGradient>
+        </defs>
+        <rect width="200" height="115" fill="url(#nordicSky)" />
+        {/* Green Hill */}
+        <path d="M-20,130 Q100,90 220,135 L220,200 L-20,200 Z" fill="#4d7c0f" />
+        {/* White Flowers on hill */}
+        <circle cx="40" cy="155" r="2.5" fill="#ffffff" />
+        <circle cx="55" cy="170" r="2" fill="#ffffff" />
+        <circle cx="140" cy="160" r="2.5" fill="#ffffff" />
+        <circle cx="165" cy="175" r="2" fill="#ffffff" />
+        {/* Red Cottage */}
+        <polygon points="100,75 75,98 125,98" fill="#7f1d1d" />
+        <rect x="80" y="98" width="40" height="30" fill="#991b1b" />
+        <rect x="87" y="104" width="8" height="8" fill="#ffffff" stroke="#7f1d1d" strokeWidth="1" />
+        <rect x="105" y="104" width="8" height="8" fill="#ffffff" stroke="#7f1d1d" strokeWidth="1" />
+        <rect x="96" y="116" width="8" height="12" fill="#450a0a" />
+      </svg>
+    )
+  }
+
+  // Mountain Village Landscape
+  return (
+    <svg viewBox="0 0 200 200" className="w-full h-full object-cover">
+      <defs>
+        <linearGradient id="mountainSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#0284c7" />
+          <stop offset="60%" stopColor="#bae6fd" />
+          <stop offset="100%" stopColor="#f0f9ff" />
+        </linearGradient>
+      </defs>
+      <rect width="200" height="100" fill="url(#mountainSky)" />
+      {/* Snow peaks */}
+      <polygon points="10,100 65,30 120,100" fill="#475569" />
+      <polygon points="65,30 45,55 85,55" fill="#ffffff" />
+      <polygon points="90,100 145,20 200,100" fill="#334155" />
+      <polygon points="145,20 125,50 165,50" fill="#ffffff" />
+      {/* Green valley & Pine forest */}
+      <path d="M-20,120 Q100,95 220,120 L220,200 L-20,200 Z" fill="#15803d" />
+      <polygon points="30,140 22,160 38,160" fill="#14532d" />
+      <polygon points="50,135 40,158 60,158" fill="#14532d" />
+      <polygon points="160,138 152,160 168,160" fill="#14532d" />
+    </svg>
+  )
+}
+
+function ExperienceCardThumbnail({ exp }: { exp: Experience }) {
+  const [imgError, setImgError] = useState(false)
+
+  if (imgError || !exp.thumbnail) {
+    return <ThumbnailCanvas type={exp.fallbackType} />
+  }
+
+  return (
+    <img
+      src={exp.thumbnail}
+      alt={exp.name}
+      onError={() => setImgError(true)}
+      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+    />
+  )
 }
 
 const DEFAULT_EXPERIENCES: Experience[] = [
@@ -52,6 +197,7 @@ const DEFAULT_EXPERIENCES: Experience[] = [
     name: 'Cat Battles',
     privacy: 'Playtesters',
     thumbnail: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+    fallbackType: 'ocean',
     updatedDate: '10/24/2026',
     visits: '14.2K',
     createdDate: '10/12/2026',
@@ -61,6 +207,7 @@ const DEFAULT_EXPERIENCES: Experience[] = [
     name: 'Lifting Haven',
     privacy: 'Playtesters',
     thumbnail: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+    fallbackType: 'autumn',
     updatedDate: '10/18/2026',
     visits: '89.1K',
     createdDate: '9/28/2026',
@@ -69,7 +216,7 @@ const DEFAULT_EXPERIENCES: Experience[] = [
     id: 'exp3',
     name: 'Pookie Dinosaur Wolrd',
     privacy: 'Playtesters',
-    thumbnail: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80',
+    fallbackType: 'baseplate', // Reliable Roblox studio baseplate render
     updatedDate: '10/15/2026',
     visits: '3.4K',
     createdDate: '10/01/2026',
@@ -79,6 +226,7 @@ const DEFAULT_EXPERIENCES: Experience[] = [
     name: 'Steal A Noob',
     privacy: 'Playtesters',
     thumbnail: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=600&q=80',
+    fallbackType: 'house',
     updatedDate: '10/10/2026',
     visits: '124K',
     createdDate: '8/14/2026',
@@ -88,13 +236,18 @@ const DEFAULT_EXPERIENCES: Experience[] = [
     name: "JadexDraft1337's Place",
     privacy: 'Playtesters',
     thumbnail: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80',
+    fallbackType: 'mountain',
     updatedDate: '10/02/2026',
     visits: '420',
     createdDate: '7/20/2026',
   },
 ]
 
-export function Create() {
+interface CreateProps {
+  onClose?: () => void
+}
+
+export function Create({ onClose }: CreateProps) {
   const [viewMode, setViewMode] = useState<'dashboard' | 'studio'>('dashboard')
   const [activeExp, setActiveExp] = useState<Experience>(DEFAULT_EXPERIENCES[2]) // Pookie Dinosaur Wolrd
   const [experiences, setExperiences] = useState<Experience[]>(DEFAULT_EXPERIENCES)
@@ -106,7 +259,6 @@ export function Create() {
   const [showImpacted, setShowImpacted] = useState(false)
   const [showArchived, setShowArchived] = useState(false)
   const [sortBy, setSortBy] = useState('Last Updated Date')
-  const [searchQuery, setSearchQuery] = useState('')
 
   // Studio Interactive State
   const [activeTool, setActiveTool] = useState<'select' | 'move' | 'scale' | 'rotate'>('select')
@@ -172,9 +324,8 @@ export function Create() {
 
   // Filter experiences
   const filteredExperiences = experiences.filter((exp) => {
-    const matchesSearch = exp.name.toLowerCase().includes(searchQuery.toLowerCase())
     if (showPublic && exp.privacy !== 'Public') return false
-    return matchesSearch
+    return true
   })
 
   // -------------------------------------------------------------
@@ -184,7 +335,7 @@ export function Create() {
     const currentPartObj = parts.find((p) => p.name === selectedPart) || parts[1]
 
     return (
-      <div className="flex flex-col h-[calc(100vh-60px)] -m-4 md:-m-6 lg:-m-7 bg-[#0f0f12] text-white select-none overflow-hidden">
+      <div className="fixed inset-0 z-50 bg-[#0f0f12] text-white select-none flex flex-col overflow-hidden font-sans">
         {/* Top Studio Ribbon Bar */}
         <div className="h-12 bg-[#141418] border-b border-white/[0.06] flex items-center justify-between px-3 shrink-0">
           <div className="flex items-center gap-3">
@@ -211,7 +362,7 @@ export function Create() {
           </div>
 
           {/* Tools & Play Ribbon */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {/* Tool Selection */}
             <div className="flex items-center bg-[#1c1c22] rounded-[6px] p-0.5">
               <button
@@ -500,22 +651,18 @@ export function Create() {
               </div>
 
               <div className="flex items-center gap-1.5 py-1 px-2 rounded text-white/60 hover:text-white">
-                <ChevronRight className="size-3 text-white/40" />
                 <span className="size-3.5 rounded-full bg-blue-500/30 flex items-center justify-center text-[9px] text-blue-300">P</span>
                 <span>Players</span>
               </div>
               <div className="flex items-center gap-1.5 py-1 px-2 rounded text-white/60 hover:text-white">
-                <ChevronRight className="size-3 text-white/40" />
                 <span className="size-3.5 rounded-full bg-amber-500/30 flex items-center justify-center text-[9px] text-amber-300">L</span>
                 <span>Lighting</span>
               </div>
               <div className="flex items-center gap-1.5 py-1 px-2 rounded text-white/60 hover:text-white">
-                <ChevronRight className="size-3 text-white/40" />
                 <Folder className="size-3.5 text-white/40" />
                 <span>ReplicatedStorage</span>
               </div>
               <div className="flex items-center gap-1.5 py-1 px-2 rounded text-white/60 hover:text-white">
-                <ChevronRight className="size-3 text-white/40" />
                 <Folder className="size-3.5 text-emerald-400/50" />
                 <span>ServerScriptService</span>
               </div>
@@ -569,322 +716,368 @@ export function Create() {
   }
 
   // -------------------------------------------------------------
-  // VIEW: NOVELO CREATOR DASHBOARD (Matching User Reference Image)
+  // VIEW: NOVELO CREATOR DASHBOARD (STANDALONE FULLSCREEN SEPARATE UI LIKE ROBLOX)
   // -------------------------------------------------------------
   return (
-    <div className="flex h-[calc(100vh-60px)] -m-4 md:-m-6 lg:-m-7 bg-[#0b0b0e] text-white select-none overflow-hidden font-sans">
-      {/* 1. Left Primary Creator Hub Sidebar matching Reference Image */}
-      <div className="w-16 md:w-56 bg-[#0e0e12] border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
-        <div className="flex flex-col gap-6 px-3">
+    <div className="fixed inset-0 z-50 bg-[#0b0b0e] text-white select-none flex flex-col overflow-hidden font-sans">
+      {/* Top Application Bar with Return to Novelo Client & Search */}
+      <div className="h-12 bg-[#0e0e12] border-b border-white/[0.06] flex items-center justify-between px-4 shrink-0 z-20">
+        {/* Left Brand + Return Button */}
+        <div className="flex items-center gap-3">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="h-7 px-2.5 rounded-[6px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border-none"
+              title="Return to Novelo Client"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>Novelo Client</span>
+            </button>
+          )}
+
+          <div className="h-4 w-px bg-white/10" />
+
           {/* Creator Brand Logo */}
-          <div className="flex items-center gap-2.5 px-2">
-            <div className="size-7 rounded-lg bg-white text-black flex items-center justify-center font-black text-sm shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="size-6 rounded-md bg-white text-black flex items-center justify-center font-black text-xs">
               N
             </div>
-            <span className="hidden md:inline text-sm font-black tracking-wider text-white uppercase">
+            <span className="text-xs font-black tracking-wider text-white uppercase">
               Creator
             </span>
           </div>
+        </div>
 
-          {/* Profile Switcher */}
-          <div className="hidden md:flex items-center justify-between p-2 rounded-[8px] bg-white/[0.04] border border-white/[0.04]">
-            <div className="flex items-center gap-2 min-w-0">
-              <StockAvatar className="size-6 shrink-0" />
-              <span className="text-xs font-semibold truncate text-white">JadexDraft1337</span>
-            </div>
-            <ChevronDown className="size-3.5 text-white/50 shrink-0" />
+        {/* Center Search Bar */}
+        <div className="relative max-w-md w-full hidden sm:block">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/40 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search experiences, items, or creators"
+            className="w-full h-8 pl-9 pr-3 rounded-[8px] bg-[#16161a] border border-white/5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/20"
+          />
+        </div>
+
+        {/* Right Status (Currency, Notifications, Avatar, Close) */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] text-xs font-bold text-white">
+            <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain" />
+            <span>1,250</span>
           </div>
 
-          {/* Nav Items */}
+          <button className="size-7 rounded-[6px] hover:bg-white/[0.08] flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer border-none bg-transparent">
+            <Bell className="size-4" />
+          </button>
+
+          <StockAvatar className="size-7" />
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="size-7 rounded-[6px] bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none transition-colors ml-1"
+              title="Close Creator Hub"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Container: Sidebar + Subnav + Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* 1. Left Primary Creator Hub Sidebar matching Reference Image */}
+        <div className="w-16 md:w-52 bg-[#0e0e12] border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
+          <div className="flex flex-col gap-5 px-2.5">
+            {/* Profile Switcher */}
+            <div className="hidden md:flex items-center justify-between p-2 rounded-[8px] bg-white/[0.04] border border-white/[0.04]">
+              <div className="flex items-center gap-2 min-w-0">
+                <StockAvatar className="size-6 shrink-0" />
+                <span className="text-xs font-semibold truncate text-white">JadexDraft1337</span>
+              </div>
+              <ChevronDown className="size-3.5 text-white/50 shrink-0" />
+            </div>
+
+            {/* Nav Items */}
+            <div className="flex flex-col gap-1">
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <Home className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Home</span>
+              </button>
+
+              {/* Creations - Active */}
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] bg-white/[0.1] text-white font-bold transition-colors cursor-pointer border-none text-left">
+                <Folder className="size-4 shrink-0 fill-current" />
+                <span className="hidden md:inline text-xs">Creations</span>
+              </button>
+
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <BookOpen className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Learn</span>
+              </button>
+
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <ShoppingBag className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Store</span>
+              </button>
+
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <MessageSquare className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Forum</span>
+              </button>
+
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <Megaphone className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Updates</span>
+              </button>
+
+              <div className="h-px bg-white/[0.04] my-1.5" />
+
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <CircleDollarSign className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Finances</span>
+              </button>
+
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <BarChart2 className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Analytics</span>
+              </button>
+
+              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+                <Volume2 className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Ads</span>
+              </button>
+            </div>
+          </div>
+
+          {/* All tools at bottom */}
+          <div className="px-2.5">
+            <button className="w-full flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+              <Grid className="size-4 shrink-0" />
+              <span className="hidden md:inline text-xs font-semibold">All tools</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 2. Creations Sub-navigation Sidebar matching Reference Image */}
+        <div className="hidden lg:flex w-48 bg-[#0c0c10] border-r border-white/[0.04] flex-col py-6 px-3 shrink-0 gap-4">
+          <span className="px-3 text-xs font-bold text-white uppercase tracking-wider">
+            Creations
+          </span>
+
           <div className="flex flex-col gap-1">
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <Home className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Home</span>
-            </button>
-
-            {/* Creations - Active */}
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] bg-white/[0.1] text-white font-bold transition-colors cursor-pointer border-none text-left">
-              <Folder className="size-4 shrink-0 fill-current" />
-              <span className="hidden md:inline text-xs">Creations</span>
-            </button>
-
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <BookOpen className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Learn</span>
-            </button>
-
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <ShoppingBag className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Store</span>
-            </button>
-
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <MessageSquare className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Forum</span>
-            </button>
-
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <Megaphone className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Updates</span>
-            </button>
-
-            <div className="h-px bg-white/[0.04] my-2" />
-
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <CircleDollarSign className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Finances</span>
-            </button>
-
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <BarChart2 className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Analytics</span>
-            </button>
-
-            <button className="flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-              <Volume2 className="size-4 shrink-0" />
-              <span className="hidden md:inline text-xs font-semibold">Ads</span>
-            </button>
-          </div>
-        </div>
-
-        {/* All tools at bottom */}
-        <div className="px-3">
-          <button className="w-full flex items-center gap-3 px-2.5 h-9 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-            <Grid className="size-4 shrink-0" />
-            <span className="hidden md:inline text-xs font-semibold">All tools</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 2. Creations Sub-navigation Sidebar matching Reference Image */}
-      <div className="hidden lg:flex w-52 bg-[#0e0e12]/60 border-r border-white/[0.04] flex-col py-6 px-3 shrink-0 gap-4">
-        <span className="px-3 text-xs font-bold text-white uppercase tracking-wider">
-          Creations
-        </span>
-
-        <div className="flex flex-col gap-1">
-          <button
-            onClick={() => setSubSidebarTab('Experiences')}
-            className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-              subSidebarTab === 'Experiences'
-                ? 'bg-white/[0.08] text-white font-bold'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            Experiences
-          </button>
-
-          <button
-            onClick={() => setSubSidebarTab('Share links')}
-            className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-              subSidebarTab === 'Share links'
-                ? 'bg-white/[0.08] text-white font-bold'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            Share links
-          </button>
-
-          <button
-            onClick={() => setSubSidebarTab('Avatar items')}
-            className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-              subSidebarTab === 'Avatar items'
-                ? 'bg-white/[0.08] text-white font-bold'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            Avatar items
-          </button>
-
-          <button
-            onClick={() => setSubSidebarTab('Development items')}
-            className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
-              subSidebarTab === 'Development items'
-                ? 'bg-white/[0.08] text-white font-bold'
-                : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
-            }`}
-          >
-            Development items
-          </button>
-        </div>
-      </div>
-
-      {/* 3. Main Workspace matching Reference Image */}
-      <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar">
-        {/* Top Header Bar with Hamburger & Experiences Title */}
-        <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0 bg-[#0b0b0e]">
-          <div className="flex items-center gap-3">
-            <Menu className="size-4 text-white/70" />
-            <h1 className="text-lg md:text-xl font-black text-white tracking-tight">
+            <button
+              onClick={() => setSubSidebarTab('Experiences')}
+              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                subSidebarTab === 'Experiences'
+                  ? 'bg-white/[0.08] text-white font-bold'
+                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+              }`}
+            >
               Experiences
-            </h1>
-          </div>
+            </button>
 
-          <div className="flex items-center gap-4">
-            <Search className="size-4 text-white/60 hover:text-white cursor-pointer transition-colors" />
-            <Bell className="size-4 text-white/60 hover:text-white cursor-pointer transition-colors" />
-            <StockAvatar className="size-7" />
+            <button
+              onClick={() => setSubSidebarTab('Share links')}
+              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                subSidebarTab === 'Share links'
+                  ? 'bg-white/[0.08] text-white font-bold'
+                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+              }`}
+            >
+              Share links
+            </button>
+
+            <button
+              onClick={() => setSubSidebarTab('Avatar items')}
+              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                subSidebarTab === 'Avatar items'
+                  ? 'bg-white/[0.08] text-white font-bold'
+                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+              }`}
+            >
+              Avatar items
+            </button>
+
+            <button
+              onClick={() => setSubSidebarTab('Development items')}
+              className={`w-full text-left px-3.5 py-2 rounded-[8px] text-xs transition-colors cursor-pointer border-none ${
+                subSidebarTab === 'Development items'
+                  ? 'bg-white/[0.08] text-white font-bold'
+                  : 'bg-transparent text-white/60 hover:text-white hover:bg-white/[0.03]'
+              }`}
+            >
+              Development items
+            </button>
           </div>
         </div>
 
-        {/* Content Body */}
-        <div className="p-6 md:p-8 flex flex-col gap-6 max-w-[1600px]">
-          {/* Filter Bar with Tabs and Switches */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-wrap">
-            {/* Tabs: My Experiences | Shared With Me */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setDashboardTab('My Experiences')}
-                className={`h-8 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
-                  dashboardTab === 'My Experiences'
-                    ? 'bg-white text-black font-bold border-white shadow-sm'
-                    : 'bg-transparent text-white/60 hover:text-white border-white/10'
-                }`}
-              >
-                My Experiences
-              </button>
-              <button
-                onClick={() => setDashboardTab('Shared With Me')}
-                className={`h-8 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
-                  dashboardTab === 'Shared With Me'
-                    ? 'bg-white text-black font-bold border-white shadow-sm'
-                    : 'bg-transparent text-white/60 hover:text-white border-white/10'
-                }`}
-              >
-                Shared With Me
-              </button>
+        {/* 3. Main Workspace matching Reference Image */}
+        <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar bg-[#0b0b0e]">
+          {/* Header Bar */}
+          <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-3">
+              <Menu className="size-4 text-white/70" />
+              <h1 className="text-lg md:text-xl font-black text-white tracking-tight">
+                Experiences
+              </h1>
             </div>
+          </div>
 
-            {/* Right Switches & Sort Dropdown matching Reference Image */}
-            <div className="flex items-center gap-5 flex-wrap">
-              <div className="flex items-center gap-3.5 text-xs text-white/60">
-                <span className="font-semibold text-white/40">Show:</span>
-
-                {/* Public Switch */}
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <div
-                    onClick={() => setShowPublic(!showPublic)}
-                    className={`w-7 h-4 rounded-full transition-colors relative ${
-                      showPublic ? 'bg-blue-600' : 'bg-white/20'
-                    }`}
-                  >
-                    <div
-                      className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${
-                        showPublic ? 'translate-x-3.5' : 'translate-x-0.5'
-                      }`}
-                    />
-                  </div>
-                  <span>Public</span>
-                </label>
-
-                {/* Impacted Switch */}
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <div
-                    onClick={() => setShowImpacted(!showImpacted)}
-                    className={`w-7 h-4 rounded-full transition-colors relative ${
-                      showImpacted ? 'bg-blue-600' : 'bg-white/20'
-                    }`}
-                  >
-                    <div
-                      className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${
-                        showImpacted ? 'translate-x-3.5' : 'translate-x-0.5'
-                      }`}
-                    />
-                  </div>
-                  <span>Impacted</span>
-                </label>
-
-                {/* Archived Switch */}
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <div
-                    onClick={() => setShowArchived(!showArchived)}
-                    className={`w-7 h-4 rounded-full transition-colors relative ${
-                      showArchived ? 'bg-blue-600' : 'bg-white/20'
-                    }`}
-                  >
-                    <div
-                      className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${
-                        showArchived ? 'translate-x-3.5' : 'translate-x-0.5'
-                      }`}
-                    />
-                  </div>
-                  <span>Archived</span>
-                </label>
+          {/* Content Body */}
+          <div className="p-6 md:p-8 flex flex-col gap-6 max-w-[1600px]">
+            {/* Filter Bar with Tabs and Switches */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-wrap">
+              {/* Tabs: My Experiences | Shared With Me */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setDashboardTab('My Experiences')}
+                  className={`h-8 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                    dashboardTab === 'My Experiences'
+                      ? 'bg-white text-black font-bold border-white shadow-sm'
+                      : 'bg-transparent text-white/60 hover:text-white border-white/10'
+                  }`}
+                >
+                  My Experiences
+                </button>
+                <button
+                  onClick={() => setDashboardTab('Shared With Me')}
+                  className={`h-8 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                    dashboardTab === 'Shared With Me'
+                      ? 'bg-white text-black font-bold border-white shadow-sm'
+                      : 'bg-transparent text-white/60 hover:text-white border-white/10'
+                  }`}
+                >
+                  Shared With Me
+                </button>
               </div>
 
-              {/* Sort Dropdown */}
-              <CustomDropdown
-                value={sortBy}
-                onChange={setSortBy}
-                options={sortOptions}
-                buttonClassName="h-8 px-3 rounded-[8px] bg-white/[0.04] hover:bg-white/[0.08] border-none text-xs"
-              />
+              {/* Right Switches & Sort Dropdown matching Reference Image */}
+              <div className="flex items-center gap-5 flex-wrap">
+                <div className="flex items-center gap-3.5 text-xs text-white/60">
+                  <span className="font-semibold text-white/40">Show:</span>
+
+                  {/* Public Switch */}
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <div
+                      onClick={() => setShowPublic(!showPublic)}
+                      className={`w-7 h-4 rounded-full transition-colors relative ${
+                        showPublic ? 'bg-blue-600' : 'bg-white/20'
+                      }`}
+                    >
+                      <div
+                        className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${
+                          showPublic ? 'translate-x-3.5' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </div>
+                    <span>Public</span>
+                  </label>
+
+                  {/* Impacted Switch */}
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <div
+                      onClick={() => setShowImpacted(!showImpacted)}
+                      className={`w-7 h-4 rounded-full transition-colors relative ${
+                        showImpacted ? 'bg-blue-600' : 'bg-white/20'
+                      }`}
+                    >
+                      <div
+                        className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${
+                          showImpacted ? 'translate-x-3.5' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </div>
+                    <span>Impacted</span>
+                  </label>
+
+                  {/* Archived Switch */}
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <div
+                      onClick={() => setShowArchived(!showArchived)}
+                      className={`w-7 h-4 rounded-full transition-colors relative ${
+                        showArchived ? 'bg-blue-600' : 'bg-white/20'
+                      }`}
+                    >
+                      <div
+                        className={`size-3 rounded-full bg-white absolute top-0.5 transition-transform ${
+                          showArchived ? 'translate-x-3.5' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </div>
+                    <span>Archived</span>
+                  </label>
+                </div>
+
+                {/* Sort Dropdown */}
+                <CustomDropdown
+                  value={sortBy}
+                  onChange={setSortBy}
+                  options={sortOptions}
+                  buttonClassName="h-8 px-3 rounded-[8px] bg-white/[0.04] hover:bg-white/[0.08] border-none text-xs"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Primary Action Button: Create Experience */}
-          <div>
-            <button
-              onClick={() => {
-                const newExpName = `New Experience #${experiences.length + 1}`
-                const newExp: Experience = {
-                  id: 'exp_' + Date.now(),
-                  name: newExpName,
-                  privacy: 'Playtesters',
-                  thumbnail: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80',
-                  updatedDate: 'Today',
-                  visits: '0',
-                  createdDate: 'Today',
-                }
-                setExperiences((prev) => [newExp, ...prev])
-                openInStudio(newExp)
-              }}
-              className="h-9 px-4 rounded-[8px] bg-[#0055ff] hover:bg-[#0047d4] text-white font-bold text-xs flex items-center gap-2 transition-all cursor-pointer border-none shadow-md"
-            >
-              <span>Create Experience</span>
-              <SquareArrowOutUpRight className="size-3.5" />
-            </button>
-          </div>
-
-          {/* 5-Column Experiences Grid matching Reference Image */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredExperiences.map((exp) => (
-              <div
-                key={exp.id}
-                onClick={() => openInStudio(exp)}
-                className="flex flex-col gap-2 group cursor-pointer"
+            {/* Primary Action Button: Create Experience */}
+            <div>
+              <button
+                onClick={() => {
+                  const newExpName = `New Experience #${experiences.length + 1}`
+                  const newExp: Experience = {
+                    id: 'exp_' + Date.now(),
+                    name: newExpName,
+                    privacy: 'Playtesters',
+                    fallbackType: 'baseplate',
+                    updatedDate: 'Today',
+                    visits: '0',
+                    createdDate: 'Today',
+                  }
+                  setExperiences((prev) => [newExp, ...prev])
+                  openInStudio(newExp)
+                }}
+                className="h-9 px-4 rounded-[8px] bg-[#0055ff] hover:bg-[#0047d4] text-white font-bold text-xs flex items-center gap-2 transition-all cursor-pointer border-none shadow-md"
               >
-                {/* Rounded Square Thumbnail Image */}
-                <div className="aspect-square w-full rounded-2xl overflow-hidden bg-[#16161a] relative shadow-md group-hover:ring-2 group-hover:ring-white/20 transition-all">
-                  <img
-                    src={exp.thumbnail}
-                    alt={exp.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                <span>Create Experience</span>
+                <SquareArrowOutUpRight className="size-3.5" />
+              </button>
+            </div>
 
-                  {/* Hover Overlay with Edit in Studio button */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                    <span className="px-3 py-1.5 rounded-[6px] bg-white text-black font-bold text-xs shadow-lg">
-                      Edit in Studio
+            {/* 5-Column Experiences Grid matching Reference Image */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {filteredExperiences.map((exp) => (
+                <div
+                  key={exp.id}
+                  onClick={() => openInStudio(exp)}
+                  className="flex flex-col gap-2 group cursor-pointer"
+                >
+                  {/* Rounded Square Thumbnail Image */}
+                  <div className="aspect-square w-full rounded-2xl overflow-hidden bg-[#16161a] relative shadow-md group-hover:ring-2 group-hover:ring-white/20 transition-all">
+                    <ExperienceCardThumbnail exp={exp} />
+
+                    {/* Hover Overlay with Edit in Studio button */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                      <span className="px-3 py-1.5 rounded-[6px] bg-white text-black font-bold text-xs shadow-lg">
+                        Edit in Studio
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Info below thumbnail */}
+                  <div className="flex flex-col items-start gap-1">
+                    {/* Privacy Badge */}
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-semibold text-white/80">
+                      <Lock className="size-2.5 text-white/60" />
+                      <span>{exp.privacy}</span>
+                    </div>
+
+                    {/* Title */}
+                    <span className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors truncate w-full">
+                      {exp.name}
                     </span>
                   </div>
                 </div>
-
-                {/* Info below thumbnail */}
-                <div className="flex flex-col items-start gap-1">
-                  {/* Privacy Badge */}
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-semibold text-white/80">
-                    <Lock className="size-2.5 text-white/60" />
-                    <span>{exp.privacy}</span>
-                  </div>
-
-                  {/* Title */}
-                  <span className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors truncate w-full">
-                    {exp.name}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

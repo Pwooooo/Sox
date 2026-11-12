@@ -16,6 +16,11 @@ import { Forum } from '@/pages/Forum'
 export default function App() {
   const [activeTab, setActiveTab] = useState('Home')
 
+  // Creator Hub & Studio opens as its own dedicated standalone UI (like Roblox)
+  if (activeTab === 'Create') {
+    return <Create onClose={() => setActiveTab('Home')} />
+  }
+
   const renderContent = () => {
     switch (activeTab) {
       case 'Home':
