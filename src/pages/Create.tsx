@@ -40,6 +40,7 @@ import {
 } from 'lucide-react'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { StockAvatar } from '@/pages/Trade'
+import { WaveBackground } from '@/components/WaveBackground'
 
 interface Experience {
   id: string
@@ -671,9 +672,12 @@ export function Create({ onClose }: CreateProps) {
   // -------------------------------------------------------------
   if (viewMode === 'game_details') {
     return (
-      <div className="fixed inset-0 z-50 bg-[#0e0e12] text-white select-none flex flex-col overflow-y-auto no-scrollbar font-sans">
+      <div className="fixed inset-0 z-50 bg-[#0a0a0a] text-white select-none flex flex-col overflow-y-auto no-scrollbar font-sans relative isolate">
+        {/* Fullscreen Encoded Wave Drift Background */}
+        <WaveBackground />
+
         {/* Top Breadcrumb Header Bar */}
-        <div className="h-14 px-6 md:px-12 border-b border-white/[0.04] flex items-center justify-between shrink-0 bg-[#0b0b0e]">
+        <div className="h-14 px-6 md:px-12 border-b border-white/[0.04] flex items-center justify-between shrink-0 bg-[#0e0e12]/85 backdrop-blur-md relative z-10">
           <div className="flex items-center gap-2.5 text-xs text-white/60">
             <button
               onClick={() => setViewMode('dashboard')}
@@ -709,7 +713,7 @@ export function Create({ onClose }: CreateProps) {
         </div>
 
         {/* Game Details Form Container matching Screenshot */}
-        <div className="p-6 md:p-12 max-w-4xl flex flex-col gap-6">
+        <div className="p-6 md:p-12 max-w-4xl flex flex-col gap-6 relative z-10">
           {/* Main Title */}
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
             Game details
@@ -977,9 +981,12 @@ export function Create({ onClose }: CreateProps) {
   // VIEW 3: NOVELO CREATOR DASHBOARD (STANDALONE FULLSCREEN SEPARATE UI)
   // -------------------------------------------------------------
   return (
-    <div className="fixed inset-0 z-50 bg-[#0b0b0e] text-white select-none flex flex-col overflow-hidden font-sans">
+    <div className="fixed inset-0 z-50 bg-[#0a0a0a] text-white select-none flex flex-col overflow-hidden font-sans relative isolate">
+      {/* Fullscreen Encoded Wave Drift Background */}
+      <WaveBackground />
+
       {/* Top Application Bar with Return to Novelo Client & Search (No bottom divider border) */}
-      <div className="h-12 bg-[#0e0e12] flex items-center justify-between px-4 shrink-0 z-20">
+      <div className="h-12 bg-[#0a0a0a]/80 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-20">
         <div className="flex items-center gap-3">
           {onClose && (
             <button
@@ -1040,9 +1047,9 @@ export function Create({ onClose }: CreateProps) {
       </div>
 
       {/* Main Container: Sidebar + Subnav + Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Left Primary Creator Hub Sidebar (With sidebar divider re-added) */}
-        <div className="w-16 md:w-52 bg-[#0e0e12] border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
+        <div className="w-16 md:w-52 bg-[#0a0a0a]/40 backdrop-blur-md border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
           <div className="flex flex-col gap-3 px-2.5">
             {/* Category: Create */}
             <div className="flex flex-col gap-1">
@@ -1166,7 +1173,7 @@ export function Create({ onClose }: CreateProps) {
         </div>
 
         {/* Creations Sub-navigation Sidebar (No vertical divider border) */}
-        <div className="hidden lg:flex w-48 bg-[#0c0c10] flex-col py-6 px-3 shrink-0 gap-4">
+        <div className="hidden lg:flex w-48 bg-transparent flex-col py-6 px-3 shrink-0 gap-4">
           <span className="px-3 text-xs font-bold text-white uppercase tracking-wider">
             Creations
           </span>
@@ -1219,7 +1226,7 @@ export function Create({ onClose }: CreateProps) {
         </div>
 
         {/* Main Workspace matching Reference Image */}
-        <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar bg-[#0b0b0e]">
+        <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar bg-transparent">
           {/* Header Bar */}
           <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
