@@ -28,6 +28,14 @@ import {
   X,
   Pencil,
   Sparkles,
+  Gamepad2,
+  ArrowLeftRight,
+  Coins,
+  Store,
+  LayoutGrid,
+  FileText,
+  Users,
+  Frown,
 } from 'lucide-react'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { StockAvatar } from '@/pages/Trade'
@@ -271,6 +279,7 @@ export function Create({ onClose }: CreateProps) {
 
   // Dashboard Filters State
   const [dashboardTab, setDashboardTab] = useState<'My Experiences' | 'Shared With Me'>('My Experiences')
+  const [primarySidebarTab, setPrimarySidebarTab] = useState('Games')
   const [subSidebarTab, setSubSidebarTab] = useState<'Experiences' | 'Share links' | 'Avatar items' | 'Development items'>('Experiences')
   const [showPublic, setShowPublic] = useState(false)
   const [showImpacted, setShowImpacted] = useState(false)
@@ -953,70 +962,137 @@ export function Create({ onClose }: CreateProps) {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Primary Creator Hub Sidebar matching Reference Image */}
         <div className="w-16 md:w-52 bg-[#0e0e12] border-r border-white/[0.04] flex flex-col justify-between py-4 shrink-0">
-          <div className="flex flex-col gap-2 px-2.5">
+          <div className="flex flex-col gap-3 px-2.5">
+            {/* Category: Create */}
             <div className="flex flex-col gap-1">
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-                <Home className="size-4 shrink-0" />
-                <span className="hidden md:inline text-xs font-semibold">Home</span>
+              <span className="hidden md:block text-[11px] font-semibold text-white/40 px-2.5 pt-1 pb-1 uppercase tracking-wider">
+                Create
+              </span>
+
+              <button
+                onClick={() => setPrimarySidebarTab('Games')}
+                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                  primarySidebarTab === 'Games'
+                    ? 'bg-white/[0.1] text-white font-bold'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+                }`}
+              >
+                <Gamepad2 className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Games</span>
               </button>
 
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] bg-white/[0.1] text-white font-bold transition-colors cursor-pointer border-none text-left">
-                <Folder className="size-4 shrink-0 fill-current" />
-                <span className="hidden md:inline text-xs">Creations</span>
+              <button
+                onClick={() => {
+                  setPrimarySidebarTab('Transfers')
+                  showToast('Transfers ledger loaded')
+                }}
+                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                  primarySidebarTab === 'Transfers'
+                    ? 'bg-white/[0.1] text-white font-bold'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+                }`}
+              >
+                <ArrowLeftRight className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Transfers</span>
               </button>
 
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-                <BookOpen className="size-4 shrink-0" />
-                <span className="hidden md:inline text-xs font-semibold">Learn</span>
+              <button
+                onClick={() => {
+                  setPrimarySidebarTab('Payouts')
+                  showToast('Developer payouts ledger opened')
+                }}
+                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                  primarySidebarTab === 'Payouts'
+                    ? 'bg-white/[0.1] text-white font-bold'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+                }`}
+              >
+                <Coins className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Payouts</span>
               </button>
 
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
+              <button
+                onClick={() => {
+                  setPrimarySidebarTab('Marketplace')
+                  showToast('Creator Marketplace opened')
+                }}
+                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                  primarySidebarTab === 'Marketplace'
+                    ? 'bg-white/[0.1] text-white font-bold'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+                }`}
+              >
+                <Store className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Marketplace</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setPrimarySidebarTab('Applications')
+                  showToast('OAuth & Webhook applications opened')
+                }}
+                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                  primarySidebarTab === 'Applications'
+                    ? 'bg-white/[0.1] text-white font-bold'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+                }`}
+              >
+                <LayoutGrid className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Applications</span>
+              </button>
+            </div>
+
+            {/* Category: Assets */}
+            <div className="flex flex-col gap-1 pt-1">
+              <span className="hidden md:block text-[11px] font-semibold text-white/40 px-2.5 pt-1 pb-1 uppercase tracking-wider">
+                Assets
+              </span>
+
+              <button
+                onClick={() => {
+                  setPrimarySidebarTab('Library')
+                  showToast('Asset library loaded')
+                }}
+                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                  primarySidebarTab === 'Library'
+                    ? 'bg-white/[0.1] text-white font-bold'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+                }`}
+              >
+                <FileText className="size-4 shrink-0" />
+                <span className="hidden md:inline text-xs font-semibold">Library</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setPrimarySidebarTab('Store')
+                  showToast('Asset store loaded')
+                }}
+                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
+                  primarySidebarTab === 'Store'
+                    ? 'bg-white/[0.1] text-white font-bold'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
+                }`}
+              >
                 <ShoppingBag className="size-4 shrink-0" />
                 <span className="hidden md:inline text-xs font-semibold">Store</span>
-              </button>
-
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-                <MessageSquare className="size-4 shrink-0" />
-                <span className="hidden md:inline text-xs font-semibold">Forum</span>
-              </button>
-
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-                <Megaphone className="size-4 shrink-0" />
-                <span className="hidden md:inline text-xs font-semibold">Updates</span>
-              </button>
-
-              <div className="h-px bg-white/[0.04] my-1.5" />
-
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-                <CircleDollarSign className="size-4 shrink-0" />
-                <span className="hidden md:inline text-xs font-semibold">Finances</span>
-              </button>
-
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-                <BarChart2 className="size-4 shrink-0" />
-                <span className="hidden md:inline text-xs font-semibold">Analytics</span>
-              </button>
-
-              <button className="flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
-                <Volume2 className="size-4 shrink-0" />
-                <span className="hidden md:inline text-xs font-semibold">Ads</span>
               </button>
             </div>
           </div>
 
           <div className="px-2.5 flex flex-col gap-1.5">
-            {/* Account Selector (Thinner, placed directly above All tools) */}
+            {/* Account Selector (Thinner, no background - matching Image 2) */}
             <div
-              className="flex items-center justify-between px-2 py-1 rounded-[6px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04] cursor-pointer transition-colors"
+              className="flex items-center justify-between px-2 py-0.5 rounded-[4px] hover:bg-white/[0.04] cursor-pointer transition-colors"
               title="JadexDraft1337"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <StockAvatar className="size-5 shrink-0" />
+                <StockAvatar className="size-4.5 shrink-0" />
                 <span className="hidden md:inline text-xs font-semibold truncate text-white">
                   JadexDraft1337
                 </span>
               </div>
-              <ChevronDown className="hidden md:block size-3 text-white/50 shrink-0" />
+              <ChevronDown className="hidden md:block size-3 text-white/40 shrink-0" />
             </div>
 
             <button className="w-full flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left">
@@ -1193,33 +1269,54 @@ export function Create({ onClose }: CreateProps) {
               </button>
             </div>
 
-            {/* 5-Column Experiences Grid (Clicking card opens Game Details View matching Screenshot) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {/* Experiences Grid with Banner + Overlapping Thumbnail matching Image 1 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {filteredExperiences.map((exp) => (
                 <div
                   key={exp.id}
                   onClick={() => openGameDetails(exp)}
-                  className="flex flex-col gap-2 group cursor-pointer"
+                  className="flex flex-col group cursor-pointer"
                 >
-                  <div className="aspect-square w-full rounded-2xl overflow-hidden bg-[#16161a] relative shadow-md group-hover:ring-2 group-hover:ring-white/20 transition-all">
-                    <ExperienceCardThumbnail exp={exp} />
+                  {/* Banner + Overlapping Thumbnail Container */}
+                  <div className="relative">
+                    {/* Landscape Banner */}
+                    <div className="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#16161a] relative shadow-md group-hover:ring-2 group-hover:ring-white/20 transition-all">
+                      <ExperienceCardThumbnail exp={exp} />
 
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                      <span className="px-3 py-1.5 rounded-[6px] bg-white text-black font-bold text-xs shadow-lg">
-                        Game Details
-                      </span>
+                      {/* Hover Overlay with Game Details Button */}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 z-10">
+                        <span className="px-3 py-1.5 rounded-[6px] bg-white text-black font-bold text-xs shadow-lg">
+                          Game Details
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Overlapping Square Thumbnail (matching Image 1) */}
+                    <div className="absolute -bottom-4 left-3 size-12 md:size-13 rounded-xl overflow-hidden border-2 border-[#0b0b0e] bg-[#16161a] shadow-lg z-20 group-hover:scale-105 transition-transform">
+                      <ExperienceCardThumbnail exp={exp} />
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-start gap-1">
-                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-semibold text-white/80">
-                      <Lock className="size-2.5 text-white/60" />
-                      <span>{exp.privacy}</span>
-                    </div>
-
-                    <span className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors truncate w-full">
+                  {/* Card Details below banner */}
+                  <div className="pt-5 flex flex-col gap-1 px-1">
+                    <span className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors truncate w-full">
                       {exp.name}
                     </span>
+
+                    <div className="flex items-center gap-2.5 text-white/50 text-xs">
+                      <div className="flex items-center gap-1">
+                        <Frown className="size-3 text-white/40" />
+                        <span>N/A</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="size-3 text-white/40" />
+                        <span>0</span>
+                      </div>
+                      <div className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/[0.06] text-[10px] font-semibold text-white/70">
+                        <Lock className="size-2 text-white/50" />
+                        <span>{exp.privacy}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
