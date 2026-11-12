@@ -468,8 +468,8 @@ export function AvatarEditor() {
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 h-8 rounded-[10px] text-xs font-semibold shrink-0 transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
                   activeTab === tab
-                    ? 'bg-[#1d1d1d] text-white font-bold shadow-xs'
-                    : 'bg-transparent text-white/50 hover:text-white'
+                    ? 'bg-white/[0.08] text-white font-bold backdrop-blur-xs'
+                    : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
                 }`}
               >
                 {tab}
