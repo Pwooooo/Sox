@@ -34,6 +34,8 @@ export const ITEMS: Item[] = [
   { id: 22, name: 'Laser Gun', type: 'tool', price: 280, sales: 8300, creator: 'TechTitan', rating: 4.5, desc: 'A high-powered laser gun with customizable beam colors.' },
   { id: 23, name: 'Butterfly Wings', type: 'accessory', price: 300, sales: 6700, creator: 'FantasyForge', rating: 4.7, desc: 'Delicate butterfly wings with iridescent shimmer.' },
   { id: 24, name: 'Monocle', type: 'face', price: 55, sales: 12400, creator: 'ClassicCuts', rating: 4.2, desc: 'A sophisticated monocle with gold chain.' },
+  { id: 25, name: 'Single Celled ...', type: 'face', price: 1, sales: 84000, creator: 'Luduvo', rating: 4.9, desc: 'A simple single-celled expression for the carefree soul.' },
+  { id: 26, name: 'D-Delayed?', type: 'face', price: 30, sales: 51200, creator: 'Luduvo', rating: 4.8, desc: 'Perpetually exhausted, running late, and slightly amused.' },
 ]
 
 export const CATEGORIES = [

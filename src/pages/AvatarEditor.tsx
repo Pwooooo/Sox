@@ -267,6 +267,159 @@ export function AvatarEditor() {
   const hasEquippedHat = equippedItemsList.some((i) => i.type === 'hat')
   const hasEquippedFace = equippedItemsList.some((i) => i.type === 'face')
 
+  // Render Mannequin Thumbnail matching user reference screenshot
+  const renderCardThumbnail = (item: Item) => {
+    return (
+      <div className="w-full aspect-square rounded-[8px] bg-[#161618] overflow-hidden relative flex flex-col items-center justify-end select-none">
+        {/* Subtle studio glow */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+
+        {/* Head */}
+        <div className="w-16 h-16 rounded-[12px] bg-[#d1d5db] mb-1 flex flex-col items-center justify-center relative shadow-xs z-10">
+          {/* 1. Single Celled ... Face matching reference */}
+          {item.name === 'Single Celled ...' && (
+            <div className="flex flex-col items-center gap-1.5 pointer-events-none">
+              <div className="flex items-center gap-4">
+                <div className="size-1 rounded-full bg-black" />
+                <div className="size-1 rounded-full bg-black" />
+              </div>
+              <div className="w-4 h-1.5 border-b-2 border-black rounded-b-full rotate-[-10deg]" />
+            </div>
+          )}
+
+          {/* 2. D-Delayed? Face matching reference */}
+          {item.name === 'D-Delayed?' && (
+            <div className="flex flex-col items-center gap-0.5 pointer-events-none">
+              {/* Eyebrow */}
+              <div className="flex items-center justify-end w-6 mb-0.5">
+                <div className="w-2.5 h-0.5 bg-black rotate-[-12deg]" />
+              </div>
+              {/* Tired Oval Eyes with dark bags */}
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-3 rounded-full border border-black bg-white flex items-center justify-center">
+                  <div className="size-1 rounded-full bg-black" />
+                </div>
+                <div className="w-2.5 h-3 rounded-full border border-black bg-white flex items-center justify-center">
+                  <div className="size-1 rounded-full bg-black" />
+                </div>
+              </div>
+              {/* Dark eye bags */}
+              <div className="flex items-center gap-2 -mt-0.5">
+                <div className="w-2.5 h-0.5 border-b border-black/40 rounded-full" />
+                <div className="w-2.5 h-0.5 border-b border-black/40 rounded-full" />
+              </div>
+              {/* Smirk mouth */}
+              <div className="w-3.5 h-1 border-b-2 border-black rounded-b-md rotate-[-8deg] mt-0.5" />
+            </div>
+          )}
+
+          {/* Other Faces */}
+          {item.type === 'face' && item.name !== 'Single Celled ...' && item.name !== 'D-Delayed?' && (
+            <div className="flex flex-col items-center gap-1 pointer-events-none">
+              {item.name === 'Neon Shades' ? (
+                <div className="w-11 h-3.5 bg-black rounded-full border border-cyan-400 flex items-center justify-center">
+                  <div className="w-7 h-1 bg-cyan-400 rounded-full" />
+                </div>
+              ) : item.name === 'Monocle' ? (
+                <div className="flex items-center gap-2">
+                  <div className="size-1 rounded-full bg-black" />
+                  <div className="size-3 rounded-full border-2 border-amber-400 flex items-center justify-center">
+                    <div className="size-1 rounded-full bg-black" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3">
+                    <div className="size-1 rounded-full bg-black" />
+                    <div className="size-1 rounded-full bg-black" />
+                  </div>
+                  <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Hats */}
+          {item.type === 'hat' && (
+            <>
+              <div className="absolute -top-3.5 z-20 flex items-center justify-center pointer-events-none">
+                {item.name === 'Crown of Novelo' && (
+                  <div className="px-2 py-0.5 bg-amber-500 rounded-t-sm text-[8px] font-bold text-amber-950 border border-amber-600">
+                    👑
+                  </div>
+                )}
+                {item.name === 'Angel Halo' && (
+                  <div className="w-8 h-2 rounded-full border-2 border-amber-300 shadow-[0_0_6px_rgba(251,191,36,0.6)]" />
+                )}
+                {item.name === 'Top Hat' && (
+                  <div className="flex flex-col items-center">
+                    <div className="w-5 h-4 bg-black rounded-t-xs" />
+                    <div className="w-8 h-1 bg-black rounded-full" />
+                  </div>
+                )}
+                {item.name === 'Pink Bomber' && (
+                  <div className="px-2 py-0.5 rounded-t-lg bg-pink-500 text-[8px] text-white">
+                    Bomber
+                  </div>
+                )}
+                {item.name === 'Viking Helmet' && (
+                  <div className="px-2 py-0.5 bg-neutral-600 rounded-t-sm text-[8px] text-white">
+                    ⚔️
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-1 pointer-events-none mt-1">
+                <div className="flex items-center gap-3">
+                  <div className="size-1 rounded-full bg-black" />
+                  <div className="size-1 rounded-full bg-black" />
+                </div>
+                <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
+              </div>
+            </>
+          )}
+
+          {/* Hair */}
+          {item.type === 'hair' && (
+            <>
+              <div className="absolute -top-2 w-12 h-4 rounded-t-xl bg-amber-900 pointer-events-none" />
+              <div className="flex flex-col items-center gap-1 pointer-events-none mt-1">
+                <div className="flex items-center gap-3">
+                  <div className="size-1 rounded-full bg-black" />
+                  <div className="size-1 rounded-full bg-black" />
+                </div>
+                <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
+              </div>
+            </>
+          )}
+
+          {/* Other Categories */}
+          {(item.type === 'clothing' || item.type === 'accessory' || item.type === 'tool') && (
+            <div className="flex flex-col items-center gap-1 pointer-events-none">
+              <div className="flex items-center gap-3">
+                <div className="size-1 rounded-full bg-black" />
+                <div className="size-1 rounded-full bg-black" />
+              </div>
+              <div className="w-3.5 h-1 border-b-2 border-black rounded-b-full" />
+            </div>
+          )}
+        </div>
+
+        {/* Shoulders & Torso with Seam Lines matching reference */}
+        <div className="w-full h-8 bg-[#d1d5db] flex items-stretch border-t border-black/10 overflow-hidden relative">
+          <div className="w-1/4 h-full border-r border-black/10" />
+          <div className="w-2/4 h-full flex items-center justify-center relative">
+            {item.type === 'clothing' && (
+              <div className="absolute inset-0 bg-[#27272a] flex items-center justify-center">
+                <div className="size-2 rounded-full bg-white/20" />
+              </div>
+            )}
+          </div>
+          <div className="w-1/4 h-full border-l border-black/10" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1500px]">
       {/* Title & Save Bar */}
@@ -712,7 +865,7 @@ export function AvatarEditor() {
                 <span className="text-xs text-white/40">Click any item to equip or unequip</span>
               </div>
 
-              {/* 5-Column Grid matching Screenshot 2 */}
+              {/* 5-Column Grid matching Screenshot 2 & Card Design */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3.5">
                 {filteredItems.map((item) => {
                   const isEquipped = equippedIds.includes(item.id)
@@ -720,39 +873,44 @@ export function AvatarEditor() {
                     <div
                       key={item.id}
                       onClick={() => toggleEquip(item.id)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-2.5 text-center relative group/item ${
+                      className={`group rounded-[12px] p-2.5 flex flex-col gap-2 cursor-pointer transition-colors duration-150 relative select-none ${
                         isEquipped
-                          ? 'bg-white/[0.08] border-white/25 text-white shadow-lg'
-                          : 'bg-[#141416] border-white/5 text-white/70 hover:border-white/20 hover:text-white'
+                          ? 'bg-[#1c1c1f] ring-1 ring-white/20 shadow-lg'
+                          : 'bg-[#121214] hover:bg-[#1c1c1f]'
                       }`}
                     >
-                      {/* Top Right Equipped Checkmark Circle matching Screenshot 2 */}
+                      {/* Top Right Equipped Checkmark Circle */}
                       {isEquipped && (
-                        <div className="absolute top-2 right-2 size-5 rounded-full bg-white text-black flex items-center justify-center shadow-md z-10">
+                        <div className="absolute top-2 right-2 size-5 rounded-full bg-white text-black flex items-center justify-center shadow-md z-20">
                           <Check className="size-3 stroke-[3]" />
                         </div>
                       )}
 
-                      {/* Thumbnail Container */}
-                      <div className="w-full aspect-square rounded-xl bg-black/40 border border-white/5 flex items-center justify-center relative overflow-hidden group-hover/item:border-white/15 transition-all">
-                        <Sparkles className="size-8 text-white/30 group-hover/item:text-white/60 transition-colors" />
-                      </div>
+                      {/* Mannequin Thumbnail matching user reference */}
+                      {renderCardThumbnail(item)}
 
-                      {/* Item Details */}
-                      <div className="w-full flex flex-col items-center">
-                        <span className="text-xs font-bold truncate max-w-full text-white/90">
+                      {/* Left-Aligned Card Details matching reference */}
+                      <div className="w-full flex flex-col gap-0.5 text-left">
+                        <h4 className="text-xs md:text-[13px] font-bold text-white truncate leading-tight group-hover:text-white">
                           {item.name}
+                        </h4>
+                        <span className="text-[11px] text-white/50 truncate">
+                          By <span className="text-white/70 font-medium">{item.creator}</span>
                         </span>
-                        <span className="text-[11px] text-white/40 mt-0.5 flex items-center justify-center gap-1">
+                        <div className="flex items-center gap-1 mt-0.5 text-xs font-bold text-white">
                           {item.price === 0 ? (
-                            'Free'
+                            <span className="text-[11px] font-bold text-white/80">Free</span>
                           ) : (
                             <>
-                              <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
+                              <img
+                                src="/novelo-currency.png"
+                                alt="Currency"
+                                className="size-3 object-contain shrink-0"
+                              />
                               <span>{item.price}</span>
                             </>
                           )}
-                        </span>
+                        </div>
                       </div>
                     </div>
                   )
