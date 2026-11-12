@@ -708,12 +708,10 @@ export function Create({ onClose }: CreateProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4 flex-wrap">
               {/* Box 1: Game Icon */}
-              <div className="relative size-28 rounded-xl bg-[#141418] border border-white/5 flex items-center justify-center overflow-hidden group shadow-md p-3">
-                <img
-                  src="/novelo-icon.png"
-                  alt="Novelo Icon"
-                  className="size-16 object-contain"
-                />
+              <div className="relative size-28 rounded-xl bg-[#141418] border border-white/5 flex items-center justify-center overflow-hidden group shadow-md">
+                <svg viewBox="0 0 100 100" className="size-14 text-white/20" fill="currentColor">
+                  <path d="M 28 16 L 86 28 L 72 86 L 14 74 Z M 44 45 L 59 48 L 55 63 L 40 60 Z" fillRule="evenodd" />
+                </svg>
                 <button
                   onClick={() => showToast('Icon upload dialog opened')}
                   className="size-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors"
@@ -905,9 +903,11 @@ export function Create({ onClose }: CreateProps) {
           <div className="h-4 w-px bg-white/10" />
 
           <div className="flex items-center gap-2">
-            <div className="size-6 rounded-md bg-white text-black flex items-center justify-center font-black text-xs">
-              N
-            </div>
+            <img
+              src="/novelo-icon.png"
+              alt="Novelo"
+              className="size-6 object-contain"
+            />
             <span className="text-xs font-black tracking-wider text-white uppercase">
               Creator
             </span>
