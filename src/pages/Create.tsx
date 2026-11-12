@@ -445,8 +445,6 @@ export function Create({ onClose }: CreateProps) {
               <span>Details</span>
             </button>
 
-            <div className="h-4 w-px bg-white/10" />
-
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <span className="text-xs font-bold text-white tracking-tight">
@@ -909,15 +907,13 @@ export function Create({ onClose }: CreateProps) {
             </button>
           )}
 
-          <div className="h-4 w-px bg-white/10" />
-
           <div className="flex items-center gap-2">
             <img
               src="/novelo-icon.png"
               alt="Novelo"
               className="h-8 w-auto max-h-9 object-contain"
             />
-            <span className="text-xs font-black tracking-wider text-white uppercase">
+            <span className="text-xs font-black tracking-wider text-white uppercase translate-y-1.5">
               Creator
             </span>
           </div>
