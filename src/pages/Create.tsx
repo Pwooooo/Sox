@@ -276,6 +276,7 @@ export function Create({ onClose }: CreateProps) {
   const [formDesc, setFormDesc] = useState('')
   const [formGenre, setFormGenre] = useState('Genre')
   const [formSubgenre, setFormSubgenre] = useState('None')
+  const [formPrivacy, setFormPrivacy] = useState<'Playtesters' | 'Public'>('Playtesters')
 
   // Dashboard Filters State
   const [dashboardTab, setDashboardTab] = useState<'My Experiences' | 'Shared With Me'>('My Experiences')
@@ -316,6 +317,7 @@ export function Create({ onClose }: CreateProps) {
     setFormDesc(exp.description || '')
     setFormGenre(exp.genre || 'Genre')
     setFormSubgenre(exp.subgenre || 'None')
+    setFormPrivacy(exp.privacy)
     setViewMode('game_details')
   }
 
@@ -336,6 +338,7 @@ export function Create({ onClose }: CreateProps) {
               description: formDesc.trim(),
               genre: formGenre,
               subgenre: formSubgenre,
+              privacy: formPrivacy,
               updatedDate: 'Today',
             }
           : e
@@ -348,6 +351,7 @@ export function Create({ onClose }: CreateProps) {
       description: formDesc.trim(),
       genre: formGenre,
       subgenre: formSubgenre,
+      privacy: formPrivacy,
     }))
     showToast('Changes saved successfully!')
     setViewMode('dashboard')
@@ -720,7 +724,6 @@ export function Create({ onClose }: CreateProps) {
                   <path d="M 28 16 L 86 28 L 72 86 L 14 74 Z M 44 45 L 59 48 L 55 63 L 40 60 Z" fillRule="evenodd" />
                 </svg>
                 <button
-                  onClick={() => showToast('Icon upload dialog opened')}
                   className="size-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors"
                   title="Edit Icon"
                 >
@@ -732,7 +735,6 @@ export function Create({ onClose }: CreateProps) {
               <div className="relative w-48 h-28 rounded-xl bg-[#141418] border border-white/5 flex items-center justify-center overflow-hidden group shadow-md">
                 <ExperienceCardThumbnail exp={activeExp} />
                 <button
-                  onClick={() => showToast('Thumbnail upload dialog opened')}
                   className="size-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors z-10"
                   title="Edit Thumbnail"
                 >
@@ -749,7 +751,6 @@ export function Create({ onClose }: CreateProps) {
                   Upload a video to help users discover your game
                 </span>
                 <button
-                  onClick={() => showToast('Video upload opened')}
                   className="mt-1 h-6 px-3.5 rounded-[6px] bg-[#222228] hover:bg-[#2c2c34] text-white text-[11px] font-semibold cursor-pointer border-none transition-colors"
                 >
                   Continue
@@ -858,6 +859,48 @@ export function Create({ onClose }: CreateProps) {
               </a>{' '}
               can only be changed every 3 months.
             </span>
+          </div>
+
+          {/* Field 5: Privacy / Visibility Setting */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-white tracking-tight">
+              Privacy / Visibility
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+              <div
+                onClick={() => setFormPrivacy('Public')}
+                className={`flex items-start gap-3 p-3 rounded-[8px] border cursor-pointer transition-all ${
+                  formPrivacy === 'Public'
+                    ? 'bg-blue-600/10 border-blue-500 text-white shadow-sm'
+                    : 'bg-[#121216] border-white/10 text-white/60 hover:text-white hover:border-white/20'
+                }`}
+              >
+                <div className={`size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${formPrivacy === 'Public' ? 'border-blue-500 bg-blue-500/20' : 'border-white/30'}`}>
+                  {formPrivacy === 'Public' && <div className="size-2 rounded-full bg-blue-500" />}
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-bold text-white">Public</span>
+                  <span className="text-[11px] text-white/40 leading-snug">Anyone on Novelo can discover and play</span>
+                </div>
+              </div>
+
+              <div
+                onClick={() => setFormPrivacy('Playtesters')}
+                className={`flex items-start gap-3 p-3 rounded-[8px] border cursor-pointer transition-all ${
+                  formPrivacy === 'Playtesters'
+                    ? 'bg-blue-600/10 border-blue-500 text-white shadow-sm'
+                    : 'bg-[#121216] border-white/10 text-white/60 hover:text-white hover:border-white/20'
+                }`}
+              >
+                <div className={`size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${formPrivacy === 'Playtesters' ? 'border-blue-500 bg-blue-500/20' : 'border-white/30'}`}>
+                  {formPrivacy === 'Playtesters' && <div className="size-2 rounded-full bg-blue-500" />}
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-bold text-white">Playtesters (Private)</span>
+                  <span className="text-[11px] text-white/40 leading-snug">Only you and approved playtesters can join</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons: Save & Cancel matching Screenshot */}
@@ -973,67 +1016,55 @@ export function Create({ onClose }: CreateProps) {
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <Gamepad2 className="size-4 shrink-0" />
+                <Gamepad2 className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Games' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Games</span>
               </button>
 
               <button
-                onClick={() => {
-                  setPrimarySidebarTab('Transfers')
-                  showToast('Transfers ledger loaded')
-                }}
+                onClick={() => setPrimarySidebarTab('Transfers')}
                 className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
                   primarySidebarTab === 'Transfers'
                     ? 'bg-white/[0.1] text-white font-bold'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <ArrowLeftRight className="size-4 shrink-0" />
+                <ArrowLeftRight className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Transfers' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Transfers</span>
               </button>
 
               <button
-                onClick={() => {
-                  setPrimarySidebarTab('Payouts')
-                  showToast('Developer payouts ledger opened')
-                }}
+                onClick={() => setPrimarySidebarTab('Payouts')}
                 className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
                   primarySidebarTab === 'Payouts'
                     ? 'bg-white/[0.1] text-white font-bold'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <Coins className="size-4 shrink-0" />
+                <Coins className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Payouts' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Payouts</span>
               </button>
 
               <button
-                onClick={() => {
-                  setPrimarySidebarTab('Marketplace')
-                  showToast('Creator Marketplace opened')
-                }}
+                onClick={() => setPrimarySidebarTab('Marketplace')}
                 className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
                   primarySidebarTab === 'Marketplace'
                     ? 'bg-white/[0.1] text-white font-bold'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <Store className="size-4 shrink-0" />
+                <Store className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Marketplace' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Marketplace</span>
               </button>
 
               <button
-                onClick={() => {
-                  setPrimarySidebarTab('Applications')
-                  showToast('OAuth & Webhook applications opened')
-                }}
+                onClick={() => setPrimarySidebarTab('Applications')}
                 className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
                   primarySidebarTab === 'Applications'
                     ? 'bg-white/[0.1] text-white font-bold'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <LayoutGrid className="size-4 shrink-0" />
+                <LayoutGrid className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Applications' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Applications</span>
               </button>
             </div>
@@ -1045,32 +1076,26 @@ export function Create({ onClose }: CreateProps) {
               </span>
 
               <button
-                onClick={() => {
-                  setPrimarySidebarTab('Library')
-                  showToast('Asset library loaded')
-                }}
+                onClick={() => setPrimarySidebarTab('Library')}
                 className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
                   primarySidebarTab === 'Library'
                     ? 'bg-white/[0.1] text-white font-bold'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <FileText className="size-4 shrink-0" />
+                <FileText className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Library' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Library</span>
               </button>
 
               <button
-                onClick={() => {
-                  setPrimarySidebarTab('Store')
-                  showToast('Asset store loaded')
-                }}
+                onClick={() => setPrimarySidebarTab('Store')}
                 className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
                   primarySidebarTab === 'Store'
                     ? 'bg-white/[0.1] text-white font-bold'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <ShoppingBag className="size-4 shrink-0" />
+                <ShoppingBag className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Store' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Store</span>
               </button>
             </div>
