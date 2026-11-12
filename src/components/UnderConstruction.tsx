@@ -15,11 +15,11 @@ export function UnderConstruction({
 }: UnderConstructionProps) {
   return (
     <div className="w-full flex-1 min-h-[440px] flex flex-col items-center justify-center text-center px-4 py-12 select-none">
-      {/* Sticker Illustration matching reference */}
+      {/* Novelo Cat Under Construction Icon */}
       <img
         src="/under-construction.png"
         alt="Under Construction"
-        className="w-60 sm:w-72 md:w-80 h-auto object-contain mb-5 pointer-events-none"
+        className="w-44 sm:w-52 md:w-56 h-auto object-contain mb-4 pointer-events-none"
       />
 
       {/* Heading */}
