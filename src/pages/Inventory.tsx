@@ -95,22 +95,21 @@ export function Inventory() {
 
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1700px]">
-      {/* 1. Header Tabs Row with Underline matching Image 2 */}
-      <div className="flex items-center gap-6 border-b border-white/[0.08] pb-1 overflow-x-auto no-scrollbar">
+      {/* 1. Category Tabs Row matching Avatar Editor */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
         {TABS.map((tab) => {
           const isActive = activeTab === tab
           return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-2 text-xs font-semibold tracking-tight transition-all cursor-pointer border-none bg-transparent shrink-0 relative ${
-                isActive ? 'text-white font-bold' : 'text-white/50 hover:text-white/80'
+              className={`px-4 h-8 rounded-[10px] text-xs font-semibold shrink-0 transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
+                isActive
+                  ? 'bg-[#1d1d1d] text-white font-bold shadow-xs'
+                  : 'bg-transparent text-white/50 hover:text-white'
               }`}
             >
               {tab}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full" />
-              )}
             </button>
           )
         })}
