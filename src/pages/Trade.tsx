@@ -1,266 +1,691 @@
 import { useState } from 'react'
-import { ChevronDown, Star, Sparkles, HelpCircle } from 'lucide-react'
+import {
+  ChevronDown,
+  ArrowLeftRight,
+  Plus,
+  X,
+  Check,
+  AlertCircle,
+  HelpCircle,
+  Search,
+  Clock,
+  ShieldCheck,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react'
+import { IsometricMannequin } from '@/components/IsometricMannequin'
 
-interface TradeItem {
+export interface TradeItem {
   id: string
   name: string
+  creator: string
+  type: 'hat' | 'hair' | 'face' | 'clothing' | 'accessory' | 'tool'
   value: number
-  color: string
 }
 
-interface TradeRequest {
+export type TradeCategory = 'Inbound' | 'Outbound' | 'Completed' | 'Inactive'
+
+export interface TradeRequest {
   id: string
+  category: TradeCategory
   partner: string
+  partnerTag: string
   date: string
   expiresDate: string
   status: string
   receiveItems: TradeItem[]
   giveItems: TradeItem[]
+  note?: string
+  partnerAvatarColor: string
 }
 
-const TRADE_REQUESTS: TradeRequest[] = [
+// User's tradeable inventory
+const USER_INVENTORY: TradeItem[] = [
+  { id: 'u1', name: 'Blue Plaid Fedora', creator: 'Luduvo', type: 'hat', value: 1342 },
+  { id: 'u2', name: 'Crown of Novelo', creator: 'PixelMaster', type: 'hat', value: 250 },
+  { id: 'u3', name: 'Pink Bomber', creator: 'UrbanWear', type: 'hat', value: 50 },
+  { id: 'u4', name: 'Samurai Armor', creator: 'LunarDesigns', type: 'clothing', value: 180 },
+  { id: 'u5', name: 'Jetpack', creator: 'TechTitan', type: 'tool', value: 380 },
+  { id: 'u6', name: 'Angel Halo', creator: 'DivineDesigns', type: 'hat', value: 175 },
+  { id: 'u7', name: 'Pixel Sword', creator: 'RetroRealm', type: 'tool', value: 90 },
+  { id: 'u8', name: 'Viking Helmet', creator: 'NordicNorse', type: 'hat', value: 130 },
+  { id: 'u9', name: 'Flame Skull', creator: 'HellfireHUD', type: 'face', value: 120 },
+  { id: 'u10', name: 'Cat Ears', creator: 'KawaiiClub', type: 'hair', value: 60 },
+  { id: 'u11', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory', value: 500 },
+  { id: 'u12', name: 'Top Hat', creator: 'ClassicCuts', type: 'hat', value: 70 },
+]
+
+// Available partners and their trade pools
+const PARTNERS = [
+  {
+    name: 'GOODEVER',
+    tag: '@goodever',
+    color: '#3b82f6',
+    pool: [
+      { id: 'p_g1', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat' as const, value: 780 },
+      { id: 'p_g2', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 450 },
+      { id: 'p_g3', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory' as const, value: 600 },
+    ],
+  },
+  {
+    name: 'ActuallyDot',
+    tag: '@actually_dot',
+    color: '#8b5cf6',
+    pool: [
+      { id: 'p_a1', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 450 },
+      { id: 'p_a2', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 300 },
+      { id: 'p_a3', name: 'Neon Shades', creator: 'CyberStyle', type: 'face' as const, value: 35 },
+    ],
+  },
+  {
+    name: 'BeetleSlugger',
+    tag: '@beetle_s',
+    color: '#10b981',
+    pool: [
+      { id: 'p_b1', name: 'Neon Shades', creator: 'CyberStyle', type: 'face' as const, value: 35 },
+      { id: 'p_b2', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool' as const, value: 320 },
+      { id: 'p_b3', name: 'Cyberpunk Jacket', creator: 'NeonNation', type: 'clothing' as const, value: 150 },
+    ],
+  },
+  {
+    name: 'Flaminndragon',
+    tag: '@flaminndragon',
+    color: '#ef4444',
+    pool: [
+      { id: 'p_f1', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool' as const, value: 320 },
+      { id: 'p_f2', name: 'Laser Gun', creator: 'TechTitan', type: 'tool' as const, value: 280 },
+      { id: 'p_f3', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory' as const, value: 500 },
+    ],
+  },
+  {
+    name: 'forzch',
+    tag: '@forzch',
+    color: '#f59e0b',
+    pool: [
+      { id: 'p_z1', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory' as const, value: 500 },
+      { id: 'p_z2', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory' as const, value: 200 },
+      { id: 'p_z3', name: 'Tuxedo Suit', creator: 'ClassicCuts', type: 'clothing' as const, value: 200 },
+    ],
+  },
+  {
+    name: 'RblxMellodas',
+    tag: '@rblx_mellodas',
+    color: '#06b6d4',
+    pool: [
+      { id: 'p_m1', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory' as const, value: 600 },
+      { id: 'p_m2', name: 'Crown of Novelo', creator: 'PixelMaster', type: 'hat' as const, value: 250 },
+      { id: 'p_m3', name: 'Wizard Beard', creator: 'FantasyForge', type: 'hair' as const, value: 85 },
+    ],
+  },
+  {
+    name: 'BlahBlahNoodles',
+    tag: '@noodles',
+    color: '#ec4899',
+    pool: [
+      { id: 'p_n1', name: 'Laser Gun', creator: 'TechTitan', type: 'tool' as const, value: 280 },
+      { id: 'p_n2', name: 'Pink Bomber', creator: 'UrbanWear', type: 'hat' as const, value: 50 },
+      { id: 'p_n3', name: 'Cat Ears', creator: 'KawaiiClub', type: 'hair' as const, value: 60 },
+    ],
+  },
+  {
+    name: 'Disincline',
+    tag: '@disincline',
+    color: '#6366f1',
+    pool: [
+      { id: 'p_d1', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 300 },
+      { id: 'p_d2', name: 'Viking Helmet', creator: 'NordicNorse', type: 'hat' as const, value: 130 },
+      { id: 'p_d3', name: 'Samurai Armor', creator: 'LunarDesigns', type: 'clothing' as const, value: 180 },
+    ],
+  },
+  {
+    name: 'smokedmen',
+    tag: '@smokedmen',
+    color: '#84cc16',
+    pool: [
+      { id: 'p_s1', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory' as const, value: 200 },
+      { id: 'p_s2', name: 'Flame Skull', creator: 'HellfireHUD', type: 'face' as const, value: 120 },
+      { id: 'p_s3', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat' as const, value: 780 },
+    ],
+  },
+]
+
+const INITIAL_TRADES: TradeRequest[] = [
   {
     id: 'tr1',
+    category: 'Inbound',
     partner: 'GOODEVER',
+    partnerTag: '@goodever',
     date: '4/2/20',
     expiresDate: '4/7/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#3b82f6',
     receiveItems: [
-      { id: 'ri1', name: 'Leopard Fedora', value: 780, color: '#ca8a04' },
+      { id: 'ri1', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat', value: 780 },
     ],
     giveItems: [
-      { id: 'gi1', name: 'Blue Plaid Fedora', value: 1342, color: '#3b82f6' },
+      { id: 'gi1', name: 'Blue Plaid Fedora', creator: 'Luduvo', type: 'hat', value: 1342 },
     ],
   },
   {
     id: 'tr2',
+    category: 'Inbound',
     partner: 'ActuallyDot',
+    partnerTag: '@actually_dot',
     date: '4/2/20',
     expiresDate: '4/7/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#8b5cf6',
     receiveItems: [
-      { id: 'ri2', name: 'Dragon Wings', value: 450, color: '#dc2626' },
+      { id: 'ri2', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory', value: 450 },
     ],
     giveItems: [
-      { id: 'gi2', name: 'Crown of Novelo', value: 250, color: '#eab308' },
+      { id: 'gi2', name: 'Crown of Novelo', creator: 'PixelMaster', type: 'hat', value: 250 },
     ],
   },
   {
     id: 'tr3',
+    category: 'Inbound',
     partner: 'BeetleSlugger',
+    partnerTag: '@beetle_s',
     date: '4/2/20',
     expiresDate: '4/7/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#10b981',
     receiveItems: [
-      { id: 'ri3', name: 'Neon Shades', value: 35, color: '#06b6d4' },
+      { id: 'ri3', name: 'Neon Shades', creator: 'CyberStyle', type: 'face', value: 35 },
     ],
     giveItems: [
-      { id: 'gi3', name: 'Pink Bomber', value: 0, color: '#ec4899' },
+      { id: 'gi3', name: 'Pink Bomber', creator: 'UrbanWear', type: 'hat', value: 50 },
     ],
   },
   {
     id: 'tr4',
+    category: 'Inbound',
     partner: 'Flaminndragon',
+    partnerTag: '@flaminndragon',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#ef4444',
     receiveItems: [
-      { id: 'ri4', name: 'Starfall Staff', value: 320, color: '#a855f7' },
+      { id: 'ri4', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool', value: 320 },
     ],
     giveItems: [
-      { id: 'gi4', name: 'Samurai Armor', value: 180, color: '#16a34a' },
+      { id: 'gi4', name: 'Samurai Armor', creator: 'LunarDesigns', type: 'clothing', value: 180 },
     ],
   },
   {
     id: 'tr5',
+    category: 'Inbound',
     partner: 'forzch',
+    partnerTag: '@forzch',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#f59e0b',
     receiveItems: [
-      { id: 'ri5', name: 'Golden Watch', value: 500, color: '#f59e0b' },
+      { id: 'ri5', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory', value: 500 },
     ],
     giveItems: [
-      { id: 'gi5', name: 'Jetpack', value: 380, color: '#64748b' },
+      { id: 'gi5', name: 'Jetpack', creator: 'TechTitan', type: 'tool', value: 380 },
     ],
   },
   {
     id: 'tr6',
+    category: 'Inbound',
     partner: 'RblxMellodas',
+    partnerTag: '@rblx_mellodas',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#06b6d4',
     receiveItems: [
-      { id: 'ri6', name: 'Diamond Necklace', value: 600, color: '#38bdf8' },
+      { id: 'ri6', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory', value: 600 },
     ],
     giveItems: [
-      { id: 'gi6', name: 'Angel Halo', value: 175, color: '#fbbf24' },
+      { id: 'gi6', name: 'Angel Halo', creator: 'DivineDesigns', type: 'hat', value: 175 },
     ],
   },
   {
     id: 'tr7',
+    category: 'Inbound',
     partner: 'BlahBlahNoodles',
+    partnerTag: '@noodles',
     date: '3/29/20',
     expiresDate: '4/3/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#ec4899',
     receiveItems: [
-      { id: 'ri7', name: 'Laser Gun', value: 280, color: '#ef4444' },
+      { id: 'ri7', name: 'Laser Gun', creator: 'TechTitan', type: 'tool', value: 280 },
     ],
     giveItems: [
-      { id: 'gi7', name: 'Pixel Sword', value: 90, color: '#10b981' },
+      { id: 'gi7', name: 'Pixel Sword', creator: 'RetroRealm', type: 'tool', value: 90 },
     ],
   },
   {
     id: 'tr8',
+    category: 'Inbound',
     partner: 'Disincline',
+    partnerTag: '@disincline',
     date: '3/28/20',
     expiresDate: '4/2/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#6366f1',
     receiveItems: [
-      { id: 'ri8', name: 'Butterfly Wings', value: 300, color: '#d946ef' },
+      { id: 'ri8', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory', value: 300 },
     ],
     giveItems: [
-      { id: 'gi8', name: 'Viking Helmet', value: 130, color: '#78716c' },
+      { id: 'gi8', name: 'Viking Helmet', creator: 'NordicNorse', type: 'hat', value: 130 },
     ],
   },
   {
     id: 'tr9',
+    category: 'Inbound',
     partner: 'smokedmen',
+    partnerTag: '@smokedmen',
     date: '3/28/20',
     expiresDate: '4/2/20',
-    status: 'Unknown',
+    status: 'Pending',
+    partnerAvatarColor: '#84cc16',
     receiveItems: [
-      { id: 'ri9', name: 'Ghostly Aura', value: 200, color: '#a78bfa' },
+      { id: 'ri9', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory', value: 200 },
     ],
     giveItems: [
-      { id: 'gi9', name: 'Flame Skull', value: 120, color: '#f97316' },
+      { id: 'gi9', name: 'Flame Skull', creator: 'HellfireHUD', type: 'face', value: 120 },
+    ],
+  },
+  // Outbound trade
+  {
+    id: 'tr_out_1',
+    category: 'Outbound',
+    partner: 'ActuallyDot',
+    partnerTag: '@actually_dot',
+    date: '4/1/20',
+    expiresDate: '4/6/20',
+    status: 'Pending',
+    partnerAvatarColor: '#8b5cf6',
+    receiveItems: [
+      { id: 'ri_out1', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory', value: 300 },
+    ],
+    giveItems: [
+      { id: 'gi_out1', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory', value: 500 },
+    ],
+  },
+  // Completed trade
+  {
+    id: 'tr_comp_1',
+    category: 'Completed',
+    partner: 'forzch',
+    partnerTag: '@forzch',
+    date: '3/20/20',
+    expiresDate: 'Completed',
+    status: 'Completed',
+    partnerAvatarColor: '#f59e0b',
+    receiveItems: [
+      { id: 'ri_c1', name: 'Laser Gun', creator: 'TechTitan', type: 'tool', value: 280 },
+    ],
+    giveItems: [
+      { id: 'gi_c1', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory', value: 450 },
     ],
   },
 ]
 
 export function Trade() {
-  const [tradeCategory, setTradeCategory] = useState<'Inbound' | 'Outbound' | 'Completed' | 'Inactive'>('Inbound')
+  const [tradeCategory, setTradeCategory] = useState<TradeCategory>('Inbound')
   const [selectedTradeId, setSelectedTradeId] = useState('tr1')
-  const [trades, setTrades] = useState(TRADE_REQUESTS)
+  const [trades, setTrades] = useState<TradeRequest[]>(INITIAL_TRADES)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [showHowToTrade, setShowHowToTrade] = useState(false)
 
-  const activeTrade = trades.find((t) => t.id === selectedTradeId) || trades[0]
+  // Send / Counter Trade Request Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<'new' | 'counter'>('new')
+  const [selectedPartnerName, setSelectedPartnerName] = useState('GOODEVER')
+  const [partnerSearch, setPartnerSearch] = useState('')
+  const [selectedGiveItems, setSelectedGiveItems] = useState<TradeItem[]>([])
+  const [selectedReceiveItems, setSelectedReceiveItems] = useState<TradeItem[]>([])
+  const [tradeNote, setTradeNote] = useState('')
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg)
+    setTimeout(() => setToastMessage(null), 3500)
+  }
+
+  // Filter trades by current category
+  const filteredTrades = trades.filter((t) => t.category === tradeCategory)
+
+  // Current active trade (defaults to first in category or null)
+  const activeTrade =
+    filteredTrades.find((t) => t.id === selectedTradeId) || filteredTrades[0] || null
 
   const receiveTotal = activeTrade?.receiveItems.reduce((sum, item) => sum + item.value, 0) || 0
   const giveTotal = activeTrade?.giveItems.reduce((sum, item) => sum + item.value, 0) || 0
+  const valueDiff = receiveTotal - giveTotal
 
+  // Actions
   const handleAccept = () => {
-    alert(`Trade with ${activeTrade.partner} accepted! Items swapped.`)
-    setTrades((prev) => prev.filter((t) => t.id !== activeTrade.id))
+    if (!activeTrade) return
+    setTrades((prev) =>
+      prev.map((t) =>
+        t.id === activeTrade.id
+          ? { ...t, category: 'Completed' as const, status: 'Completed', expiresDate: 'Accepted' }
+          : t
+      )
+    )
+    showToast(`Trade with ${activeTrade.partner} accepted! Items swapped.`)
   }
 
   const handleDecline = () => {
-    alert(`Trade with ${activeTrade.partner} declined.`)
-    setTrades((prev) => prev.filter((t) => t.id !== activeTrade.id))
+    if (!activeTrade) return
+    setTrades((prev) =>
+      prev.map((t) =>
+        t.id === activeTrade.id
+          ? { ...t, category: 'Inactive' as const, status: 'Declined', expiresDate: 'Declined' }
+          : t
+      )
+    )
+    showToast(`Trade with ${activeTrade.partner} declined.`)
   }
+
+  const handleCancelOutbound = () => {
+    if (!activeTrade) return
+    setTrades((prev) =>
+      prev.map((t) =>
+        t.id === activeTrade.id
+          ? { ...t, category: 'Inactive' as const, status: 'Cancelled', expiresDate: 'Cancelled' }
+          : t
+      )
+    )
+    showToast(`Trade proposal to ${activeTrade.partner} cancelled.`)
+  }
+
+  // Open "New Trade" Modal
+  const openNewTradeModal = () => {
+    setModalMode('new')
+    setSelectedPartnerName(PARTNERS[0].name)
+    setSelectedGiveItems([])
+    setSelectedReceiveItems([])
+    setTradeNote('')
+    setIsModalOpen(true)
+  }
+
+  // Open "Counter Trade" Modal
+  const openCounterModal = () => {
+    if (!activeTrade) return
+    setModalMode('counter')
+    setSelectedPartnerName(activeTrade.partner)
+    // Pre-fill with current trade items
+    setSelectedGiveItems([...activeTrade.giveItems])
+    setSelectedReceiveItems([...activeTrade.receiveItems])
+    setTradeNote(`Countering previous offer with adjusted items.`)
+    setIsModalOpen(true)
+  }
+
+  // Partner data in modal
+  const currentPartnerData =
+    PARTNERS.find((p) => p.name === selectedPartnerName) || PARTNERS[0]
+
+  // Toggle item in Give list
+  const toggleGiveItem = (item: TradeItem) => {
+    if (selectedGiveItems.some((i) => i.id === item.id)) {
+      setSelectedGiveItems((prev) => prev.filter((i) => i.id !== item.id))
+    } else {
+      if (selectedGiveItems.length >= 4) {
+        showToast('Maximum 4 items allowed per side')
+        return
+      }
+      setSelectedGiveItems((prev) => [...prev, item])
+    }
+  }
+
+  // Toggle item in Receive list
+  const toggleReceiveItem = (item: TradeItem) => {
+    if (selectedReceiveItems.some((i) => i.id === item.id)) {
+      setSelectedReceiveItems((prev) => prev.filter((i) => i.id !== item.id))
+    } else {
+      if (selectedReceiveItems.length >= 4) {
+        showToast('Maximum 4 items allowed per side')
+        return
+      }
+      setSelectedReceiveItems((prev) => [...prev, item])
+    }
+  }
+
+  // Handle Send Trade Request
+  const handleSendTradeProposal = () => {
+    if (selectedGiveItems.length === 0 && selectedReceiveItems.length === 0) {
+      showToast('Select at least one item to propose a trade')
+      return
+    }
+
+    const newTradeId = 'tr_out_' + Date.now()
+    const newTrade: TradeRequest = {
+      id: newTradeId,
+      category: 'Outbound',
+      partner: currentPartnerData.name,
+      partnerTag: currentPartnerData.tag,
+      date: 'Today',
+      expiresDate: 'In 5 days',
+      status: 'Pending',
+      partnerAvatarColor: currentPartnerData.color,
+      giveItems: selectedGiveItems,
+      receiveItems: selectedReceiveItems,
+      note: tradeNote,
+    }
+
+    setTrades((prev) => [newTrade, ...prev])
+    setTradeCategory('Outbound')
+    setSelectedTradeId(newTradeId)
+    setIsModalOpen(false)
+    showToast(
+      modalMode === 'counter'
+        ? `Counter offer sent to ${currentPartnerData.name}!`
+        : `Trade request sent to ${currentPartnerData.name}!`
+    )
+  }
+
+  const modalGiveTotal = selectedGiveItems.reduce((s, i) => s + i.value, 0)
+  const modalReceiveTotal = selectedReceiveItems.reduce((s, i) => s + i.value, 0)
+  const modalDiff = modalReceiveTotal - modalGiveTotal
 
   return (
     <div className="p-4 md:p-6 lg:p-7 max-w-[1400px] flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row rounded-2xl bg-[#121214] border border-white/[0.06] overflow-hidden shadow-2xl min-h-[640px]">
-        {/* Left Column: Trades List matching Image 5 */}
-        <div className="w-full md:w-72 lg:w-80 bg-[#161618] flex flex-col shrink-0 border-r border-white/[0.04]">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-neutral-900 border border-white/20 text-white shadow-2xl text-xs font-semibold animate-in fade-in slide-in-from-top-3 duration-200">
+          <Sparkles className="size-4 text-amber-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Main Trade Window matching User Reference */}
+      <div className="flex flex-col md:flex-row rounded-2xl bg-[#121214] border border-white/[0.06] overflow-hidden shadow-2xl min-h-[680px]">
+        {/* Left Column: Trades List */}
+        <div className="w-full md:w-80 lg:w-84 bg-[#141416] flex flex-col shrink-0 border-r border-white/[0.04]">
           {/* Header */}
-          <div className="p-4 pb-3 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
+          <div className="p-4 pb-3 flex flex-col gap-3 border-b border-white/[0.04]">
+            <div className="flex items-center justify-between gap-2">
               <h1 className="text-xl font-black text-white tracking-tight">Trades</h1>
-              {/* Inbound Dropdown */}
+
+              {/* Send Trade Request Button */}
+              <button
+                onClick={openNewTradeModal}
+                className="h-8 px-3 rounded-[10px] bg-white hover:bg-neutral-200 text-black font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shrink-0"
+              >
+                <Plus className="size-3.5" />
+                <span>New Trade</span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              {/* Category Dropdown */}
               <div className="relative">
                 <select
                   value={tradeCategory}
-                  onChange={(e) => setTradeCategory(e.target.value as any)}
-                  className="h-8 pl-3 pr-7 rounded-lg bg-[#222226] border border-white/10 text-xs text-white focus:outline-none cursor-pointer appearance-none"
+                  onChange={(e) => {
+                    const cat = e.target.value as TradeCategory
+                    setTradeCategory(cat)
+                    const firstInCat = trades.find((t) => t.category === cat)
+                    if (firstInCat) setSelectedTradeId(firstInCat.id)
+                  }}
+                  className="h-8 pl-3 pr-8 rounded-[10px] bg-[#1c1c1f] hover:bg-[#242428] border border-white/10 text-xs font-semibold text-white focus:outline-none cursor-pointer appearance-none transition-colors"
                 >
-                  <option value="Inbound">Inbound</option>
-                  <option value="Outbound">Outbound</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Inactive">Inactive</option>
+                  <option value="Inbound">Inbound ({trades.filter((t) => t.category === 'Inbound').length})</option>
+                  <option value="Outbound">Outbound ({trades.filter((t) => t.category === 'Outbound').length})</option>
+                  <option value="Completed">Completed ({trades.filter((t) => t.category === 'Completed').length})</option>
+                  <option value="Inactive">Inactive ({trades.filter((t) => t.category === 'Inactive').length})</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 size-3 text-white/50 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 text-white/50 pointer-events-none" />
               </div>
-            </div>
 
-            <button
-              onClick={() => alert('Trading guide: Select trades from inbound to review items.')}
-              className="text-[11px] text-white/50 hover:text-white underline cursor-pointer text-left bg-transparent border-none p-0"
-            >
-              How do I trade?
-            </button>
+              {/* How do I trade link */}
+              <button
+                onClick={() => setShowHowToTrade(true)}
+                className="text-[11px] text-white/50 hover:text-white underline cursor-pointer text-left bg-transparent border-none p-0 transition-colors"
+              >
+                How do I trade?
+              </button>
+            </div>
           </div>
 
-          {/* List of Traders matching Image 5 */}
-          <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col">
-            {trades.map((trade) => {
-              const isSelected = trade.id === selectedTradeId
-              return (
-                <button
-                  key={trade.id}
-                  onClick={() => setSelectedTradeId(trade.id)}
-                  className={`p-3.5 flex items-center justify-between gap-3 text-left transition-all cursor-pointer border-none rounded-xl ${
-                    isSelected
-                      ? 'bg-white/[0.08] backdrop-blur-xs text-white'
-                      : 'bg-transparent hover:bg-white/[0.04] text-white/80'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    {/* Blocky Circular Avatar */}
-                    <div className="size-9 rounded-full bg-neutral-700 flex items-center justify-center shrink-0">
-                      <div className="size-4 bg-neutral-300 rounded-xs" />
+          {/* List of Traders */}
+          <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col p-2 gap-1">
+            {filteredTrades.length === 0 ? (
+              <div className="py-16 px-4 text-center flex flex-col items-center gap-2">
+                <ArrowLeftRight className="size-8 text-white/20" />
+                <span className="text-xs text-white/50 font-medium">
+                  No {tradeCategory.toLowerCase()} trades found
+                </span>
+                {tradeCategory === 'Outbound' && (
+                  <button
+                    onClick={openNewTradeModal}
+                    className="mt-2 text-xs font-bold text-white underline bg-transparent border-none cursor-pointer"
+                  >
+                    Propose a trade now
+                  </button>
+                )}
+              </div>
+            ) : (
+              filteredTrades.map((trade) => {
+                const isSelected = trade.id === activeTrade?.id
+                return (
+                  <button
+                    key={trade.id}
+                    onClick={() => setSelectedTradeId(trade.id)}
+                    className={`p-3 flex items-center justify-between gap-3 text-left transition-all cursor-pointer border-none rounded-[12px] ${
+                      isSelected
+                        ? 'bg-white/[0.08] backdrop-blur-xs text-white shadow-xs'
+                        : 'bg-transparent hover:bg-white/[0.04] text-white/80'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Avatar with initial */}
+                      <div
+                        className="size-9 rounded-full flex items-center justify-center shrink-0 border border-white/10"
+                        style={{ backgroundColor: trade.partnerAvatarColor || '#262626' }}
+                      >
+                        <span className="text-xs font-bold text-white uppercase">
+                          {trade.partner.charAt(0)}
+                        </span>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-bold truncate leading-tight text-white">
+                          {trade.partner}
+                        </span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span
+                            className={`size-1.5 rounded-full ${
+                              trade.status === 'Completed'
+                                ? 'bg-emerald-400'
+                                : trade.status === 'Declined' || trade.status === 'Cancelled'
+                                ? 'bg-rose-400'
+                                : 'bg-amber-400'
+                            }`}
+                          />
+                          <span className="text-[10px] text-white/40">{trade.status}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-xs font-bold truncate leading-tight">{trade.partner}</span>
-                      <span className="text-[10px] text-white/40">{trade.status}</span>
-                    </div>
-                  </div>
 
-                  <span className="text-[10px] text-white/40 shrink-0">{trade.date}</span>
-                </button>
-              )
-            })}
+                    <span className="text-[10px] text-white/40 shrink-0 font-medium">
+                      {trade.date}
+                    </span>
+                  </button>
+                )
+              })
+            )}
           </div>
         </div>
 
-        {/* Right Column: Trade Details Workspace matching Image 5 */}
-        <div className="flex-1 p-6 flex flex-col justify-between gap-6 bg-[#0f0f11]">
+        {/* Right Column: Trade Workspace */}
+        <div className="flex-1 p-6 md:p-8 flex flex-col justify-between gap-6 bg-[#0d0d0f]">
           {activeTrade ? (
             <div className="flex flex-col gap-6">
               {/* Partner Title & Expiry */}
-              <div className="flex flex-col gap-0.5">
-                <h2 className="text-xl font-black text-white tracking-tight">
-                  Trade with {activeTrade.partner}
-                </h2>
-                <span className="text-xs text-white/50">
-                  Expires on {activeTrade.expiresDate}
-                </span>
+              <div className="flex items-start justify-between flex-wrap gap-2">
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
+                      Trade with {activeTrade.partner}
+                    </h2>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/[0.06] text-white/60 font-semibold border border-white/5">
+                      {activeTrade.category}
+                    </span>
+                  </div>
+                  <span className="text-xs text-white/50 flex items-center gap-1.5">
+                    <Clock className="size-3 text-white/40" />
+                    <span>Expires on {activeTrade.expiresDate}</span>
+                  </span>
+                </div>
+
+                {/* Counter / Propose Button Quick Action */}
+                {activeTrade.category === 'Inbound' && (
+                  <button
+                    onClick={openCounterModal}
+                    className="h-8 px-3 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer border-none transition-colors"
+                  >
+                    <ArrowLeftRight className="size-3.5" />
+                    <span>Counter Offer</span>
+                  </button>
+                )}
               </div>
 
               {/* Section 1: Items you will receive */}
               <div className="flex flex-col gap-3">
-                <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider">
-                  Items you will receive
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Items you will receive</span>
+                    <span className="text-[11px] text-white/40 font-normal">
+                      ({activeTrade.receiveItems.length})
+                    </span>
+                  </h3>
+                </div>
 
-                {/* Items Grid */}
-                <div className="flex flex-wrap gap-4">
+                {/* Items Grid with Authentic IsometricMannequin Cards */}
+                <div className="flex flex-wrap gap-3.5">
                   {activeTrade.receiveItems.map((item) => (
                     <div
                       key={item.id}
-                      className="w-36 rounded-xl bg-[#18181c] p-3 flex flex-col gap-2 border border-white/[0.04]"
+                      className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] border border-white/[0.04] select-none"
                     >
-                      <div
-                        className="aspect-square w-full rounded-lg flex items-center justify-center relative overflow-hidden shadow-inner"
-                        style={{ backgroundColor: '#222226' }}
-                      >
-                        <Sparkles className="size-6 text-white/30" />
-                        <Star className="absolute bottom-1.5 left-1.5 size-3 text-white/60" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-white truncate">{item.name}</span>
-                        <div className="flex items-center gap-1 text-[11px] font-bold text-white/70 mt-0.5">
-                          <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain" />
+                      <IsometricMannequin
+                        name={item.name}
+                        type={item.type}
+                        className="h-28"
+                      />
+                      <div className="flex flex-col gap-0.5 text-left pt-1">
+                        <h4 className="text-xs font-bold text-white leading-tight truncate group-hover:text-white">
+                          {item.name}
+                        </h4>
+                        <span className="text-[10px] text-white/50 truncate">
+                          By <span className="text-white/80 font-medium">{item.creator}</span>
+                        </span>
+                        <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
+                          <img
+                            src="/novelo-currency.png"
+                            alt="Currency"
+                            className="size-3 object-contain shrink-0"
+                          />
                           <span>{item.value.toLocaleString()}</span>
                         </div>
                       </div>
@@ -268,10 +693,10 @@ export function Trade() {
                   ))}
                 </div>
 
-                {/* Total Value */}
+                {/* Receive Total Value */}
                 <div className="flex items-center gap-2 text-xs font-bold text-white pt-1">
-                  <span className="text-white/60">Total Value:</span>
-                  <div className="flex items-center gap-1">
+                  <span className="text-white/50">Total Value:</span>
+                  <div className="flex items-center gap-1 text-sm">
                     <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain" />
                     <span>{receiveTotal.toLocaleString()}</span>
                   </div>
@@ -279,29 +704,41 @@ export function Trade() {
               </div>
 
               {/* Section 2: Items you will give */}
-              <div className="flex flex-col gap-3 pt-4 border-t border-white/[0.04]">
-                <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider">
-                  Items you will give
-                </h3>
+              <div className="flex flex-col gap-3 pt-5 border-t border-white/[0.06]">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Items you will give</span>
+                    <span className="text-[11px] text-white/40 font-normal">
+                      ({activeTrade.giveItems.length})
+                    </span>
+                  </h3>
+                </div>
 
-                {/* Items Grid */}
-                <div className="flex flex-wrap gap-4">
+                {/* Items Grid with Authentic IsometricMannequin Cards */}
+                <div className="flex flex-wrap gap-3.5">
                   {activeTrade.giveItems.map((item) => (
                     <div
                       key={item.id}
-                      className="w-36 rounded-xl bg-[#18181c] p-3 flex flex-col gap-2 border border-white/[0.04]"
+                      className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] border border-white/[0.04] select-none"
                     >
-                      <div
-                        className="aspect-square w-full rounded-lg flex items-center justify-center relative overflow-hidden shadow-inner"
-                        style={{ backgroundColor: '#222226' }}
-                      >
-                        <Sparkles className="size-6 text-white/30" />
-                        <Star className="absolute bottom-1.5 left-1.5 size-3 text-white/60" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-white truncate">{item.name}</span>
-                        <div className="flex items-center gap-1 text-[11px] font-bold text-white/70 mt-0.5">
-                          <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain" />
+                      <IsometricMannequin
+                        name={item.name}
+                        type={item.type}
+                        className="h-28"
+                      />
+                      <div className="flex flex-col gap-0.5 text-left pt-1">
+                        <h4 className="text-xs font-bold text-white leading-tight truncate group-hover:text-white">
+                          {item.name}
+                        </h4>
+                        <span className="text-[10px] text-white/50 truncate">
+                          By <span className="text-white/80 font-medium">{item.creator}</span>
+                        </span>
+                        <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
+                          <img
+                            src="/novelo-currency.png"
+                            alt="Currency"
+                            className="size-3 object-contain shrink-0"
+                          />
                           <span>{item.value.toLocaleString()}</span>
                         </div>
                       </div>
@@ -309,45 +746,456 @@ export function Trade() {
                   ))}
                 </div>
 
-                {/* Total Value */}
-                <div className="flex items-center gap-2 text-xs font-bold text-white pt-1">
-                  <span className="text-white/60">Total Value:</span>
-                  <div className="flex items-center gap-1">
-                    <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain" />
-                    <span>{giveTotal.toLocaleString()}</span>
+                {/* Give Total Value & Win/Loss indicator */}
+                <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <span className="text-white/50">Total Value:</span>
+                    <div className="flex items-center gap-1 text-sm">
+                      <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain" />
+                      <span>{giveTotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Value Summary Badge */}
+                  <div className="flex items-center gap-2">
+                    {valueDiff > 0 ? (
+                      <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                        +{valueDiff.toLocaleString()} Gain in your favor
+                      </span>
+                    ) : valueDiff < 0 ? (
+                      <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                        {valueDiff.toLocaleString()} Giving more value
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-bold text-white/70 bg-white/[0.06] px-2.5 py-1 rounded-full border border-white/10">
+                        Equal Value Trade
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Bottom Buttons matching Image 5 */}
-              <div className="flex items-center gap-3 pt-4 border-t border-white/[0.04]">
-                <button
-                  onClick={handleAccept}
-                  className="px-6 h-9 rounded-lg bg-white hover:bg-neutral-200 text-black font-bold text-xs transition-all cursor-pointer border-none shadow-md"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => alert(`Proposing counter-offer to ${activeTrade.partner}...`)}
-                  className="px-6 h-9 rounded-lg bg-[#242428] hover:bg-[#2c2c30] text-white font-bold text-xs transition-all cursor-pointer border-none"
-                >
-                  Counter
-                </button>
-                <button
-                  onClick={handleDecline}
-                  className="px-6 h-9 rounded-lg bg-[#242428] hover:bg-[#2c2c30] text-white font-bold text-xs transition-all cursor-pointer border-none"
-                >
-                  Decline
-                </button>
+              {/* Bottom Buttons matching Image 5 and Roblox Client Trading */}
+              <div className="flex items-center gap-3 pt-5 border-t border-white/[0.06]">
+                {activeTrade.category === 'Inbound' && (
+                  <>
+                    <button
+                      onClick={handleAccept}
+                      className="px-6 h-9 rounded-[10px] bg-white hover:bg-neutral-200 text-black font-bold text-xs transition-all cursor-pointer border-none shadow-md"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={openCounterModal}
+                      className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-[#2c2c30] text-white font-bold text-xs transition-all cursor-pointer border border-white/5"
+                    >
+                      Counter
+                    </button>
+                    <button
+                      onClick={handleDecline}
+                      className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-red-500/20 hover:text-red-400 text-white font-bold text-xs transition-all cursor-pointer border border-white/5"
+                    >
+                      Decline
+                    </button>
+                  </>
+                )}
+
+                {activeTrade.category === 'Outbound' && (
+                  <button
+                    onClick={handleCancelOutbound}
+                    className="px-6 h-9 rounded-[10px] bg-[#222226] hover:bg-red-500/20 hover:text-red-400 text-white font-bold text-xs transition-all cursor-pointer border border-white/5"
+                  >
+                    Cancel Request
+                  </button>
+                )}
+
+                {activeTrade.category === 'Completed' && (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20">
+                    <Check className="size-4" />
+                    <span>This trade was successfully completed</span>
+                  </div>
+                )}
+
+                {activeTrade.category === 'Inactive' && (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-white/50 bg-white/[0.04] px-4 py-2 rounded-xl border border-white/5">
+                    <AlertCircle className="size-4" />
+                    <span>This trade is inactive ({activeTrade.status})</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
-            <div className="py-20 text-center text-xs text-white/40">
-              No active trade selected.
+            <div className="py-24 text-center flex flex-col items-center justify-center gap-3">
+              <ArrowLeftRight className="size-12 text-white/20" />
+              <span className="text-sm text-white/60 font-semibold">No trade selected</span>
+              <p className="text-xs text-white/40 max-w-sm">
+                Select an offer from the list or send a new trade request to exchange limited items.
+              </p>
+              <button
+                onClick={openNewTradeModal}
+                className="mt-2 h-9 px-4 rounded-[10px] bg-white text-black font-bold text-xs hover:bg-neutral-200 transition-all cursor-pointer shadow-md"
+              >
+                Propose New Trade
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* SEND TRADE REQUEST / COUNTER MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+          <div className="w-full max-w-4xl bg-[#121214] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[92vh]">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-white/[0.06] flex items-center justify-between">
+              <div>
+                <h2 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
+                  <ArrowLeftRight className="size-5 text-white" />
+                  <span>
+                    {modalMode === 'counter'
+                      ? `Counter Offer with ${selectedPartnerName}`
+                      : 'Send Trade Request'}
+                  </span>
+                </h2>
+                <p className="text-xs text-white/50 mt-0.5">
+                  Select up to 4 items from your inventory and up to 4 from your partner's.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="size-8 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none transition-colors"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-6 no-scrollbar">
+              {/* Partner Picker */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-white/70 uppercase tracking-wider">
+                  Trade Partner
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {PARTNERS.map((partner) => {
+                    const isSelected = partner.name === selectedPartnerName
+                    return (
+                      <button
+                        key={partner.name}
+                        onClick={() => {
+                          setSelectedPartnerName(partner.name)
+                          // Clear receive items if partner changes
+                          setSelectedReceiveItems([])
+                        }}
+                        className={`p-2.5 rounded-xl flex items-center gap-2.5 text-left transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-white/[0.1] border-white/30 text-white'
+                            : 'bg-[#18181c] border-white/[0.04] text-white/70 hover:bg-[#202026]'
+                        }`}
+                      >
+                        <div
+                          className="size-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+                          style={{ backgroundColor: partner.color }}
+                        >
+                          {partner.name.charAt(0)}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-xs font-bold truncate text-white">
+                            {partner.name}
+                          </span>
+                          <span className="text-[10px] text-white/40 truncate">
+                            {partner.pool.length} items available
+                          </span>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Two Column Offer Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Your Offer */}
+                <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#161618] border border-white/[0.04]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        Your Offer (Giving)
+                      </h4>
+                      <span className="text-[11px] text-white/40">
+                        {selectedGiveItems.length}/4 items selected
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs font-bold text-white">
+                      <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain" />
+                      <span>{modalGiveTotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Selected Slots */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {[0, 1, 2, 3].map((slotIdx) => {
+                      const item = selectedGiveItems[slotIdx]
+                      return item ? (
+                        <div
+                          key={item.id}
+                          onClick={() => toggleGiveItem(item)}
+                          className="relative aspect-square rounded-xl bg-[#121214] border border-white/20 p-1.5 flex flex-col items-center justify-between cursor-pointer group hover:border-red-400/50"
+                        >
+                          <button className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm">
+                            ✕
+                          </button>
+                          <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full" />
+                          <span className="text-[9px] font-bold text-white truncate w-full text-center">
+                            {item.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={slotIdx}
+                          className="aspect-square rounded-xl border border-dashed border-white/10 bg-[#121214]/50 flex items-center justify-center text-white/20"
+                        >
+                          <Plus className="size-4" />
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Inventory Picker */}
+                  <div className="mt-2 flex flex-col gap-1.5">
+                    <span className="text-[11px] font-bold text-white/60">
+                      Choose from your Inventory:
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto no-scrollbar pr-1">
+                      {USER_INVENTORY.map((item) => {
+                        const isPicked = selectedGiveItems.some((i) => i.id === item.id)
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => toggleGiveItem(item)}
+                            className={`p-2 rounded-lg text-left transition-all cursor-pointer border flex flex-col justify-between ${
+                              isPicked
+                                ? 'bg-white/[0.14] border-white/40 text-white'
+                                : 'bg-[#121214] border-white/[0.04] text-white/70 hover:bg-[#1a1a1e]'
+                            }`}
+                          >
+                            <span className="text-[11px] font-bold truncate text-white">
+                              {item.name}
+                            </span>
+                            <div className="flex items-center gap-1 text-[10px] font-semibold text-white/80 mt-1">
+                              <img
+                                src="/novelo-currency.png"
+                                alt="Currency"
+                                className="size-2.5 object-contain"
+                              />
+                              <span>{item.value.toLocaleString()}</span>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Their Offer */}
+                <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#161618] border border-white/[0.04]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        {currentPartnerData.name}'s Offer (Receiving)
+                      </h4>
+                      <span className="text-[11px] text-white/40">
+                        {selectedReceiveItems.length}/4 items selected
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs font-bold text-white">
+                      <img src="/novelo-currency.png" alt="Currency" className="size-3.5 object-contain" />
+                      <span>{modalReceiveTotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Selected Slots */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {[0, 1, 2, 3].map((slotIdx) => {
+                      const item = selectedReceiveItems[slotIdx]
+                      return item ? (
+                        <div
+                          key={item.id}
+                          onClick={() => toggleReceiveItem(item)}
+                          className="relative aspect-square rounded-xl bg-[#121214] border border-white/20 p-1.5 flex flex-col items-center justify-between cursor-pointer group hover:border-red-400/50"
+                        >
+                          <button className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm">
+                            ✕
+                          </button>
+                          <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full" />
+                          <span className="text-[9px] font-bold text-white truncate w-full text-center">
+                            {item.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={slotIdx}
+                          className="aspect-square rounded-xl border border-dashed border-white/10 bg-[#121214]/50 flex items-center justify-center text-white/20"
+                        >
+                          <Plus className="size-4" />
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Partner Items Picker */}
+                  <div className="mt-2 flex flex-col gap-1.5">
+                    <span className="text-[11px] font-bold text-white/60">
+                      Choose from {currentPartnerData.name}'s Items:
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto no-scrollbar pr-1">
+                      {currentPartnerData.pool.map((item) => {
+                        const isPicked = selectedReceiveItems.some((i) => i.id === item.id)
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => toggleReceiveItem(item)}
+                            className={`p-2 rounded-lg text-left transition-all cursor-pointer border flex flex-col justify-between ${
+                              isPicked
+                                ? 'bg-white/[0.14] border-white/40 text-white'
+                                : 'bg-[#121214] border-white/[0.04] text-white/70 hover:bg-[#1a1a1e]'
+                            }`}
+                          >
+                            <span className="text-[11px] font-bold truncate text-white">
+                              {item.name}
+                            </span>
+                            <div className="flex items-center gap-1 text-[10px] font-semibold text-white/80 mt-1">
+                              <img
+                                src="/novelo-currency.png"
+                                alt="Currency"
+                                className="size-2.5 object-contain"
+                              />
+                              <span>{item.value.toLocaleString()}</span>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Trade Balance Indicator */}
+              <div className="p-3.5 rounded-xl bg-[#161618] border border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-white/60">Difference:</span>
+                  {modalDiff > 0 ? (
+                    <span className="text-xs font-bold text-emerald-400">
+                      +{modalDiff.toLocaleString()} in your favor
+                    </span>
+                  ) : modalDiff < 0 ? (
+                    <span className="text-xs font-bold text-amber-400">
+                      {modalDiff.toLocaleString()} giving more value
+                    </span>
+                  ) : (
+                    <span className="text-xs font-bold text-white/70">
+                      0 (Equal Value)
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-white/50">
+                  <ShieldCheck className="size-4 text-emerald-400" />
+                  <span>Novelo SafeTrade protection active</span>
+                </div>
+              </div>
+
+              {/* Optional Memo */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-white/70 uppercase tracking-wider">
+                  Message (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Looking for fair trade!"
+                  value={tradeNote}
+                  onChange={(e) => setTradeNote(e.target.value)}
+                  className="w-full h-10 px-3 rounded-[10px] bg-[#161618] border border-white/10 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 border-t border-white/[0.06] flex items-center justify-end gap-3 bg-[#141416]">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 h-9 rounded-[10px] bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-bold transition-all cursor-pointer border-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendTradeProposal}
+                disabled={selectedGiveItems.length === 0 && selectedReceiveItems.length === 0}
+                className="px-5 h-9 rounded-[10px] bg-white hover:bg-neutral-200 text-black text-xs font-bold transition-all cursor-pointer border-none disabled:opacity-40 disabled:cursor-not-allowed shadow-md flex items-center gap-1.5"
+              >
+                <span>
+                  {modalMode === 'counter' ? 'Send Counter Offer' : 'Send Trade Request'}
+                </span>
+                <ArrowRight className="size-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HOW TO TRADE GUIDE POPUP */}
+      {showHowToTrade && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#121214] border border-white/10 rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-black text-white flex items-center gap-2">
+                <HelpCircle className="size-5 text-amber-400" />
+                <span>How to Trade in Novelo</span>
+              </h3>
+              <button
+                onClick={() => setShowHowToTrade(false)}
+                className="size-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3 text-xs text-white/70 leading-relaxed">
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+                <span className="font-bold text-white shrink-0">1.</span>
+                <span>
+                  <strong className="text-white">Collectibles & Limiteds:</strong> Only tradeable limited accessories, hats, and clothing can be traded.
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+                <span className="font-bold text-white shrink-0">2.</span>
+                <span>
+                  <strong className="text-white">Up to 4 Items:</strong> You and your trading partner may offer up to 4 items each per proposal.
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+                <span className="font-bold text-white shrink-0">3.</span>
+                <span>
+                  <strong className="text-white">Reviewing Values:</strong> Check item values before accepting. Once accepted, items transfer automatically to your inventory.
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5 flex gap-2.5">
+                <span className="font-bold text-white shrink-0">4.</span>
+                <span>
+                  <strong className="text-white">Expiration:</strong> Pending requests expire automatically after 5 days if not accepted or countered.
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowHowToTrade(false)}
+              className="mt-2 w-full h-9 rounded-[10px] bg-white text-black font-bold text-xs hover:bg-neutral-200 transition-all cursor-pointer border-none"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
