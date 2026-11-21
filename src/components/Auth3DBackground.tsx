@@ -318,13 +318,13 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
 
         if (isNeon) animatedCrystals.push(mesh)
         if ((props.Name || p.name) === 'Cloud') animatedClouds.push(mesh)
-        if (matType === 'Grass' && shape !== 'Sphere' && (props.Name || p.name) !== 'Baseplate') {
+        if (matType === 'Grass' && shape !== 'Sphere') {
           grassSurfaces.push({
             x: pos[0],
             y: pos[1] + size[1] / 2,
             z: pos[2],
-            sx: size[0] * 0.85,
-            sz: size[2] * 0.85,
+            sx: Math.min(size[0] * 0.85, 84),
+            sz: Math.min(size[2] * 0.85, 84),
             color: colorHex,
           })
         }
