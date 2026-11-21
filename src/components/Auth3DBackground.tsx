@@ -397,9 +397,12 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
             `#include <begin_vertex>
             float hFactor = clamp(position.y / 0.55, 0.0, 1.0);
             vec4 worldInst = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+            float distCam = length(cameraPosition - worldInst.xyz);
+            float distFade = 1.0 - smoothstep(42.0, 88.0, distCam);
             float sway = sin(uTime * 2.1 + worldInst.x * 0.35 + worldInst.z * 0.25) * 0.15 * hFactor * hFactor;
-            transformed.x += sway;
-            transformed.z += sway * 0.6;`,
+            transformed.y *= distFade;
+            transformed.x += sway * distFade;
+            transformed.z += sway * 0.6 * distFade;`,
           )
         }
 
