@@ -1,26 +1,110 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 
 export type QualityPreset = 'Low' | 'Medium' | 'High' | 'Max'
 
 const QUALITY_CONFIGS: Record<
   QualityPreset,
-  { pixelRatioCap: number; shadowMapSize: number; shadows: boolean }
+  {
+    pixelRatioCap: number
+    shadowMapSize: number
+    shadows: boolean
+    bloom: boolean
+    bloomStrength: number
+    bloomRadius: number
+    bloomThreshold: number
+    envMap: boolean
+  }
 > = {
-  Low: { pixelRatioCap: 1, shadowMapSize: 512, shadows: false },
-  Medium: { pixelRatioCap: 1.5, shadowMapSize: 1024, shadows: true },
-  High: { pixelRatioCap: 2, shadowMapSize: 1024, shadows: true },
-  Max: { pixelRatioCap: 2, shadowMapSize: 2048, shadows: true },
+  Low: {
+    pixelRatioCap: 1,
+    shadowMapSize: 512,
+    shadows: false,
+    bloom: false,
+    bloomStrength: 0,
+    bloomRadius: 0,
+    bloomThreshold: 1,
+    envMap: false,
+  },
+  Medium: {
+    pixelRatioCap: 1.5,
+    shadowMapSize: 1024,
+    shadows: true,
+    bloom: true,
+    bloomStrength: 0.25,
+    bloomRadius: 0.4,
+    bloomThreshold: 0.9,
+    envMap: false,
+  },
+  High: {
+    pixelRatioCap: 2,
+    shadowMapSize: 1024,
+    shadows: true,
+    bloom: true,
+    bloomStrength: 0.42,
+    bloomRadius: 0.55,
+    bloomThreshold: 0.82,
+    envMap: true,
+  },
+  Max: {
+    pixelRatioCap: 2,
+    shadowMapSize: 2048,
+    shadows: true,
+    bloom: true,
+    bloomStrength: 0.55,
+    bloomRadius: 0.65,
+    bloomThreshold: 0.75,
+    envMap: true,
+  },
 }
 
 const SKY_PALETTES: Record<
   string,
-  { top: string; horizon: string; sunColor: string; sunPos: [number, number, number]; fog: string }
+  {
+    top: string
+    horizon: string
+    sunColor: string
+    sunDisc: string
+    sunPos: [number, number, number]
+    fog: string
+  }
 > = {
-  BrightDay: { top: '#1e3a8a', horizon: '#7dd3fc', sunColor: '#fff6e8', sunPos: [62, 88, 48], fog: '#93c5fd' },
-  GoldenSunset: { top: '#1e1035', horizon: '#c25e3e', sunColor: '#fed7aa', sunPos: [-75, 26, -55], fog: '#3b243b' },
-  StarryMidnight: { top: '#020617', horizon: '#1e1b4b', sunColor: '#cbd5e1', sunPos: [40, 75, -50], fog: '#0f172a' },
-  CyberpunkNeon: { top: '#090d16', horizon: '#311042', sunColor: '#e879f9', sunPos: [-50, 40, -60], fog: '#140b24' },
+  BrightDay: {
+    top: '#1e3a8a',
+    horizon: '#7dd3fc',
+    sunColor: '#fff6e8',
+    sunDisc: '#fffbeb',
+    sunPos: [62, 88, 48],
+    fog: '#93c5fd',
+  },
+  GoldenSunset: {
+    top: '#160d2e',
+    horizon: '#d96b43',
+    sunColor: '#fed7aa',
+    sunDisc: '#ffedd5',
+    sunPos: [-75, 22, -55],
+    fog: '#351f38',
+  },
+  StarryMidnight: {
+    top: '#020617',
+    horizon: '#1e1b4b',
+    sunColor: '#cbd5e1',
+    sunDisc: '#e2e8f0',
+    sunPos: [40, 75, -50],
+    fog: '#0f172a',
+  },
+  CyberpunkNeon: {
+    top: '#090d16',
+    horizon: '#311042',
+    sunColor: '#e879f9',
+    sunDisc: '#f5d0fe',
+    sunPos: [-50, 40, -60],
+    fog: '#140b24',
+  },
 }
 
 interface NvloPartNode {
@@ -63,10 +147,12 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       return
     }
 
+    const w = Math.max(1, container.clientWidth)
+    const h = Math.max(1, container.clientHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, cfg.pixelRatioCap))
-    renderer.setSize(container.clientWidth, container.clientHeight)
+    renderer.setSize(w, h)
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.05
+    renderer.toneMappingExposure = 1.1
     if (cfg.shadows) {
       renderer.shadowMap.enabled = true
       renderer.shadowMap.type = THREE.PCFSoftShadowMap
@@ -74,13 +160,26 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     container.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(
-      48,
-      container.clientWidth / container.clientHeight,
-      0.2,
-      300,
-    )
+    const camera = new THREE.PerspectiveCamera(48, w / h, 0.2, 320)
 
+    let composer: EffectComposer | null = null
+    if (cfg.bloom) {
+      composer = new EffectComposer(renderer)
+      composer.setPixelRatio(Math.min(window.devicePixelRatio, cfg.pixelRatioCap))
+      composer.setSize(w, h)
+      composer.addPass(new RenderPass(scene, camera))
+      composer.addPass(
+        new UnrealBloomPass(
+          new THREE.Vector2(w, h),
+          cfg.bloomStrength,
+          cfg.bloomRadius,
+          cfg.bloomThreshold,
+        ),
+      )
+      composer.addPass(new OutputPass())
+    }
+
+    let envRT: THREE.WebGLRenderTarget | null = null
     const animatedCrystals: THREE.Mesh[] = []
     const animatedClouds: THREE.Mesh[] = []
 
@@ -89,10 +188,10 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       const pal = SKY_PALETTES[preset] || SKY_PALETTES.GoldenSunset
 
       scene.background = new THREE.Color(pal.fog)
-      scene.fog = new THREE.FogExp2(pal.fog, 0.011)
+      scene.fog = new THREE.FogExp2(pal.fog, 0.01)
 
       // Sky gradient dome
-      const skyGeo = new THREE.SphereGeometry(200, 32, 20)
+      const skyGeo = new THREE.SphereGeometry(220, 32, 24)
       const skyMat = new THREE.ShaderMaterial({
         side: THREE.BackSide,
         depthWrite: false,
@@ -118,19 +217,41 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
           }
         `,
       })
-      scene.add(new THREE.Mesh(skyGeo, skyMat))
+      const skyDome = new THREE.Mesh(skyGeo, skyMat)
+      scene.add(skyDome)
 
-      const hemi = new THREE.HemisphereLight(pal.sunColor, '#1e293b', 0.8)
+      // Glowing Sun Disc for bloom & reflections
+      const sunDisc = new THREE.Mesh(
+        new THREE.SphereGeometry(7.5, 24, 24),
+        new THREE.MeshBasicMaterial({
+          color: new THREE.Color(pal.sunDisc).multiplyScalar(2.4),
+        }),
+      )
+      sunDisc.position.set(pal.sunPos[0] * 1.6, pal.sunPos[1] * 1.4, pal.sunPos[2] * 1.6)
+      scene.add(sunDisc)
+
+      // Bake sky + sun into an IBL environment map for Water/Slate/SmoothPlastic reflections
+      if (cfg.envMap && renderer) {
+        const pmrem = new THREE.PMREMGenerator(renderer)
+        const envScene = new THREE.Scene()
+        envScene.add(skyDome.clone())
+        envScene.add(sunDisc.clone())
+        envRT = pmrem.fromScene(envScene, 0.04)
+        scene.environment = envRT.texture
+        pmrem.dispose()
+      }
+
+      const hemi = new THREE.HemisphereLight(pal.sunColor, '#1e293b', 0.85)
       scene.add(hemi)
 
-      const sunLight = new THREE.DirectionalLight(pal.sunColor, 2.1)
+      const sunLight = new THREE.DirectionalLight(pal.sunColor, 2.3)
       sunLight.position.set(...pal.sunPos)
       if (cfg.shadows) {
         sunLight.castShadow = true
         sunLight.shadow.mapSize.set(cfg.shadowMapSize, cfg.shadowMapSize)
         sunLight.shadow.camera.near = 5
-        sunLight.shadow.camera.far = 200
-        const d = 65
+        sunLight.shadow.camera.far = 210
+        const d = 68
         sunLight.shadow.camera.left = -d
         sunLight.shadow.camera.right = d
         sunLight.shadow.camera.top = d
@@ -139,7 +260,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       }
       scene.add(sunLight)
 
-      const fill = new THREE.DirectionalLight('#6366f1', 0.6)
+      const fill = new THREE.DirectionalLight('#818cf8', 0.65)
       fill.position.set(-pal.sunPos[0], 20, -pal.sunPos[2])
       scene.add(fill)
 
@@ -156,9 +277,9 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
 
         let geo: THREE.BufferGeometry
         if (shape === 'Cylinder') {
-          geo = new THREE.CylinderGeometry(size[0] / 2, size[0] / 2, size[1], 18)
+          geo = new THREE.CylinderGeometry(size[0] / 2, size[0] / 2, size[1], 20)
         } else if (shape === 'Sphere') {
-          geo = new THREE.SphereGeometry(size[0] / 2, 16, 14)
+          geo = new THREE.SphereGeometry(size[0] / 2, 18, 16)
         } else {
           geo = new THREE.BoxGeometry(size[0], size[1], size[2])
         }
@@ -167,10 +288,11 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
         const isWater = matType === 'Water'
         const mat = new THREE.MeshStandardMaterial({
           color: colorHex,
-          roughness: isWater ? 0.12 : matType === 'Grass' || matType === 'Wood' ? 0.88 : 0.55,
-          metalness: isWater ? 0.65 : matType === 'Slate' ? 0.15 : 0.05,
+          roughness: isWater ? 0.08 : matType === 'Grass' || matType === 'Wood' ? 0.85 : 0.45,
+          metalness: isWater ? 0.78 : matType === 'Slate' ? 0.2 : 0.08,
+          envMapIntensity: isWater ? 1.8 : 0.9,
           emissive: isNeon ? new THREE.Color(colorHex) : new THREE.Color('#000000'),
-          emissiveIntensity: isNeon ? 1.4 : 0,
+          emissiveIntensity: isNeon ? 2.4 : 0,
           transparent: transparency > 0,
           opacity: 1 - transparency,
         })
@@ -201,11 +323,12 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
 
     const onResize = () => {
       if (!container || !renderer) return
-      const w = container.clientWidth
-      const h = container.clientHeight
-      camera.aspect = w / h
+      const nw = Math.max(1, container.clientWidth)
+      const nh = Math.max(1, container.clientHeight)
+      camera.aspect = nw / nh
       camera.updateProjectionMatrix()
-      renderer.setSize(w, h)
+      renderer.setSize(nw, nh)
+      composer?.setSize(nw, nh)
     }
     window.addEventListener('resize', onResize)
 
@@ -229,7 +352,11 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
         if (cl.position.x > 65) cl.position.x = -65
       }
 
-      renderer?.render(scene, camera)
+      if (composer) {
+        composer.render()
+      } else {
+        renderer?.render(scene, camera)
+      }
     }
     animate()
 
@@ -237,6 +364,8 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       cancelled = true
       cancelAnimationFrame(rafId)
       window.removeEventListener('resize', onResize)
+      envRT?.dispose()
+      composer?.dispose()
       if (renderer) {
         renderer.dispose()
         if (renderer.domElement.parentNode === container) {
