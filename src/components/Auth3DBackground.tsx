@@ -323,21 +323,58 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
             x: pos[0],
             y: pos[1] + size[1] / 2,
             z: pos[2],
-            sx: Math.min(size[0] * 0.85, 84),
-            sz: Math.min(size[2] * 0.85, 84),
+            sx: size[0],
+            sz: size[2],
             color: colorHex,
           })
         }
       }
 
-      // Instanced 3D Grass Leaves / Blades with wind sway
+      // Instanced 3D Grass Leaves / Blades per stud across the entire Grass surface
       if (cfg.grassCount > 0 && grassSurfaces.length > 0) {
-        const bladeGeo = new THREE.ConeGeometry(0.065, 0.52, 3)
-        bladeGeo.translate(0, 0.26, 0)
+        const makeBlade = (rotY: number) => {
+          const g = new THREE.PlaneGeometry(0.18, 0.55, 1, 2)
+          g.translate(0, 0.275, 0)
+          const pos = g.attributes.position
+          const norm = g.attributes.normal
+          for (let i = 0; i < pos.count; i++) {
+            const y = pos.getY(i)
+            const h = y / 0.55
+            pos.setX(i, pos.getX(i) * (1 - h * 0.85))
+            pos.setZ(i, h * h * 0.1)
+            norm.setXYZ(i, 0, 1, 0)
+          }
+          g.rotateY(rotY)
+          return g
+        }
+
+        const g1 = makeBlade(0.35)
+        const g2 = makeBlade(1.92)
+        const mergedGeo = new THREE.BufferGeometry()
+        const p1 = g1.attributes.position.array as Float32Array
+        const p2 = g2.attributes.position.array as Float32Array
+        const n1 = g1.attributes.normal.array as Float32Array
+        const n2 = g2.attributes.normal.array as Float32Array
+        const idx1 = Array.from(g1.index!.array)
+        const vCount1 = g1.attributes.position.count
+        const idx2 = Array.from(g2.index!.array).map((v) => v + vCount1)
+        const posArr = new Float32Array(p1.length + p2.length)
+        posArr.set(p1, 0)
+        posArr.set(p2, p1.length)
+        const normArr = new Float32Array(n1.length + n2.length)
+        normArr.set(n1, 0)
+        normArr.set(n2, n1.length)
+        mergedGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3))
+        mergedGeo.setAttribute('normal', new THREE.BufferAttribute(normArr, 3))
+        mergedGeo.setIndex([...idx1, ...idx2])
+        g1.dispose()
+        g2.dispose()
+
         grassMaterial = new THREE.MeshStandardMaterial({
-          color: '#4ea85d',
-          roughness: 0.78,
-          metalness: 0.05,
+          color: '#ffffff',
+          roughness: 0.72,
+          metalness: 0.02,
+          side: THREE.DoubleSide,
         })
         grassMaterial.onBeforeCompile = (shader) => {
           shader.uniforms.uTime = { value: 0 }
@@ -346,34 +383,45 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
           shader.vertexShader = shader.vertexShader.replace(
             '#include <begin_vertex>',
             `#include <begin_vertex>
-            float hFactor = clamp(position.y / 0.52, 0.0, 1.0);
+            float hFactor = clamp(position.y / 0.55, 0.0, 1.0);
             vec4 worldInst = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
-            float sway = sin(uTime * 1.9 + worldInst.x * 0.35 + worldInst.z * 0.25) * 0.14 * hFactor * hFactor;
+            float sway = sin(uTime * 2.1 + worldInst.x * 0.35 + worldInst.z * 0.25) * 0.15 * hFactor * hFactor;
             transformed.x += sway;
             transformed.z += sway * 0.6;`,
           )
         }
 
-        const instancedGrass = new THREE.InstancedMesh(bladeGeo, grassMaterial, cfg.grassCount)
+        const placements: { x: number; y: number; z: number; color: string }[] = []
+        for (const surf of grassSurfaces) {
+          const area = surf.sx * surf.sz
+          const step = area > 10000 ? 1.5 : 1.0
+          for (let gx = surf.x - surf.sx / 2 + step * 0.5; gx < surf.x + surf.sx / 2; gx += step) {
+            for (let gz = surf.z - surf.sz / 2 + step * 0.5; gz < surf.z + surf.sz / 2; gz += step) {
+              placements.push({ x: gx, y: surf.y, z: gz, color: surf.color })
+            }
+          }
+        }
+
+        const instancedGrass = new THREE.InstancedMesh(mergedGeo, grassMaterial, placements.length)
         instancedGrass.receiveShadow = cfg.shadows
         const dummy = new THREE.Object3D()
         const baseCol = new THREE.Color()
 
-        for (let i = 0; i < cfg.grassCount; i++) {
-          const surf = grassSurfaces[i % grassSurfaces.length]
+        for (let i = 0; i < placements.length; i++) {
+          const pl = placements[i]
           const rx = Math.sin(i * 12.9898) * 43758.5453
           const rz = Math.sin(i * 78.233) * 43758.5453
-          const ux = rx - Math.floor(rx) - 0.5
-          const uz = rz - Math.floor(rz) - 0.5
+          const jx = ((rx - Math.floor(rx)) - 0.5) * 0.7
+          const jz = ((rz - Math.floor(rz)) - 0.5) * 0.7
 
-          dummy.position.set(surf.x + ux * surf.sx, surf.y - 0.02, surf.z + uz * surf.sz)
-          dummy.rotation.set((ux * 0.25), (rx % 6.28), (uz * 0.25))
-          const s = 0.75 + (i % 5) * 0.18
-          dummy.scale.set(s, s * (0.9 + (i % 3) * 0.2), s)
+          dummy.position.set(pl.x + jx, pl.y - 0.02, pl.z + jz)
+          dummy.rotation.set(0, rx % 6.28, 0)
+          const s = 0.8 + (i % 5) * 0.14
+          dummy.scale.set(s, s * (0.85 + (i % 3) * 0.2), s)
           dummy.updateMatrix()
           instancedGrass.setMatrixAt(i, dummy.matrix)
 
-          baseCol.set(surf.color).offsetHSL(0.01 * ((i % 3) - 1), 0.05, 0.04 * ((i % 4) - 1))
+          baseCol.set(pl.color).offsetHSL(0.01 * ((i % 3) - 1), 0.06, 0.08 + 0.04 * (i % 3))
           instancedGrass.setColorAt(i, baseCol)
         }
         instancedGrass.instanceMatrix.needsUpdate = true
