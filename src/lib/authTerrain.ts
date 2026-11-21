@@ -212,8 +212,8 @@ function createGrassTuftTexture(size = 256): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d')!
   ctx.clearRect(0, 0, size, size)
 
-  // Draw 38 soft, curved, tapered meadow grass blades fanning from the base
-  const bladeCount = 38
+  // Draw 54 soft, curved, tapered meadow grass blades fanning from the base
+  const bladeCount = 54
   for (let i = 0; i < bladeCount; i++) {
     const t = i / (bladeCount - 1)
     const rx = Math.sin(i * 19.37 + 1.7) * 43758.5453
@@ -221,15 +221,15 @@ function createGrassTuftTexture(size = 256): THREE.CanvasTexture {
     const r1 = rx - Math.floor(rx)
     const r2 = ry - Math.floor(ry)
 
-    const baseX = size * (0.1 + t * 0.8 + (r1 - 0.5) * 0.06)
+    const baseX = size * (0.04 + t * 0.92 + (r1 - 0.5) * 0.05)
     const baseY = size + 4
-    const h = size * (0.42 + r2 * 0.52)
-    const lean = (t - 0.5) * size * 0.34 + (r1 - 0.5) * size * 0.16
+    const h = size * (0.44 + r2 * 0.52)
+    const lean = (t - 0.5) * size * 0.32 + (r1 - 0.5) * size * 0.16
     const tipX = Math.max(4, Math.min(size - 4, baseX + lean))
     const tipY = size - h
     const ctrlX = (baseX + tipX) * 0.5 - lean * 0.18
     const ctrlY = baseY - h * 0.55
-    const halfW = size * (0.016 + r1 * 0.014)
+    const halfW = size * (0.02 + r1 * 0.016)
 
     const grad = ctx.createLinearGradient(baseX, baseY, tipX, tipY)
     const shade = 0.85 + r2 * 0.3
@@ -603,11 +603,11 @@ export class TerrainSurface {
         return { y, r, g, b }
       }
 
-      // 1. Crossed 3-plane alpha-cutout grass clump geometry (soft upward normals, ~38 curved blades per plane)
+      // 1. Crossed 3-plane alpha-cutout grass clump geometry (soft upward normals, ~54 curved blades per plane)
       const clumpPlanes: THREE.BufferGeometry[] = []
       for (let k = 0; k < 3; k++) {
-        const g = new THREE.PlaneGeometry(1.18, 0.62, 1, 2)
-        g.translate(0, 0.31, 0)
+        const g = new THREE.PlaneGeometry(1.48, 0.68, 1, 2)
+        g.translate(0, 0.34, 0)
         const n = g.attributes.normal
         for (let vi = 0; vi < n.count; vi++) {
           n.setXYZ(vi, 0, 1, 0)
@@ -667,9 +667,9 @@ export class TerrainSurface {
         )
       }
 
-      // Quasi-random uniform scattering across a 108-stud radius around origin
+      // Quasi-random uniform scattering across a 108-stud radius around origin (dense full carpet)
       const maxRadius = Math.min(108, Math.min(this.width, this.depth) * 0.46)
-      const targetClumps = 52000
+      const targetClumps = 125000
       const matrices: THREE.Matrix4[] = []
       const tintColors: THREE.Color[] = []
       const dummy = new THREE.Object3D()
@@ -689,9 +689,9 @@ export class TerrainSurface {
 
         const rx = Math.sin(i * 12.9898) * 43758.5453
         const jAngle = (rx - Math.floor(rx)) * 6.28318
-        dummy.position.set(this.origin[0] + lx, wy - 0.04, this.origin[2] + lz)
+        dummy.position.set(this.origin[0] + lx, wy - 0.06, this.origin[2] + lz)
         dummy.rotation.set(0, jAngle, 0)
-        const sc = 0.88 + (i % 5) * 0.11
+        const sc = 0.96 + (i % 5) * 0.12
         dummy.scale.set(sc, sc * (0.88 + (i % 3) * 0.14), sc)
         dummy.updateMatrix()
         matrices.push(dummy.matrix.clone())
