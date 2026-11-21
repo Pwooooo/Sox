@@ -330,50 +330,60 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
         }
       }
 
-      // Instanced 3D Grass Leaves / Blades per stud across the entire Grass surface
+      // Instanced 3D Grass Leaves / Blades: dense 6-blade cluster per stud across entire Grass surface
       if (cfg.grassCount > 0 && grassSurfaces.length > 0) {
-        const makeBlade = (rotY: number) => {
-          const g = new THREE.PlaneGeometry(0.18, 0.55, 1, 2)
-          g.translate(0, 0.275, 0)
+        const makeBlade = (ox: number, oz: number, rotY: number, tilt: number, hScale: number) => {
+          const g = new THREE.PlaneGeometry(0.16, 0.52 * hScale, 1, 2)
+          g.translate(0, 0.26 * hScale, 0)
           const pos = g.attributes.position
           const norm = g.attributes.normal
           for (let i = 0; i < pos.count; i++) {
             const y = pos.getY(i)
-            const h = y / 0.55
-            pos.setX(i, pos.getX(i) * (1 - h * 0.85))
-            pos.setZ(i, h * h * 0.1)
+            const h = y / (0.52 * hScale)
+            pos.setX(i, pos.getX(i) * (1 - h * 0.88))
+            pos.setZ(i, h * h * tilt)
             norm.setXYZ(i, 0, 1, 0)
           }
           g.rotateY(rotY)
+          g.translate(ox, 0, oz)
           return g
         }
 
-        const g1 = makeBlade(0.35)
-        const g2 = makeBlade(1.92)
+        const subBlades = [
+          makeBlade(-0.22, -0.18, 0.2, 0.14, 0.9),
+          makeBlade(0.24, -0.14, 1.3, 0.12, 1.05),
+          makeBlade(-0.15, 0.22, 2.1, 0.15, 0.85),
+          makeBlade(0.2, 0.21, 0.8, 0.11, 1.0),
+          makeBlade(0.0, -0.02, 2.7, 0.13, 1.15),
+          makeBlade(-0.28, 0.05, 1.7, 0.12, 0.8),
+        ]
+        const totalVerts = subBlades.reduce((acc, b) => acc + b.attributes.position.count, 0)
+        const posArr = new Float32Array(totalVerts * 3)
+        const normArr = new Float32Array(totalVerts * 3)
+        const indices: number[] = []
+        let vOffset = 0
+        for (const b of subBlades) {
+          const pa = b.attributes.position.array as Float32Array
+          const na = b.attributes.normal.array as Float32Array
+          posArr.set(pa, vOffset * 3)
+          normArr.set(na, vOffset * 3)
+          for (const idx of b.index!.array) {
+            indices.push(idx + vOffset)
+          }
+          vOffset += b.attributes.position.count
+          b.dispose()
+        }
         const mergedGeo = new THREE.BufferGeometry()
-        const p1 = g1.attributes.position.array as Float32Array
-        const p2 = g2.attributes.position.array as Float32Array
-        const n1 = g1.attributes.normal.array as Float32Array
-        const n2 = g2.attributes.normal.array as Float32Array
-        const idx1 = Array.from(g1.index!.array)
-        const vCount1 = g1.attributes.position.count
-        const idx2 = Array.from(g2.index!.array).map((v) => v + vCount1)
-        const posArr = new Float32Array(p1.length + p2.length)
-        posArr.set(p1, 0)
-        posArr.set(p2, p1.length)
-        const normArr = new Float32Array(n1.length + n2.length)
-        normArr.set(n1, 0)
-        normArr.set(n2, n1.length)
         mergedGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3))
         mergedGeo.setAttribute('normal', new THREE.BufferAttribute(normArr, 3))
-        mergedGeo.setIndex([...idx1, ...idx2])
-        g1.dispose()
-        g2.dispose()
+        mergedGeo.setIndex(indices)
 
         grassMaterial = new THREE.MeshStandardMaterial({
           color: '#ffffff',
-          roughness: 0.72,
-          metalness: 0.02,
+          roughness: 0.85,
+          metalness: 0.0,
+          emissive: new THREE.Color('#19381f'),
+          emissiveIntensity: 0.45,
           side: THREE.DoubleSide,
         })
         grassMaterial.onBeforeCompile = (shader) => {
@@ -393,10 +403,9 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
 
         const placements: { x: number; y: number; z: number; color: string }[] = []
         for (const surf of grassSurfaces) {
-          const area = surf.sx * surf.sz
-          const step = area > 10000 ? 1.5 : 1.0
-          for (let gx = surf.x - surf.sx / 2 + step * 0.5; gx < surf.x + surf.sx / 2; gx += step) {
-            for (let gz = surf.z - surf.sz / 2 + step * 0.5; gz < surf.z + surf.sz / 2; gz += step) {
+          const step = 1.0
+          for (let gx = surf.x - surf.sx / 2 + 0.5; gx < surf.x + surf.sx / 2; gx += step) {
+            for (let gz = surf.z - surf.sz / 2 + 0.5; gz < surf.z + surf.sz / 2; gz += step) {
               placements.push({ x: gx, y: surf.y, z: gz, color: surf.color })
             }
           }
