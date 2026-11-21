@@ -271,7 +271,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       scene.add(fill)
 
       const parts = collectNvloParts(doc?.root)
-      const grassSurfaces: { x: number; y: number; z: number; sx: number; sz: number; color: string }[] = []
+      const grassSurfaces: { x: number; y: number; z: number; sx: number; sz: number; color: string; perStud: number }[] = []
 
       for (const p of parts) {
         const props = p.properties || {}
@@ -319,6 +319,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
         if (isNeon) animatedCrystals.push(mesh)
         if ((props.Name || p.name) === 'Cloud') animatedClouds.push(mesh)
         if (matType === 'Grass' && shape !== 'Sphere') {
+          const perStud = Math.max(1, Math.min(24, Number((props as any).GrassPerStud ?? 6) || 6))
           grassSurfaces.push({
             x: pos[0],
             y: pos[1] + size[1] / 2,
@@ -326,6 +327,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
             sx: size[0],
             sz: size[2],
             color: colorHex,
+            perStud,
           })
         }
       }
@@ -403,9 +405,10 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
 
         const placements: { x: number; y: number; z: number; color: string }[] = []
         for (const surf of grassSurfaces) {
-          const step = 1.0
-          for (let gx = surf.x - surf.sx / 2 + 0.5; gx < surf.x + surf.sx / 2; gx += step) {
-            for (let gz = surf.z - surf.sz / 2 + 0.5; gz < surf.z + surf.sz / 2; gz += step) {
+          const clustersPerStud = Math.max(0.25, surf.perStud / 6)
+          const step = Math.max(0.45, Math.min(2.0, 1 / Math.sqrt(clustersPerStud)))
+          for (let gx = surf.x - surf.sx / 2 + step * 0.5; gx < surf.x + surf.sx / 2; gx += step) {
+            for (let gz = surf.z - surf.sz / 2 + step * 0.5; gz < surf.z + surf.sz / 2; gz += step) {
               placements.push({ x: gx, y: surf.y, z: gz, color: surf.color })
             }
           }
