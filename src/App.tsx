@@ -23,7 +23,7 @@ function parseProfileIdFromPath(pathname: string): number | null {
 }
 
 function AppContent() {
-  const { profile, showAuthModal, setShowAuthModal } = useAuth()
+  const { user, profile, loading } = useAuth()
   const [viewedProfileId, setViewedProfileId] = useState<number | null>(() =>
     parseProfileIdFromPath(window.location.pathname),
   )
@@ -52,8 +52,8 @@ function AppContent() {
 
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab)
-    if (tab === 'Profile') {
-      const targetId = profile?.id ?? viewedProfileId ?? 1
+    if (tab === 'Profile' && profile?.id) {
+      const targetId = profile.id
       setViewedProfileId(targetId)
       if (window.location.pathname !== `/Profile/${targetId}`) {
         window.history.pushState({}, '', `/Profile/${targetId}`)
@@ -65,16 +65,17 @@ function AppContent() {
     }
   }
 
+  if (loading) {
+    return <div className="min-h-screen w-full bg-[#090909]" />
+  }
+
+  if (!user) {
+    return <AuthModal mode="both" />
+  }
+
   // Creator Hub & Studio opens as its own dedicated standalone UI (like Roblox)
   if (activeTab === 'Create') {
-    return (
-      <>
-        <Create onClose={() => handleSelectTab('Home')} />
-        {showAuthModal && (
-          <AuthModal mode="both" dismissible onClose={() => setShowAuthModal(false)} />
-        )}
-      </>
-    )
+    return <Create onClose={() => handleSelectTab('Home')} />
   }
 
   const renderContent = () => {
@@ -109,14 +110,9 @@ function AppContent() {
   }
 
   return (
-    <>
-      <Layout activeTab={activeTab} onSelectTab={handleSelectTab}>
-        {renderContent()}
-      </Layout>
-      {showAuthModal && (
-        <AuthModal mode="both" dismissible onClose={() => setShowAuthModal(false)} />
-      )}
-    </>
+    <Layout activeTab={activeTab} onSelectTab={handleSelectTab}>
+      {renderContent()}
+    </Layout>
   )
 }
 
