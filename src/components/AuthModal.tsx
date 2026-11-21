@@ -110,9 +110,8 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
   return (
     <div className="min-h-screen w-full bg-[#090909] text-white select-none flex items-center justify-center p-6">
       <div className="w-full max-w-[420px]">
-        <div className="flex items-center gap-2.5 mb-5">
-          <img src="/logo.png" alt="Novelo" className="size-8 object-contain" />
-          <span className="text-sm font-bold tracking-tight text-white/85">Novelo</span>
+        <div className="mb-4">
+          <img src="/logo.png" alt="Novelo" className="size-16 object-contain" />
         </div>
 
         <h1 className="text-[28px] md:text-[32px] font-black tracking-tight text-white m-0 mb-6 leading-tight">
