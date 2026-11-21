@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Check } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
+import { WaveBackground } from '@/components/WaveBackground'
 
 interface AuthModalProps {
   mode?: 'both' | 'login-only'
@@ -108,13 +109,17 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
   ]
 
   return (
-    <div className="min-h-screen w-full bg-[#090909] text-white select-none flex items-center justify-center p-6">
-      <div className="w-full max-w-[420px]">
-        <div className="mb-4">
-          <img src="/logo.png" alt="Novelo" className="size-16 object-contain" />
+    <div className="min-h-screen w-full bg-[#0a0a0a] text-white select-none flex items-center justify-center p-4 md:p-6 relative overflow-hidden isolate">
+      <WaveBackground />
+
+      <div className="w-full max-w-[430px] relative z-10 rounded-3xl bg-[#121215]/75 backdrop-blur-2xl border border-white/[0.06] shadow-[0_28px_90px_rgba(0,0,0,0.75)] p-7 md:p-8">
+        <div className="mb-4 flex items-center justify-center">
+          <div className="size-20 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shadow-inner">
+            <img src="/logo.png" alt="Novelo" className="size-14 object-contain" />
+          </div>
         </div>
 
-        <h1 className="text-[28px] md:text-[32px] font-black tracking-tight text-white m-0 mb-6 leading-tight">
+        <h1 className="text-[24px] md:text-[26px] font-black tracking-tight text-white text-center m-0 mb-6 leading-tight">
           {activeTab === 'register'
             ? 'Create a Novelo account'
             : mode === 'login-only'
@@ -124,13 +129,13 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
-            <div className="p-3 rounded-[10px] bg-rose-500/10 border border-rose-500/25 text-xs text-rose-300 leading-snug">
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-200 leading-snug">
               {error}
             </div>
           )}
 
           {info && (
-            <div className="p-3 rounded-[10px] bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 leading-snug">
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-200 leading-snug">
               {info}
             </div>
           )}
@@ -138,22 +143,22 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
           {activeTab === 'register' ? (
             <>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/90">Birthday</label>
+                <label className="text-xs font-semibold text-white/80">Birthday</label>
                 <input
                   type="date"
                   required
                   value={birthday}
                   max={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setBirthday(e.target.value)}
-                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#141414] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-white/25 transition-colors [color-scheme:dark]"
+                  className="w-full h-10 px-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.06] text-xs text-white focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all [color-scheme:dark]"
                 />
-                <span className="text-[11px] text-white/45">
+                <span className="text-[11px] text-white/40">
                   You must be at least 13 years old.
                 </span>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/90">Username</label>
+                <label className="text-xs font-semibold text-white/80">Username</label>
                 <input
                   type="text"
                   required
@@ -162,24 +167,24 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter your preferred username"
-                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#141414] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
+                  className="w-full h-10 px-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.06] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/90">Email</label>
+                <label className="text-xs font-semibold text-white/80">Email</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#141414] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
+                  className="w-full h-10 px-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.06] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/90">Password</label>
+                <label className="text-xs font-semibold text-white/80">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -188,12 +193,12 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-3.5 pr-10 rounded-[10px] bg-[#141414] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.06] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="size-8 rounded-md flex items-center justify-center text-white/45 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
+                    className="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -205,12 +210,12 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     <div
                       key={seg}
                       className={`h-[3px] rounded-full transition-colors duration-200 ${
-                        strength >= seg ? strengthColors[strength] : 'bg-white/[0.1]'
+                        strength >= seg ? strengthColors[strength] : 'bg-white/[0.08]'
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-[11px] text-white/45">
+                <span className="text-[11px] text-white/40">
                   Must be at least 8 characters long
                 </span>
               </div>
@@ -221,20 +226,20 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                   role="checkbox"
                   aria-checked={agreedTerms}
                   onClick={() => setAgreedTerms((v) => !v)}
-                  className={`size-4 rounded-[4px] mt-0.5 shrink-0 flex items-center justify-center border transition-colors cursor-pointer ${
+                  className={`size-4 rounded-[6px] mt-0.5 shrink-0 flex items-center justify-center border transition-all cursor-pointer ${
                     agreedTerms
                       ? 'bg-white border-white text-[#0c0d10]'
-                      : 'bg-transparent border-white/25 hover:border-white/45 text-transparent'
+                      : 'bg-white/[0.04] border-white/15 hover:border-white/35 text-transparent'
                   }`}
                 >
                   <Check className="size-3 stroke-[3]" />
                 </button>
-                <span className="text-[11px] text-white/60 leading-relaxed">
+                <span className="text-[11px] text-white/55 leading-relaxed">
                   I agree to the{' '}
-                  <span className="text-white/90 underline">Terms of Service</span>,{' '}
-                  <span className="text-white/90 underline">Privacy Policy</span>,{' '}
-                  <span className="text-white/90 underline">Community Guidelines</span>, and{' '}
-                  <span className="text-white/90 underline">Creator Guidelines</span>.
+                  <span className="text-white/85 underline">Terms of Service</span>,{' '}
+                  <span className="text-white/85 underline">Privacy Policy</span>,{' '}
+                  <span className="text-white/85 underline">Community Guidelines</span>, and{' '}
+                  <span className="text-white/85 underline">Creator Guidelines</span>.
                 </span>
               </label>
 
@@ -244,33 +249,33 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                   role="checkbox"
                   aria-checked={keepLoggedIn}
                   onClick={() => setKeepLoggedIn((v) => !v)}
-                  className={`size-4 rounded-[4px] shrink-0 flex items-center justify-center border transition-colors cursor-pointer ${
+                  className={`size-4 rounded-[6px] shrink-0 flex items-center justify-center border transition-all cursor-pointer ${
                     keepLoggedIn
                       ? 'bg-white border-white text-[#0c0d10]'
-                      : 'bg-transparent border-white/25 hover:border-white/45 text-transparent'
+                      : 'bg-white/[0.04] border-white/15 hover:border-white/35 text-transparent'
                   }`}
                 >
                   <Check className="size-3 stroke-[3]" />
                 </button>
-                <span className="text-[11px] text-white/75">Keep me logged in</span>
+                <span className="text-[11px] text-white/70">Keep me logged in</span>
               </label>
             </>
           ) : (
             <>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/90">Username or Email</label>
+                <label className="text-xs font-semibold text-white/80">Username or Email</label>
                 <input
                   type="text"
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="Enter your username or email"
-                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#141414] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
+                  className="w-full h-10 px-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.06] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/90">Password</label>
+                <label className="text-xs font-semibold text-white/80">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -278,12 +283,12 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-3.5 pr-10 rounded-[10px] bg-[#141414] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.06] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.07] transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="size-8 rounded-md flex items-center justify-center text-white/45 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
+                    className="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -297,15 +302,15 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                   role="checkbox"
                   aria-checked={keepLoggedIn}
                   onClick={() => setKeepLoggedIn((v) => !v)}
-                  className={`size-4 rounded-[4px] shrink-0 flex items-center justify-center border transition-colors cursor-pointer ${
+                  className={`size-4 rounded-[6px] shrink-0 flex items-center justify-center border transition-all cursor-pointer ${
                     keepLoggedIn
                       ? 'bg-white border-white text-[#0c0d10]'
-                      : 'bg-transparent border-white/25 hover:border-white/45 text-transparent'
+                      : 'bg-white/[0.04] border-white/15 hover:border-white/35 text-transparent'
                   }`}
                 >
                   <Check className="size-3 stroke-[3]" />
                 </button>
-                <span className="text-[11px] text-white/75">Keep me logged in</span>
+                <span className="text-[11px] text-white/70">Keep me logged in</span>
               </label>
             </>
           )}
@@ -313,7 +318,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="mt-2 h-10 w-full rounded-[10px] bg-white hover:bg-white/90 disabled:opacity-50 text-[#0c0d10] font-bold text-xs cursor-pointer border-none transition-all shadow-sm active:scale-[0.99]"
+            className="mt-2 h-10 w-full rounded-xl bg-white/95 hover:bg-white disabled:opacity-50 text-[#0c0d10] font-bold text-xs cursor-pointer border-none transition-all shadow-[0_8px_24px_rgba(255,255,255,0.12)] active:scale-[0.99]"
           >
             {submitting
               ? 'Please wait...'
@@ -323,14 +328,14 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
           </button>
 
           {mode === 'both' ? (
-            <div className="text-center text-xs text-white/50 pt-1">
+            <div className="text-center text-xs text-white/45 pt-1">
               {activeTab === 'register' ? (
                 <>
                   Already have an account?{' '}
                   <button
                     type="button"
                     onClick={() => switchTab('login')}
-                    className="text-white font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
+                    className="text-white font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer"
                   >
                     Log in
                   </button>
@@ -341,7 +346,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                   <button
                     type="button"
                     onClick={() => switchTab('register')}
-                    className="text-white font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
+                    className="text-white font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer"
                   >
                     Create an account
                   </button>
@@ -349,7 +354,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
               )}
             </div>
           ) : (
-            <p className="text-[11px] text-white/45 text-center m-0 pt-1">
+            <p className="text-[11px] text-white/40 text-center m-0 pt-1">
               Registration is only available on playnovelo.vercel.app or Novelo Player.
             </p>
           )}
