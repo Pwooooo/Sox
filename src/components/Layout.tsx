@@ -3,6 +3,7 @@ import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { WaveBackground } from '@/components/WaveBackground'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/lib/auth'
 
 interface LayoutProps {
   activeTab?: string
@@ -12,6 +13,7 @@ interface LayoutProps {
 
 export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const { profile } = useAuth()
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate select-none">
@@ -32,7 +34,7 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
       <Sidebar
         collapsed={sidebarCollapsed}
         activeItem={activeTab}
-        username="Sky"
+        username={profile?.username || 'Guest'}
         onSelect={(item) => onSelectTab?.(item)}
         onToggleCollapse={() => setSidebarCollapsed(true)}
       />

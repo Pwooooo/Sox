@@ -4,8 +4,11 @@ import { FriendsHeader } from '@/components/FriendsHeader'
 import { GameCard } from '@/components/GameCard'
 import { GameDetailModal } from '@/components/GameDetailModal'
 import type { GameDetailData } from '@/data/homeGames'
+import { fetchPublicExperiences } from '@/lib/supabase'
+import { useAuth } from '@/lib/auth'
 
 export function Home() {
+  const { profile } = useAuth()
   const [selectedGame, setSelectedGame] = useState<GameDetailData | null>(null)
   const [games, setGames] = useState<GameDetailData[]>([])
 
@@ -17,7 +20,7 @@ export function Home() {
         .map((p: any) => ({
           id: p.id,
           name: p.name || 'Untitled Experience',
-          creator: 'Sky',
+          creator: p.owner_username || 'Creator',
           thumbnail: p.thumbnail || '',
           likePercent: 100,
           players: '0',
@@ -28,31 +31,44 @@ export function Home() {
         }))
 
     const load = async () => {
+      const merged = new Map<string, GameDetailData>()
+      try {
+        const remote = await fetchPublicExperiences()
+        for (const g of mapProjects(remote)) merged.set(g.id, g)
+      } catch {
+        // Ignore remote error
+      }
       try {
         if ((window as any).__TAURI_INTERNALS__) {
           const { invoke } = await import('@tauri-apps/api/core')
           const raw = await invoke<string>('load_studio_projects')
-          if (!cancelled && raw) {
+          if (raw) {
             const parsed = JSON.parse(raw)
             if (Array.isArray(parsed)) {
-              setGames(mapProjects(parsed))
-              return
+              for (const g of mapProjects(parsed)) {
+                if (!merged.has(g.id)) merged.set(g.id, g)
+              }
             }
           }
         }
       } catch {
-        // Fallback to HTTP endpoint
+        // Ignore Tauri error
       }
       try {
         const res = await fetch('/api/studio-projects')
         if (res.ok) {
           const list = await res.json()
-          if (!cancelled && Array.isArray(list)) {
-            setGames(mapProjects(list))
+          if (Array.isArray(list)) {
+            for (const g of mapProjects(list)) {
+              if (!merged.has(g.id)) merged.set(g.id, g)
+            }
           }
         }
       } catch {
         // Ignore offline fetch error
+      }
+      if (!cancelled) {
+        setGames(Array.from(merged.values()))
       }
     }
     load()
@@ -64,7 +80,7 @@ export function Home() {
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-8 max-w-[1700px]">
       {/* 1. Friends & Greeting at top */}
-      <FriendsHeader username="Sky" />
+      <FriendsHeader username={profile?.username || 'Guest'} />
 
       {/* 2. Recommended For You */}
       <section className="flex flex-col gap-3">

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Layout } from '@/components/Layout'
 import { Home } from '@/pages/Home'
 import { Games } from '@/pages/Games'
@@ -12,16 +12,69 @@ import { Store } from '@/pages/Store'
 import { Trade } from '@/pages/Trade'
 import { Create } from '@/pages/Create'
 import { Forum } from '@/pages/Forum'
+import { AuthProvider, useAuth } from '@/lib/auth'
+import { AuthModal } from '@/components/AuthModal'
 
-export default function App() {
+function parseProfileIdFromPath(pathname: string): number | null {
+  const m = pathname.match(/^\/profile\/(\d+)/i)
+  if (!m) return null
+  const num = Number(m[1])
+  return Number.isFinite(num) && num > 0 ? num : null
+}
+
+function AppContent() {
+  const { profile, showAuthModal, setShowAuthModal } = useAuth()
+  const [viewedProfileId, setViewedProfileId] = useState<number | null>(() =>
+    parseProfileIdFromPath(window.location.pathname),
+  )
   const [activeTab, setActiveTab] = useState(() => {
+    if (parseProfileIdFromPath(window.location.pathname) !== null) {
+      return 'Profile'
+    }
     const params = new URLSearchParams(window.location.search)
     return params.get('tab') || 'Home'
   })
 
+  useEffect(() => {
+    const onPopState = () => {
+      const pid = parseProfileIdFromPath(window.location.pathname)
+      if (pid !== null) {
+        setViewedProfileId(pid)
+        setActiveTab('Profile')
+      } else {
+        const params = new URLSearchParams(window.location.search)
+        setActiveTab(params.get('tab') || 'Home')
+      }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  const handleSelectTab = (tab: string) => {
+    setActiveTab(tab)
+    if (tab === 'Profile') {
+      const targetId = profile?.id ?? viewedProfileId ?? 1
+      setViewedProfileId(targetId)
+      if (window.location.pathname !== `/Profile/${targetId}`) {
+        window.history.pushState({}, '', `/Profile/${targetId}`)
+      }
+    } else if (tab === 'Create') {
+      window.history.pushState({}, '', '/?tab=Create')
+    } else if (window.location.pathname !== '/' || window.location.search) {
+      window.history.pushState({}, '', '/')
+    }
+  }
+
   // Creator Hub & Studio opens as its own dedicated standalone UI (like Roblox)
   if (activeTab === 'Create') {
-    return <Create onClose={() => setActiveTab('Home')} />
+    return (
+      <>
+        <Create onClose={() => handleSelectTab('Home')} />
+        {showAuthModal && (
+          <AuthModal mode="both" dismissible onClose={() => setShowAuthModal(false)} />
+        )}
+      </>
+    )
   }
 
   const renderContent = () => {
@@ -35,7 +88,7 @@ export default function App() {
       case 'Messages':
         return <Messages />
       case 'Profile':
-        return <Profile />
+        return <Profile profileId={viewedProfileId ?? profile?.id ?? null} />
       case 'Avatar':
         return <AvatarEditor />
       case 'Inventory':
@@ -56,8 +109,21 @@ export default function App() {
   }
 
   return (
-    <Layout activeTab={activeTab} onSelectTab={setActiveTab}>
-      {renderContent()}
-    </Layout>
+    <>
+      <Layout activeTab={activeTab} onSelectTab={handleSelectTab}>
+        {renderContent()}
+      </Layout>
+      {showAuthModal && (
+        <AuthModal mode="both" dismissible onClose={() => setShowAuthModal(false)} />
+      )}
+    </>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider autoPromptWhenLoggedOut>
+      <AppContent />
+    </AuthProvider>
   )
 }

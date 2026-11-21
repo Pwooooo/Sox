@@ -4,6 +4,7 @@ import { GameCard } from '@/components/GameCard'
 import { GameDetailModal } from '@/components/GameDetailModal'
 import type { GameDetailData } from '@/data/homeGames'
 import { cn } from '@/lib/utils'
+import { fetchPublicExperiences } from '@/lib/supabase'
 
 const CATEGORIES = [
   { id: 'all', label: 'All Experiences', icon: Sparkles },
@@ -29,7 +30,7 @@ export function Games() {
         .map((p: any) => ({
           id: p.id,
           name: p.name || 'Untitled Experience',
-          creator: 'Sky',
+          creator: p.owner_username || 'Creator',
           thumbnail: p.thumbnail || '',
           likePercent: 100,
           players: '0',
@@ -41,31 +42,44 @@ export function Games() {
         }))
 
     const load = async () => {
+      const merged = new Map<string, GameDetailData>()
+      try {
+        const remote = await fetchPublicExperiences()
+        for (const g of mapProjects(remote)) merged.set(g.id, g)
+      } catch {
+        // Ignore remote error
+      }
       try {
         if ((window as any).__TAURI_INTERNALS__) {
           const { invoke } = await import('@tauri-apps/api/core')
           const raw = await invoke<string>('load_studio_projects')
-          if (!cancelled && raw) {
+          if (raw) {
             const parsed = JSON.parse(raw)
             if (Array.isArray(parsed)) {
-              setAllGames(mapProjects(parsed))
-              return
+              for (const g of mapProjects(parsed)) {
+                if (!merged.has(g.id)) merged.set(g.id, g)
+              }
             }
           }
         }
       } catch {
-        // Fallback to HTTP endpoint
+        // Ignore Tauri error
       }
       try {
         const res = await fetch('/api/studio-projects')
         if (res.ok) {
           const list = await res.json()
-          if (!cancelled && Array.isArray(list)) {
-            setAllGames(mapProjects(list))
+          if (Array.isArray(list)) {
+            for (const g of mapProjects(list)) {
+              if (!merged.has(g.id)) merged.set(g.id, g)
+            }
           }
         }
       } catch {
         // Ignore offline fetch error
+      }
+      if (!cancelled) {
+        setAllGames(Array.from(merged.values()))
       }
     }
     load()

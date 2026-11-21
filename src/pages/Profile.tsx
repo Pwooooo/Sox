@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket, Gamepad2 } from 'lucide-react'
 import { UnderConstruction } from '@/components/UnderConstruction'
+import {
+  fetchProfileById,
+  fetchExperiencesByOwnerId,
+  type UserProfile,
+} from '@/lib/supabase'
+import { useAuth } from '@/lib/auth'
 
 interface ProfileProject {
   id: string
@@ -9,9 +15,13 @@ interface ProfileProject {
   genre?: string
 }
 
-export function Profile() {
+export function Profile({ profileId }: { profileId?: number | null }) {
+  const { profile: myProfile } = useAuth()
   const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
   const [projects, setProjects] = useState<ProfileProject[]>([])
+  const [viewedProfile, setViewedProfile] = useState<UserProfile | null>(null)
+
+  const targetId = profileId ?? myProfile?.id ?? null
 
   useEffect(() => {
     let cancelled = false
@@ -26,6 +36,23 @@ export function Profile() {
         }))
 
     const load = async () => {
+      if (targetId !== null) {
+        const remoteProfile = await fetchProfileById(targetId)
+        if (!cancelled && remoteProfile) {
+          setViewedProfile(remoteProfile)
+        } else if (!cancelled && myProfile && myProfile.id === targetId) {
+          setViewedProfile(myProfile)
+        }
+
+        const remoteExps = await fetchExperiencesByOwnerId(targetId)
+        if (!cancelled && remoteExps.length > 0) {
+          setProjects(mapProjects(remoteExps))
+          return
+        }
+      } else if (myProfile && !cancelled) {
+        setViewedProfile(myProfile)
+      }
+
       try {
         if ((window as any).__TAURI_INTERNALS__) {
           const { invoke } = await import('@tauri-apps/api/core')
@@ -53,11 +80,11 @@ export function Profile() {
         // Ignore offline fetch error
       }
     }
-    load()
+    void load()
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [targetId, myProfile])
 
   const TABS = ['About', 'Games', 'Groups', 'Inventory', 'Wishlist'] as const
 
@@ -98,12 +125,17 @@ export function Profile() {
               {/* Username & Badges */}
               <div className="flex flex-col mb-1">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Sky</h1>
+                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                    {viewedProfile?.display_name || viewedProfile?.username || (targetId ? `User #${targetId}` : 'Guest')}
+                  </h1>
                   {/* Cat badge & Rocket badge */}
                   <Cat className="size-4 text-white/80" />
                   <Rocket className="size-4 text-white/80" />
                 </div>
-                <span className="text-xs text-white/50 font-medium">@sky</span>
+                <span className="text-xs text-white/50 font-medium">
+                  @{viewedProfile?.username?.toLowerCase() || 'guest'}
+                  {viewedProfile?.id ? ` · ID #${viewedProfile.id}` : targetId ? ` · ID #${targetId}` : ''}
+                </span>
               </div>
             </div>
 

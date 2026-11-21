@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/lib/auth'
+import { fetchMyExperiences, upsertRemoteExperience } from '@/lib/supabase'
 import {
   Folder,
   Home,
@@ -198,6 +200,7 @@ interface CreateProps {
 }
 
 export function Create({ onClose }: CreateProps) {
+  const { user, profile } = useAuth()
   const [viewMode, setViewMode] = useState<'dashboard' | 'game_details' | 'studio'>('dashboard')
   const [activeExp, setActiveExp] = useState<Experience | null>(null)
   const [experiences, setExperiences] = useState<Experience[]>(DEFAULT_EXPERIENCES)
@@ -246,11 +249,23 @@ export function Create({ onClose }: CreateProps) {
     let cancelled = false
     const loadShared = async () => {
       let rawList: any[] = []
-      try {
-        const res = await fetch('/api/studio-projects')
-        if (res.ok) rawList = await res.json()
-      } catch {
-        // ignore
+      if (user) {
+        try {
+          const remote = await fetchMyExperiences(user.id)
+          if (remote.length > 0) {
+            rawList = remote.map((r) => ({ ...r, updatedAt: r.updated_at }))
+          }
+        } catch {
+          // ignore
+        }
+      }
+      if (rawList.length === 0) {
+        try {
+          const res = await fetch('/api/studio-projects')
+          if (res.ok) rawList = await res.json()
+        } catch {
+          // ignore
+        }
       }
       if (!Array.isArray(rawList) || rawList.length === 0) {
         try {
@@ -301,7 +316,7 @@ export function Create({ onClose }: CreateProps) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [user])
 
   // Open Game Details when clicking on a card (matching Screenshot)
   const openGameDetails = (exp: Experience) => {
@@ -353,8 +368,28 @@ export function Create({ onClose }: CreateProps) {
         : null,
     )
 
-    // Sync updates back to shared Studio projects file
+    // Sync updates back to Supabase + shared Studio projects file
     ;(async () => {
+      if (profile) {
+        try {
+          await upsertRemoteExperience(
+            {
+              id: activeExp.id,
+              name: formName.trim(),
+              promo: formPromo.trim(),
+              description: formDesc.trim(),
+              genre: formGenre,
+              subgenre: formSubgenre,
+              privacy: formPrivacy,
+              thumbnail: activeExp.thumbnail,
+              updatedAt: Date.now(),
+            },
+            profile,
+          )
+        } catch {
+          // ignore
+        }
+      }
       try {
         const res = await fetch('/api/studio-projects')
         if (!res.ok) return
