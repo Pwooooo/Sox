@@ -14,7 +14,10 @@ import { Create } from '@/pages/Create'
 import { Forum } from '@/pages/Forum'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('Home')
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('tab') || 'Home'
+  })
 
   // Creator Hub & Studio opens as its own dedicated standalone UI (like Roblox)
   if (activeTab === 'Create') {

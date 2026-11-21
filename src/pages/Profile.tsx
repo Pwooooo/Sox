@@ -1,9 +1,63 @@
-import { useState } from 'react'
-import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket, Gamepad2 } from 'lucide-react'
 import { UnderConstruction } from '@/components/UnderConstruction'
+
+interface ProfileProject {
+  id: string
+  name: string
+  thumbnail?: string
+  genre?: string
+}
 
 export function Profile() {
   const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
+  const [projects, setProjects] = useState<ProfileProject[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    const mapProjects = (list: any[]): ProfileProject[] =>
+      list
+        .filter((p: any) => !p.archived && p.privacy === 'Public')
+        .map((p: any) => ({
+          id: p.id,
+          name: p.name || 'Untitled Experience',
+          thumbnail: p.thumbnail || '',
+          genre: p.genre || 'All',
+        }))
+
+    const load = async () => {
+      try {
+        if ((window as any).__TAURI_INTERNALS__) {
+          const { invoke } = await import('@tauri-apps/api/core')
+          const raw = await invoke<string>('load_studio_projects')
+          if (!cancelled && raw) {
+            const parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) {
+              setProjects(mapProjects(parsed))
+              return
+            }
+          }
+        }
+      } catch {
+        // Fallback to HTTP endpoint
+      }
+      try {
+        const res = await fetch('/api/studio-projects')
+        if (res.ok) {
+          const list = await res.json()
+          if (!cancelled && Array.isArray(list)) {
+            setProjects(mapProjects(list))
+          }
+        }
+      } catch {
+        // Ignore offline fetch error
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const TABS = ['About', 'Games', 'Groups', 'Inventory', 'Wishlist'] as const
 
@@ -190,45 +244,38 @@ export function Profile() {
               <ChevronRight className="size-4" />
             </div>
 
-            {/* Showcase Cards Grid matching Image 1 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Card 1 */}
-              <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
-                <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
-                  {/* Clean Roblox Baseplate rendering */}
-                  <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-center justify-center">
-                    <div className="w-20 h-10 bg-white/90 border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.6)] rounded-sm" />
-                  </div>
-                </div>
-                <div className="p-3 flex flex-col gap-1">
-                  <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
-                    new update
-                  </h4>
-                  <div className="flex items-center gap-2 text-[10px] text-white/40">
-                    <span>N/A</span>
-                    <span>👤 0</span>
-                  </div>
-                </div>
+            {/* Showcase Cards Grid */}
+            {projects.length === 0 ? (
+              <div className="py-10 rounded-xl bg-[#161618]/50 border border-white/[0.04] flex flex-col items-center justify-center gap-2 text-center">
+                <Gamepad2 className="size-7 text-white/30" />
+                <span className="text-xs font-medium text-white/50">
+                  No public experiences yet.
+                </span>
               </div>
-
-              {/* Card 2 */}
-              <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
-                <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
-                  <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-end justify-center">
-                    <div className="w-32 h-20 bg-neutral-200/90 rounded-t-sm shadow-md" />
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {projects.slice(0, 2).map((proj) => (
+                  <div key={proj.id} className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
+                    <div className="aspect-[16/9] w-full bg-black/50 relative overflow-hidden flex items-center justify-center">
+                      {proj.thumbnail ? (
+                        <img src={proj.thumbnail} alt={proj.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Gamepad2 className="size-8 text-white/30" />
+                      )}
+                    </div>
+                    <div className="p-3 flex flex-col gap-1">
+                      <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
+                        {proj.name}
+                      </h4>
+                      <div className="flex items-center gap-2 text-[10px] text-white/40">
+                        <span>{proj.genre || 'All'}</span>
+                        <span>👤 0</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="p-3 flex flex-col gap-1">
-                  <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
-                    hi read desc (i cant update my games)
-                  </h4>
-                  <div className="flex items-center gap-2 text-[10px] text-white/40">
-                    <span>N/A</span>
-                    <span>👤 0</span>
-                  </div>
-                </div>
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -237,41 +284,37 @@ export function Profile() {
       {activeTab === 'Games' && (
         <div className="flex flex-col gap-4">
           <h3 className="text-sm font-bold text-white tracking-tight">Created Experiences</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
-              <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
-                <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-center justify-center">
-                  <div className="w-20 h-10 bg-white/90 border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.6)] rounded-sm" />
-                </div>
-              </div>
-              <div className="p-3 flex flex-col gap-1">
-                <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
-                  new update
-                </h4>
-                <div className="flex items-center gap-2 text-[10px] text-white/40">
-                  <span>N/A</span>
-                  <span>👤 0</span>
-                </div>
-              </div>
+          {projects.length === 0 ? (
+            <div className="py-12 rounded-xl bg-[#161618]/50 border border-white/[0.04] flex flex-col items-center justify-center gap-2 text-center">
+              <Gamepad2 className="size-7 text-white/30" />
+              <span className="text-xs font-medium text-white/50">
+                No public experiences yet.
+              </span>
             </div>
-
-            <div className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
-              <div className="aspect-[16/9] w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
-                <div className="w-full h-full bg-gradient-to-b from-[#9bc4e2] to-[#5a9159] relative flex items-end justify-center">
-                  <div className="w-32 h-20 bg-neutral-200/90 rounded-t-sm shadow-md" />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {projects.map((proj) => (
+                <div key={proj.id} className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
+                  <div className="aspect-[16/9] w-full bg-black/50 relative overflow-hidden flex items-center justify-center">
+                    {proj.thumbnail ? (
+                      <img src={proj.thumbnail} alt={proj.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Gamepad2 className="size-8 text-white/30" />
+                    )}
+                  </div>
+                  <div className="p-3 flex flex-col gap-1">
+                    <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
+                      {proj.name}
+                    </h4>
+                    <div className="flex items-center gap-2 text-[10px] text-white/40">
+                      <span>{proj.genre || 'All'}</span>
+                      <span>👤 0</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="p-3 flex flex-col gap-1">
-                <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
-                  hi read desc (i cant update my games)
-                </h4>
-                <div className="flex items-center gap-2 text-[10px] text-white/40">
-                  <span>N/A</span>
-                  <span>👤 0</span>
-                </div>
-              </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       )}
 

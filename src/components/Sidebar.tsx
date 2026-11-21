@@ -1,3 +1,4 @@
+import { useState, useEffect, type MouseEvent } from 'react'
 import {
   Home,
   Gamepad2,
@@ -31,7 +32,7 @@ interface NavItemDef {
   isExternal?: boolean
 }
 
-const SIDEBAR_ITEMS: NavItemDef[] = [
+const ALL_SIDEBAR_ITEMS: NavItemDef[] = [
   { label: 'Home', icon: Home },
   { label: 'Games', icon: Gamepad2 },
   { label: 'Friends', icon: Users, badge: 6 },
@@ -53,14 +54,56 @@ export function Sidebar({
   onSelect,
   onToggleCollapse,
 }: SidebarProps) {
+  const [isTauri, setIsTauri] = useState(
+    typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
+  )
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)) {
+      setIsTauri(true)
+    }
+  }, [])
+
+  const items = ALL_SIDEBAR_ITEMS.filter(item => {
+    if (isTauri && item.label === 'Create') return false
+    return true
+  })
+
+  const handleHeaderMouseDown = async (e: MouseEvent<HTMLDivElement>) => {
+    if (!isTauri || e.button !== 0) return
+    const target = e.target as HTMLElement
+    if (target.closest('button, input, a, [role="button"]')) return
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window')
+      if (e.detail === 2) {
+        await getCurrentWindow().toggleMaximize()
+      } else {
+        await getCurrentWindow().startDragging()
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   if (collapsed) {
     return null
   }
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-50 w-[230px] bg-[#0a0a0a]/30 backdrop-blur-md border-r border-white/[0.04] flex flex-col select-none overflow-y-auto">
+    <aside
+      style={{
+        backgroundColor: 'rgba(10, 10, 10, 0.3)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+      }}
+      className="fixed left-0 top-0 bottom-0 z-50 w-[230px] border-r border-white/[0.04] flex flex-col select-none overflow-y-auto"
+    >
       {/* Top Header in Sidebar: Novelo Logo + Collapse Icon (No divider) */}
-      <div className="h-14 px-3.5 flex items-center justify-between shrink-0">
+      <div
+        data-tauri-drag-region
+        onMouseDown={handleHeaderMouseDown}
+        className="h-14 px-3.5 flex items-center justify-between shrink-0"
+      >
         <button
           onClick={() => onSelect?.('Home')}
           className="flex items-center gap-2 cursor-pointer group bg-transparent border-none p-0"
@@ -107,7 +150,7 @@ export function Sidebar({
 
       {/* Navigation list matching Luduvo pill highlight shape */}
       <div className="flex-1 py-1 px-2.5 flex flex-col gap-1">
-        {SIDEBAR_ITEMS.map((item) => {
+        {items.map((item) => {
           const isActive = activeItem === item.label
           return (
             <button

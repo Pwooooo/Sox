@@ -1,8 +1,12 @@
+import { useState, useEffect, type MouseEvent } from 'react'
 import {
   Menu as MenuIcon,
   Search,
   Bell,
   Settings,
+  Minus,
+  Square,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,14 +27,74 @@ export function Navbar({
   onOpenSettings,
   onNavigate,
 }: NavbarProps) {
+  const [isTauri, setIsTauri] = useState(
+    typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
+  )
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)) {
+      setIsTauri(true)
+    }
+  }, [])
+
+  const handleMinimize = async () => {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window')
+      await getCurrentWindow().minimize()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleMaximize = async () => {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window')
+      await getCurrentWindow().toggleMaximize()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleClose = async () => {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window')
+      await getCurrentWindow().close()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleHeaderMouseDown = async (e: MouseEvent<HTMLElement>) => {
+    if (!isTauri || e.button !== 0) return
+    const target = e.target as HTMLElement
+    if (target.closest('button, input, a, [role="button"]')) return
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window')
+      if (e.detail === 2) {
+        await getCurrentWindow().toggleMaximize()
+      } else {
+        await getCurrentWindow().startDragging()
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   return (
     <header
+      data-tauri-drag-region
+      onMouseDown={handleHeaderMouseDown}
+      style={{
+        backgroundColor: 'rgba(10, 10, 10, 0.3)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+      }}
       className={cn(
-        "fixed top-0 right-0 z-40 h-14 bg-[#0a0a0a]/30 backdrop-blur-md border-none transition-all duration-300",
+        "fixed top-0 right-0 z-40 h-14 border-none transition-all duration-300 select-none",
         sidebarCollapsed ? "left-0 px-3 md:px-5" : "left-0 md:left-[230px] px-3 md:px-6"
       )}
     >
-      <div className="h-full flex items-center justify-between gap-4">
+      <div data-tauri-drag-region className="h-full flex items-center justify-between gap-4">
         {/* Left Section: Only visible when sidebar is collapsed */}
         {sidebarCollapsed ? (
           <div className="flex items-center gap-3 shrink-0">
@@ -121,6 +185,33 @@ export function Navbar({
           >
             <Settings className="size-5 stroke-[1.75]" />
           </button>
+
+          {/* Desktop App Window Controls (Minimize, Maximize, Close) */}
+          {isTauri && (
+            <div className="flex items-center ml-1 gap-0.5">
+              <button
+                onClick={handleMinimize}
+                className="size-7 rounded flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer border-none bg-transparent"
+                title="Minimize"
+              >
+                <Minus className="size-3.5 stroke-[2]" />
+              </button>
+              <button
+                onClick={handleMaximize}
+                className="size-7 rounded flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer border-none bg-transparent"
+                title="Maximize"
+              >
+                <Square className="size-3 stroke-[2]" />
+              </button>
+              <button
+                onClick={handleClose}
+                className="size-7 rounded flex items-center justify-center text-white/70 hover:text-white hover:bg-[#e81123] transition-colors cursor-pointer border-none bg-transparent"
+                title="Close"
+              >
+                <X className="size-3.5 stroke-[2]" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

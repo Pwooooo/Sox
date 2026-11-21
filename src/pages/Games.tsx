@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
-import { Search, Flame, Trophy, Sparkles, Swords, Compass, Ghost, Shield, SlidersHorizontal } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Search, Flame, Trophy, Sparkles, Swords, Compass, Ghost, Shield } from 'lucide-react'
 import { GameCard } from '@/components/GameCard'
 import { GameDetailModal } from '@/components/GameDetailModal'
-import { RECOMMENDED_GAMES, CONTINUE_GAMES, GameDetailData } from '@/data/homeGames'
+import type { GameDetailData } from '@/data/homeGames'
 import { cn } from '@/lib/utils'
 
 const CATEGORIES = [
@@ -19,16 +19,59 @@ export function Games() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGame, setSelectedGame] = useState<GameDetailData | null>(null)
+  const [allGames, setAllGames] = useState<GameDetailData[]>([])
 
-  // Combine and deduplicate games
-  const allGames = useMemo(() => {
-    const list: GameDetailData[] = [...RECOMMENDED_GAMES, ...CONTINUE_GAMES]
-    const seen = new Set<string>()
-    return list.filter((g) => {
-      if (seen.has(g.id)) return false
-      seen.add(g.id)
-      return true
-    })
+  useEffect(() => {
+    let cancelled = false
+    const mapProjects = (list: any[]): GameDetailData[] =>
+      list
+        .filter((p: any) => !p.archived && p.privacy === 'Public')
+        .map((p: any) => ({
+          id: p.id,
+          name: p.name || 'Untitled Experience',
+          creator: 'Sky',
+          thumbnail: p.thumbnail || '',
+          likePercent: 100,
+          players: '0',
+          visitsCount: '0',
+          genre: p.genre || 'All',
+          subgenre: p.subgenre || 'None',
+          description: p.description || 'Created in Novelo Studio.',
+          serverSize: 20,
+        }))
+
+    const load = async () => {
+      try {
+        if ((window as any).__TAURI_INTERNALS__) {
+          const { invoke } = await import('@tauri-apps/api/core')
+          const raw = await invoke<string>('load_studio_projects')
+          if (!cancelled && raw) {
+            const parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) {
+              setAllGames(mapProjects(parsed))
+              return
+            }
+          }
+        }
+      } catch {
+        // Fallback to HTTP endpoint
+      }
+      try {
+        const res = await fetch('/api/studio-projects')
+        if (res.ok) {
+          const list = await res.json()
+          if (!cancelled && Array.isArray(list)) {
+            setAllGames(mapProjects(list))
+          }
+        }
+      } catch {
+        // Ignore offline fetch error
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const filteredGames = useMemo(() => {

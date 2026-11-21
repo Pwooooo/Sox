@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Folder,
   Home,
@@ -191,77 +191,7 @@ function ExperienceCardThumbnail({ exp }: { exp: Experience }) {
   )
 }
 
-const DEFAULT_EXPERIENCES: Experience[] = [
-  {
-    id: 'exp1',
-    name: 'Cat Battles',
-    promotionalText: '',
-    description: 'Battle alongside unique feline warriors in high-speed multiplayer combat arenas!',
-    genre: 'Fighting',
-    subgenre: '1v1 Arena',
-    privacy: 'Playtesters',
-    thumbnail: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
-    fallbackType: 'ocean',
-    updatedDate: '10/24/2026',
-    visits: '14.2K',
-    createdDate: '10/12/2026',
-  },
-  {
-    id: 'exp2',
-    name: 'Lifting Haven',
-    promotionalText: 'Double EXP Weekend active!',
-    description: 'Lift weights, gain power, and unlock massive gym upgrades across the scenic valley.',
-    genre: 'Simulation',
-    subgenre: 'Tycoon',
-    privacy: 'Playtesters',
-    thumbnail: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
-    fallbackType: 'autumn',
-    updatedDate: '10/18/2026',
-    visits: '89.1K',
-    createdDate: '9/28/2026',
-  },
-  {
-    id: 'exp3',
-    name: 'Pookie Dinosaur Wolrd',
-    promotionalText: '',
-    description: 'Explore prehistoric terrain and uncover dinosaur fossils in this sandbox world.',
-    genre: 'Adventure',
-    subgenre: 'Open World',
-    privacy: 'Playtesters',
-    fallbackType: 'baseplate',
-    updatedDate: '10/15/2026',
-    visits: '3.4K',
-    createdDate: '10/01/2026',
-  },
-  {
-    id: 'exp4',
-    name: 'Steal A Noob',
-    promotionalText: '',
-    description: 'Sneak into the village, grab noobs, and escape without getting caught!',
-    genre: 'Comedy',
-    subgenre: 'Survival',
-    privacy: 'Playtesters',
-    thumbnail: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=600&q=80',
-    fallbackType: 'house',
-    updatedDate: '10/10/2026',
-    visits: '124K',
-    createdDate: '8/14/2026',
-  },
-  {
-    id: 'exp5',
-    name: "JadexDraft1337's Place",
-    promotionalText: '',
-    description: 'Default starter place for JadexDraft1337.',
-    genre: 'Building',
-    subgenre: 'None',
-    privacy: 'Playtesters',
-    thumbnail: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80',
-    fallbackType: 'mountain',
-    updatedDate: '10/02/2026',
-    visits: '420',
-    createdDate: '7/20/2026',
-  },
-]
+const DEFAULT_EXPERIENCES: Experience[] = []
 
 interface CreateProps {
   onClose?: () => void
@@ -269,7 +199,7 @@ interface CreateProps {
 
 export function Create({ onClose }: CreateProps) {
   const [viewMode, setViewMode] = useState<'dashboard' | 'game_details' | 'studio'>('dashboard')
-  const [activeExp, setActiveExp] = useState<Experience>(DEFAULT_EXPERIENCES[0]) // Cat Battles
+  const [activeExp, setActiveExp] = useState<Experience | null>(null)
   const [experiences, setExperiences] = useState<Experience[]>(DEFAULT_EXPERIENCES)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
@@ -302,7 +232,7 @@ export function Create({ onClose }: CreateProps) {
   ])
   const [studioLogs, setStudioLogs] = useState<string[]>([
     'Novelo Studio Engine v2.4 initialized [DirectX12]',
-    'Loaded workspace place: ' + activeExp.name,
+    'Loaded workspace place: ' + (activeExp?.name ?? 'Untitled'),
     'Physical assembly verified (4 parts, 1 spawn location)',
     'Ready for editing.',
   ])
@@ -311,6 +241,67 @@ export function Create({ onClose }: CreateProps) {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(null), 3000)
   }
+
+  useEffect(() => {
+    let cancelled = false
+    const loadShared = async () => {
+      let rawList: any[] = []
+      try {
+        const res = await fetch('/api/studio-projects')
+        if (res.ok) rawList = await res.json()
+      } catch {
+        // ignore
+      }
+      if (!Array.isArray(rawList) || rawList.length === 0) {
+        try {
+          const { invoke } = await import('@tauri-apps/api/core')
+          const raw = await invoke<string>('load_studio_projects')
+          rawList = JSON.parse(raw)
+        } catch {
+          // ignore
+        }
+      }
+      if (cancelled || !Array.isArray(rawList) || rawList.length === 0) return
+
+      const studioExps: Experience[] = rawList
+        .filter((p) => !p.archived)
+        .map((p) => {
+          const d = new Date(p.updatedAt || Date.now())
+          const dateStr = `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`
+          return {
+            id: p.id,
+            name: p.name || 'Untitled Experience',
+            promotionalText: p.promo || '',
+            description: p.description || '',
+            genre: p.genre || 'Genre',
+            subgenre: p.subgenre || 'None',
+            privacy: p.privacy || 'Playtesters',
+            thumbnail: p.thumbnail || '',
+            fallbackType: 'baseplate' as const,
+            updatedDate: dateStr,
+            visits: '0',
+            createdDate: dateStr,
+          }
+        })
+
+      setExperiences((prev) => {
+        const studioIds = new Set(studioExps.map((e) => e.id))
+        return [...studioExps, ...prev.filter((e) => !studioIds.has(e.id))]
+      })
+
+      const targetExp = new URLSearchParams(window.location.search).get('experience')
+      if (targetExp) {
+        const match = studioExps.find((e) => e.id === targetExp || e.name === targetExp)
+        if (match) {
+          openGameDetails(match)
+        }
+      }
+    }
+    void loadShared()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Open Game Details when clicking on a card (matching Screenshot)
   const openGameDetails = (exp: Experience) => {
@@ -326,6 +317,7 @@ export function Create({ onClose }: CreateProps) {
 
   // Save Game Details
   const handleSaveDetails = () => {
+    if (!activeExp) return
     if (!formName.trim()) {
       showToast('Game name is required')
       return
@@ -347,15 +339,51 @@ export function Create({ onClose }: CreateProps) {
           : e
       )
     )
-    setActiveExp((prev) => ({
-      ...prev,
-      name: formName.trim(),
-      promotionalText: formPromo.trim(),
-      description: formDesc.trim(),
-      genre: formGenre,
-      subgenre: formSubgenre,
-      privacy: formPrivacy,
-    }))
+    setActiveExp((prev) =>
+      prev
+        ? {
+            ...prev,
+            name: formName.trim(),
+            promotionalText: formPromo.trim(),
+            description: formDesc.trim(),
+            genre: formGenre,
+            subgenre: formSubgenre,
+            privacy: formPrivacy,
+          }
+        : null,
+    )
+
+    // Sync updates back to shared Studio projects file
+    ;(async () => {
+      try {
+        const res = await fetch('/api/studio-projects')
+        if (!res.ok) return
+        const list = await res.json()
+        if (!Array.isArray(list)) return
+        const nextList = list.map((p: any) =>
+          p.id === activeExp.id
+            ? {
+                ...p,
+                name: formName.trim(),
+                promo: formPromo.trim(),
+                description: formDesc.trim(),
+                genre: formGenre,
+                subgenre: formSubgenre,
+                privacy: formPrivacy,
+                updatedAt: Date.now(),
+              }
+            : p,
+        )
+        await fetch('/api/studio-projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nextList),
+        })
+      } catch {
+        // ignore
+      }
+    })()
+
     setViewMode('dashboard')
   }
 
@@ -434,7 +462,7 @@ export function Create({ onClose }: CreateProps) {
   // -------------------------------------------------------------
   // VIEW 1: NOVELO STUDIO (MINIMALISTIC 3D STUDIO ENGINE)
   // -------------------------------------------------------------
-  if (viewMode === 'studio') {
+  if (viewMode === 'studio' && activeExp) {
     const currentPartObj = parts.find((p) => p.name === selectedPart) || parts[1]
 
     return (
@@ -671,7 +699,7 @@ export function Create({ onClose }: CreateProps) {
   // -------------------------------------------------------------
   // VIEW 2: GAME DETAILS (Matching Screenshot Exactly)
   // -------------------------------------------------------------
-  if (viewMode === 'game_details') {
+  if (viewMode === 'game_details' && activeExp) {
     return (
       <div className="fixed inset-0 z-50 bg-[#0a0a0a] text-white select-none flex flex-col overflow-y-auto no-scrollbar font-sans isolate">
         {/* Fullscreen Encoded Wave Drift Background */}
@@ -724,12 +752,12 @@ export function Create({ onClose }: CreateProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4 flex-wrap">
               {/* Box 1: Game Icon */}
-              <div className="relative size-28 rounded-xl bg-[#141418] border border-white/5 flex items-center justify-center overflow-hidden group shadow-md">
+              <div className="relative size-28 rounded-xl bg-[#0d0e11] border border-white/[0.08] flex items-center justify-center overflow-hidden group shadow-md">
                 <svg viewBox="0 0 100 100" className="size-14 text-white/20" fill="currentColor">
                   <path d="M 28 16 L 86 28 L 72 86 L 14 74 Z M 44 45 L 59 48 L 55 63 L 40 60 Z" fillRule="evenodd" />
                 </svg>
                 <button
-                  className="size-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors"
+                  className="size-7 rounded-full bg-black/75 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors"
                   title="Edit Icon"
                 >
                   <Pencil className="size-3.5" />
@@ -737,10 +765,10 @@ export function Create({ onClose }: CreateProps) {
               </div>
 
               {/* Box 2: Thumbnail */}
-              <div className="relative w-48 h-28 rounded-xl bg-[#141418] border border-white/5 flex items-center justify-center overflow-hidden group shadow-md">
+              <div className="relative w-48 h-28 rounded-xl bg-[#0d0e11] border border-white/[0.08] flex items-center justify-center overflow-hidden group shadow-md">
                 <ExperienceCardThumbnail exp={activeExp} />
                 <button
-                  className="size-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors z-10"
+                  className="size-7 rounded-full bg-black/75 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors z-10"
                   title="Edit Thumbnail"
                 >
                   <Pencil className="size-3.5" />
@@ -748,7 +776,7 @@ export function Create({ onClose }: CreateProps) {
               </div>
 
               {/* Box 3: No Video Uploaded */}
-              <div className="w-56 h-28 rounded-xl bg-[#141418] border border-white/10 p-3.5 flex flex-col items-center justify-center text-center gap-1.5 shadow-md">
+              <div className="w-56 h-28 rounded-xl bg-[#0d0e11] border border-white/[0.1] p-3.5 flex flex-col items-center justify-center text-center gap-1.5 shadow-md">
                 <span className="text-xs font-bold text-white leading-tight">
                   No video uploaded
                 </span>
@@ -756,7 +784,7 @@ export function Create({ onClose }: CreateProps) {
                   Upload a video to help users discover your game
                 </span>
                 <button
-                  className="mt-1 h-6 px-3.5 rounded-[6px] bg-[#222228] hover:bg-[#2c2c34] text-white text-[11px] font-semibold cursor-pointer border-none transition-colors"
+                  className="mt-1 h-6 px-3.5 rounded-[6px] bg-[#191a1f] hover:bg-[#23242b] text-white text-[11px] font-semibold cursor-pointer border-none transition-colors"
                 >
                   Continue
                 </button>
@@ -779,7 +807,7 @@ export function Create({ onClose }: CreateProps) {
               maxLength={50}
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              className="w-full h-10 px-3.5 rounded-[8px] bg-[#121216] border border-white/10 text-xs text-white focus:outline-none focus:border-white/30 transition-colors"
+              className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 transition-colors"
               placeholder="Experience Name"
             />
             <span className="text-[11px] text-white/40">
@@ -796,7 +824,7 @@ export function Create({ onClose }: CreateProps) {
               type="text"
               value={formPromo}
               onChange={(e) => setFormPromo(e.target.value)}
-              className="w-full h-10 px-3.5 rounded-[8px] bg-[#121216] border border-white/10 text-xs text-white focus:outline-none focus:border-white/30 transition-colors"
+              className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 transition-colors"
               placeholder="e.g. Double EXP Weekend active!"
             />
             <span className="text-[11px] text-white/40">
@@ -818,7 +846,7 @@ export function Create({ onClose }: CreateProps) {
               maxLength={1000}
               value={formDesc}
               onChange={(e) => setFormDesc(e.target.value)}
-              className="w-full p-3 rounded-[8px] bg-[#121216] border border-white/10 text-xs text-white focus:outline-none focus:border-white/30 transition-colors resize-y leading-relaxed"
+              className="w-full p-3 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 transition-colors resize-y leading-relaxed"
               placeholder="Enter details about your experience..."
             />
             <span className="text-[11px] text-white/40">
@@ -838,7 +866,7 @@ export function Create({ onClose }: CreateProps) {
                   value={formGenre}
                   onChange={setFormGenre}
                   options={genreOptions}
-                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#121216] border border-white/10 text-xs font-medium justify-between"
+                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs font-medium justify-between"
                   menuClassName="w-full"
                 />
               </div>
@@ -852,7 +880,7 @@ export function Create({ onClose }: CreateProps) {
                   value={formSubgenre}
                   onChange={setFormSubgenre}
                   options={subgenreOptions}
-                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#121216] border border-white/10 text-xs font-medium justify-between"
+                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs font-medium justify-between"
                   menuClassName="w-full"
                 />
               </div>
@@ -877,8 +905,8 @@ export function Create({ onClose }: CreateProps) {
                 onClick={() => setFormPrivacy('Public')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Public'
-                    ? 'bg-white/[0.06] border-white/30 text-white shadow-sm'
-                    : 'bg-[#121216] border-white/10 text-white/50 hover:text-white hover:border-white/20 hover:bg-white/[0.02]'
+                    ? 'bg-[#131418] border-white/35 text-white shadow-sm'
+                    : 'bg-[#0b0c0f] border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#101115]'
                 }`}
               >
                 <div
@@ -905,8 +933,8 @@ export function Create({ onClose }: CreateProps) {
                 onClick={() => setFormPrivacy('Private')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Private'
-                    ? 'bg-white/[0.06] border-white/30 text-white shadow-sm'
-                    : 'bg-[#121216] border-white/10 text-white/50 hover:text-white hover:border-white/20 hover:bg-white/[0.02]'
+                    ? 'bg-[#131418] border-white/35 text-white shadow-sm'
+                    : 'bg-[#0b0c0f] border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#101115]'
                 }`}
               >
                 <div
@@ -933,8 +961,8 @@ export function Create({ onClose }: CreateProps) {
                 onClick={() => setFormPrivacy('Playtesters')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Playtesters'
-                    ? 'bg-white/[0.06] border-white/30 text-white shadow-sm'
-                    : 'bg-[#121216] border-white/10 text-white/50 hover:text-white hover:border-white/20 hover:bg-white/[0.02]'
+                    ? 'bg-[#131418] border-white/35 text-white shadow-sm'
+                    : 'bg-[#0b0c0f] border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#101115]'
                 }`}
               >
                 <div
@@ -962,13 +990,13 @@ export function Create({ onClose }: CreateProps) {
           <div className="flex items-center gap-3 pt-4">
             <button
               onClick={handleSaveDetails}
-              className="h-9 px-5 rounded-[8px] bg-[#222226] hover:bg-white hover:text-black text-white font-bold text-xs cursor-pointer border-none transition-colors shadow-sm"
+              className="h-9 px-5 rounded-[8px] bg-white hover:bg-white/90 text-[#0c0d10] font-bold text-xs cursor-pointer border-none transition-colors shadow-sm"
             >
-              Save
+              Save Changes
             </button>
             <button
               onClick={() => setViewMode('dashboard')}
-              className="h-9 px-5 rounded-[8px] bg-[#1c1c20] hover:bg-[#242428] text-white font-bold text-xs cursor-pointer border-none transition-colors"
+              className="h-9 px-5 rounded-[8px] bg-[#18191e] hover:bg-[#22232a] text-white font-bold text-xs cursor-pointer border-none transition-colors"
             >
               Cancel
             </button>
