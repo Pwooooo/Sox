@@ -271,6 +271,7 @@ export class TerrainSurface {
   private leafTex: THREE.Texture | null = null
   private terrainGrassMesh: THREE.InstancedMesh | null = null
   private terrainGrassMat: THREE.MeshStandardMaterial | null = null
+  private wildflowersMesh: THREE.InstancedMesh | null = null
   private treeTrunksMesh: THREE.InstancedMesh | null = null
   private treeLeavesMesh: THREE.InstancedMesh | null = null
   private treeLeavesMat: THREE.MeshStandardMaterial | null = null
@@ -316,15 +317,15 @@ export class TerrainSurface {
       switch (biome) {
         case 'Mountains':
           hNorm = Math.pow(ridge, 1.8) * 1.1 + Math.pow(n1, 1.35) * 0.45 + n2 * 0.18
-          hex = hNorm > 0.72 ? '#e2e8f0' : hNorm > 0.42 ? '#64748b' : '#3b7a48'
+          hex = hNorm > 0.72 ? '#e2e8f0' : hNorm > 0.42 ? '#64748b' : '#4e8337'
           break
         case 'Hills':
           hNorm = n1 * 0.58 + n2 * 0.16 + 0.08
-          hex = hNorm > 0.48 ? '#4e7343' : '#3b7a48'
+          hex = hNorm > 0.48 ? '#5d943c' : '#4e8337'
           break
         case 'Plains':
           hNorm = n1 * 0.24 + n2 * 0.06 + 0.06
-          hex = '#3f8a47'
+          hex = '#5a9139'
           break
         case 'Dunes':
           hNorm = Math.abs(Math.sin(wx * freqScale * 3.5 + n1 * 4)) * 0.35 + n1 * 0.22
@@ -521,15 +522,21 @@ export class TerrainSurface {
     }
 
     if (grassPoints.length > 0) {
-      // 1. Dense 6-blade swaying grass clusters across grassy terrain slopes
+      // Prioritize meadow points within the visible valley radius so density is ultra-thick
+      const nearPoints = grassPoints.filter(
+        (pt) => Math.hypot(pt.x - this.origin[0], pt.z - this.origin[2]) < 112,
+      )
+      const sourcePoints = nearPoints.length > 500 ? nearPoints : grassPoints
+
+      // 1. Dense 10-blade swaying meadow grass clusters
       const makeBlade = (ox: number, oz: number, rotY: number, tilt: number, hScale: number) => {
-        const g = new THREE.PlaneGeometry(0.18, 0.56 * hScale, 1, 2)
-        g.translate(0, 0.28 * hScale, 0)
+        const g = new THREE.PlaneGeometry(0.24, 0.62 * hScale, 1, 2)
+        g.translate(0, 0.31 * hScale, 0)
         const p = g.attributes.position
         const n = g.attributes.normal
         for (let i = 0; i < p.count; i++) {
-          const h = p.getY(i) / (0.56 * hScale)
-          p.setX(i, p.getX(i) * (1 - h * 0.88))
+          const h = p.getY(i) / (0.62 * hScale)
+          p.setX(i, p.getX(i) * (1 - h * 0.85))
           p.setZ(i, h * h * tilt)
           n.setXYZ(i, 0, 1, 0)
         }
@@ -538,12 +545,16 @@ export class TerrainSurface {
         return g
       }
       const subBlades = [
-        makeBlade(-0.22, -0.18, 0.2, 0.14, 0.9),
-        makeBlade(0.24, -0.14, 1.3, 0.12, 1.05),
-        makeBlade(-0.15, 0.22, 2.1, 0.15, 0.85),
-        makeBlade(0.2, 0.21, 0.8, 0.11, 1.0),
-        makeBlade(0.0, -0.02, 2.7, 0.13, 1.15),
-        makeBlade(-0.28, 0.05, 1.7, 0.12, 0.8),
+        makeBlade(-0.28, -0.22, 0.2, 0.16, 0.92),
+        makeBlade(0.26, -0.18, 1.3, 0.14, 1.06),
+        makeBlade(-0.18, 0.26, 2.1, 0.17, 0.88),
+        makeBlade(0.24, 0.24, 0.8, 0.13, 1.02),
+        makeBlade(0.0, -0.04, 2.7, 0.15, 1.15),
+        makeBlade(-0.32, 0.06, 1.7, 0.14, 0.84),
+        makeBlade(0.08, -0.29, 0.55, 0.15, 0.96),
+        makeBlade(-0.08, 0.31, 2.45, 0.16, 0.90),
+        makeBlade(0.32, 0.03, 1.95, 0.14, 1.08),
+        makeBlade(-0.12, -0.11, 3.05, 0.13, 1.12),
       ]
       const totalV = subBlades.reduce((a, s) => a + s.attributes.position.count, 0)
       const pArr = new Float32Array(totalV * 3)
@@ -564,10 +575,10 @@ export class TerrainSurface {
 
       const grassMat = new THREE.MeshStandardMaterial({
         color: '#ffffff',
-        roughness: 0.85,
+        roughness: 0.82,
         metalness: 0,
-        emissive: new THREE.Color('#19381f'),
-        emissiveIntensity: 0.45,
+        emissive: new THREE.Color('#2f521c'),
+        emissiveIntensity: 0.4,
         side: THREE.DoubleSide,
       })
       grassMat.onBeforeCompile = (shader) => {
@@ -577,10 +588,10 @@ export class TerrainSurface {
         shader.vertexShader = shader.vertexShader.replace(
           '#include <begin_vertex>',
           `#include <begin_vertex>
-          float hFactor = clamp(position.y / 0.56, 0.0, 1.0);
+          float hFactor = clamp(position.y / 0.62, 0.0, 1.0);
           vec4 worldInst = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
           float distCam = length(cameraPosition - worldInst.xyz);
-          float distFade = 1.0 - smoothstep(42.0, 88.0, distCam);
+          float distFade = 1.0 - smoothstep(62.0, 125.0, distCam);
           float sway = sin(uTime * 2.0 + worldInst.x * 0.35 + worldInst.z * 0.25) * 0.16 * hFactor * hFactor;
           transformed.y *= distFade;
           transformed.x += sway * distFade;
@@ -588,27 +599,28 @@ export class TerrainSurface {
         )
       }
 
-      const grassCount = Math.min(24000, grassPoints.length)
+      const grassCount = 65000
       const grassInst = new THREE.InstancedMesh(grassGeo, grassMat, grassCount)
       grassInst.receiveShadow = true
       const dummy = new THREE.Object3D()
       const tmpC = new THREE.Color()
-      const stride = Math.max(1, Math.floor(grassPoints.length / grassCount))
       for (let i = 0; i < grassCount; i++) {
-        const pt = grassPoints[(i * stride) % grassPoints.length]
+        const pt = sourcePoints[(i * 7 + Math.floor(i / sourcePoints.length) * 3) % sourcePoints.length]
         const rx = Math.sin(i * 12.9898) * 43758.5453
         const rz = Math.sin(i * 78.233) * 43758.5453
-        dummy.position.set(
-          pt.x + ((rx - Math.floor(rx)) - 0.5) * 0.8,
-          pt.y - 0.05,
-          pt.z + ((rz - Math.floor(rz)) - 0.5) * 0.8,
-        )
+        const jx = ((rx - Math.floor(rx)) - 0.5) * 1.45
+        const jz = ((rz - Math.floor(rz)) - 0.5) * 1.45
+        dummy.position.set(pt.x + jx, pt.y - 0.06, pt.z + jz)
         dummy.rotation.set(0, rx % 6.28, 0)
-        const sc = 0.85 + (i % 5) * 0.14
-        dummy.scale.set(sc, sc * (0.9 + (i % 3) * 0.18), sc)
+        const sc = 0.92 + (i % 5) * 0.15
+        dummy.scale.set(sc * 1.08, sc * (0.95 + (i % 3) * 0.18), sc * 1.08)
         dummy.updateMatrix()
         grassInst.setMatrixAt(i, dummy.matrix)
-        tmpC.setRGB(pt.r, pt.g, pt.b).offsetHSL(0.01 * ((i % 3) - 1), 0.06, 0.08)
+        const patch = smoothNoise2D((pt.x + jx) * 0.08, (pt.z + jz) * 0.08, cfg.seed + 41)
+        tmpC
+          .setRGB(pt.r, pt.g, pt.b)
+          .lerp(blendColor.set('#7ab344'), 0.28 + patch * 0.35)
+          .offsetHSL(0.012 * ((i % 3) - 1), 0.05, 0.04)
         grassInst.setColorAt(i, tmpC)
       }
       grassInst.instanceMatrix.needsUpdate = true
@@ -616,6 +628,46 @@ export class TerrainSurface {
       this.terrainGrassMat = grassMat
       this.terrainGrassMesh = grassInst
       this.group.add(grassInst)
+
+      // 1b. Subtle meadow wildflower patches (pale cream & buttercup dots)
+      const flowerCandidates = sourcePoints.filter(
+        (pt) =>
+          pt.y < this.origin[1] + maxHeight * 0.45 &&
+          smoothNoise2D(pt.x * 0.075, pt.z * 0.075, cfg.seed + 777) > 0.54,
+      )
+      if (flowerCandidates.length > 0) {
+        const flowerGeo = new THREE.DodecahedronGeometry(0.095, 0)
+        const flowerMat = new THREE.MeshStandardMaterial({
+          color: '#ffffff',
+          roughness: 0.7,
+          metalness: 0,
+          emissive: new THREE.Color('#ece59e'),
+          emissiveIntensity: 0.22,
+        })
+        const flowerCount = Math.min(3600, flowerCandidates.length * 2)
+        const flowerInst = new THREE.InstancedMesh(flowerGeo, flowerMat, flowerCount)
+        for (let i = 0; i < flowerCount; i++) {
+          const pt = flowerCandidates[i % flowerCandidates.length]
+          const rx = Math.sin(i * 45.164) * 43758.5453
+          const rz = Math.sin(i * 93.989) * 43758.5453
+          dummy.position.set(
+            pt.x + ((rx - Math.floor(rx)) - 0.5) * 1.4,
+            pt.y + 0.34 + (i % 3) * 0.06,
+            pt.z + ((rz - Math.floor(rz)) - 0.5) * 1.4,
+          )
+          dummy.rotation.set(rx % 3, rz % 3, 0)
+          const fsc = 0.7 + (i % 4) * 0.2
+          dummy.scale.set(fsc, fsc * 0.65, fsc)
+          dummy.updateMatrix()
+          flowerInst.setMatrixAt(i, dummy.matrix)
+          tmpC.set(i % 3 === 0 ? '#fffbe0' : i % 3 === 1 ? '#f3ee9e' : '#e8e494')
+          flowerInst.setColorAt(i, tmpC)
+        }
+        flowerInst.instanceMatrix.needsUpdate = true
+        if (flowerInst.instanceColor) flowerInst.instanceColor.needsUpdate = true
+        this.wildflowersMesh = flowerInst
+        this.group.add(flowerInst)
+      }
 
       // 2. Custom Leafy Trees (branching 3D skeleton + 512px veined leaf sprigs)
       const treeCandidates = grassPoints.filter((pt) => pt.y < this.origin[1] + maxHeight * 0.62)
@@ -818,6 +870,12 @@ export class TerrainSurface {
     if (this.terrainGrassMat) {
       this.terrainGrassMat.dispose()
       this.terrainGrassMat = null
+    }
+    if (this.wildflowersMesh) {
+      this.group.remove(this.wildflowersMesh)
+      this.wildflowersMesh.geometry.dispose()
+      ;(this.wildflowersMesh.material as THREE.Material).dispose()
+      this.wildflowersMesh = null
     }
     if (this.treeTrunksMesh) {
       this.group.remove(this.treeTrunksMesh)

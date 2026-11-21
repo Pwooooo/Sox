@@ -55,8 +55,8 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     container.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color('#f3ece2')
-    scene.fog = new THREE.FogExp2('#f3ece2', 0.0046)
+    scene.background = new THREE.Color('#dce8f2')
+    scene.fog = new THREE.FogExp2('#dce8f2', 0.0025)
 
     const camera = new THREE.PerspectiveCamera(48, w / h, 0.2, 520)
 
@@ -87,9 +87,9 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       side: THREE.BackSide,
       depthWrite: false,
       uniforms: {
-        topColor: { value: new THREE.Color('#78a5d6') },
-        horizonColor: { value: new THREE.Color('#f5efe6') },
-        bottomColor: { value: new THREE.Color('#fcf8f2') },
+        topColor: { value: new THREE.Color('#5b92d1') },
+        horizonColor: { value: new THREE.Color('#dce8f2') },
+        bottomColor: { value: new THREE.Color('#f5f7fa') },
         sunDir: { value: new THREE.Vector3(62, 82, 48).normalize() },
         sunColor: { value: new THREE.Color('#fff9ed') },
       },
