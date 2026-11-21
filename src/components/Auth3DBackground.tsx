@@ -18,6 +18,7 @@ const QUALITY_CONFIGS: Record<
     bloomRadius: number
     bloomThreshold: number
     envMap: boolean
+    grassCount: number
   }
 > = {
   Low: {
@@ -29,16 +30,18 @@ const QUALITY_CONFIGS: Record<
     bloomRadius: 0,
     bloomThreshold: 1,
     envMap: false,
+    grassCount: 0,
   },
   Medium: {
     pixelRatioCap: 1.5,
     shadowMapSize: 1024,
     shadows: true,
     bloom: true,
-    bloomStrength: 0.25,
-    bloomRadius: 0.4,
-    bloomThreshold: 0.9,
+    bloomStrength: 0.3,
+    bloomRadius: 0.65,
+    bloomThreshold: 0.72,
     envMap: false,
+    grassCount: 1500,
   },
   High: {
     pixelRatioCap: 2,
@@ -46,19 +49,21 @@ const QUALITY_CONFIGS: Record<
     shadows: true,
     bloom: true,
     bloomStrength: 0.42,
-    bloomRadius: 0.55,
-    bloomThreshold: 0.82,
+    bloomRadius: 0.78,
+    bloomThreshold: 0.65,
     envMap: true,
+    grassCount: 4000,
   },
   Max: {
     pixelRatioCap: 2,
     shadowMapSize: 2048,
     shadows: true,
     bloom: true,
-    bloomStrength: 0.55,
-    bloomRadius: 0.65,
-    bloomThreshold: 0.75,
+    bloomStrength: 0.52,
+    bloomRadius: 0.88,
+    bloomThreshold: 0.58,
     envMap: true,
+    grassCount: 8000,
   },
 }
 
@@ -182,6 +187,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     let envRT: THREE.WebGLRenderTarget | null = null
     const animatedCrystals: THREE.Mesh[] = []
     const animatedClouds: THREE.Mesh[] = []
+    let grassMaterial: THREE.MeshStandardMaterial | null = null
 
     const buildFromDoc = (doc: any) => {
       const preset = doc?.lighting?.preset || 'GoldenSunset'
@@ -265,6 +271,8 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       scene.add(fill)
 
       const parts = collectNvloParts(doc?.root)
+      const grassSurfaces: { x: number; y: number; z: number; sx: number; sz: number; color: string }[] = []
+
       for (const p of parts) {
         const props = p.properties || {}
         const shape = props.Shape || 'Brick'
@@ -310,6 +318,67 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
 
         if (isNeon) animatedCrystals.push(mesh)
         if ((props.Name || p.name) === 'Cloud') animatedClouds.push(mesh)
+        if (matType === 'Grass' && shape !== 'Sphere' && (props.Name || p.name) !== 'Baseplate') {
+          grassSurfaces.push({
+            x: pos[0],
+            y: pos[1] + size[1] / 2,
+            z: pos[2],
+            sx: size[0] * 0.85,
+            sz: size[2] * 0.85,
+            color: colorHex,
+          })
+        }
+      }
+
+      // Instanced 3D Grass Leaves / Blades with wind sway
+      if (cfg.grassCount > 0 && grassSurfaces.length > 0) {
+        const bladeGeo = new THREE.ConeGeometry(0.065, 0.52, 3)
+        bladeGeo.translate(0, 0.26, 0)
+        grassMaterial = new THREE.MeshStandardMaterial({
+          color: '#4ea85d',
+          roughness: 0.78,
+          metalness: 0.05,
+        })
+        grassMaterial.onBeforeCompile = (shader) => {
+          shader.uniforms.uTime = { value: 0 }
+          grassMaterial!.userData.shader = shader
+          shader.vertexShader = 'uniform float uTime;\n' + shader.vertexShader
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <begin_vertex>',
+            `#include <begin_vertex>
+            float hFactor = clamp(position.y / 0.52, 0.0, 1.0);
+            vec4 worldInst = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+            float sway = sin(uTime * 1.9 + worldInst.x * 0.35 + worldInst.z * 0.25) * 0.14 * hFactor * hFactor;
+            transformed.x += sway;
+            transformed.z += sway * 0.6;`,
+          )
+        }
+
+        const instancedGrass = new THREE.InstancedMesh(bladeGeo, grassMaterial, cfg.grassCount)
+        instancedGrass.receiveShadow = cfg.shadows
+        const dummy = new THREE.Object3D()
+        const baseCol = new THREE.Color()
+
+        for (let i = 0; i < cfg.grassCount; i++) {
+          const surf = grassSurfaces[i % grassSurfaces.length]
+          const rx = Math.sin(i * 12.9898) * 43758.5453
+          const rz = Math.sin(i * 78.233) * 43758.5453
+          const ux = rx - Math.floor(rx) - 0.5
+          const uz = rz - Math.floor(rz) - 0.5
+
+          dummy.position.set(surf.x + ux * surf.sx, surf.y - 0.02, surf.z + uz * surf.sz)
+          dummy.rotation.set((ux * 0.25), (rx % 6.28), (uz * 0.25))
+          const s = 0.75 + (i % 5) * 0.18
+          dummy.scale.set(s, s * (0.9 + (i % 3) * 0.2), s)
+          dummy.updateMatrix()
+          instancedGrass.setMatrixAt(i, dummy.matrix)
+
+          baseCol.set(surf.color).offsetHSL(0.01 * ((i % 3) - 1), 0.05, 0.04 * ((i % 4) - 1))
+          instancedGrass.setColorAt(i, baseCol)
+        }
+        instancedGrass.instanceMatrix.needsUpdate = true
+        if (instancedGrass.instanceColor) instancedGrass.instanceColor.needsUpdate = true
+        scene.add(instancedGrass)
       }
     }
 
@@ -350,6 +419,9 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       for (const cl of animatedClouds) {
         cl.position.x += 0.01
         if (cl.position.x > 65) cl.position.x = -65
+      }
+      if (grassMaterial?.userData?.shader) {
+        grassMaterial.userData.shader.uniforms.uTime.value = t
       }
 
       if (composer) {
