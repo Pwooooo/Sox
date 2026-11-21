@@ -65,6 +65,9 @@ export default defineConfig({
         ...(fs.existsSync(path.resolve(__dirname, 'Novelo Engine'))
           ? { studio: path.resolve(__dirname, 'studio.html') }
           : {}),
+        ...(fs.existsSync(path.resolve(__dirname, 'Novelo Engine Cinema'))
+          ? { scenestudio: path.resolve(__dirname, 'scenestudio.html') }
+          : {}),
       },
     },
   },
