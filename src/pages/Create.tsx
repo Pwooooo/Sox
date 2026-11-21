@@ -722,13 +722,6 @@ export function Create({ onClose }: CreateProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => openInStudio(activeExp)}
-              className="h-8 px-3.5 rounded-[8px] bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer border-none shadow-sm transition-all"
-            >
-              <Play className="size-3 fill-current" />
-              <span>Edit in Studio</span>
-            </button>
             {onClose && (
               <button
                 onClick={onClose}
@@ -774,26 +767,11 @@ export function Create({ onClose }: CreateProps) {
                   <Pencil className="size-3.5" />
                 </button>
               </div>
-
-              {/* Box 3: No Video Uploaded */}
-              <div className="w-56 h-28 rounded-xl bg-[#121212] border border-white/[0.08] p-3.5 flex flex-col items-center justify-center text-center gap-1.5 shadow-md">
-                <span className="text-xs font-bold text-white leading-tight">
-                  No video uploaded
-                </span>
-                <span className="text-[10px] text-white/50 leading-tight">
-                  Upload a video to help users discover your game
-                </span>
-                <button
-                  className="mt-1 h-6 px-3.5 rounded-[6px] bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white text-[11px] font-semibold cursor-pointer border-none transition-colors"
-                >
-                  Continue
-                </button>
-              </div>
             </div>
 
             {/* Inherited subtext matching Screenshot */}
             <span className="text-[11px] text-white/40 mt-1">
-              Icon, thumbnail, and gameplay video are inherited from start place
+              Icon and thumbnail are inherited from start place
             </span>
           </div>
 
