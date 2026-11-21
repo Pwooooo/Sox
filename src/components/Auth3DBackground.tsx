@@ -55,8 +55,8 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     container.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color('#dce8f2')
-    scene.fog = new THREE.FogExp2('#dce8f2', 0.0025)
+    scene.background = new THREE.Color('#cfe0f0')
+    scene.fog = new THREE.FogExp2('#cfe0f0', 0.0014)
 
     const camera = new THREE.PerspectiveCamera(48, w / h, 0.2, 520)
 
@@ -193,10 +193,10 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       terrain.update(t)
 
       const orbit = t * 0.045
-      camera.position.x = Math.sin(orbit) * 48
-      camera.position.z = Math.cos(orbit) * 48
-      camera.position.y = 26 + Math.sin(t * 0.16) * 2.5
-      camera.lookAt(Math.sin(orbit + 0.7) * 14, 14, Math.cos(orbit + 0.7) * 14)
+      camera.position.x = Math.sin(orbit) * 44
+      camera.position.z = Math.cos(orbit) * 44
+      camera.position.y = 17.5 + Math.sin(t * 0.16) * 2.0
+      camera.lookAt(Math.sin(orbit + 0.7) * 14, 11.5, Math.cos(orbit + 0.7) * 14)
 
       if (composer) {
         composer.render()

@@ -205,6 +205,56 @@ function createLeafClusterTexture(size = 512): THREE.CanvasTexture {
   return tex
 }
 
+function createGrassTuftTexture(size = 256): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')!
+  ctx.clearRect(0, 0, size, size)
+
+  // Draw 38 soft, curved, tapered meadow grass blades fanning from the base
+  const bladeCount = 38
+  for (let i = 0; i < bladeCount; i++) {
+    const t = i / (bladeCount - 1)
+    const rx = Math.sin(i * 19.37 + 1.7) * 43758.5453
+    const ry = Math.sin(i * 73.11 + 4.2) * 43758.5453
+    const r1 = rx - Math.floor(rx)
+    const r2 = ry - Math.floor(ry)
+
+    const baseX = size * (0.1 + t * 0.8 + (r1 - 0.5) * 0.06)
+    const baseY = size + 4
+    const h = size * (0.42 + r2 * 0.52)
+    const lean = (t - 0.5) * size * 0.34 + (r1 - 0.5) * size * 0.16
+    const tipX = Math.max(4, Math.min(size - 4, baseX + lean))
+    const tipY = size - h
+    const ctrlX = (baseX + tipX) * 0.5 - lean * 0.18
+    const ctrlY = baseY - h * 0.55
+    const halfW = size * (0.016 + r1 * 0.014)
+
+    const grad = ctx.createLinearGradient(baseX, baseY, tipX, tipY)
+    const shade = 0.85 + r2 * 0.3
+    grad.addColorStop(0, `rgb(${Math.round(38 * shade)}, ${Math.round(68 * shade)}, ${Math.round(24 * shade)})`)
+    grad.addColorStop(0.55, `rgb(${Math.round(92 * shade)}, ${Math.round(145 * shade)}, ${Math.round(48 * shade)})`)
+    grad.addColorStop(1, `rgb(${Math.round(142 * shade)}, ${Math.round(190 * shade)}, ${Math.round(74 * shade)})`)
+
+    ctx.fillStyle = grad
+    ctx.beginPath()
+    ctx.moveTo(baseX - halfW, baseY)
+    ctx.quadraticCurveTo(ctrlX - halfW * 0.45, ctrlY, tipX, tipY)
+    ctx.quadraticCurveTo(ctrlX + halfW * 0.45, ctrlY, baseX + halfW, baseY)
+    ctx.closePath()
+    ctx.fill()
+  }
+
+  const tex = new THREE.CanvasTexture(canvas)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.anisotropy = 4
+  tex.wrapS = THREE.ClampToEdgeWrapping
+  tex.wrapT = THREE.ClampToEdgeWrapping
+  tex.needsUpdate = true
+  return tex
+}
+
 function buildBranchingTreeGeometry(): THREE.BufferGeometry {
   const parts: THREE.BufferGeometry[] = []
   const addCyl = (rTop: number, rBot: number, h: number, pos: [number, number, number], rot: [number, number, number]) => {
@@ -269,6 +319,7 @@ export class TerrainSurface {
   private terrainTex: THREE.Texture | null = null
   private barkTex: THREE.Texture | null = null
   private leafTex: THREE.Texture | null = null
+  private grassTex: THREE.Texture | null = null
   private terrainGrassMesh: THREE.InstancedMesh | null = null
   private terrainGrassMat: THREE.MeshStandardMaterial | null = null
   private wildflowersMesh: THREE.InstancedMesh | null = null
@@ -522,48 +573,59 @@ export class TerrainSurface {
     }
 
     if (grassPoints.length > 0) {
-      // Prioritize meadow points within the visible valley radius so density is ultra-thick
-      const nearPoints = grassPoints.filter(
-        (pt) => Math.hypot(pt.x - this.origin[0], pt.z - this.origin[2]) < 112,
-      )
-      const sourcePoints = nearPoints.length > 500 ? nearPoints : grassPoints
-
-      // 1. Dense 10-blade swaying meadow grass clusters
-      const makeBlade = (ox: number, oz: number, rotY: number, tilt: number, hScale: number) => {
-        const g = new THREE.PlaneGeometry(0.24, 0.62 * hScale, 1, 2)
-        g.translate(0, 0.31 * hScale, 0)
-        const p = g.attributes.position
-        const n = g.attributes.normal
-        for (let i = 0; i < p.count; i++) {
-          const h = p.getY(i) / (0.62 * hScale)
-          p.setX(i, p.getX(i) * (1 - h * 0.85))
-          p.setZ(i, h * h * tilt)
-          n.setXYZ(i, 0, 1, 0)
-        }
-        g.rotateY(rotY)
-        g.translate(ox, 0, oz)
-        return g
+      // Bilinear height & biome color sampler over the terrain grid (eliminates vertex-grid lanes)
+      const cols = this.segX + 1
+      const zStart = posAttr.getZ(0)
+      const zEnd = posAttr.getZ(count - 1)
+      const xStart = posAttr.getX(0)
+      const xEnd = posAttr.getX(cols - 1)
+      const sampleSurface = (lx: number, lz: number) => {
+        const u = Math.max(0, Math.min(this.segX - 0.001, ((lx - xStart) / (xEnd - xStart)) * this.segX))
+        const v = Math.max(0, Math.min(this.segZ - 0.001, ((lz - zStart) / (zEnd - zStart)) * this.segZ))
+        const ix = Math.floor(u)
+        const iz = Math.floor(v)
+        const tx = u - ix
+        const tz = v - iz
+        const i00 = iz * cols + ix
+        const i10 = i00 + 1
+        const i01 = i00 + cols
+        const i11 = i01 + 1
+        const y0 = posAttr.getY(i00) * (1 - tx) + posAttr.getY(i10) * tx
+        const y1 = posAttr.getY(i01) * (1 - tx) + posAttr.getY(i11) * tx
+        const y = y0 * (1 - tz) + y1 * tz
+        const w00 = (1 - tx) * (1 - tz)
+        const w10 = tx * (1 - tz)
+        const w01 = (1 - tx) * tz
+        const w11 = tx * tz
+        const r = colors[i00 * 3] * w00 + colors[i10 * 3] * w10 + colors[i01 * 3] * w01 + colors[i11 * 3] * w11
+        const g = colors[i00 * 3 + 1] * w00 + colors[i10 * 3 + 1] * w10 + colors[i01 * 3 + 1] * w01 + colors[i11 * 3 + 1] * w11
+        const b = colors[i00 * 3 + 2] * w00 + colors[i10 * 3 + 2] * w10 + colors[i01 * 3 + 2] * w01 + colors[i11 * 3 + 2] * w11
+        return { y, r, g, b }
       }
-      const subBlades = [
-        makeBlade(-0.28, -0.22, 0.2, 0.16, 0.92),
-        makeBlade(0.26, -0.18, 1.3, 0.14, 1.06),
-        makeBlade(-0.18, 0.26, 2.1, 0.17, 0.88),
-        makeBlade(0.24, 0.24, 0.8, 0.13, 1.02),
-        makeBlade(0.0, -0.04, 2.7, 0.15, 1.15),
-        makeBlade(-0.32, 0.06, 1.7, 0.14, 0.84),
-        makeBlade(0.08, -0.29, 0.55, 0.15, 0.96),
-        makeBlade(-0.08, 0.31, 2.45, 0.16, 0.90),
-        makeBlade(0.32, 0.03, 1.95, 0.14, 1.08),
-        makeBlade(-0.12, -0.11, 3.05, 0.13, 1.12),
-      ]
-      const totalV = subBlades.reduce((a, s) => a + s.attributes.position.count, 0)
+
+      // 1. Crossed 3-plane alpha-cutout grass clump geometry (soft upward normals, ~38 curved blades per plane)
+      const clumpPlanes: THREE.BufferGeometry[] = []
+      for (let k = 0; k < 3; k++) {
+        const g = new THREE.PlaneGeometry(1.18, 0.62, 1, 2)
+        g.translate(0, 0.31, 0)
+        const n = g.attributes.normal
+        for (let vi = 0; vi < n.count; vi++) {
+          n.setXYZ(vi, 0, 1, 0)
+        }
+        g.rotateX(0.14)
+        g.rotateY((k * Math.PI) / 3)
+        clumpPlanes.push(g)
+      }
+      const totalV = clumpPlanes.reduce((a, s) => a + s.attributes.position.count, 0)
       const pArr = new Float32Array(totalV * 3)
       const nArr = new Float32Array(totalV * 3)
+      const uvArr = new Float32Array(totalV * 2)
       const idxs: number[] = []
       let vOff = 0
-      for (const s of subBlades) {
+      for (const s of clumpPlanes) {
         pArr.set(s.attributes.position.array as Float32Array, vOff * 3)
         nArr.set(s.attributes.normal.array as Float32Array, vOff * 3)
+        uvArr.set(s.attributes.uv.array as Float32Array, vOff * 2)
         for (const id of s.index!.array) idxs.push(id + vOff)
         vOff += s.attributes.position.count
         s.dispose()
@@ -571,14 +633,20 @@ export class TerrainSurface {
       const grassGeo = new THREE.BufferGeometry()
       grassGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3))
       grassGeo.setAttribute('normal', new THREE.BufferAttribute(nArr, 3))
+      grassGeo.setAttribute('uv', new THREE.BufferAttribute(uvArr, 2))
       grassGeo.setIndex(idxs)
 
+      const grassTex = createGrassTuftTexture(256)
+      this.grassTex = grassTex
       const grassMat = new THREE.MeshStandardMaterial({
+        map: grassTex,
+        alphaTest: 0.32,
+        alphaToCoverage: true,
         color: '#ffffff',
-        roughness: 0.82,
+        roughness: 0.86,
         metalness: 0,
-        emissive: new THREE.Color('#2f521c'),
-        emissiveIntensity: 0.4,
+        emissive: new THREE.Color('#274216'),
+        emissiveIntensity: 0.16,
         side: THREE.DoubleSide,
       })
       grassMat.onBeforeCompile = (shader) => {
@@ -591,49 +659,74 @@ export class TerrainSurface {
           float hFactor = clamp(position.y / 0.62, 0.0, 1.0);
           vec4 worldInst = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
           float distCam = length(cameraPosition - worldInst.xyz);
-          float distFade = 1.0 - smoothstep(62.0, 125.0, distCam);
-          float sway = sin(uTime * 2.0 + worldInst.x * 0.35 + worldInst.z * 0.25) * 0.16 * hFactor * hFactor;
+          float distFade = 1.0 - smoothstep(68.0, 128.0, distCam);
+          float sway = sin(uTime * 1.8 + worldInst.x * 0.3 + worldInst.z * 0.22) * 0.13 * hFactor * hFactor;
           transformed.y *= distFade;
           transformed.x += sway * distFade;
           transformed.z += sway * 0.6 * distFade;`,
         )
       }
 
-      const grassCount = 65000
-      const grassInst = new THREE.InstancedMesh(grassGeo, grassMat, grassCount)
-      grassInst.receiveShadow = true
+      // Quasi-random uniform scattering across a 108-stud radius around origin
+      const maxRadius = Math.min(108, Math.min(this.width, this.depth) * 0.46)
+      const targetClumps = 52000
+      const matrices: THREE.Matrix4[] = []
+      const tintColors: THREE.Color[] = []
       const dummy = new THREE.Object3D()
       const tmpC = new THREE.Color()
-      for (let i = 0; i < grassCount; i++) {
-        const pt = sourcePoints[(i * 7 + Math.floor(i / sourcePoints.length) * 3) % sourcePoints.length]
+      const goldenAngle = 2.399963229728653
+
+      for (let i = 0; i < targetClumps; i++) {
+        const frac = (i + 0.5) / targetClumps
+        const rDist = Math.sqrt(frac) * maxRadius
+        const theta = i * goldenAngle
+        const lx = Math.cos(theta) * rDist
+        const lz = Math.sin(theta) * rDist
+        const s = sampleSurface(lx, lz)
+        const wy = this.origin[1] + s.y
+        if (hasWater && wy <= waterLevel + 0.35) continue
+        if (!(s.g > s.r * 1.06 && s.g > s.b * 1.1)) continue
+
         const rx = Math.sin(i * 12.9898) * 43758.5453
-        const rz = Math.sin(i * 78.233) * 43758.5453
-        const jx = ((rx - Math.floor(rx)) - 0.5) * 1.45
-        const jz = ((rz - Math.floor(rz)) - 0.5) * 1.45
-        dummy.position.set(pt.x + jx, pt.y - 0.06, pt.z + jz)
-        dummy.rotation.set(0, rx % 6.28, 0)
-        const sc = 0.92 + (i % 5) * 0.15
-        dummy.scale.set(sc * 1.08, sc * (0.95 + (i % 3) * 0.18), sc * 1.08)
+        const jAngle = (rx - Math.floor(rx)) * 6.28318
+        dummy.position.set(this.origin[0] + lx, wy - 0.04, this.origin[2] + lz)
+        dummy.rotation.set(0, jAngle, 0)
+        const sc = 0.88 + (i % 5) * 0.11
+        dummy.scale.set(sc, sc * (0.88 + (i % 3) * 0.14), sc)
         dummy.updateMatrix()
-        grassInst.setMatrixAt(i, dummy.matrix)
-        const patch = smoothNoise2D((pt.x + jx) * 0.08, (pt.z + jz) * 0.08, cfg.seed + 41)
+        matrices.push(dummy.matrix.clone())
+
+        const patch = smoothNoise2D((this.origin[0] + lx) * 0.075, (this.origin[2] + lz) * 0.075, cfg.seed + 41)
         tmpC
-          .setRGB(pt.r, pt.g, pt.b)
-          .lerp(blendColor.set('#7ab344'), 0.28 + patch * 0.35)
-          .offsetHSL(0.012 * ((i % 3) - 1), 0.05, 0.04)
-        grassInst.setColorAt(i, tmpC)
+          .set('#d8e8b8')
+          .lerp(blendColor.set('#f4f9d8'), patch * 0.55)
+          .offsetHSL(0.015 * ((i % 3) - 1), 0.04, (patch - 0.5) * 0.08)
+        tintColors.push(tmpC.clone())
       }
-      grassInst.instanceMatrix.needsUpdate = true
-      if (grassInst.instanceColor) grassInst.instanceColor.needsUpdate = true
-      this.terrainGrassMat = grassMat
-      this.terrainGrassMesh = grassInst
-      this.group.add(grassInst)
+
+      if (matrices.length > 0) {
+        const grassInst = new THREE.InstancedMesh(grassGeo, grassMat, matrices.length)
+        grassInst.receiveShadow = true
+        for (let i = 0; i < matrices.length; i++) {
+          grassInst.setMatrixAt(i, matrices[i])
+          grassInst.setColorAt(i, tintColors[i])
+        }
+        grassInst.instanceMatrix.needsUpdate = true
+        if (grassInst.instanceColor) grassInst.instanceColor.needsUpdate = true
+        this.terrainGrassMat = grassMat
+        this.terrainGrassMesh = grassInst
+        this.group.add(grassInst)
+      } else {
+        grassGeo.dispose()
+        grassMat.dispose()
+      }
 
       // 1b. Subtle meadow wildflower patches (pale cream & buttercup dots)
-      const flowerCandidates = sourcePoints.filter(
+      const flowerCandidates = grassPoints.filter(
         (pt) =>
+          Math.hypot(pt.x - this.origin[0], pt.z - this.origin[2]) < maxRadius &&
           pt.y < this.origin[1] + maxHeight * 0.45 &&
-          smoothNoise2D(pt.x * 0.075, pt.z * 0.075, cfg.seed + 777) > 0.54,
+          smoothNoise2D(pt.x * 0.075, pt.z * 0.075, cfg.seed + 777) > 0.55,
       )
       if (flowerCandidates.length > 0) {
         const flowerGeo = new THREE.DodecahedronGeometry(0.095, 0)
@@ -861,6 +954,10 @@ export class TerrainSurface {
     if (this.leafTex) {
       this.leafTex.dispose()
       this.leafTex = null
+    }
+    if (this.grassTex) {
+      this.grassTex.dispose()
+      this.grassTex = null
     }
     if (this.terrainGrassMesh) {
       this.group.remove(this.terrainGrassMesh)
