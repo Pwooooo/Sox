@@ -752,7 +752,7 @@ export function Create({ onClose }: CreateProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4 flex-wrap">
               {/* Box 1: Game Icon */}
-              <div className="relative size-28 rounded-xl bg-[#0d0e11] border border-white/[0.08] flex items-center justify-center overflow-hidden group shadow-md">
+              <div className="relative size-28 rounded-xl bg-[#121212] border border-white/[0.08] flex items-center justify-center overflow-hidden group shadow-md">
                 <svg viewBox="0 0 100 100" className="size-14 text-white/20" fill="currentColor">
                   <path d="M 28 16 L 86 28 L 72 86 L 14 74 Z M 44 45 L 59 48 L 55 63 L 40 60 Z" fillRule="evenodd" />
                 </svg>
@@ -765,7 +765,7 @@ export function Create({ onClose }: CreateProps) {
               </div>
 
               {/* Box 2: Thumbnail */}
-              <div className="relative w-48 h-28 rounded-xl bg-[#0d0e11] border border-white/[0.08] flex items-center justify-center overflow-hidden group shadow-md">
+              <div className="relative w-48 h-28 rounded-xl bg-[#121212] border border-white/[0.08] flex items-center justify-center overflow-hidden group shadow-md">
                 <ExperienceCardThumbnail exp={activeExp} />
                 <button
                   className="size-7 rounded-full bg-black/75 hover:bg-black text-white flex items-center justify-center absolute top-2 right-2 cursor-pointer border-none shadow-sm transition-colors z-10"
@@ -776,7 +776,7 @@ export function Create({ onClose }: CreateProps) {
               </div>
 
               {/* Box 3: No Video Uploaded */}
-              <div className="w-56 h-28 rounded-xl bg-[#0d0e11] border border-white/[0.1] p-3.5 flex flex-col items-center justify-center text-center gap-1.5 shadow-md">
+              <div className="w-56 h-28 rounded-xl bg-[#121212] border border-white/[0.08] p-3.5 flex flex-col items-center justify-center text-center gap-1.5 shadow-md">
                 <span className="text-xs font-bold text-white leading-tight">
                   No video uploaded
                 </span>
@@ -784,7 +784,7 @@ export function Create({ onClose }: CreateProps) {
                   Upload a video to help users discover your game
                 </span>
                 <button
-                  className="mt-1 h-6 px-3.5 rounded-[6px] bg-[#191a1f] hover:bg-[#23242b] text-white text-[11px] font-semibold cursor-pointer border-none transition-colors"
+                  className="mt-1 h-6 px-3.5 rounded-[6px] bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white text-[11px] font-semibold cursor-pointer border-none transition-colors"
                 >
                   Continue
                 </button>
@@ -807,7 +807,7 @@ export function Create({ onClose }: CreateProps) {
               maxLength={50}
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 transition-colors"
+              className="w-full h-10 px-3.5 rounded-[8px] bg-[#121212] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
               placeholder="Experience Name"
             />
             <span className="text-[11px] text-white/40">
@@ -824,7 +824,7 @@ export function Create({ onClose }: CreateProps) {
               type="text"
               value={formPromo}
               onChange={(e) => setFormPromo(e.target.value)}
-              className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 transition-colors"
+              className="w-full h-10 px-3.5 rounded-[8px] bg-[#121212] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
               placeholder="e.g. Double EXP Weekend active!"
             />
             <span className="text-[11px] text-white/40">
@@ -846,7 +846,7 @@ export function Create({ onClose }: CreateProps) {
               maxLength={1000}
               value={formDesc}
               onChange={(e) => setFormDesc(e.target.value)}
-              className="w-full p-3 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 transition-colors resize-y leading-relaxed"
+              className="w-full p-3 rounded-[8px] bg-[#121212] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors resize-y leading-relaxed"
               placeholder="Enter details about your experience..."
             />
             <span className="text-[11px] text-white/40">
@@ -866,7 +866,7 @@ export function Create({ onClose }: CreateProps) {
                   value={formGenre}
                   onChange={setFormGenre}
                   options={genreOptions}
-                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs font-medium justify-between"
+                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#121212] border border-white/[0.08] text-xs font-medium justify-between"
                   menuClassName="w-full"
                 />
               </div>
@@ -880,7 +880,7 @@ export function Create({ onClose }: CreateProps) {
                   value={formSubgenre}
                   onChange={setFormSubgenre}
                   options={subgenreOptions}
-                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0c0f] border border-white/[0.1] text-xs font-medium justify-between"
+                  buttonClassName="w-full h-10 px-3.5 rounded-[8px] bg-[#121212] border border-white/[0.08] text-xs font-medium justify-between"
                   menuClassName="w-full"
                 />
               </div>
@@ -905,8 +905,8 @@ export function Create({ onClose }: CreateProps) {
                 onClick={() => setFormPrivacy('Public')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Public'
-                    ? 'bg-[#131418] border-white/35 text-white shadow-sm'
-                    : 'bg-[#0b0c0f] border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#101115]'
+                    ? 'bg-[#1a1a1a] border-white/30 text-white shadow-sm'
+                    : 'bg-[#121212] border-white/[0.08] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#161616]'
                 }`}
               >
                 <div
@@ -933,8 +933,8 @@ export function Create({ onClose }: CreateProps) {
                 onClick={() => setFormPrivacy('Private')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Private'
-                    ? 'bg-[#131418] border-white/35 text-white shadow-sm'
-                    : 'bg-[#0b0c0f] border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#101115]'
+                    ? 'bg-[#1a1a1a] border-white/30 text-white shadow-sm'
+                    : 'bg-[#121212] border-white/[0.08] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#161616]'
                 }`}
               >
                 <div
@@ -961,8 +961,8 @@ export function Create({ onClose }: CreateProps) {
                 onClick={() => setFormPrivacy('Playtesters')}
                 className={`flex items-start gap-3 p-3.5 rounded-[8px] border cursor-pointer transition-all duration-150 active:scale-[0.99] select-none ${
                   formPrivacy === 'Playtesters'
-                    ? 'bg-[#131418] border-white/35 text-white shadow-sm'
-                    : 'bg-[#0b0c0f] border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#101115]'
+                    ? 'bg-[#1a1a1a] border-white/30 text-white shadow-sm'
+                    : 'bg-[#121212] border-white/[0.08] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#161616]'
                 }`}
               >
                 <div
@@ -996,7 +996,7 @@ export function Create({ onClose }: CreateProps) {
             </button>
             <button
               onClick={() => setViewMode('dashboard')}
-              className="h-9 px-5 rounded-[8px] bg-[#18191e] hover:bg-[#22232a] text-white font-bold text-xs cursor-pointer border-none transition-colors"
+              className="h-9 px-5 rounded-[8px] bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white font-bold text-xs cursor-pointer border-none transition-colors"
             >
               Cancel
             </button>
