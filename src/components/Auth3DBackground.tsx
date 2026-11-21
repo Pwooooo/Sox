@@ -79,12 +79,12 @@ const SKY_PALETTES: Record<
   }
 > = {
   BrightDay: {
-    top: '#1e3a8a',
-    horizon: '#7dd3fc',
-    sunColor: '#fff6e8',
+    top: '#78a5d6',
+    horizon: '#f5efe6',
+    sunColor: '#fff9ed',
     sunDisc: '#fffbeb',
-    sunPos: [62, 88, 48],
-    fog: '#93c5fd',
+    sunPos: [62, 82, 48],
+    fog: '#f3ece2',
   },
   GoldenSunset: {
     top: '#160d2e',

@@ -6,9 +6,9 @@
     "createdAt": "2026-11-21T22:18:00.000Z"
   },
   "lighting": {
-    "preset": "GoldenSunset",
-    "sunColor": "#fed7aa",
-    "ambientColor": "#fdba74",
+    "preset": "BrightDay",
+    "sunColor": "#fff9ed",
+    "ambientColor": "#f8fafc",
     "fogEnabled": true
   },
   "root": {
