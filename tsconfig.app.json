@@ -23,5 +23,6 @@
       "@engine/*": ["./Novelo Engine/*"]
     }
   },
-  "include": ["src", "Novelo Engine"]
+  "include": ["src"],
+  "exclude": ["src/studio.tsx", "src/components/studio", "Novelo Engine"]
 }
