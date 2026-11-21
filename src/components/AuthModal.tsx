@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { X, LogIn, UserPlus, AlertCircle } from 'lucide-react'
+import { useMemo, useState, type FormEvent } from 'react'
+import { X, Eye, EyeOff, Check, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 
 interface AuthModalProps {
@@ -8,27 +8,78 @@ interface AuthModalProps {
   onClose?: () => void
 }
 
+function getPasswordStrength(pw: string): number {
+  if (!pw) return 0
+  let score = 0
+  if (pw.length >= 8) score += 1
+  if (pw.length >= 12) score += 1
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score += 1
+  if (/[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score += 1
+  return Math.min(4, Math.max(pw.length > 0 ? 1 : 0, score))
+}
+
+function isAtLeast13(birthday: string): boolean {
+  if (!birthday) return false
+  const dob = new Date(birthday)
+  if (Number.isNaN(dob.getTime())) return false
+  const today = new Date()
+  let age = today.getFullYear() - dob.getFullYear()
+  const m = today.getMonth() - dob.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age -= 1
+  }
+  return age >= 13
+}
+
 export function AuthModal({
   mode = 'both',
   dismissible = true,
   onClose,
 }: AuthModalProps) {
   const { signIn, signUp, isConfigured } = useAuth()
-  const [tab, setTab] = useState<'login' | 'register'>('login')
+  const [tab, setTab] = useState<'login' | 'register'>(mode === 'both' ? 'register' : 'login')
+  const [birthday, setBirthday] = useState('')
   const [identifier, setIdentifier] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [agreedTerms, setAgreedTerms] = useState(false)
+  const [keepLoggedIn, setKeepLoggedIn] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
 
   const activeTab = mode === 'login-only' ? 'login' : tab
+  const strength = useMemo(() => getPasswordStrength(password), [password])
+
+  const switchTab = (next: 'login' | 'register') => {
+    setTab(next)
+    setError(null)
+    setInfo(null)
+    setPassword('')
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
     setInfo(null)
+
+    if (activeTab === 'register') {
+      if (!isAtLeast13(birthday)) {
+        setError('You must be at least 13 years old to create an account.')
+        return
+      }
+      if (password.length < 8) {
+        setError('Password must be at least 8 characters long.')
+        return
+      }
+      if (!agreedTerms) {
+        setError('Please agree to the Terms of Service and Guidelines to continue.')
+        return
+      }
+    }
+
     setSubmitting(true)
     try {
       if (activeTab === 'login') {
@@ -43,7 +94,7 @@ export function AuthModal({
         if (res.error) {
           setError(res.error)
         } else if (res.needsVerification) {
-          setInfo('Account created! Check your email to verify, then sign in.')
+          setInfo('Account created! Check your email to verify, then log in.')
         } else {
           onClose?.()
         }
@@ -53,126 +104,83 @@ export function AuthModal({
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-md flex items-center justify-center p-4 select-none">
-      <div className="w-full max-w-[400px] rounded-2xl bg-[#121212] border border-white/[0.1] shadow-2xl overflow-hidden text-white">
-        {/* Header */}
-        <div className="px-6 pt-5 pb-4 border-b border-white/[0.06] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img src="/novelo-logo.svg" alt="Novelo" className="size-6 object-contain" />
-            <div>
-              <h2 className="text-sm font-bold tracking-tight text-white m-0">
-                {mode === 'login-only' ? 'Sign in to Novelo Studio' : 'Welcome to Novelo'}
-              </h2>
-              <p className="text-[11px] text-white/45 m-0">
-                {mode === 'login-only'
-                  ? 'Log into your Novelo account to build and publish'
-                  : 'Sign in or create an account to play & publish'}
-              </p>
-            </div>
-          </div>
-          {dismissible && onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="size-7 rounded-[6px] bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white flex items-center justify-center border-none cursor-pointer transition-colors"
-              title="Close"
-            >
-              <X className="size-4" />
-            </button>
-          )}
-        </div>
+  const strengthColors = [
+    'bg-white/10',
+    'bg-rose-500',
+    'bg-amber-400',
+    'bg-sky-400',
+    'bg-emerald-400',
+  ]
 
-        {/* Mode Tabs (only on Web & Player) */}
-        {mode === 'both' && (
-          <div className="px-6 pt-4 flex gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setTab('login')
-                setError(null)
-                setInfo(null)
-              }}
-              className={`flex-1 h-9 rounded-[8px] text-xs font-bold flex items-center justify-center gap-1.5 border cursor-pointer transition-colors ${
-                activeTab === 'login'
-                  ? 'bg-[#1e1e1e] border-white/25 text-white'
-                  : 'bg-[#0b0b0b] border-white/[0.06] text-white/50 hover:text-white'
-              }`}
-            >
-              <LogIn className="size-3.5" />
-              <span>Sign In</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setTab('register')
-                setError(null)
-                setInfo(null)
-              }}
-              className={`flex-1 h-9 rounded-[8px] text-xs font-bold flex items-center justify-center gap-1.5 border cursor-pointer transition-colors ${
-                activeTab === 'register'
-                  ? 'bg-[#1e1e1e] border-white/25 text-white'
-                  : 'bg-[#0b0b0b] border-white/[0.06] text-white/50 hover:text-white'
-              }`}
-            >
-              <UserPlus className="size-3.5" />
-              <span>Register</span>
-            </button>
-          </div>
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 select-none overflow-y-auto">
+      <div className="w-full max-w-[440px] rounded-2xl bg-[#0e0e0e] border border-white/[0.08] shadow-[0_24px_80px_rgba(0,0,0,0.85)] p-7 md:p-8 text-white relative my-auto">
+        {dismissible && onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="size-8 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white/55 hover:text-white flex items-center justify-center border-none cursor-pointer transition-colors absolute top-5 right-5"
+            title="Close"
+          >
+            <X className="size-4" />
+          </button>
         )}
 
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-3.5">
+        {/* Title */}
+        <div className="mb-6 pr-8">
+          <h2 className="text-[24px] font-black tracking-tight text-white m-0 leading-tight">
+            {activeTab === 'register'
+              ? 'Create a Novelo account'
+              : mode === 'login-only'
+                ? 'Log in to Novelo Studio'
+                : 'Log in to Novelo'}
+          </h2>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {!isConfigured && (
-            <div className="p-3 rounded-[8px] bg-amber-500/10 border border-amber-500/25 text-[11px] text-amber-200 flex items-start gap-2">
+            <div className="p-3 rounded-[10px] bg-amber-500/10 border border-amber-500/25 text-[11px] text-amber-200 flex items-start gap-2">
               <AlertCircle className="size-4 shrink-0 mt-0.5 text-amber-400" />
               <span>
-                Database keys not set yet. Add <code className="text-white">VITE_SUPABASE_URL</code> and{' '}
-                <code className="text-white">VITE_SUPABASE_ANON_KEY</code> in Vercel / <code className="text-white">.env</code>.
+                Database keys not configured yet. Add <code className="text-white">VITE_SUPABASE_URL</code> and{' '}
+                <code className="text-white">VITE_SUPABASE_ANON_KEY</code>.
               </span>
             </div>
           )}
 
           {error && (
-            <div className="p-2.5 rounded-[8px] bg-red-500/10 border border-red-500/25 text-[11px] text-red-300">
+            <div className="p-3 rounded-[10px] bg-rose-500/10 border border-rose-500/25 text-xs text-rose-300 leading-snug">
               {error}
             </div>
           )}
 
           {info && (
-            <div className="p-2.5 rounded-[8px] bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-300">
+            <div className="p-3 rounded-[10px] bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 leading-snug">
               {info}
             </div>
           )}
 
-          {activeTab === 'login' ? (
+          {activeTab === 'register' ? (
             <>
+              {/* Birthday */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-white/90">Username or Email</label>
+                <label className="text-xs font-semibold text-white/90">Birthday</label>
                 <input
-                  type="text"
+                  type="date"
                   required
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="Enter username or email"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0b0b] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
+                  value={birthday}
+                  max={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setBirthday(e.target.value)}
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#161616] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-white/25 transition-colors [color-scheme:dark]"
                 />
+                <span className="text-[11px] text-white/45">
+                  You must be at least 13 years old.
+                </span>
               </div>
+
+              {/* Username */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-white/90">Password</label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0b0b] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-white/90">Username</label>
+                <label className="text-xs font-semibold text-white/90">Username</label>
                 <input
                   type="text"
                   required
@@ -180,51 +188,206 @@ export function AuthModal({
                   maxLength={24}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. Sky"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0b0b] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
+                  placeholder="Enter your preferred username"
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#161616] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
                 />
               </div>
+
+              {/* Email */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-white/90">Email</label>
+                <label className="text-xs font-semibold text-white/90">Email</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0b0b] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
+                  placeholder="Enter your email"
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#161616] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
                 />
               </div>
+
+              {/* Password + 4-bar strength meter */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-white/90">Password</label>
+                <label className="text-xs font-semibold text-white/90">Password</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-[10px] bg-[#161616] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="size-8 rounded-md flex items-center justify-center text-white/45 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+
+                {/* 4-segment strength bar */}
+                <div className="grid grid-cols-4 gap-1.5 pt-1">
+                  {[1, 2, 3, 4].map((seg) => (
+                    <div
+                      key={seg}
+                      className={`h-[3px] rounded-full transition-colors duration-200 ${
+                        strength >= seg ? strengthColors[strength] : 'bg-white/[0.1]'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[11px] text-white/45">
+                  Must be at least 8 characters long
+                </span>
+              </div>
+
+              {/* Terms Checkbox */}
+              <label className="flex items-start gap-2.5 cursor-pointer pt-0.5">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={agreedTerms}
+                  onClick={() => setAgreedTerms((v) => !v)}
+                  className={`size-4 rounded-[4px] mt-0.5 shrink-0 flex items-center justify-center border transition-colors cursor-pointer ${
+                    agreedTerms
+                      ? 'bg-white border-white text-[#0c0d10]'
+                      : 'bg-transparent border-white/25 hover:border-white/45 text-transparent'
+                  }`}
+                >
+                  <Check className="size-3 stroke-[3]" />
+                </button>
+                <span className="text-[11px] text-white/60 leading-relaxed">
+                  I agree to the{' '}
+                  <span className="text-white/90 underline">Terms of Service</span>,{' '}
+                  <span className="text-white/90 underline">Privacy Policy</span>,{' '}
+                  <span className="text-white/90 underline">Community Guidelines</span>, and{' '}
+                  <span className="text-white/90 underline">Creator Guidelines</span>.
+                </span>
+              </label>
+
+              {/* Keep me logged in */}
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={keepLoggedIn}
+                  onClick={() => setKeepLoggedIn((v) => !v)}
+                  className={`size-4 rounded-[4px] shrink-0 flex items-center justify-center border transition-colors cursor-pointer ${
+                    keepLoggedIn
+                      ? 'bg-white border-white text-[#0c0d10]'
+                      : 'bg-transparent border-white/25 hover:border-white/45 text-transparent'
+                  }`}
+                >
+                  <Check className="size-3 stroke-[3]" />
+                </button>
+                <span className="text-[11px] text-white/75">Keep me logged in</span>
+              </label>
+            </>
+          ) : (
+            <>
+              {/* Username or Email */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-white/90">Username or Email</label>
                 <input
-                  type="password"
+                  type="text"
                   required
-                  minLength={6}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#0b0b0b] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="Enter your username or email"
+                  className="w-full h-10 px-3.5 rounded-[10px] bg-[#161616] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
                 />
               </div>
+
+              {/* Password */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-white/90">Password</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-[10px] bg-[#161616] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="size-8 rounded-md flex items-center justify-center text-white/45 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Keep me logged in */}
+              <label className="flex items-center gap-2.5 cursor-pointer pt-0.5">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={keepLoggedIn}
+                  onClick={() => setKeepLoggedIn((v) => !v)}
+                  className={`size-4 rounded-[4px] shrink-0 flex items-center justify-center border transition-colors cursor-pointer ${
+                    keepLoggedIn
+                      ? 'bg-white border-white text-[#0c0d10]'
+                      : 'bg-transparent border-white/25 hover:border-white/45 text-transparent'
+                  }`}
+                >
+                  <Check className="size-3 stroke-[3]" />
+                </button>
+                <span className="text-[11px] text-white/75">Keep me logged in</span>
+              </label>
             </>
           )}
 
+          {/* Primary Submit Button */}
           <button
             type="submit"
             disabled={submitting}
-            className="mt-1 h-10 w-full rounded-[8px] bg-white hover:bg-white/90 disabled:opacity-50 text-[#0c0d10] font-bold text-xs cursor-pointer border-none transition-colors"
+            className="mt-2 h-10 w-full rounded-[10px] bg-white hover:bg-white/90 disabled:opacity-50 text-[#0c0d10] font-bold text-xs cursor-pointer border-none transition-all shadow-sm active:scale-[0.99]"
           >
             {submitting
               ? 'Please wait...'
-              : activeTab === 'login'
-                ? 'Sign In'
-                : 'Create Account'}
+              : activeTab === 'register'
+                ? 'Create an account'
+                : 'Log in'}
           </button>
 
-          {mode === 'login-only' && (
+          {/* Footer Switcher */}
+          {mode === 'both' ? (
+            <div className="text-center text-xs text-white/50 pt-1">
+              {activeTab === 'register' ? (
+                <>
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchTab('login')}
+                    className="text-white font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
+                  >
+                    Log in
+                  </button>
+                </>
+              ) : (
+                <>
+                  Don&apos;t have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchTab('register')}
+                    className="text-white font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
+                  >
+                    Create an account
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
             <p className="text-[11px] text-white/45 text-center m-0 pt-1">
-              Registration is only available on the Novelo website or Novelo Player.
+              Registration is only available on playnovelo.vercel.app or Novelo Player.
             </p>
           )}
         </form>
