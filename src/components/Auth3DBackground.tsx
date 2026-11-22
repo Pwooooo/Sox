@@ -22,9 +22,9 @@ const QUALITY_CONFIGS: Record<
   }
 > = {
   Low: { pixelRatioCap: 1, shadowMapSize: 512, shadows: false, msaa: 0, bloom: false, bloomStrength: 0, bloomRadius: 0, bloomThreshold: 1 },
-  Medium: { pixelRatioCap: 1.5, shadowMapSize: 1024, shadows: true, msaa: 2, bloom: true, bloomStrength: 0.25, bloomRadius: 0.7, bloomThreshold: 0.8 },
-  High: { pixelRatioCap: 2, shadowMapSize: 1024, shadows: true, msaa: 4, bloom: true, bloomStrength: 0.35, bloomRadius: 0.9, bloomThreshold: 0.75 },
-  Max: { pixelRatioCap: 2, shadowMapSize: 2048, shadows: true, msaa: 4, bloom: true, bloomStrength: 0.42, bloomRadius: 1.0, bloomThreshold: 0.72 },
+  Medium: { pixelRatioCap: 1.5, shadowMapSize: 1024, shadows: true, msaa: 2, bloom: true, bloomStrength: 0.14, bloomRadius: 0.5, bloomThreshold: 0.92 },
+  High: { pixelRatioCap: 2, shadowMapSize: 1024, shadows: true, msaa: 4, bloom: true, bloomStrength: 0.16, bloomRadius: 0.55, bloomThreshold: 0.92 },
+  Max: { pixelRatioCap: 2, shadowMapSize: 2048, shadows: true, msaa: 4, bloom: true, bloomStrength: 0.18, bloomRadius: 0.55, bloomThreshold: 0.92 },
 }
 
 export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset }) {
@@ -47,7 +47,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, cfg.pixelRatioCap))
     renderer.setSize(w, h)
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.12
+    renderer.toneMappingExposure = 0.88
     if (cfg.shadows) {
       renderer.shadowMap.enabled = true
       renderer.shadowMap.type = THREE.PCFSoftShadowMap
@@ -169,23 +169,23 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     envScene.add(skyDome.clone())
     const envRT = pmrem.fromScene(envScene, 0.04)
     scene.environment = envRT.texture
-    scene.environmentIntensity = 1.15
+    scene.environmentIntensity = 0.42
     pmrem.dispose()
 
-    // Ultra-soft diffuse daylight lighting
-    const hemi = new THREE.HemisphereLight('#f8fafc', '#60785a', 1.65)
+    // Crisp sunlit daylight with rich ambient/emissive shadow depth
+    const hemi = new THREE.HemisphereLight('#d8e8f8', '#22331d', 0.68)
     scene.add(hemi)
 
-    const ambient = new THREE.AmbientLight('#f1f5f9', 0.62)
+    const ambient = new THREE.AmbientLight('#dce6f2', 0.18)
     scene.add(ambient)
 
-    const sunLight = new THREE.DirectionalLight('#fff9ed', 0.95)
+    const sunLight = new THREE.DirectionalLight('#fff5e0', 1.85)
     sunLight.position.set(62, 82, 48)
     if (cfg.shadows) {
       sunLight.castShadow = true
       sunLight.shadow.mapSize.set(cfg.shadowMapSize, cfg.shadowMapSize)
-      sunLight.shadow.radius = 8
-      sunLight.shadow.bias = -0.00015
+      sunLight.shadow.radius = 5
+      sunLight.shadow.bias = -0.0003
       sunLight.shadow.normalBias = 0.04
       sunLight.shadow.camera.near = 1
       sunLight.shadow.camera.far = 280
@@ -197,7 +197,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     }
     scene.add(sunLight)
 
-    const rimLight = new THREE.DirectionalLight('#e0f2fe', 0.48)
+    const rimLight = new THREE.DirectionalLight('#cde4fa', 0.22)
     rimLight.position.set(-55, 40, -55)
     scene.add(rimLight)
 

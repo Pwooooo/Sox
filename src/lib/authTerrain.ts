@@ -645,8 +645,8 @@ export class TerrainSurface {
         color: '#ffffff',
         roughness: 0.86,
         metalness: 0,
-        emissive: new THREE.Color('#274216'),
-        emissiveIntensity: 0.16,
+        emissive: new THREE.Color('#13260b'),
+        emissiveIntensity: 0.05,
         side: THREE.DoubleSide,
       })
       grassMat.onBeforeCompile = (shader) => {
@@ -654,9 +654,16 @@ export class TerrainSurface {
         grassMat.userData.shader = shader
         shader.vertexShader = 'uniform float uTime;\n' + shader.vertexShader
         shader.vertexShader = shader.vertexShader.replace(
+          '#include <color_vertex>',
+          `#include <color_vertex>
+          #ifdef USE_INSTANCING_COLOR
+            vColor *= mix(0.45, 1.05, clamp(position.y / 0.68, 0.0, 1.0));
+          #endif`,
+        )
+        shader.vertexShader = shader.vertexShader.replace(
           '#include <begin_vertex>',
           `#include <begin_vertex>
-          float hFactor = clamp(position.y / 0.62, 0.0, 1.0);
+          float hFactor = clamp(position.y / 0.68, 0.0, 1.0);
           vec4 worldInst = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
           float distCam = length(cameraPosition - worldInst.xyz);
           float distFade = 1.0 - smoothstep(68.0, 128.0, distCam);
@@ -791,8 +798,8 @@ export class TerrainSurface {
           alphaToCoverage: true,
           roughness: 0.78,
           metalness: 0,
-          emissive: new THREE.Color('#1c3f21'),
-          emissiveIntensity: 0.32,
+          emissive: new THREE.Color('#112614'),
+          emissiveIntensity: 0.08,
           side: THREE.DoubleSide,
         })
         const leavesPerTree = 56
