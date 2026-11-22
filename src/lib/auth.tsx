@@ -14,8 +14,11 @@ interface AuthContextValue {
   isConfigured: boolean
   showAuthModal: boolean
   setShowAuthModal: (open: boolean) => void
+  authUrlError: string | null
+  clearAuthUrlError: () => void
   signIn: (identifier: string, password: string) => Promise<{ error: string | null }>
   signUp: (username: string, email: string, password: string) => Promise<{ error: string | null; needsVerification?: boolean }>
+  resendVerification: (email: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
 }
 
@@ -80,6 +83,26 @@ export function AuthProvider({
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authUrlError, setAuthUrlError] = useState<string | null>(null)
+
+  const clearAuthUrlError = useCallback(() => setAuthUrlError(null), [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.location.hash) return
+    const hash = window.location.hash.replace(/^#/, '')
+    const params = new URLSearchParams(hash)
+    const errCode = params.get('error_code')
+    const errDesc = params.get('error_description')
+    if (params.get('error') || errCode) {
+      if (errCode === 'otp_expired') {
+        setAuthUrlError('Email link is invalid or has expired. Request a new verification email below or log in.')
+      } else {
+        setAuthUrlError(errDesc ? errDesc.replace(/\+/g, ' ') : 'Authentication link failed. Please try again.')
+      }
+      setShowAuthModal(true)
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }, [])
 
   const syncProfile = useCallback(async (u: User | null) => {
     if (!u) {
@@ -173,11 +196,19 @@ export function AuthProvider({
       return { error: 'That username is already taken.' }
     }
 
+    const redirectOrigin =
+      typeof window !== 'undefined' &&
+      window.location.origin.startsWith('http') &&
+      !window.location.origin.includes('tauri')
+        ? window.location.origin
+        : 'https://playnovelo.vercel.app'
+
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
         data: { username },
+        emailRedirectTo: redirectOrigin,
       },
     })
     if (error) return { error: error.message }
@@ -188,6 +219,29 @@ export function AuthProvider({
     }
     return { error: null, needsVerification: true }
   }, [syncProfile])
+
+  const resendVerification = useCallback(async (email: string) => {
+    if (!supabase) {
+      return { error: 'Supabase is not configured yet.' }
+    }
+    const cleanEmail = email.trim()
+    if (!cleanEmail) {
+      return { error: 'Enter your email address first.' }
+    }
+    const redirectOrigin =
+      typeof window !== 'undefined' &&
+      window.location.origin.startsWith('http') &&
+      !window.location.origin.includes('tauri')
+        ? window.location.origin
+        : 'https://playnovelo.vercel.app'
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: cleanEmail,
+      options: { emailRedirectTo: redirectOrigin },
+    })
+    return { error: error ? error.message : null }
+  }, [])
 
   const signOut = useCallback(async () => {
     if (!supabase) return
@@ -205,8 +259,11 @@ export function AuthProvider({
         isConfigured: isSupabaseConfigured,
         showAuthModal,
         setShowAuthModal,
+        authUrlError,
+        clearAuthUrlError,
         signIn,
         signUp,
+        resendVerification,
         signOut,
       }}
     >

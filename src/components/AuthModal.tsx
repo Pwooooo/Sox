@@ -32,7 +32,7 @@ function isAtLeast13(birthday: string): boolean {
 }
 
 export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, resendVerification, authUrlError, clearAuthUrlError } = useAuth()
   const [tab, setTab] = useState<'login' | 'register'>(mode === 'both' ? 'register' : 'login')
   const [birthday, setBirthday] = useState('')
   const [identifier, setIdentifier] = useState('')
@@ -53,6 +53,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
     setTab(next)
     setError(null)
     setInfo(null)
+    clearAuthUrlError()
     setPassword('')
   }
 
@@ -60,6 +61,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
     e.preventDefault()
     setError(null)
     setInfo(null)
+    clearAuthUrlError()
 
     if (activeTab === 'register') {
       if (!isAtLeast13(birthday)) {
@@ -295,15 +297,28 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
         </h1>
 
         <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-3.5">
-          {error && (
+          {(error || authUrlError) && (
             <div className="p-3 rounded-xl bg-rose-500/12 border border-rose-500/25 text-xs text-rose-200 leading-snug">
-              {error}
+              {error || authUrlError}
             </div>
           )}
 
           {info && (
-            <div className="p-3 rounded-xl bg-emerald-500/12 border border-emerald-500/25 text-xs text-emerald-200 leading-snug">
-              {info}
+            <div className="p-3 rounded-xl bg-emerald-500/12 border border-emerald-500/25 text-xs text-emerald-200 leading-snug flex flex-col gap-1.5">
+              <span>{info}</span>
+              {email && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const res = await resendVerification(email)
+                    if (res.error) setError(res.error)
+                    else setInfo('Verification email resent! Check your inbox.')
+                  }}
+                  className="self-start text-[11px] font-semibold text-emerald-300 hover:text-white underline bg-transparent border-none p-0 cursor-pointer"
+                >
+                  Resend verification email
+                </button>
+              )}
             </div>
           )}
 
