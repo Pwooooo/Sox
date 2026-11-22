@@ -338,7 +338,7 @@ export function Settings() {
               <button
                 type="button"
                 onClick={() => void signOut()}
-                className="h-9 px-4 rounded-[9px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold flex items-center gap-2 border border-white/[0.08] cursor-pointer shrink-0 self-start sm:self-auto transition-colors"
+                className="h-9 px-2 bg-transparent hover:text-white text-white/75 text-xs font-semibold flex items-center gap-2 border-none cursor-pointer shrink-0 self-start sm:self-auto transition-colors"
               >
                 <LogOut className="size-3.5" />
                 <span>Sign out</span>
@@ -371,7 +371,7 @@ export function Settings() {
                     })
                   }
                 }}
-                className="h-9 px-4 rounded-[9px] bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 border border-rose-500/30 text-xs font-semibold flex items-center gap-2 cursor-pointer shrink-0 self-start sm:self-auto transition-colors"
+                className="h-9 px-2 bg-transparent text-rose-400 hover:text-rose-300 border-none text-xs font-semibold flex items-center gap-2 cursor-pointer shrink-0 self-start sm:self-auto transition-colors"
               >
                 <Trash2 className="size-3.5" />
                 <span>{confirmDelete ? 'Confirm delete' : 'Delete account'}</span>
