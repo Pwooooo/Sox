@@ -124,105 +124,135 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
 
       {/* Frosted Glass Card with Top Specular Edge */}
       <div className="w-full max-w-[460px] relative z-10 rounded-3xl bg-[#0e0e12]/70 backdrop-blur-2xl border border-white/[0.08] shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-7 md:p-8 overflow-hidden">
-        {/* Halftone Sunny Cozy Forest Header Texture */}
+        {/* Halftone Sunny Cozy Forest Header & Mid-Card Texture */}
         <div
-          className="absolute inset-x-0 top-0 h-44 pointer-events-none overflow-hidden"
+          className="absolute inset-x-0 top-0 h-[85%] pointer-events-none overflow-hidden"
           style={{
-            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.55) 60%, transparent 100%)',
+            maskImage:
+              'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 55%, rgba(0,0,0,0.45) 80%, transparent 100%)',
             WebkitMaskImage:
-              'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.55) 60%, transparent 100%)',
+              'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 55%, rgba(0,0,0,0.45) 80%, transparent 100%)',
           }}
         >
           {/* Warm Sun Glow */}
           <div
-            className="absolute -top-10 right-6 size-48 rounded-full"
+            className="absolute -top-12 right-2 size-64 rounded-full"
             style={{
               background:
-                'radial-gradient(circle, rgba(255,212,148,0.22) 0%, rgba(255,184,120,0.08) 45%, transparent 72%)',
+                'radial-gradient(circle, rgba(255,214,145,0.34) 0%, rgba(255,180,110,0.14) 48%, transparent 74%)',
             }}
           />
-          {/* Dotted Halftone Sun, Clouds & Layered Forest Silhouette */}
+          {/* Dotted Halftone Sun, Sunbeams, Clouds & Layered Forest Silhouette */}
           <svg
-            viewBox="0 0 460 176"
+            viewBox="0 0 460 460"
             className="w-full h-full"
             preserveAspectRatio="xMidYMin slice"
             aria-hidden="true"
           >
             <defs>
               <pattern id="novelo-halftone" width="5" height="5" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.05" fill="currentColor" />
+                <circle cx="2.2" cy="2.2" r="1.35" fill="currentColor" />
               </pattern>
               <mask id="novelo-dot-mask">
-                <rect width="460" height="176" fill="url(#novelo-halftone)" className="text-white" />
+                <rect width="460" height="460" fill="url(#novelo-halftone)" className="text-white" />
               </mask>
               <linearGradient id="novelo-sun-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#ffe4b8" stopOpacity="0.95" />
-                <stop offset="100%" stopColor="#f5a96e" stopOpacity="0.35" />
+                <stop offset="0%" stopColor="#ffebb8" stopOpacity="1" />
+                <stop offset="100%" stopColor="#f5a566" stopOpacity="0.45" />
+              </linearGradient>
+              <linearGradient id="novelo-beam-grad" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ffe5b4" stopOpacity="0.32" />
+                <stop offset="100%" stopColor="#ffe5b4" stopOpacity="0" />
               </linearGradient>
               <linearGradient id="novelo-hill-back" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#9ec28b" stopOpacity="0.36" />
-                <stop offset="100%" stopColor="#354b2c" stopOpacity="0.06" />
+                <stop offset="0%" stopColor="#b0db95" stopOpacity="0.58" />
+                <stop offset="100%" stopColor="#405d34" stopOpacity="0.16" />
+              </linearGradient>
+              <linearGradient id="novelo-hill-mid" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#94c973" stopOpacity="0.68" />
+                <stop offset="100%" stopColor="#314a27" stopOpacity="0.18" />
               </linearGradient>
               <linearGradient id="novelo-hill-front" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#77a35f" stopOpacity="0.48" />
-                <stop offset="100%" stopColor="#26381f" stopOpacity="0.05" />
+                <stop offset="0%" stopColor="#7db85e" stopOpacity="0.72" />
+                <stop offset="100%" stopColor="#23361c" stopOpacity="0.08" />
               </linearGradient>
             </defs>
 
             <g mask="url(#novelo-dot-mask)">
+              {/* Diagonal Warm Sunbeams */}
+              <polygon points="366,54 110,270 195,305" fill="url(#novelo-beam-grad)" />
+              <polygon points="366,54 220,315 315,335" fill="url(#novelo-beam-grad)" />
+
               {/* Halftone Sky & Sun Halo */}
-              <circle cx="364" cy="46" r="56" fill="url(#novelo-sun-grad)" opacity="0.28" />
-              <circle cx="364" cy="46" r="30" fill="url(#novelo-sun-grad)" opacity="0.45" />
-              <circle cx="364" cy="46" r="15" fill="#fff0d4" opacity="0.82" />
+              <circle cx="366" cy="54" r="76" fill="url(#novelo-sun-grad)" opacity="0.36" />
+              <circle cx="366" cy="54" r="42" fill="url(#novelo-sun-grad)" opacity="0.6" />
+              <circle cx="366" cy="54" r="20" fill="#fff4da" opacity="0.95" />
 
               {/* Soft Dotted Cloud Wisps */}
               <path
-                d="M42 42 Q58 26 78 36 Q96 22 116 36 Q132 34 136 46 L36 46 Z"
-                fill="#ffe9cf"
-                opacity="0.22"
+                d="M28 54 Q48 32 74 44 Q98 26 124 44 Q146 40 152 56 L22 56 Z"
+                fill="#ffeed6"
+                opacity="0.34"
               />
               <path
-                d="M250 32 Q264 20 282 28 Q296 18 310 30 L246 34 Z"
-                fill="#ffe9cf"
-                opacity="0.18"
+                d="M214 38 Q232 22 254 32 Q272 18 292 34 L210 40 Z"
+                fill="#ffeed6"
+                opacity="0.28"
               />
 
-              {/* Distant Rolling Hills */}
+              {/* Distant Rolling Meadow Ridge */}
               <path
-                d="M0 132 Q90 98 188 122 T365 110 T460 124 L460 176 L0 176 Z"
+                d="M0 205 Q96 154 205 186 T390 168 T460 185 L460 460 L0 460 Z"
                 fill="url(#novelo-hill-back)"
               />
 
-              {/* Cozy Pine & Broadleaf Forest Silhouettes */}
-              <g fill="#a9cf92" opacity="0.34">
-                <path d="M24 140 L36 102 L48 140 Z M27 124 L36 94 L45 124 Z" />
-                <path d="M52 144 L66 96 L80 144 Z M55 126 L66 86 L77 126 Z" />
-                <path d="M84 146 L94 112 L104 146 Z" />
-                <circle cx="132" cy="126" r="14" />
-                <circle cx="146" cy="130" r="11" />
-                <path d="M312 142 L322 108 L332 142 Z" />
-                <path d="M336 144 L350 96 L364 144 Z M340 125 L350 88 L360 125 Z" />
-                <path d="M372 140 L384 102 L396 140 Z" />
-                <circle cx="416" cy="122" r="16" />
-                <circle cx="432" cy="128" r="13" />
+              {/* Midground Forest Tree Line */}
+              <g fill="#b8e39a" opacity="0.56">
+                <path d="M12 248 L30 172 L48 248 Z M16 216 L30 156 L44 216 Z" />
+                <path d="M46 254 L66 164 L86 254 Z M51 218 L66 146 L81 218 Z" />
+                <path d="M84 256 L100 188 L116 256 Z" />
+                <circle cx="136" cy="206" r="22" />
+                <circle cx="158" cy="214" r="17" />
+                <circle cx="290" cy="218" r="16" />
+                <path d="M312 252 L328 180 L344 252 Z" />
+                <path d="M342 256 L362 160 L382 256 Z M347 218 L362 142 L377 218 Z" />
+                <path d="M382 250 L400 174 L418 250 Z" />
+                <circle cx="428" cy="202" r="24" />
+                <circle cx="448" cy="214" r="18" />
               </g>
 
-              {/* Foreground Meadow Slope */}
+              {/* Midground Slope */}
               <path
-                d="M0 144 Q120 124 235 138 T460 136 L460 176 L0 176 Z"
+                d="M0 242 Q125 204 248 232 T460 220 L460 460 L0 460 Z"
+                fill="url(#novelo-hill-mid)"
+              />
+
+              {/* Foreground Cozy Pines & Sunlit Meadow */}
+              <g fill="#90cc6e" opacity="0.62">
+                <path d="M-4 328 L18 236 L40 328 Z M2 288 L18 214 L34 288 Z" />
+                <path d="M38 334 L56 260 L74 334 Z" />
+                <path d="M386 332 L406 248 L426 332 Z" />
+                <path d="M416 336 L440 232 L464 336 Z M422 292 L440 212 L458 292 Z" />
+              </g>
+
+              <path
+                d="M0 306 Q140 276 260 298 T460 288 L460 460 L0 460 Z"
                 fill="url(#novelo-hill-front)"
               />
             </g>
 
             {/* Subtle Sunlit Pollen / Firefly Sparkles */}
-            <g fill="#ffe8c2">
-              <circle cx="76" cy="64" r="1.1" opacity="0.55" />
-              <circle cx="122" cy="36" r="0.9" opacity="0.4" />
-              <circle cx="164" cy="76" r="1.0" opacity="0.45" />
-              <circle cx="298" cy="62" r="1.1" opacity="0.5" />
-              <circle cx="328" cy="28" r="0.9" opacity="0.45" />
-              <circle cx="408" cy="68" r="1.2" opacity="0.55" />
-              <circle cx="426" cy="38" r="0.9" opacity="0.4" />
+            <g fill="#fff0cc">
+              <circle cx="72" cy="82" r="1.4" opacity="0.7" />
+              <circle cx="128" cy="48" r="1.1" opacity="0.55" />
+              <circle cx="176" cy="112" r="1.3" opacity="0.6" />
+              <circle cx="272" cy="158" r="1.2" opacity="0.55" />
+              <circle cx="312" cy="96" r="1.3" opacity="0.65" />
+              <circle cx="332" cy="36" r="1.1" opacity="0.55" />
+              <circle cx="412" cy="108" r="1.4" opacity="0.7" />
+              <circle cx="430" cy="46" r="1.1" opacity="0.5" />
+              <circle cx="104" cy="264" r="1.2" opacity="0.5" />
+              <circle cx="356" cy="276" r="1.3" opacity="0.55" />
             </g>
           </svg>
         </div>
@@ -256,7 +286,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
               : 'Log in to Novelo'}
         </h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+        <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-3.5">
           {error && (
             <div className="p-3 rounded-xl bg-rose-500/12 border border-rose-500/25 text-xs text-rose-200 leading-snug">
               {error}
