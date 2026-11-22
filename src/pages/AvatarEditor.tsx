@@ -258,12 +258,10 @@ export function AvatarEditor() {
     setEquippedClothingIds((prev) => {
       const key =
         item.type === 'Shirt' ? 'shirtId' : item.type === 'Pants' ? 'pantsId' : 'tshirtId'
-      const next: EquippedClothingIds = {
+      return {
         ...prev,
         [key]: prev[key] === item.id ? undefined : item.id,
       }
-      saveEquippedClothingIds(next)
-      return next
     })
   }
 
