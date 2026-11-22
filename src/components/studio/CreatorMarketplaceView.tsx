@@ -167,6 +167,8 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   <PlayerModel3D
                     mode="full"
                     useSavedColors={false}
+                    autoRotate={false}
+                    initialYaw={-0.38}
                     clothing={toClothingSelection(item.type, item.textureDataUrl)}
                     className="w-full h-full"
                   />
@@ -369,6 +371,8 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                 mode="full"
                 interactive
                 useSavedColors={false}
+                autoRotate={false}
+                initialYaw={-0.38}
                 clothing={previewClothing}
                 className="w-full h-full"
               />

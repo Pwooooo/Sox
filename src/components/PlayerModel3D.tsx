@@ -259,6 +259,8 @@ interface PlayerModel3DProps {
   bodyColors?: BodyColors
   clothing?: ClothingSelection
   useSavedColors?: boolean
+  autoRotate?: boolean
+  initialYaw?: number
 }
 
 export function PlayerModel3D({
@@ -268,6 +270,8 @@ export function PlayerModel3D({
   bodyColors,
   clothing,
   useSavedColors = true,
+  autoRotate = true,
+  initialYaw,
 }: PlayerModel3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const partMaterialsRef = useRef<Partial<Record<keyof BodyColors, THREE.MeshStandardMaterial[]>>>({})
@@ -369,7 +373,7 @@ export function PlayerModel3D({
 
     let mixer: THREE.AnimationMixer | null = null
     let disposed = false
-    let yaw = mode === 'headshot' ? 0.15 : 0.25
+    let yaw = initialYaw ?? (mode === 'headshot' ? 0.15 : 0.25)
     let dragging = false
     let lastX = 0
 
@@ -712,8 +716,8 @@ export function PlayerModel3D({
     const animate = () => {
       rafId = requestAnimationFrame(animate)
       const dt = Math.min(clock.getDelta(), 0.05)
-      if (mixer) mixer.update(dt)
-      if (mode === 'full' && !dragging) {
+      if (mixer) mixer.update(autoRotate || interactive ? dt : 0)
+      if (mode === 'full' && autoRotate && !dragging) {
         yaw += dt * 0.25
       }
       root.rotation.y = yaw
@@ -739,7 +743,7 @@ export function PlayerModel3D({
         }
       }
     }
-  }, [mode, interactive])
+  }, [mode, interactive, autoRotate, initialYaw])
 
   return (
     <div
