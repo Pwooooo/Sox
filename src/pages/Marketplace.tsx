@@ -173,7 +173,7 @@ export function Marketplace() {
 
               {/* Mannequin Preview Container */}
               {item.clothing ? (
-                <div className="w-full h-36 max-h-36 rounded-xl bg-[#18181c] overflow-hidden">
+                <div className="w-full h-36 max-h-36 rounded-xl overflow-hidden">
                   <PlayerModel3D
                     mode="full"
                     useSavedColors={false}

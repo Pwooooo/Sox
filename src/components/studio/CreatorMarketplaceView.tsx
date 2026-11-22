@@ -163,7 +163,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                 key={item.id}
                 className="group relative flex flex-col gap-2 rounded-2xl bg-[#111114] border border-white/[0.05] hover:border-white/[0.14] p-2.5 transition-all"
               >
-                <div className="relative aspect-square w-full rounded-xl bg-[#18181c] overflow-hidden">
+                <div className="relative aspect-square w-full rounded-xl overflow-hidden">
                   <PlayerModel3D
                     mode="full"
                     useSavedColors={false}
