@@ -175,7 +175,7 @@ export function PlayerModel3D({
         map: faceTex,
         transparent: true,
         alphaTest: 0.05,
-        roughness: 0.45,
+        roughness: 0.8,
         metalness: 0,
         depthWrite: false,
         polygonOffset: true,
@@ -217,15 +217,29 @@ export function PlayerModel3D({
         const hCenter = new THREE.Vector3()
         headBox.getSize(hSize)
         headBox.getCenter(hCenter)
-        const faceSize = Math.min(hSize.x, hSize.y) * 0.78
-        const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(faceSize, faceSize), faceMat)
-        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y + hSize.y * 0.02, headBox.max.z + 0.015)
+        const faceSize = Math.min(hSize.x, hSize.y) * 0.72
+        const faceGeo = new THREE.PlaneGeometry(faceSize, faceSize, 16, 1)
+        const cylRadius = Math.max(hSize.z * 0.5 + 0.008, faceSize * 0.55)
+        const posAttr = faceGeo.getAttribute('position')
+        for (let i = 0; i < posAttr.count; i++) {
+          const x = posAttr.getX(i)
+          const theta = x / cylRadius
+          posAttr.setX(i, cylRadius * Math.sin(theta))
+          posAttr.setZ(i, cylRadius * Math.cos(theta) - cylRadius)
+        }
+        faceGeo.computeVertexNormals()
+
+        const faceMesh = new THREE.Mesh(faceGeo, faceMat)
+        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.04, headBox.max.z + 0.008)
 
         const attachParent = headTarget || headMesh || model
         attachParent.updateMatrixWorld(true)
         attachParent.worldToLocal(worldFront)
         faceMesh.position.copy(worldFront)
-        // Counter-scale so faceMesh keeps exact world size inside scaled/rigged parent
+        // Counter-rotate & counter-scale so faceMesh faces world +Z at exact size inside rigged parent
+        const pQuat = new THREE.Quaternion()
+        attachParent.getWorldQuaternion(pQuat)
+        faceMesh.quaternion.copy(pQuat).invert()
         const pScale = new THREE.Vector3()
         attachParent.getWorldScale(pScale)
         faceMesh.scale.set(
