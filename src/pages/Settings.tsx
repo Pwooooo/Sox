@@ -256,10 +256,8 @@ export function Settings() {
                     <label className="text-xs font-semibold text-white/80">Email</label>
                     {rawEmail && (
                       <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                          isVerified
-                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
-                            : 'bg-amber-500/15 text-amber-300 border border-amber-500/20'
+                        className={`text-[11px] font-semibold ${
+                          isVerified ? 'text-emerald-400' : 'text-amber-300'
                         }`}
                       >
                         {isVerified ? 'Verified' : 'Unverified'}
