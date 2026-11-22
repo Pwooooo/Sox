@@ -188,31 +188,10 @@ export function Settings() {
         </p>
       </div>
 
-      {/* Novelo Pill Tab Bar */}
-      <div className="flex items-center gap-1 p-1 rounded-xl bg-[#101012]/90 backdrop-blur-xl border border-white/[0.06] overflow-x-auto no-scrollbar">
-        {SETTINGS_TABS.map((t) => {
-          const active = activeTab === t
-          return (
-            <button
-              key={t}
-              type="button"
-              onClick={() => {
-                setActiveTab(t)
-                setFeedback(null)
-              }}
-              className={`h-8 px-3 rounded-[8px] text-xs font-semibold whitespace-nowrap border-none cursor-pointer transition-all ${
-                active
-                  ? 'bg-white text-[#0c0d10] shadow-sm'
-                  : 'bg-transparent text-white/55 hover:text-white hover:bg-white/[0.05]'
-              }`}
-            >
-              {t}
-            </button>
-          )
-        })}
-      </div>
-
-      {activeTab === 'Account' ? (
+      {/* Main Layout: Content on Left, Tabs on Right */}
+      <div className="flex flex-col-reverse md:flex-row items-start gap-6">
+        <div className="flex-1 min-w-0 w-full">
+          {activeTab === 'Account' ? (
         <div className="flex flex-col gap-5 pb-10">
           {/* Account Details Card */}
           <div className="relative rounded-2xl bg-[#101012]/90 backdrop-blur-xl border border-white/[0.06] shadow-2xl p-5 md:p-6 flex flex-col gap-4 overflow-hidden">
@@ -408,6 +387,32 @@ export function Settings() {
           </p>
         </div>
       )}
+        </div>
+
+        {/* Right-Side Vertical Pill Tab Bar */}
+        <aside className="w-full md:w-52 shrink-0 rounded-2xl bg-[#101012]/90 backdrop-blur-xl border border-white/[0.06] shadow-2xl p-1.5 flex flex-row md:flex-col gap-1 overflow-x-auto no-scrollbar">
+          {SETTINGS_TABS.map((t) => {
+            const active = activeTab === t
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => {
+                  setActiveTab(t)
+                  setFeedback(null)
+                }}
+                className={`h-9 px-3.5 rounded-[9px] text-xs font-semibold whitespace-nowrap text-left border-none cursor-pointer transition-all ${
+                  active
+                    ? 'bg-white text-[#0c0d10] shadow-sm'
+                    : 'bg-transparent text-white/55 hover:text-white hover:bg-white/[0.05]'
+                }`}
+              >
+                {t}
+              </button>
+            )
+          })}
+        </aside>
+      </div>
 
       {/* Edit Modal matching Images 1 & 2 */}
       {modalField && (
