@@ -41,7 +41,7 @@ import {
   Globe,
 } from 'lucide-react'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
-import { StockAvatar } from '@/pages/Trade'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 import { WaveBackground } from '@/components/WaveBackground'
 import { UnderConstruction } from '@/components/UnderConstruction'
 
@@ -1074,7 +1074,9 @@ export function Create({ onClose }: CreateProps) {
             <Bell className="size-4" />
           </button>
 
-          <StockAvatar className="size-7" />
+          <div className="size-7 rounded-full bg-[#1a1a1f] border border-white/10 overflow-hidden shrink-0">
+            <PlayerModel3D mode="headshot" className="w-full h-full" />
+          </div>
 
           {onClose && (
             <button
@@ -1199,7 +1201,9 @@ export function Create({ onClose }: CreateProps) {
               title="JadexDraft1337"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <StockAvatar className="size-4.5 shrink-0" />
+                <div className="size-5 rounded-full bg-[#1a1a1f] border border-white/10 overflow-hidden shrink-0">
+                  <PlayerModel3D mode="headshot" className="w-full h-full" />
+                </div>
                 <span className="hidden md:inline text-xs font-semibold truncate text-white">
                   JadexDraft1337
                 </span>
