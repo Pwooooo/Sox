@@ -930,6 +930,33 @@ export class TerrainSurface {
     this.geometry.computeVertexNormals()
   }
 
+  public getHeightAt(wx: number, wz: number): number {
+    if (!this.geometry) return this.origin[1]
+    const posAttr = this.geometry.attributes.position
+    const cols = this.segX + 1
+    const xStart = posAttr.getX(0)
+    const xEnd = posAttr.getX(cols - 1)
+    const zStart = posAttr.getZ(0)
+    const zEnd = posAttr.getZ(posAttr.count - 1)
+    const lx = wx - this.origin[0]
+    const lz = wz - this.origin[2]
+    const u = Math.max(0, Math.min(this.segX - 0.001, ((lx - xStart) / (xEnd - xStart)) * this.segX))
+    const v = Math.max(0, Math.min(this.segZ - 0.001, ((lz - zStart) / (zEnd - zStart)) * this.segZ))
+    const ix = Math.floor(u)
+    const iz = Math.floor(v)
+    const tx = u - ix
+    const tz = v - iz
+    const i00 = iz * cols + ix
+    const i10 = i00 + 1
+    const i01 = i00 + cols
+    const i11 = i01 + 1
+    const y0 = posAttr.getY(i00) * (1 - tx) + posAttr.getY(i10) * tx
+    const y1 = posAttr.getY(i01) * (1 - tx) + posAttr.getY(i11) * tx
+    const terrainY = this.origin[1] + y0 * (1 - tz) + y1 * tz
+    const waterY = this.waterMesh ? this.waterMesh.position.y : -Infinity
+    return Math.max(terrainY, waterY)
+  }
+
   public clear(): void {
     if (this.mesh) {
       this.group.remove(this.mesh)

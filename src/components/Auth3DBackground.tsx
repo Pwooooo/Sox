@@ -92,6 +92,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
         bottomColor: { value: new THREE.Color('#f5f7fa') },
         sunDir: { value: new THREE.Vector3(62, 82, 48).normalize() },
         sunColor: { value: new THREE.Color('#fff9ed') },
+        uTime: { value: 0 },
       },
       vertexShader: `
         varying vec3 vWorldPos;
@@ -107,16 +108,55 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
         uniform vec3 bottomColor;
         uniform vec3 sunDir;
         uniform vec3 sunColor;
+        uniform float uTime;
         varying vec3 vWorldPos;
+
+        float hash2(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+        }
+        float noise2(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(
+            mix(hash2(i), hash2(i + vec2(1.0, 0.0)), u.x),
+            mix(hash2(i + vec2(0.0, 1.0)), hash2(i + vec2(1.0, 1.0)), u.x),
+            u.y
+          );
+        }
+        float fbmCloud(vec2 p) {
+          float v = 0.0;
+          float a = 0.52;
+          for (int i = 0; i < 5; i++) {
+            v += a * noise2(p);
+            p = p * 2.03 + vec2(13.7, 7.9);
+            a *= 0.5;
+          }
+          return v;
+        }
+
         void main() {
           vec3 dir = normalize(vWorldPos);
           float h = dir.y;
           vec3 col = h >= 0.0
             ? mix(horizonColor, topColor, pow(clamp(h, 0.0, 1.0), 0.52))
             : mix(horizonColor, bottomColor, pow(clamp(-h, 0.0, 1.0), 0.55));
+
+          // Soft sunlit cumulus clouds in the upper sky dome
+          if (h > 0.015) {
+            vec2 cloudUV = dir.xz / (h + 0.18) * 1.15 + vec2(uTime * 0.012, uTime * 0.005);
+            float n = fbmCloud(cloudUV);
+            float detail = fbmCloud(cloudUV * 2.3 - vec2(uTime * 0.008, 0.0));
+            float density = smoothstep(0.46, 0.80, n * 0.78 + detail * 0.25);
+            float horizonFade = smoothstep(0.015, 0.22, h);
+            float cloudAlpha = density * horizonFade * 0.82;
+            vec3 cloudLit = mix(vec3(0.84, 0.89, 0.95), vec3(1.0, 0.99, 0.97), smoothstep(0.35, 0.75, n));
+            col = mix(col, cloudLit, cloudAlpha);
+          }
+
           float sunDot = max(dot(dir, normalize(sunDir)), 0.0);
           col += sunColor * pow(sunDot, 140.0) * 1.3;
-          col += sunColor * pow(sunDot, 10.0) * 0.25;
+          col += sunColor * pow(sunDot, 10.0) * 0.22;
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -186,17 +226,31 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
 
     let rafId = 0
     const clock = new THREE.Clock()
+    let smoothCamY = 22
+    let smoothLookY = 12
     const animate = () => {
       rafId = requestAnimationFrame(animate)
       const t = clock.getElapsedTime()
 
       terrain.update(t)
+      skyMat.uniforms.uTime.value = t
 
       const orbit = t * 0.045
-      camera.position.x = Math.sin(orbit) * 44
-      camera.position.z = Math.cos(orbit) * 44
-      camera.position.y = 17.5 + Math.sin(t * 0.16) * 2.0
-      camera.lookAt(Math.sin(orbit + 0.7) * 14, 11.5, Math.cos(orbit + 0.7) * 14)
+      const camX = Math.sin(orbit) * 44
+      const camZ = Math.cos(orbit) * 44
+      const lookX = Math.sin(orbit + 0.7) * 14
+      const lookZ = Math.cos(orbit + 0.7) * 14
+
+      // Keep camera safely above hills and water at all times
+      const groundAtCam = terrain.getHeightAt(camX, camZ)
+      const groundAtLook = terrain.getHeightAt(lookX, lookZ)
+      const targetCamY = Math.max(19.5 + Math.sin(t * 0.16) * 1.5, groundAtCam + 8.5)
+      const targetLookY = Math.max(12.5, groundAtLook + 3.5)
+      smoothCamY += (targetCamY - smoothCamY) * 0.06
+      smoothLookY += (targetLookY - smoothLookY) * 0.06
+
+      camera.position.set(camX, Math.max(smoothCamY, groundAtCam + 6.5), camZ)
+      camera.lookAt(lookX, smoothLookY, lookZ)
 
       if (composer) {
         composer.render()
