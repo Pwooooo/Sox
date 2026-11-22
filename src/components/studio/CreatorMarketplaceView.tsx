@@ -212,10 +212,10 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
 
       {/* Create an Item Modal */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative w-full max-w-[840px] rounded-2xl bg-[#111114] border border-white/[0.08] shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-[840px] rounded-2xl bg-[#18181a] border border-white/[0.08] shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
             {/* Left Column: Form */}
-            <div className="md:col-span-6 p-6 flex flex-col gap-4 border-b md:border-b-0 md:border-r border-white/[0.06]">
+            <div className="md:col-span-6 p-6 flex flex-col gap-4 bg-[#18181a] border-b md:border-b-0 md:border-r border-white/[0.06]">
               <h2 className="text-base font-black text-white tracking-tight">Create an item</h2>
 
               {/* Type */}
@@ -226,8 +226,8 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   onChange={setItemType}
                   options={TYPE_OPTIONS}
                   className="w-full"
-                  buttonClassName="w-full justify-between h-9 bg-[#141416] hover:bg-[#1a1a1d] border-white/10 rounded-[8px]"
-                  menuClassName="w-full"
+                  buttonClassName="w-full justify-between h-9 bg-[#111113] hover:bg-[#141416] border-white/[0.08] rounded-[8px]"
+                  menuClassName="w-full bg-[#111113] border-white/[0.08]"
                 />
               </div>
 
@@ -239,7 +239,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Classic Novelo Shirt"
-                  className="w-full h-9 px-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white placeholder:text-white/30 outline-none focus:border-white/25 transition-colors"
+                  className="w-full h-9 px-3 rounded-[8px] bg-[#111113] border border-white/[0.08] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/25 transition-colors"
                 />
               </div>
 
@@ -251,7 +251,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="Optional item description..."
-                  className="w-full p-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white placeholder:text-white/30 outline-none focus:border-white/25 resize-none transition-colors"
+                  className="w-full p-3 rounded-[8px] bg-[#111113] border border-white/[0.08] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/25 resize-none transition-colors"
                 />
               </div>
 
@@ -269,7 +269,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     min={0}
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white outline-none focus:border-white/25 transition-colors"
+                    className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#111113] border border-white/[0.08] text-xs text-white outline-none focus:border-white/25 transition-colors"
                   />
                 </div>
               </div>
@@ -302,8 +302,8 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   }}
                   className={`rounded-[8px] border border-dashed p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
                     isDraggingFile
-                      ? 'border-white/40 bg-[#1a1a1d]'
-                      : 'border-white/15 hover:border-white/25 bg-[#141416] hover:bg-[#1a1a1d]'
+                      ? 'border-white/35 bg-[#151518]'
+                      : 'border-white/[0.12] hover:border-white/25 bg-[#111113] hover:bg-[#141416]'
                   }`}
                 >
                   <div className="size-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/70">
@@ -338,7 +338,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     resetForm()
                     setIsCreateOpen(false)
                   }}
-                  className="h-9 px-4 rounded-[8px] bg-[#141416] hover:bg-[#1a1a1d] border border-white/10 text-white/80 hover:text-white text-xs font-bold cursor-pointer transition-colors"
+                  className="h-9 px-4 rounded-[8px] bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.06] text-white/85 hover:text-white text-xs font-bold cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
@@ -354,7 +354,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
             </div>
 
             {/* Right Column: Live 3D Preview */}
-            <div className="md:col-span-6 relative bg-[#0c0c0f] min-h-[380px] md:min-h-[480px] flex items-center justify-center">
+            <div className="md:col-span-6 relative bg-[#111113] min-h-[380px] md:min-h-[480px] flex items-center justify-center">
               <button
                 type="button"
                 onClick={() => {
@@ -362,7 +362,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   setIsCreateOpen(false)
                 }}
                 title="Close"
-                className="absolute top-3 right-3 z-20 size-8 rounded-[8px] bg-[#141416] hover:bg-[#1a1a1d] border border-white/10 text-white/70 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+                className="absolute top-3 right-3 z-20 size-8 rounded-[8px] bg-transparent hover:bg-white/[0.06] border-none text-white/50 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
               >
                 <X className="size-4" />
               </button>
