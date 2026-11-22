@@ -125,7 +125,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="h-8 px-3.5 rounded-[8px] bg-white text-black hover:bg-neutral-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95 mr-1"
+            className="h-8 px-3.5 rounded-[8px] bg-white/30 hover:bg-white/40 backdrop-blur-xs text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-white/20 transition-all active:scale-95 mr-1"
           >
             <Plus className="size-3.5 stroke-[2.5]" />
             <span>Create New</span>
