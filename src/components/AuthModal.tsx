@@ -298,13 +298,13 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
 
         <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-3.5">
           {(error || authUrlError) && (
-            <div className="p-3 rounded-xl bg-rose-500/12 border border-rose-500/25 text-xs text-rose-200 leading-snug">
+            <div className="text-xs text-rose-300 text-center leading-snug">
               {error || authUrlError}
             </div>
           )}
 
           {info && (
-            <div className="p-3 rounded-xl bg-emerald-500/12 border border-emerald-500/25 text-xs text-emerald-200 leading-snug flex flex-col gap-1.5">
+            <div className="text-xs text-emerald-300 text-center leading-snug flex flex-col items-center gap-1">
               <span>{info}</span>
               {email && (
                 <button
@@ -314,7 +314,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     if (res.error) setError(res.error)
                     else setInfo('Verification email resent! Check your inbox.')
                   }}
-                  className="self-start text-[11px] font-semibold text-emerald-300 hover:text-white underline bg-transparent border-none p-0 cursor-pointer"
+                  className="text-[11px] font-semibold text-emerald-200 hover:text-white underline bg-transparent border-none p-0 cursor-pointer"
                 >
                   Resend verification email
                 </button>
