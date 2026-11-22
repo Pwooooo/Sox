@@ -123,7 +123,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
       />
 
       {/* Frosted Glass Card with Top Specular Edge */}
-      <div className="w-full max-w-[460px] relative z-10 rounded-3xl bg-[#0e0e12]/70 backdrop-blur-2xl border border-white/[0.08] shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-7 md:p-8 overflow-hidden">
+      <div className="w-full max-w-[460px] relative z-10 rounded-3xl bg-[#141c15]/68 backdrop-blur-2xl border border-[#ffe0aa]/[0.12] shadow-[0_32px_100px_rgba(0,0,0,0.78)] p-7 md:p-8 overflow-hidden">
         {/* Firewatch-Style Layered Paper-Cut Sunset Forest Backdrop */}
         <div
           className="absolute inset-0 pointer-events-none overflow-hidden"
@@ -255,7 +255,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(ellipse 80% 56% at 50% 56%, rgba(10,11,15,0.52) 0%, rgba(10,11,15,0.18) 74%, transparent 100%)',
+                'radial-gradient(ellipse 80% 56% at 50% 56%, rgba(17,26,18,0.42) 0%, rgba(17,26,18,0.14) 74%, transparent 100%)',
             }}
           />
         </div>
@@ -314,7 +314,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={birthday}
                     max={new Date().toISOString().split('T')[0]}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all [color-scheme:dark]"
+                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#162118]/58 backdrop-blur-md hover:bg-[#1a271c]/68 border border-[#a8cf98]/[0.18] text-xs text-white focus:outline-none focus:border-[#ffe0aa]/45 focus:bg-[#19261b]/75 transition-all [color-scheme:dark]"
                   />
                 </div>
                 <span className="text-[11px] text-white/65">
@@ -335,7 +335,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Preferred username"
-                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
+                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#162118]/58 backdrop-blur-md hover:bg-[#1a271c]/68 border border-[#a8cf98]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe0aa]/45 focus:bg-[#19261b]/75 transition-all"
                     />
                   </div>
                 </div>
@@ -350,7 +350,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
+                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#162118]/58 backdrop-blur-md hover:bg-[#1a271c]/68 border border-[#a8cf98]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe0aa]/45 focus:bg-[#19261b]/75 transition-all"
                     />
                   </div>
                 </div>
@@ -367,7 +367,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
+                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#162118]/58 backdrop-blur-md hover:bg-[#1a271c]/68 border border-[#a8cf98]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe0aa]/45 focus:bg-[#19261b]/75 transition-all"
                   />
                   <button
                     type="button"
@@ -446,7 +446,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="Enter your username or email"
-                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
+                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#162118]/58 backdrop-blur-md hover:bg-[#1a271c]/68 border border-[#a8cf98]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe0aa]/45 focus:bg-[#19261b]/75 transition-all"
                   />
                 </div>
               </div>
@@ -461,7 +461,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
+                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#162118]/58 backdrop-blur-md hover:bg-[#1a271c]/68 border border-[#a8cf98]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe0aa]/45 focus:bg-[#19261b]/75 transition-all"
                   />
                   <button
                     type="button"
