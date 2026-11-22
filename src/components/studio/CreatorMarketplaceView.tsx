@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Plus, Upload, X, Trash2, Menu } from 'lucide-react'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import { useAuth } from '@/lib/auth'
 import {
   ClothingType,
   CreatedClothingItem,
@@ -30,6 +31,9 @@ function toClothingSelection(type: ClothingType, textureDataUrl: string): Clothi
 }
 
 export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketplaceViewProps) {
+  const { user, profile } = useAuth()
+  const currentUsername =
+    profile?.username || (user?.user_metadata?.username as string) || 'Player'
   const [items, setItems] = useState<CreatedClothingItem[]>(() => loadCreatedClothing())
   const [filterTab, setFilterTab] = useState<'All' | ClothingType>('All')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -94,7 +98,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
       description: description.trim(),
       price: parsedPrice,
       textureDataUrl,
-      creator: 'JadexDraft1337',
+      creator: currentUsername,
     })
     resetForm()
     setIsCreateOpen(false)

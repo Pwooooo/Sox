@@ -1199,14 +1199,14 @@ export function Create({ onClose }: CreateProps) {
             {/* Account Selector (Thinner, no background - matching Image 2) */}
             <div
               className="flex items-center justify-between px-2 py-0.5 rounded-[4px] hover:bg-white/[0.04] cursor-pointer transition-colors"
-              title="JadexDraft1337"
+              title={profile?.username || (user?.user_metadata?.username as string) || 'Player'}
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div className="size-5 rounded-full bg-[#1a1a1f] border border-white/10 overflow-hidden shrink-0">
                   <PlayerModel3D mode="headshot" className="w-full h-full" />
                 </div>
                 <span className="hidden md:inline text-xs font-semibold truncate text-white">
-                  JadexDraft1337
+                  {profile?.username || (user?.user_metadata?.username as string) || 'Player'}
                 </span>
               </div>
               <ChevronDown className="hidden md:block size-3 text-white/40 shrink-0" />

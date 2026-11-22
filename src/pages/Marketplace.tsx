@@ -3,6 +3,7 @@ import { Search, Filter, Clock, Flame } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import { useAuth } from '@/lib/auth'
 import {
   loadCreatedClothing,
   CLOTHING_UPDATED_EVENT,
@@ -21,17 +22,19 @@ interface MarketItem {
   clothing?: ClothingSelection
 }
 
-function toMarketItem(item: CreatedClothingItem): MarketItem {
+function toMarketItem(item: CreatedClothingItem, fallbackUsername: string): MarketItem {
   const clothing: ClothingSelection =
     item.type === 'Shirt'
       ? { shirt: item.textureDataUrl }
       : item.type === 'Pants'
         ? { pants: item.textureDataUrl }
         : { tshirt: item.textureDataUrl }
+  const creator =
+    !item.creator || item.creator === 'JadexDraft1337' ? fallbackUsername : item.creator
   return {
     id: item.id,
     name: item.name,
-    creator: item.creator,
+    creator,
     price: item.price,
     category: 'Clothing',
     clothing,
@@ -39,6 +42,9 @@ function toMarketItem(item: CreatedClothingItem): MarketItem {
 }
 
 export function Marketplace() {
+  const { user, profile } = useAuth()
+  const currentUsername =
+    profile?.username || (user?.user_metadata?.username as string) || 'Player'
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All Categories')
   const [sort, setSort] = useState('Relevance')
@@ -57,7 +63,9 @@ export function Marketplace() {
     }
   }, [])
 
-  const marketplaceItems: MarketItem[] = createdItems.map(toMarketItem)
+  const marketplaceItems: MarketItem[] = createdItems.map((it) =>
+    toMarketItem(it, currentUsername)
+  )
 
   const handleBuy = (item: MarketItem) => {
     if (userBalance < item.price) {
