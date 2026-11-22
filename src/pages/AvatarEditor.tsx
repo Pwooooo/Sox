@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Sparkles, Check, Save, RotateCw, X, Plus } from 'lucide-react'
 import { ITEMS, Item } from '@/data/items'
+import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 type BodyPart = 'all' | 'head' | 'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg'
