@@ -168,7 +168,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     mode="full"
                     useSavedColors={false}
                     autoRotate={false}
-                    initialYaw={-0.38}
+                    initialYaw={0.22}
                     clothing={toClothingSelection(item.type, item.textureDataUrl)}
                     className="w-full h-full"
                   />
@@ -226,7 +226,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   onChange={setItemType}
                   options={TYPE_OPTIONS}
                   className="w-full"
-                  buttonClassName="w-full justify-between h-9 bg-[#18181c] border border-white/[0.08] rounded-[10px]"
+                  buttonClassName="w-full justify-between h-9 bg-[#141416] hover:bg-[#1a1a1d] border-white/10 rounded-[8px]"
                   menuClassName="w-full"
                 />
               </div>
@@ -239,7 +239,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Classic Novelo Shirt"
-                  className="w-full h-9 px-3 rounded-[10px] bg-[#18181c] border border-white/[0.08] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/25"
+                  className="w-full h-9 px-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white placeholder:text-white/30 outline-none focus:border-white/25 transition-colors"
                 />
               </div>
 
@@ -251,7 +251,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="Optional item description..."
-                  className="w-full p-3 rounded-[10px] bg-[#18181c] border border-white/[0.08] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/25 resize-none"
+                  className="w-full p-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white placeholder:text-white/30 outline-none focus:border-white/25 resize-none transition-colors"
                 />
               </div>
 
@@ -269,7 +269,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     min={0}
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full h-9 pl-8 pr-3 rounded-[10px] bg-[#18181c] border border-white/[0.08] text-xs text-white outline-none focus:border-white/25"
+                    className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white outline-none focus:border-white/25 transition-colors"
                   />
                 </div>
               </div>
@@ -300,10 +300,10 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     const f = e.dataTransfer.files?.[0]
                     if (f) handleFile(f)
                   }}
-                  className={`rounded-xl border border-dashed p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                  className={`rounded-[8px] border border-dashed p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
                     isDraggingFile
-                      ? 'border-white/50 bg-white/[0.06]'
-                      : 'border-white/[0.14] hover:border-white/30 bg-[#151519]'
+                      ? 'border-white/40 bg-[#1a1a1d]'
+                      : 'border-white/15 hover:border-white/25 bg-[#141416] hover:bg-[#1a1a1d]'
                   }`}
                 >
                   <div className="size-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/70">
@@ -338,7 +338,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     resetForm()
                     setIsCreateOpen(false)
                   }}
-                  className="h-9 px-4 rounded-[10px] bg-white/[0.06] hover:bg-white/[0.1] text-white/80 hover:text-white text-xs font-bold cursor-pointer border-none transition-colors"
+                  className="h-9 px-4 rounded-[8px] bg-[#141416] hover:bg-[#1a1a1d] border border-white/10 text-white/80 hover:text-white text-xs font-bold cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
@@ -346,7 +346,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   type="button"
                   disabled={!name.trim() || !textureDataUrl}
                   onClick={handleCreate}
-                  className="h-9 px-4 rounded-[10px] bg-white text-black hover:bg-neutral-200 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold cursor-pointer border-none transition-all active:scale-95"
+                  className="h-9 px-4 rounded-[8px] bg-white text-black hover:bg-neutral-200 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold cursor-pointer border-none transition-all active:scale-95"
                 >
                   Create item
                 </button>
@@ -362,7 +362,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   setIsCreateOpen(false)
                 }}
                 title="Close"
-                className="absolute top-3 right-3 z-20 size-8 rounded-[8px] bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white flex items-center justify-center cursor-pointer border-none transition-colors"
+                className="absolute top-3 right-3 z-20 size-8 rounded-[8px] bg-[#141416] hover:bg-[#1a1a1d] border border-white/10 text-white/70 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
               >
                 <X className="size-4" />
               </button>
@@ -372,7 +372,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                 interactive
                 useSavedColors={false}
                 autoRotate={false}
-                initialYaw={-0.38}
+                initialYaw={0.22}
                 clothing={previewClothing}
                 className="w-full h-full"
               />

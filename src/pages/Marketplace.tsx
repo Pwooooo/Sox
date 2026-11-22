@@ -1,7 +1,13 @@
-import { useState } from 'react'
-import { Search, Filter, Star, Clock, Palette, Flame } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, Filter, Clock, Flame } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
+import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import {
+  loadCreatedClothing,
+  CLOTHING_UPDATED_EVENT,
+  CreatedClothingItem,
+} from '@/data/clothingStore'
 
 interface MarketItem {
   id: string
@@ -12,15 +18,46 @@ interface MarketItem {
   hasStarBanner?: boolean
   timeLeft?: string
   category: string
+  clothing?: ClothingSelection
 }
 
-const MARKETPLACE_ITEMS: MarketItem[] = []
+function toMarketItem(item: CreatedClothingItem): MarketItem {
+  const clothing: ClothingSelection =
+    item.type === 'Shirt'
+      ? { shirt: item.textureDataUrl }
+      : item.type === 'Pants'
+        ? { pants: item.textureDataUrl }
+        : { tshirt: item.textureDataUrl }
+  return {
+    id: item.id,
+    name: item.name,
+    creator: item.creator,
+    price: item.price,
+    category: 'Clothing',
+    clothing,
+  }
+}
 
 export function Marketplace() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All Categories')
   const [sort, setSort] = useState('Relevance')
   const [userBalance, setUserBalance] = useState(1250)
+  const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
+    loadCreatedClothing()
+  )
+
+  useEffect(() => {
+    const sync = () => setCreatedItems(loadCreatedClothing())
+    window.addEventListener(CLOTHING_UPDATED_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  const marketplaceItems: MarketItem[] = createdItems.map(toMarketItem)
 
   const handleBuy = (item: MarketItem) => {
     if (userBalance < item.price) {
@@ -31,7 +68,7 @@ export function Marketplace() {
     alert(`Purchased ${item.name} for ${item.price} Novelo!`)
   }
 
-  const filteredItems = MARKETPLACE_ITEMS.filter((item) => {
+  const filteredItems = marketplaceItems.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.creator.toLowerCase().includes(search.toLowerCase())
     const matchesCat = category === 'All Categories' || item.category === category
     return matchesSearch && matchesCat
@@ -134,12 +171,25 @@ export function Marketplace() {
                 </div>
               )}
 
-              {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
-              <IsometricMannequin
-                name={item.name}
-                type={item.category.toLowerCase()}
-                className="h-36 max-h-36"
-              />
+              {/* Mannequin Preview Container */}
+              {item.clothing ? (
+                <div className="w-full h-36 max-h-36 rounded-xl bg-[#18181c] overflow-hidden">
+                  <PlayerModel3D
+                    mode="full"
+                    useSavedColors={false}
+                    autoRotate={false}
+                    initialYaw={0.22}
+                    clothing={item.clothing}
+                    className="w-full h-full"
+                  />
+                </div>
+              ) : (
+                <IsometricMannequin
+                  name={item.name}
+                  type={item.category.toLowerCase()}
+                  className="h-36 max-h-36"
+                />
+              )}
 
               {/* Title, Creator, Price */}
               <div className="flex flex-col gap-0.5 min-w-0 text-left pt-1">
