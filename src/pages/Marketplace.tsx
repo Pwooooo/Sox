@@ -14,38 +14,7 @@ interface MarketItem {
   category: string
 }
 
-const MARKETPLACE_ITEMS: MarketItem[] = [
-  { id: 'm1', name: '???', creator: 'Luduvo', price: 42, timeLeft: '313d 10h left', category: 'Accessories' },
-  { id: 'm2', name: 'Long Hair', creator: 'Luduvo', price: 50, hasRainbow: true, category: 'Hair' },
-  { id: 'm3', name: 'Fedora', creator: 'Luduvo', price: 70, hasRainbow: true, category: 'Hats' },
-  { id: 'm4', name: 'Ushanka', creator: 'Luduvo', price: 75, hasRainbow: true, category: 'Hats' },
-  { id: 'm5', name: 'Puff', creator: 'bro', price: 2015, category: 'Clothing' },
-  { id: 'm6', name: 'Antlers', creator: 'Luduvo', price: 250, hasRainbow: true, category: 'Accessories' },
-  { id: 'm7', name: 'Middle Split Hair', creator: 'Luduvo', price: 50, hasRainbow: true, category: 'Hair' },
-  { id: 'm8', name: 'Winter Scarf', creator: 'Luduvo', price: 75, hasRainbow: true, category: 'Accessories' },
-  { id: 'm9', name: 'Eater Helmet', creator: 'Luduvo', price: 70, category: 'Hats' },
-  { id: 'm10', name: "Vux's pants", creator: 'vux', price: 5, category: 'Pants' },
-  { id: 'm11', name: "Vux's sweater", creator: 'vux', price: 5, category: 'Shirts' },
-  { id: 'm12', name: 'Teapot', creator: 'Luduvo', price: 100, category: 'Hats' },
-  { id: 'm13', name: 'Blind Ascension', creator: 'Luduvo', price: 2250, hasStarBanner: true, category: 'Accessories' },
-  { id: 'm14', name: 'Chilly', creator: 'Luduvo', price: 900, hasStarBanner: true, category: 'Faces' },
-  { id: 'm15', name: 'D-Delayed?', creator: 'Luduvo', price: 30, category: 'Faces' },
-  { id: 'm16', name: 'Moth Wings', creator: 'Luduvo', price: 70, hasRainbow: true, category: 'Accessories' },
-  { id: 'm17', name: 'Traffic Cone', creator: 'Luduvo', price: 90, category: 'Hats' },
-  { id: 'm18', name: 'Crown of Rich...', creator: 'Luduvo', price: 300, category: 'Hats' },
-  { id: 'm19', name: 'Golden Crown', creator: 'Luduvo', price: 1234, hasStarBanner: true, category: 'Hats' },
-  { id: 'm20', name: 'Paper Bag', creator: 'Luduvo', price: 50, hasRainbow: true, category: 'Hats' },
-  { id: 'm21', name: 'Ribcage', creator: 'Luduvo', price: 77, category: 'Clothing' },
-  { id: 'm22', name: 'Shark Hoodie', creator: 'Luduvo', price: 70, hasRainbow: true, category: 'Clothing' },
-  { id: 'm23', name: 'Blooming Eye', creator: 'Luduvo', price: 70, category: 'Faces' },
-  { id: 'm24', name: 'Horned Cranium', creator: 'Luduvo', price: 420, hasStarBanner: true, category: 'Hats' },
-  { id: 'm25', name: 'Party Hat', creator: 'Luduvo', price: 10, category: 'Hats' },
-  { id: 'm26', name: 'Party Face', creator: 'Luduvo', price: 299, hasStarBanner: true, category: 'Faces' },
-  { id: 'm27', name: 'Sweater Collar', creator: 'Luduvo', price: 40, hasRainbow: true, category: 'Accessories' },
-  { id: 'm28', name: 'Red Traffic Cone', creator: 'Luduvo', price: 1200, category: 'Hats' },
-  { id: 'm29', name: 'Bloodied Ribcage', creator: 'Luduvo', price: 300, hasStarBanner: true, category: 'Clothing' },
-  { id: 'm30', name: 'Robot', creator: 'Luduvo', price: 2000, hasStarBanner: true, category: 'Bundles' },
-]
+const MARKETPLACE_ITEMS: MarketItem[] = []
 
 export function Marketplace() {
   const [search, setSearch] = useState('')
@@ -142,44 +111,53 @@ export function Marketplace() {
       </div>
 
       {/* 10-Column Catalog Grid matching Image 3 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
-        {sortedItems.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => handleBuy(item)}
-            className="group rounded-[14px] p-2.5 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none relative"
-          >
-            {/* Limited Time Left Banner (Top Left) */}
-            {item.timeLeft && (
-              <div className="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-full bg-red-600/90 text-white text-[9px] font-bold flex items-center gap-1 shadow-sm">
-                <Clock className="size-2.5" />
-                <span>{item.timeLeft}</span>
-              </div>
-            )}
+      {sortedItems.length === 0 ? (
+        <div className="rounded-2xl bg-[#101012]/90 border border-white/[0.06] p-12 text-center">
+          <p className="text-sm font-semibold text-white/70 m-0">No marketplace items yet</p>
+          <p className="text-xs text-white/40 m-0 mt-1">
+            Items published to the Novelo Marketplace will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
+          {sortedItems.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => handleBuy(item)}
+              className="group rounded-[14px] p-2.5 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none relative"
+            >
+              {/* Limited Time Left Banner (Top Left) */}
+              {item.timeLeft && (
+                <div className="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-full bg-red-600/90 text-white text-[9px] font-bold flex items-center gap-1 shadow-sm">
+                  <Clock className="size-2.5" />
+                  <span>{item.timeLeft}</span>
+                </div>
+              )}
 
-            {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
-            <IsometricMannequin
-              name={item.name}
-              type={item.category.toLowerCase()}
-              className="h-36 max-h-36"
-            />
+              {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
+              <IsometricMannequin
+                name={item.name}
+                type={item.category.toLowerCase()}
+                className="h-36 max-h-36"
+              />
 
-            {/* Title, Creator, Price */}
-            <div className="flex flex-col gap-0.5 min-w-0 text-left pt-1">
-              <h4 className="text-xs md:text-sm font-bold text-white leading-tight truncate group-hover:text-white">
-                {item.name}
-              </h4>
-              <span className="text-[11px] text-white/50 truncate">
-                By <span className="text-white/80 font-medium">{item.creator}</span>
-              </span>
-              <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
-                <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
-                <span>{item.price.toLocaleString()}</span>
+              {/* Title, Creator, Price */}
+              <div className="flex flex-col gap-0.5 min-w-0 text-left pt-1">
+                <h4 className="text-xs md:text-sm font-bold text-white leading-tight truncate group-hover:text-white">
+                  {item.name}
+                </h4>
+                <span className="text-[11px] text-white/50 truncate">
+                  By <span className="text-white/80 font-medium">{item.creator}</span>
+                </span>
+                <div className="flex items-center gap-1 mt-1 text-xs font-bold text-white">
+                  <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain shrink-0" />
+                  <span>{item.price.toLocaleString()}</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

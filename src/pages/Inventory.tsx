@@ -15,71 +15,7 @@ interface InventoryItem {
   isOffSale?: boolean
 }
 
-const LUDUVO_ITEMS: InventoryItem[] = [
-  {
-    id: 'l1',
-    name: 'Alpha Antlers',
-    creator: 'Luduvo',
-    priceDisplay: 'Off Sale',
-    category: 'Accessories',
-    type: 'antlers',
-    isOffSale: true,
-  },
-  {
-    id: 'l2',
-    name: 'Single Celled ...',
-    creator: 'Luduvo',
-    priceDisplay: '1',
-    category: 'Faces',
-    type: 'face',
-    faceType: 'derp',
-  },
-  {
-    id: 'l3',
-    name: 'D-Delayed?',
-    creator: 'Luduvo',
-    priceDisplay: '30',
-    category: 'Faces',
-    type: 'face',
-    faceType: 'smirk',
-  },
-  {
-    id: 'l4',
-    name: 'Smile',
-    creator: 'Luduvo',
-    priceDisplay: 'Free',
-    category: 'Faces',
-    type: 'face',
-    faceType: 'smile',
-  },
-  {
-    id: 'l5',
-    name: 'i like cats',
-    creator: 'sky',
-    priceDisplay: '1,000,000',
-    category: 'Shirts',
-    type: 'shirt',
-    shirtType: 'cat',
-  },
-  {
-    id: 'l6',
-    name: 'Pwo',
-    creator: 'sky',
-    priceDisplay: '10,000',
-    category: 'Shirts',
-    type: 'shirt',
-    shirtType: 'white',
-  },
-  {
-    id: 'l7',
-    name: 'Pwo',
-    creator: 'sky',
-    priceDisplay: '10,000',
-    category: 'Shirts',
-    type: 'shirt',
-    shirtType: 'black',
-  },
-]
+const LUDUVO_ITEMS: InventoryItem[] = []
 
 const TABS = ['All', 'Favorites', 'Accessories', 'Shirts', 'Pants', 'Faces', 'Bundles'] as const
 
