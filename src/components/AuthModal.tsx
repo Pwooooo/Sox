@@ -314,7 +314,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={birthday}
                     max={new Date().toISOString().split('T')[0]}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#2e221b]/55 backdrop-blur-md hover:bg-[#382a21]/65 border border-[#f2c394]/[0.22] text-xs text-white focus:outline-none focus:border-[#ffe4b8]/50 focus:bg-[#36281f]/75 transition-all [color-scheme:dark]"
+                    className="w-full h-10 pl-9 pr-3.5 rounded-[7px] bg-[#2e221b]/55 backdrop-blur-md hover:bg-[#382a21]/65 border border-[#f2c394]/[0.22] text-xs text-white focus:outline-none focus:border-[#ffe4b8]/50 focus:bg-[#36281f]/75 transition-all [color-scheme:dark]"
                   />
                 </div>
                 <span className="text-[11px] text-white/65">
@@ -335,7 +335,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Preferred username"
-                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#233423]/55 backdrop-blur-md hover:bg-[#2a3f2a]/65 border border-[#a8cf98]/[0.20] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#283c28]/75 transition-all"
+                      className="w-full h-10 pl-9 pr-3.5 rounded-[7px] bg-[#233423]/55 backdrop-blur-md hover:bg-[#2a3f2a]/65 border border-[#a8cf98]/[0.20] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#283c28]/75 transition-all"
                     />
                   </div>
                 </div>
@@ -350,7 +350,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#233423]/55 backdrop-blur-md hover:bg-[#2a3f2a]/65 border border-[#a8cf98]/[0.20] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#283c28]/75 transition-all"
+                      className="w-full h-10 pl-9 pr-3.5 rounded-[7px] bg-[#233423]/55 backdrop-blur-md hover:bg-[#2a3f2a]/65 border border-[#a8cf98]/[0.20] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#283c28]/75 transition-all"
                     />
                   </div>
                 </div>
@@ -367,7 +367,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#152216]/60 backdrop-blur-md hover:bg-[#1a2a1b]/70 border border-[#88b37c]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#19281a]/78 transition-all"
+                    className="w-full h-10 pl-9 pr-10 rounded-[7px] bg-[#152216]/60 backdrop-blur-md hover:bg-[#1a2a1b]/70 border border-[#88b37c]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#19281a]/78 transition-all"
                   />
                   <button
                     type="button"
@@ -446,7 +446,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="Enter your username or email"
-                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#2e221b]/55 backdrop-blur-md hover:bg-[#382a21]/65 border border-[#f2c394]/[0.22] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/50 focus:bg-[#36281f]/75 transition-all"
+                    className="w-full h-10 pl-9 pr-3.5 rounded-[7px] bg-[#2e221b]/55 backdrop-blur-md hover:bg-[#382a21]/65 border border-[#f2c394]/[0.22] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/50 focus:bg-[#36281f]/75 transition-all"
                   />
                 </div>
               </div>
@@ -461,7 +461,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#152216]/60 backdrop-blur-md hover:bg-[#1a2a1b]/70 border border-[#88b37c]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#19281a]/78 transition-all"
+                    className="w-full h-10 pl-9 pr-10 rounded-[7px] bg-[#152216]/60 backdrop-blur-md hover:bg-[#1a2a1b]/70 border border-[#88b37c]/[0.18] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#19281a]/78 transition-all"
                   />
                   <button
                     type="button"
