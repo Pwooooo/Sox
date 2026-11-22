@@ -2,7 +2,6 @@ import { useState, ReactNode } from 'react'
 import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { WaveBackground } from '@/components/WaveBackground'
-import { SettingsModal } from '@/components/SettingsModal'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
 
@@ -14,7 +13,6 @@ interface LayoutProps {
 
 export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
   const { user, profile } = useAuth()
   const displayUsername =
     profile?.username ||
@@ -33,7 +31,7 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
         unreadNotifications={1}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
-        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenSettings={() => onSelectTab?.('Settings')}
         onNavigate={onSelectTab}
       />
 
@@ -57,8 +55,6 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
           {children}
         </div>
       </main>
-
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 }

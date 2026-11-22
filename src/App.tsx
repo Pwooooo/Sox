@@ -12,6 +12,7 @@ import { Store } from '@/pages/Store'
 import { Trade } from '@/pages/Trade'
 import { Create } from '@/pages/Create'
 import { Forum } from '@/pages/Forum'
+import { Settings } from '@/pages/Settings'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { AuthModal } from '@/components/AuthModal'
 
@@ -104,6 +105,8 @@ function AppContent() {
         return <Create />
       case 'Forum':
         return <Forum />
+      case 'Settings':
+        return <Settings />
       default:
         return <Home />
     }
