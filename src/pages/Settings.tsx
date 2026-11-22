@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, Trash2, Check, X, LogOut } from 'lucide-react'
+import { Pencil, Trash2, Check, X, LogOut, Eye, EyeOff, User as UserIcon } from 'lucide-react'
 import { useAuth, validateUsername } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 
@@ -16,6 +16,7 @@ const SETTINGS_TABS = [
 ] as const
 
 type SettingsTab = (typeof SETTINGS_TABS)[number]
+type ModalField = 'displayName' | 'username' | 'email' | 'password' | 'birthday' | null
 
 function maskEmail(email: string): string {
   const [local, domain] = email.split('@')
@@ -41,50 +42,69 @@ export function Settings() {
   const isVerified = Boolean(user?.email_confirmed_at)
   const rawBirthday = (user?.user_metadata?.birthday as string | undefined) || ''
 
-  const [editingField, setEditingField] = useState<
-    'displayName' | 'username' | 'email' | 'password' | 'birthday' | null
-  >(null)
+  const [modalField, setModalField] = useState<ModalField>(null)
   const [draftValue, setDraftValue] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [modalError, setModalError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
-  const startEdit = (
-    field: 'displayName' | 'username' | 'email' | 'password' | 'birthday',
-    initial: string,
-  ) => {
+  const openModal = (field: Exclude<ModalField, null>, initial: string) => {
+    setModalError(null)
     setFeedback(null)
-    setEditingField(field)
+    setCurrentPassword('')
+    setShowCurrentPassword(false)
     setDraftValue(initial)
+    setModalField(field)
   }
 
-  const cancelEdit = () => {
-    setEditingField(null)
+  const closeModal = () => {
+    setModalField(null)
     setDraftValue('')
+    setCurrentPassword('')
+    setModalError(null)
   }
 
-  const saveField = async () => {
-    if (!supabase || !user || !editingField || saving) return
+  const handleSaveModal = async () => {
+    if (!supabase || !user || !modalField || saving) return
     setSaving(true)
-    setFeedback(null)
+    setModalError(null)
     try {
       const val = draftValue.trim()
-      if (editingField === 'displayName') {
-        if (val.length < 1 || val.length > 32) {
-          setFeedback({ type: 'err', text: 'Display name must be 1–32 characters.' })
+
+      if (modalField === 'displayName') {
+        if (val.length > 20) {
+          setModalError('Display name must be up to 20 characters.')
           return
         }
-        await supabase.auth.updateUser({ data: { display_name: val } })
+        const nextDisplay = val || rawUsername
+        await supabase.auth.updateUser({ data: { display_name: nextDisplay } })
         if (profile?.id) {
-          await supabase.from('profiles').update({ display_name: val }).eq('id', profile.id)
+          await supabase.from('profiles').update({ display_name: val || null }).eq('id', profile.id)
         }
-        setFeedback({ type: 'ok', text: 'Display name updated. Refresh to see everywhere.' })
-      } else if (editingField === 'username') {
+        setFeedback({ type: 'ok', text: 'Display name updated.' })
+      } else if (modalField === 'username') {
         const err = validateUsername(val)
         if (err) {
-          setFeedback({ type: 'err', text: err })
+          setModalError(err)
           return
+        }
+        if (!currentPassword) {
+          setModalError('Please enter your current password.')
+          return
+        }
+        if (rawEmail) {
+          const { error: pwErr } = await supabase.auth.signInWithPassword({
+            email: rawEmail,
+            password: currentPassword,
+          })
+          if (pwErr) {
+            setModalError('Current password is incorrect.')
+            return
+          }
         }
         if (val.toLowerCase() !== rawUsername.toLowerCase()) {
           const { data: existing } = await supabase
@@ -93,7 +113,7 @@ export function Settings() {
             .ilike('username', val)
             .maybeSingle()
           if (existing) {
-            setFeedback({ type: 'err', text: 'That username is already taken.' })
+            setModalError('That username is already taken.')
             return
           }
         }
@@ -102,42 +122,42 @@ export function Settings() {
           await supabase.from('profiles').update({ username: val }).eq('id', profile.id)
         }
         setFeedback({ type: 'ok', text: 'Username updated.' })
-      } else if (editingField === 'email') {
+      } else if (modalField === 'email') {
         if (!val.includes('@')) {
-          setFeedback({ type: 'err', text: 'Enter a valid email address.' })
+          setModalError('Enter a valid email address.')
           return
         }
         const { error } = await supabase.auth.updateUser({ email: val })
         if (error) {
-          setFeedback({ type: 'err', text: error.message })
+          setModalError(error.message)
           return
         }
         setFeedback({ type: 'ok', text: 'Confirmation link sent to your new email.' })
-      } else if (editingField === 'password') {
+      } else if (modalField === 'password') {
         if (draftValue.length < 8) {
-          setFeedback({ type: 'err', text: 'Password must be at least 8 characters.' })
+          setModalError('Password must be at least 8 characters.')
           return
         }
         const { error } = await supabase.auth.updateUser({ password: draftValue })
         if (error) {
-          setFeedback({ type: 'err', text: error.message })
+          setModalError(error.message)
           return
         }
         setFeedback({ type: 'ok', text: 'Password updated.' })
-      } else if (editingField === 'birthday') {
+      } else if (modalField === 'birthday') {
         if (!val) {
-          setFeedback({ type: 'err', text: 'Select a valid date.' })
+          setModalError('Select a valid date.')
           return
         }
         const { error } = await supabase.auth.updateUser({ data: { birthday: val } })
         if (error) {
-          setFeedback({ type: 'err', text: error.message })
+          setModalError(error.message)
           return
         }
         setFeedback({ type: 'ok', text: 'Birthday updated.' })
       }
-      setEditingField(null)
-      setDraftValue('')
+
+      closeModal()
     } finally {
       setSaving(false)
     }
@@ -169,7 +189,6 @@ export function Settings() {
               onClick={() => {
                 setActiveTab(t)
                 setFeedback(null)
-                setEditingField(null)
               }}
               className={`pb-3 text-xs font-semibold whitespace-nowrap bg-transparent border-0 border-b-2 cursor-pointer transition-colors ${
                 active
@@ -201,92 +220,33 @@ export function Settings() {
             {/* Display Name */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-white/80">Display name</label>
-              {editingField === 'displayName' ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={draftValue}
-                    onChange={(e) => setDraftValue(e.target.value)}
-                    className="flex-1 h-9 px-3 rounded-[7px] bg-[#141417] border border-white/25 text-xs text-white focus:outline-none"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={saveField}
-                    className="size-9 rounded-[7px] bg-white text-[#0c0d10] flex items-center justify-center border-none cursor-pointer"
-                    title="Save"
-                  >
-                    <Check className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="size-9 rounded-[7px] bg-white/[0.06] text-white/70 flex items-center justify-center border-none cursor-pointer"
-                    title="Cancel"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                  <span className="text-xs text-white/90 truncate">{rawDisplayName}</span>
-                  <button
-                    type="button"
-                    onClick={() => startEdit('displayName', rawDisplayName)}
-                    className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                    title="Edit display name"
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
+                <span className="text-xs text-white/90 truncate">{rawDisplayName}</span>
+                <button
+                  type="button"
+                  onClick={() => openModal('displayName', rawDisplayName)}
+                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
+                  title="Edit display name"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+              </div>
             </div>
 
             {/* Username */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-white/80">Username</label>
-              {editingField === 'username' ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={draftValue}
-                    onChange={(e) => setDraftValue(e.target.value)}
-                    maxLength={20}
-                    className="flex-1 h-9 px-3 rounded-[7px] bg-[#141417] border border-white/25 text-xs text-white focus:outline-none"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={saveField}
-                    className="size-9 rounded-[7px] bg-white text-[#0c0d10] flex items-center justify-center border-none cursor-pointer"
-                    title="Save"
-                  >
-                    <Check className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="size-9 rounded-[7px] bg-white/[0.06] text-white/70 flex items-center justify-center border-none cursor-pointer"
-                    title="Cancel"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                  <span className="text-xs text-white/90 truncate">@{rawUsername}</span>
-                  <button
-                    type="button"
-                    onClick={() => startEdit('username', rawUsername)}
-                    className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                    title="Edit username"
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
+                <span className="text-xs text-white/90 truncate">@{rawUsername}</span>
+                <button
+                  type="button"
+                  onClick={() => openModal('username', '')}
+                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
+                  title="Change username"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+              </div>
             </div>
 
             {/* Email */}
@@ -317,142 +277,51 @@ export function Settings() {
                   </button>
                 )}
               </div>
-              {editingField === 'email' ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="email"
-                    value={draftValue}
-                    onChange={(e) => setDraftValue(e.target.value)}
-                    className="flex-1 h-9 px-3 rounded-[7px] bg-[#141417] border border-white/25 text-xs text-white focus:outline-none"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={saveField}
-                    className="size-9 rounded-[7px] bg-white text-[#0c0d10] flex items-center justify-center border-none cursor-pointer"
-                    title="Save"
-                  >
-                    <Check className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="size-9 rounded-[7px] bg-white/[0.06] text-white/70 flex items-center justify-center border-none cursor-pointer"
-                    title="Cancel"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                  <span className="text-xs text-white/90 truncate">
-                    {rawEmail ? maskEmail(rawEmail) : 'No email'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => startEdit('email', rawEmail)}
-                    className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                    title="Edit email"
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
+                <span className="text-xs text-white/90 truncate">
+                  {rawEmail ? maskEmail(rawEmail) : 'No email'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openModal('email', rawEmail)}
+                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
+                  title="Edit email"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+              </div>
             </div>
 
             {/* Password */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-white/80">Password</label>
-              {editingField === 'password' ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="password"
-                    value={draftValue}
-                    onChange={(e) => setDraftValue(e.target.value)}
-                    placeholder="New password (min 8 chars)"
-                    className="flex-1 h-9 px-3 rounded-[7px] bg-[#141417] border border-white/25 text-xs text-white focus:outline-none"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={saveField}
-                    className="size-9 rounded-[7px] bg-white text-[#0c0d10] flex items-center justify-center border-none cursor-pointer"
-                    title="Save"
-                  >
-                    <Check className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="size-9 rounded-[7px] bg-white/[0.06] text-white/70 flex items-center justify-center border-none cursor-pointer"
-                    title="Cancel"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                  <span className="text-xs text-white/90 tracking-widest">•••••••••••</span>
-                  <button
-                    type="button"
-                    onClick={() => startEdit('password', '')}
-                    className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                    title="Change password"
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
+                <span className="text-xs text-white/90 tracking-widest">•••••••••••</span>
+                <button
+                  type="button"
+                  onClick={() => openModal('password', '')}
+                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
+                  title="Change password"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+              </div>
             </div>
 
             {/* Birthday */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-white/80">Birthday</label>
-              {editingField === 'birthday' ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    value={draftValue}
-                    max={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setDraftValue(e.target.value)}
-                    className="flex-1 h-9 px-3 rounded-[7px] bg-[#141417] border border-white/25 text-xs text-white focus:outline-none [color-scheme:dark]"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={saveField}
-                    className="size-9 rounded-[7px] bg-white text-[#0c0d10] flex items-center justify-center border-none cursor-pointer"
-                    title="Save"
-                  >
-                    <Check className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="size-9 rounded-[7px] bg-white/[0.06] text-white/70 flex items-center justify-center border-none cursor-pointer"
-                    title="Cancel"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                  <span className="text-xs text-white/90">
-                    {rawBirthday || 'Not set'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => startEdit('birthday', rawBirthday)}
-                    className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                    title="Edit birthday"
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
+                <span className="text-xs text-white/90">{rawBirthday || 'Not set'}</span>
+                <button
+                  type="button"
+                  onClick={() => openModal('birthday', rawBirthday)}
+                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
+                  title="Edit birthday"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -512,6 +381,159 @@ export function Settings() {
           <p className="text-xs text-white/50 m-0">
             {activeTab} settings will be available in a future update.
           </p>
+        </div>
+      )}
+
+      {/* Edit Modal matching Images 1 & 2 */}
+      {modalField && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={closeModal}
+        >
+          <div
+            className="w-full max-w-[440px] rounded-2xl bg-[#161619] border border-white/[0.1] shadow-[0_24px_80px_rgba(0,0,0,0.85)] p-6 text-white flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold m-0">
+                  {modalField === 'displayName'
+                    ? 'Edit display name'
+                    : modalField === 'username'
+                      ? 'Change username'
+                      : modalField === 'email'
+                        ? 'Change email'
+                        : modalField === 'password'
+                          ? 'Change password'
+                          : 'Edit birthday'}
+                </h3>
+                <p className="text-xs text-white/55 m-0 mt-1">
+                  {modalField === 'displayName'
+                    ? 'Your display name is how you appear to other people.'
+                    : modalField === 'username'
+                      ? 'Your username is your unique handle on Novelo.'
+                      : modalField === 'email'
+                        ? 'We will send a confirmation link to your new email.'
+                        : modalField === 'password'
+                          ? 'Choose a strong password of at least 8 characters.'
+                          : 'Update your account birthday.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="size-7 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.06] bg-transparent border-none cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {modalField === 'username' && (
+              <p className="text-xs text-white/55 m-0">
+                Changing your username costs 500 Novelo on the free tier.
+              </p>
+            )}
+
+            {modalError && (
+              <p className="text-xs text-rose-300 m-0 leading-snug">{modalError}</p>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-white/90">
+                {modalField === 'displayName'
+                  ? 'Display name'
+                  : modalField === 'username'
+                    ? 'New username'
+                    : modalField === 'email'
+                      ? 'New email'
+                      : modalField === 'password'
+                        ? 'New password'
+                        : 'Birthday'}
+              </label>
+              <input
+                type={
+                  modalField === 'email'
+                    ? 'email'
+                    : modalField === 'password'
+                      ? 'password'
+                      : modalField === 'birthday'
+                        ? 'date'
+                        : 'text'
+                }
+                value={draftValue}
+                maxLength={modalField === 'displayName' || modalField === 'username' ? 20 : undefined}
+                max={modalField === 'birthday' ? new Date().toISOString().split('T')[0] : undefined}
+                onChange={(e) => setDraftValue(e.target.value)}
+                placeholder={
+                  modalField === 'username'
+                    ? 'Username'
+                    : modalField === 'displayName'
+                      ? 'Display name'
+                      : modalField === 'email'
+                        ? 'you@example.com'
+                        : modalField === 'password'
+                          ? 'Enter new password'
+                          : undefined
+                }
+                className="w-full h-10 px-3 rounded-[7px] bg-[#101013] border border-white/[0.16] focus:border-white/40 text-xs text-white placeholder:text-white/35 focus:outline-none [color-scheme:dark]"
+                autoFocus
+              />
+              {modalField === 'displayName' && (
+                <span className="text-[11px] text-white/50">
+                  Up to 20 characters. Leave blank to use your username.
+                </span>
+              )}
+            </div>
+
+            {modalField === 'username' && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-white/90">Current password</label>
+                <div className="relative">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full h-10 pl-3 pr-10 rounded-[7px] bg-[#101013] border border-white/[0.16] focus:border-white/40 text-xs text-white focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword((v) => !v)}
+                    className="size-8 rounded-lg flex items-center justify-center text-white/45 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2"
+                  >
+                    {showCurrentPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="h-9 px-4 rounded-[7px] bg-white/[0.08] hover:bg-white/[0.13] text-white text-xs font-semibold border-none cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleSaveModal}
+                className="h-9 px-4 rounded-[7px] bg-[#ee3b4b] hover:bg-[#dc2d3d] disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 border-none cursor-pointer transition-colors"
+              >
+                {modalField === 'username' ? (
+                  <>
+                    <UserIcon className="size-3.5" />
+                    <span>{saving ? 'Saving...' : 'Change for 500 Novelo'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="size-3.5" />
+                    <span>{saving ? 'Saving...' : 'Save changes'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
