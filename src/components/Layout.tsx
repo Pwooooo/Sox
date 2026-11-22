@@ -15,7 +15,12 @@ interface LayoutProps {
 export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const { profile } = useAuth()
+  const { user, profile } = useAuth()
+  const displayUsername =
+    profile?.username ||
+    (user?.user_metadata?.username as string | undefined) ||
+    user?.email?.split('@')[0] ||
+    'Guest'
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate select-none">
@@ -36,7 +41,7 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
       <Sidebar
         collapsed={sidebarCollapsed}
         activeItem={activeTab}
-        username={profile?.username || 'Guest'}
+        username={displayUsername}
         onSelect={(item) => onSelectTab?.(item)}
         onToggleCollapse={() => setSidebarCollapsed(true)}
       />

@@ -8,7 +8,12 @@ import { fetchPublicExperiences } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 
 export function Home() {
-  const { profile } = useAuth()
+  const { user, profile } = useAuth()
+  const displayUsername =
+    profile?.username ||
+    (user?.user_metadata?.username as string | undefined) ||
+    user?.email?.split('@')[0] ||
+    'Guest'
   const [selectedGame, setSelectedGame] = useState<GameDetailData | null>(null)
   const [games, setGames] = useState<GameDetailData[]>([])
 
@@ -80,7 +85,7 @@ export function Home() {
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-8 max-w-[1700px]">
       {/* 1. Friends & Greeting at top */}
-      <FriendsHeader username={profile?.username || 'Guest'} />
+      <FriendsHeader username={displayUsername} />
 
       {/* 2. Recommended For You */}
       <section className="flex flex-col gap-3">

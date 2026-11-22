@@ -16,12 +16,16 @@ interface ProfileProject {
 }
 
 export function Profile({ profileId }: { profileId?: number | null }) {
-  const { profile: myProfile } = useAuth()
+  const { user, profile: myProfile } = useAuth()
   const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
   const [projects, setProjects] = useState<ProfileProject[]>([])
   const [viewedProfile, setViewedProfile] = useState<UserProfile | null>(null)
 
   const targetId = profileId ?? myProfile?.id ?? null
+  const ownFallbackUsername =
+    !profileId && user
+      ? (user.user_metadata?.username as string | undefined) || user.email?.split('@')[0]
+      : undefined
 
   useEffect(() => {
     let cancelled = false
@@ -126,14 +130,14 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               <div className="flex flex-col mb-1">
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                    {viewedProfile?.display_name || viewedProfile?.username || (targetId ? `User #${targetId}` : 'Guest')}
+                    {viewedProfile?.display_name || viewedProfile?.username || ownFallbackUsername || (targetId ? `User #${targetId}` : 'Guest')}
                   </h1>
                   {/* Cat badge & Rocket badge */}
                   <Cat className="size-4 text-white/80" />
                   <Rocket className="size-4 text-white/80" />
                 </div>
                 <span className="text-xs text-white/50 font-medium">
-                  @{viewedProfile?.username?.toLowerCase() || 'guest'}
+                  @{(viewedProfile?.username || ownFallbackUsername || 'guest').toLowerCase()}
                   {viewedProfile?.id ? ` · ID #${viewedProfile.id}` : targetId ? ` · ID #${targetId}` : ''}
                 </span>
               </div>

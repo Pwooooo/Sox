@@ -5,7 +5,6 @@ import {
   Bell,
   Settings,
   LogIn,
-  LogOut,
   Minus,
   Square,
   X,
@@ -28,9 +27,8 @@ export function Navbar({
   sidebarCollapsed = false,
   onToggleSidebar,
   onOpenSettings,
-  onNavigate,
 }: NavbarProps) {
-  const { user, profile, setShowAuthModal, signOut } = useAuth()
+  const { user, setShowAuthModal } = useAuth()
   const [isTauri, setIsTauri] = useState(
     typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
   )
@@ -190,28 +188,8 @@ export function Navbar({
             <Settings className="size-5 stroke-[1.75]" />
           </button>
 
-          {/* 4. Auth Pill (Sign In or Profile + Sign Out) */}
-          {user ? (
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => onNavigate?.('Profile')}
-                className="h-7 px-2.5 rounded-[7px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer border-none transition-colors"
-                title={profile ? `Profile #${profile.id}` : 'Profile'}
-              >
-                <span className="truncate max-w-[110px]">{profile?.username || user.email?.split('@')[0] || 'Account'}</span>
-                {profile?.id !== undefined && (
-                  <span className="text-[10px] text-white/45">#{profile.id}</span>
-                )}
-              </button>
-              <button
-                onClick={() => void signOut()}
-                className="size-7 rounded-[7px] bg-transparent hover:bg-white/[0.08] text-white/60 hover:text-white flex items-center justify-center cursor-pointer border-none transition-colors"
-                title="Sign Out"
-              >
-                <LogOut className="size-4" />
-              </button>
-            </div>
-          ) : (
+          {/* 4. Sign In (Sign Out & Profile live in Settings / Sidebar) */}
+          {!user && (
             <button
               onClick={() => setShowAuthModal(true)}
               className="h-7 px-3 rounded-[7px] bg-white hover:bg-white/90 text-[#0c0d10] text-xs font-bold flex items-center gap-1.5 cursor-pointer border-none transition-colors"
