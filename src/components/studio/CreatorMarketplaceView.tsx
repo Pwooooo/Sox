@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Upload, X, Trash2, Menu, ChevronDown } from 'lucide-react'
+import { Plus, Upload, X, Trash2, Menu } from 'lucide-react'
+import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
 import {
   ClothingType,
@@ -16,7 +17,11 @@ interface CreatorMarketplaceViewProps {
 }
 
 const FILTER_TABS: ('All' | ClothingType)[] = ['All', 'Shirt', 'Pants', 'T-Shirt']
-const TYPE_OPTIONS: ClothingType[] = ['Shirt', 'Pants', 'T-Shirt']
+const TYPE_OPTIONS: DropdownOption<ClothingType>[] = [
+  { value: 'Shirt', label: 'Shirt' },
+  { value: 'Pants', label: 'Pants' },
+  { value: 'T-Shirt', label: 'T-Shirt' },
+]
 
 function toClothingSelection(type: ClothingType, textureDataUrl: string): ClothingSelection {
   if (type === 'Shirt') return { shirt: textureDataUrl }
@@ -214,20 +219,14 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
               {/* Type */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-white/70">Type</label>
-                <div className="relative">
-                  <select
-                    value={itemType}
-                    onChange={(e) => setItemType(e.target.value as ClothingType)}
-                    className="w-full h-9 px-3 pr-8 rounded-[10px] bg-[#18181c] border border-white/[0.08] text-xs font-semibold text-white appearance-none outline-none focus:border-white/25 cursor-pointer"
-                  >
-                    {TYPE_OPTIONS.map((t) => (
-                      <option key={t} value={t} className="bg-[#18181c] text-white">
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="size-3.5 text-white/50 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <CustomDropdown
+                  value={itemType}
+                  onChange={setItemType}
+                  options={TYPE_OPTIONS}
+                  className="w-full"
+                  buttonClassName="w-full justify-between h-9 bg-[#18181c] border border-white/[0.08] rounded-[10px]"
+                  menuClassName="w-full"
+                />
               </div>
 
               {/* Name */}
