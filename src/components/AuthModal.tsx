@@ -124,19 +124,122 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
 
       {/* Frosted Glass Card with Top Specular Edge */}
       <div className="w-full max-w-[460px] relative z-10 rounded-3xl bg-[#0e0e12]/70 backdrop-blur-2xl border border-white/[0.08] shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-7 md:p-8 overflow-hidden">
+        {/* Halftone Sunny Cozy Forest Header Texture */}
+        <div
+          className="absolute inset-x-0 top-0 h-44 pointer-events-none overflow-hidden"
+          style={{
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.55) 60%, transparent 100%)',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.55) 60%, transparent 100%)',
+          }}
+        >
+          {/* Warm Sun Glow */}
+          <div
+            className="absolute -top-10 right-6 size-48 rounded-full"
+            style={{
+              background:
+                'radial-gradient(circle, rgba(255,212,148,0.22) 0%, rgba(255,184,120,0.08) 45%, transparent 72%)',
+            }}
+          />
+          {/* Dotted Halftone Sun, Clouds & Layered Forest Silhouette */}
+          <svg
+            viewBox="0 0 460 176"
+            className="w-full h-full"
+            preserveAspectRatio="xMidYMin slice"
+            aria-hidden="true"
+          >
+            <defs>
+              <pattern id="novelo-halftone" width="5" height="5" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.05" fill="currentColor" />
+              </pattern>
+              <mask id="novelo-dot-mask">
+                <rect width="460" height="176" fill="url(#novelo-halftone)" className="text-white" />
+              </mask>
+              <linearGradient id="novelo-sun-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ffe4b8" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#f5a96e" stopOpacity="0.35" />
+              </linearGradient>
+              <linearGradient id="novelo-hill-back" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#9ec28b" stopOpacity="0.36" />
+                <stop offset="100%" stopColor="#354b2c" stopOpacity="0.06" />
+              </linearGradient>
+              <linearGradient id="novelo-hill-front" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#77a35f" stopOpacity="0.48" />
+                <stop offset="100%" stopColor="#26381f" stopOpacity="0.05" />
+              </linearGradient>
+            </defs>
+
+            <g mask="url(#novelo-dot-mask)">
+              {/* Halftone Sky & Sun Halo */}
+              <circle cx="364" cy="46" r="56" fill="url(#novelo-sun-grad)" opacity="0.28" />
+              <circle cx="364" cy="46" r="30" fill="url(#novelo-sun-grad)" opacity="0.45" />
+              <circle cx="364" cy="46" r="15" fill="#fff0d4" opacity="0.82" />
+
+              {/* Soft Dotted Cloud Wisps */}
+              <path
+                d="M42 42 Q58 26 78 36 Q96 22 116 36 Q132 34 136 46 L36 46 Z"
+                fill="#ffe9cf"
+                opacity="0.22"
+              />
+              <path
+                d="M250 32 Q264 20 282 28 Q296 18 310 30 L246 34 Z"
+                fill="#ffe9cf"
+                opacity="0.18"
+              />
+
+              {/* Distant Rolling Hills */}
+              <path
+                d="M0 132 Q90 98 188 122 T365 110 T460 124 L460 176 L0 176 Z"
+                fill="url(#novelo-hill-back)"
+              />
+
+              {/* Cozy Pine & Broadleaf Forest Silhouettes */}
+              <g fill="#a9cf92" opacity="0.34">
+                <path d="M24 140 L36 102 L48 140 Z M27 124 L36 94 L45 124 Z" />
+                <path d="M52 144 L66 96 L80 144 Z M55 126 L66 86 L77 126 Z" />
+                <path d="M84 146 L94 112 L104 146 Z" />
+                <circle cx="132" cy="126" r="14" />
+                <circle cx="146" cy="130" r="11" />
+                <path d="M312 142 L322 108 L332 142 Z" />
+                <path d="M336 144 L350 96 L364 144 Z M340 125 L350 88 L360 125 Z" />
+                <path d="M372 140 L384 102 L396 140 Z" />
+                <circle cx="416" cy="122" r="16" />
+                <circle cx="432" cy="128" r="13" />
+              </g>
+
+              {/* Foreground Meadow Slope */}
+              <path
+                d="M0 144 Q120 124 235 138 T460 136 L460 176 L0 176 Z"
+                fill="url(#novelo-hill-front)"
+              />
+            </g>
+
+            {/* Subtle Sunlit Pollen / Firefly Sparkles */}
+            <g fill="#ffe8c2">
+              <circle cx="76" cy="64" r="1.1" opacity="0.55" />
+              <circle cx="122" cy="36" r="0.9" opacity="0.4" />
+              <circle cx="164" cy="76" r="1.0" opacity="0.45" />
+              <circle cx="298" cy="62" r="1.1" opacity="0.5" />
+              <circle cx="328" cy="28" r="0.9" opacity="0.45" />
+              <circle cx="408" cy="68" r="1.2" opacity="0.55" />
+              <circle cx="426" cy="38" r="0.9" opacity="0.4" />
+            </g>
+          </svg>
+        </div>
+
         <div
           className="absolute inset-x-8 top-0 h-px pointer-events-none"
           style={{
             background:
-              'linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)',
+              'linear-gradient(90deg, transparent, rgba(255,228,184,0.38), transparent)',
           }}
         />
 
         {/* Floating Cat Icon with Soft Spotlight Glow */}
-        <div className="relative mb-3 flex items-center justify-center">
+        <div className="relative z-10 mb-3 flex items-center justify-center">
           <div
             className="absolute size-24 rounded-full blur-2xl opacity-35 pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.45), transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(255,228,184,0.45), transparent 70%)' }}
           />
           <img
             src="/logo.png"
@@ -145,7 +248,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
           />
         </div>
 
-        <h1 className="text-[24px] md:text-[26px] font-black tracking-tight text-white text-center m-0 mb-5 leading-tight">
+        <h1 className="relative z-10 text-[24px] md:text-[26px] font-black tracking-tight text-white text-center m-0 mb-5 leading-tight">
           {activeTab === 'register'
             ? 'Create a Novelo account'
             : mode === 'login-only'
