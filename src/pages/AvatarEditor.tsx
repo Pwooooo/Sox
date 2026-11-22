@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Sparkles, Check, Save, RotateCw, X, Plus } from 'lucide-react'
 import { ITEMS, Item } from '@/data/items'
-import { IsometricMannequin } from '@/components/IsometricMannequin'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 type BodyPart = 'all' | 'head' | 'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg'
 type CategoryTab = 'Hats' | 'Hairs' | 'Faces' | 'Clothings' | 'Accessorys' | 'Body'
@@ -96,7 +96,7 @@ export function AvatarEditor() {
   const [activeTab, setActiveTab] = useState<CategoryTab>('Hats')
   const [equippedIds, setEquippedIds] = useState<number[]>([1, 4])
   const [savedNotification, setSavedNotification] = useState(false)
-  const [is2DMode, setIs2DMode] = useState(true)
+  const [redrawKey, setRedrawKey] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
 
   // Color picker HSV state
@@ -224,7 +224,8 @@ export function AvatarEditor() {
 
   const handleRedraw = () => {
     setIsSpinning(true)
-    setTimeout(() => setIsSpinning(false), 800)
+    setRedrawKey((k) => k + 1)
+    setTimeout(() => setIsSpinning(false), 600)
   }
 
   const handleSave = () => {
@@ -265,9 +266,6 @@ export function AvatarEditor() {
     }
   }
 
-  const hasEquippedHat = equippedItemsList.some((i) => i.type === 'hat')
-  const hasEquippedFace = equippedItemsList.some((i) => i.type === 'face')
-
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1500px]">
       {/* Title & Save Bar */}
@@ -297,97 +295,17 @@ export function AvatarEditor() {
             ========================================================================= */}
         <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-5">
           {/* 1. Avatar Visual Display Card */}
-          <div className="relative rounded-2xl bg-[#101012] border border-white/[0.06] p-6 flex flex-col items-center justify-center min-h-[440px] shadow-2xl overflow-hidden group">
+          <div className="relative rounded-2xl bg-[#101012] border border-white/[0.06] p-3 flex flex-col items-center justify-center h-[440px] shadow-2xl overflow-hidden group">
             {/* Ambient Studio Lighting Backdrop */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.05)_0%,_transparent_75%)] pointer-events-none" />
 
-            {/* The Avatar Display Character matching Screenshot 2 */}
-            <div
-              className={`relative z-10 flex flex-col items-center select-none transition-transform duration-700 ${
-                isSpinning ? 'rotate-[360deg] scale-105' : ''
-              }`}
-            >
-              {/* Equipped Hat accessory hovering/sitting on head */}
-              {hasEquippedHat && (
-                <div className="absolute -top-6 z-20 flex items-center justify-center pointer-events-none">
-                  <div className="px-3 py-1 rounded-t-xl bg-[#2a5a3a] border border-black/40 text-[10px] font-bold text-emerald-100 shadow-md">
-                    Novelo Cap
-                  </div>
-                </div>
-              )}
-
-              {/* Head */}
-              <div
-                className="w-24 h-24 rounded-[14px] mb-2 transition-all relative flex flex-col items-center justify-center border border-black/20 shadow-md"
-                style={{ backgroundColor: bodyColors.head }}
-              >
-                {/* Face Expression */}
-                <div className="flex flex-col items-center gap-1.5 pointer-events-none">
-                  {hasEquippedFace ? (
-                    <div className="w-12 h-3.5 bg-black rounded-full border border-white/40 flex items-center justify-center">
-                      <div className="w-3 h-1 bg-cyan-400 rounded-full" />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-4">
-                        <div className="size-2 rounded-full bg-black" />
-                        <div className="size-2 rounded-full bg-black" />
-                      </div>
-                      <div className="w-4 h-2 border-b-2 border-black rounded-b-full" />
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Torso & Arms */}
-              <div className="flex items-start gap-2 mb-2">
-                {/* Left Arm */}
-                <div
-                  className="w-14 h-36 rounded-[14px] border border-black/20 transition-all shadow-md"
-                  style={{ backgroundColor: bodyColors.leftArm }}
-                />
-
-                {/* Torso */}
-                <div
-                  className="w-32 h-36 rounded-[14px] border border-black/20 transition-all shadow-md relative flex items-center justify-center overflow-hidden"
-                  style={{ backgroundColor: bodyColors.torso }}
-                >
-                  {/* Novelo Emblem / Clothing Print */}
-                  <div className="size-10 rounded-full bg-black/20 flex items-center justify-center border border-white/10">
-                    <Sparkles className="size-5 text-white/50" />
-                  </div>
-                </div>
-
-                {/* Right Arm */}
-                <div
-                  className="w-14 h-36 rounded-[14px] border border-black/20 transition-all shadow-md"
-                  style={{ backgroundColor: bodyColors.rightArm }}
-                />
-              </div>
-
-              {/* Legs */}
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-15 h-36 rounded-[14px] border border-black/20 transition-all shadow-md"
-                  style={{ backgroundColor: bodyColors.leftLeg }}
-                />
-                <div
-                  className="w-15 h-36 rounded-[14px] border border-black/20 transition-all shadow-md"
-                  style={{ backgroundColor: bodyColors.rightLeg }}
-                />
-              </div>
-
-              {/* Ground Pedestal Shadow */}
-              <div className="w-48 h-6 bg-black/50 rounded-full blur-md -mt-2 pointer-events-none" />
-            </div>
-
-            {/* 2D / 3D Mode Toggle Badge matching Screenshot 2 */}
-            <button
-              onClick={() => setIs2DMode(!is2DMode)}
-              className="absolute bottom-3 right-3 px-2.5 py-1 rounded-[8px] bg-black/70 hover:bg-black border border-white/10 text-[11px] font-bold text-white/80 hover:text-white transition-all cursor-pointer z-20 backdrop-blur-xs"
-            >
-              {is2DMode ? '2D' : '3D'}
-            </button>
+            <PlayerModel3D
+              key={redrawKey}
+              mode="full"
+              interactive
+              bodyColors={bodyColors}
+              className="w-full h-full relative z-10"
+            />
           </div>
 
           {/* 2. Outfit Cost readout matching Screenshot 2 */}

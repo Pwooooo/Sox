@@ -69,18 +69,55 @@ function applyAreaWeightedNormals(geometry: THREE.BufferGeometry): void {
   geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3))
 }
 
+export interface BodyColors {
+  head: string
+  torso: string
+  leftArm: string
+  rightArm: string
+  leftLeg: string
+  rightLeg: string
+}
+
+function resolveBodyPartKey(name: string): keyof BodyColors | null {
+  const n = name.toLowerCase()
+  if (n.includes('head')) return 'head'
+  if (n.includes('torso')) return 'torso'
+  if (n.includes('left arm')) return 'leftArm'
+  if (n.includes('right arm')) return 'rightArm'
+  if (n.includes('left leg')) return 'leftLeg'
+  if (n.includes('right leg')) return 'rightLeg'
+  return null
+}
+
 interface PlayerModel3DProps {
   mode?: 'full' | 'headshot'
   interactive?: boolean
   className?: string
+  bodyColors?: BodyColors
 }
 
 export function PlayerModel3D({
   mode = 'full',
   interactive = false,
   className = '',
+  bodyColors,
 }: PlayerModel3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const partMaterialsRef = useRef<Partial<Record<keyof BodyColors, THREE.MeshStandardMaterial[]>>>({})
+  const bodyColorsRef = useRef<BodyColors | undefined>(bodyColors)
+  bodyColorsRef.current = bodyColors
+
+  useEffect(() => {
+    if (!bodyColors) return
+    const map = partMaterialsRef.current
+    ;(Object.keys(bodyColors) as (keyof BodyColors)[]).forEach((part) => {
+      const mats = map[part]
+      if (!mats) return
+      for (const m of mats) {
+        m.color.set(bodyColors[part])
+      }
+    })
+  }, [bodyColors])
 
   useEffect(() => {
     const container = containerRef.current
@@ -136,23 +173,39 @@ export function PlayerModel3D({
     loader.load('/models/Novelo_Player.glb', (gltf) => {
       if (disposed) return
       const model = gltf.scene
+      const newPartMaterials: Partial<Record<keyof BodyColors, THREE.MeshStandardMaterial[]>> = {}
       model.traverse((obj) => {
         if ((obj as THREE.Mesh).isMesh) {
           const mesh = obj as THREE.Mesh
           applyAreaWeightedNormals(mesh.geometry)
-          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-          for (const m of mats) {
+          const rawMats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+          const clonedMats = rawMats.map((m) => m.clone())
+          mesh.material = Array.isArray(mesh.material) ? clonedMats : clonedMats[0]
+
+          const partKey = resolveBodyPartKey(mesh.name)
+          const initialColor = partKey && bodyColorsRef.current ? bodyColorsRef.current[partKey] : null
+
+          for (const m of clonedMats) {
             if (m instanceof THREE.MeshPhysicalMaterial) {
               m.clearcoat = 0
               m.roughness = 0.52
+              if (initialColor) m.color.set(initialColor)
               m.needsUpdate = true
+              if (partKey) {
+                ;(newPartMaterials[partKey] ??= []).push(m)
+              }
             } else if (m instanceof THREE.MeshStandardMaterial) {
               m.roughness = 0.52
+              if (initialColor) m.color.set(initialColor)
               m.needsUpdate = true
+              if (partKey) {
+                ;(newPartMaterials[partKey] ??= []).push(m)
+              }
             }
           }
         }
       })
+      partMaterialsRef.current = newPartMaterials
 
       const box = new THREE.Box3().setFromObject(model)
       const size = new THREE.Vector3()
