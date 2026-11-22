@@ -177,9 +177,19 @@ export function Settings() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] w-full bg-[#09090b] text-white px-6 md:px-10 py-5">
-      {/* Top Horizontal Settings Tabs */}
-      <div className="flex items-center gap-6 border-b border-white/[0.08] overflow-x-auto no-scrollbar">
+    <div className="p-4 md:p-6 lg:p-8 flex flex-col gap-6 max-w-[920px] mx-auto text-white select-none">
+      {/* Page Header */}
+      <div className="flex flex-col gap-1 pb-2 border-b border-white/[0.05]">
+        <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight m-0">
+          Settings
+        </h1>
+        <p className="text-xs md:text-sm text-white/50 m-0">
+          Manage your Novelo account details, security, and preferences
+        </p>
+      </div>
+
+      {/* Novelo Pill Tab Bar */}
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-[#101012]/90 backdrop-blur-xl border border-white/[0.06] overflow-x-auto no-scrollbar">
         {SETTINGS_TABS.map((t) => {
           const active = activeTab === t
           return (
@@ -190,10 +200,10 @@ export function Settings() {
                 setActiveTab(t)
                 setFeedback(null)
               }}
-              className={`pb-3 text-xs font-semibold whitespace-nowrap bg-transparent border-0 border-b-2 cursor-pointer transition-colors ${
+              className={`h-8 px-3 rounded-[8px] text-xs font-semibold whitespace-nowrap border-none cursor-pointer transition-all ${
                 active
-                  ? 'text-white border-white'
-                  : 'text-white/55 hover:text-white/85 border-transparent'
+                  ? 'bg-white text-[#0c0d10] shadow-sm'
+                  : 'bg-transparent text-white/55 hover:text-white hover:bg-white/[0.05]'
               }`}
             >
               {t}
@@ -203,9 +213,19 @@ export function Settings() {
       </div>
 
       {activeTab === 'Account' ? (
-        <div className="max-w-[460px] pt-6 pb-12 flex flex-col gap-7">
-          <div className="flex flex-col gap-4">
-            <h2 className="text-base font-bold text-white m-0 tracking-tight">Account details</h2>
+        <div className="flex flex-col gap-5 pb-10">
+          {/* Account Details Card */}
+          <div className="relative rounded-2xl bg-[#101012]/90 backdrop-blur-xl border border-white/[0.06] shadow-2xl p-5 md:p-6 flex flex-col gap-4 overflow-hidden">
+            <div
+              className="absolute inset-x-8 top-0 h-px pointer-events-none"
+              style={{
+                background:
+                  'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+              }}
+            />
+            <h2 className="text-base md:text-lg font-bold text-white m-0 tracking-tight">
+              Account details
+            </h2>
 
             {feedback && (
               <p
@@ -217,167 +237,172 @@ export function Settings() {
               </p>
             )}
 
-            {/* Display Name */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-white/80">Display name</label>
-              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                <span className="text-xs text-white/90 truncate">{rawDisplayName}</span>
-                <button
-                  type="button"
-                  onClick={() => openModal('displayName', rawDisplayName)}
-                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                  title="Edit display name"
-                >
-                  <Pencil className="size-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Username */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-white/80">Username</label>
-              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                <span className="text-xs text-white/90 truncate">@{rawUsername}</span>
-                <button
-                  type="button"
-                  onClick={() => openModal('username', '')}
-                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                  title="Change username"
-                >
-                  <Pencil className="size-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium text-white/80">Email</label>
-                  {rawEmail && (
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                        isVerified
-                          ? 'bg-[#133929] text-[#34d399]'
-                          : 'bg-amber-500/15 text-amber-300'
-                      }`}
-                    >
-                      {isVerified ? 'Verified' : 'Unverified'}
-                    </span>
-                  )}
-                </div>
-                {rawEmail && !isVerified && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Display Name */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-white/80">Display name</label>
+                <div className="h-10 px-3.5 rounded-[9px] bg-[#161619] border border-white/[0.07] hover:border-white/[0.14] flex items-center justify-between transition-colors">
+                  <span className="text-xs text-white/90 truncate">{rawDisplayName}</span>
                   <button
                     type="button"
-                    disabled={verifying}
-                    onClick={handleVerifyEmail}
-                    className="text-[11px] font-semibold text-amber-300 hover:text-amber-200 underline bg-transparent border-none p-0 cursor-pointer disabled:opacity-50"
+                    onClick={() => openModal('displayName', rawDisplayName)}
+                    className="text-white/50 hover:text-white bg-transparent border-none p-1 cursor-pointer transition-colors"
+                    title="Edit display name"
                   >
-                    {verifying ? 'Sending...' : 'Verify email'}
+                    <Pencil className="size-3.5" />
                   </button>
-                )}
+                </div>
               </div>
-              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                <span className="text-xs text-white/90 truncate">
-                  {rawEmail ? maskEmail(rawEmail) : 'No email'}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => openModal('email', rawEmail)}
-                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                  title="Edit email"
-                >
-                  <Pencil className="size-3.5" />
-                </button>
-              </div>
-            </div>
 
-            {/* Password */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-white/80">Password</label>
-              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                <span className="text-xs text-white/90 tracking-widest">•••••••••••</span>
-                <button
-                  type="button"
-                  onClick={() => openModal('password', '')}
-                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                  title="Change password"
-                >
-                  <Pencil className="size-3.5" />
-                </button>
+              {/* Username */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-white/80">Username</label>
+                <div className="h-10 px-3.5 rounded-[9px] bg-[#161619] border border-white/[0.07] hover:border-white/[0.14] flex items-center justify-between transition-colors">
+                  <span className="text-xs text-white/90 truncate">@{rawUsername}</span>
+                  <button
+                    type="button"
+                    onClick={() => openModal('username', '')}
+                    className="text-white/50 hover:text-white bg-transparent border-none p-1 cursor-pointer transition-colors"
+                    title="Change username"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Birthday */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-white/80">Birthday</label>
-              <div className="h-9 px-3.5 rounded-[7px] bg-[#121215] border border-white/[0.08] flex items-center justify-between">
-                <span className="text-xs text-white/90">{rawBirthday || 'Not set'}</span>
-                <button
-                  type="button"
-                  onClick={() => openModal('birthday', rawBirthday)}
-                  className="text-white/55 hover:text-white bg-transparent border-none p-1 cursor-pointer"
-                  title="Edit birthday"
-                >
-                  <Pencil className="size-3.5" />
-                </button>
+              {/* Email */}
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-white/80">Email</label>
+                    {rawEmail && (
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                          isVerified
+                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
+                            : 'bg-amber-500/15 text-amber-300 border border-amber-500/20'
+                        }`}
+                      >
+                        {isVerified ? 'Verified' : 'Unverified'}
+                      </span>
+                    )}
+                  </div>
+                  {rawEmail && !isVerified && (
+                    <button
+                      type="button"
+                      disabled={verifying}
+                      onClick={handleVerifyEmail}
+                      className="text-[11px] font-semibold text-amber-300 hover:text-amber-200 underline bg-transparent border-none p-0 cursor-pointer disabled:opacity-50"
+                    >
+                      {verifying ? 'Sending...' : 'Verify email'}
+                    </button>
+                  )}
+                </div>
+                <div className="h-10 px-3.5 rounded-[9px] bg-[#161619] border border-white/[0.07] hover:border-white/[0.14] flex items-center justify-between transition-colors">
+                  <span className="text-xs text-white/90 truncate">
+                    {rawEmail ? maskEmail(rawEmail) : 'No email'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => openModal('email', rawEmail)}
+                    className="text-white/50 hover:text-white bg-transparent border-none p-1 cursor-pointer transition-colors"
+                    title="Edit email"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-white/80">Password</label>
+                <div className="h-10 px-3.5 rounded-[9px] bg-[#161619] border border-white/[0.07] hover:border-white/[0.14] flex items-center justify-between transition-colors">
+                  <span className="text-xs text-white/90 tracking-widest">•••••••••••</span>
+                  <button
+                    type="button"
+                    onClick={() => openModal('password', '')}
+                    className="text-white/50 hover:text-white bg-transparent border-none p-1 cursor-pointer transition-colors"
+                    title="Change password"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Birthday */}
+              <div className="flex flex-col gap-1.5 md:col-span-2 max-w-[420px]">
+                <label className="text-xs font-semibold text-white/80">Birthday</label>
+                <div className="h-10 px-3.5 rounded-[9px] bg-[#161619] border border-white/[0.07] hover:border-white/[0.14] flex items-center justify-between transition-colors">
+                  <span className="text-xs text-white/90">{rawBirthday || 'Not set'}</span>
+                  <button
+                    type="button"
+                    onClick={() => openModal('birthday', rawBirthday)}
+                    className="text-white/50 hover:text-white bg-transparent border-none p-1 cursor-pointer transition-colors"
+                    title="Edit birthday"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Sign Out */}
-          <div className="pt-2 border-t border-white/[0.07] flex items-center justify-between gap-4">
-            <div>
-              <h3 className="text-sm font-bold text-white m-0">Sign out</h3>
-              <p className="text-[11px] text-white/50 m-0 mt-0.5">
-                Sign out of your Novelo account on this device.
-              </p>
+          {/* Session & Account Management Card */}
+          <div className="rounded-2xl bg-[#101012]/90 backdrop-blur-xl border border-white/[0.06] shadow-2xl p-5 md:p-6 flex flex-col gap-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-white m-0">Sign out</h3>
+                <p className="text-xs text-white/50 m-0 mt-0.5">
+                  Sign out of your Novelo account on this device.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="h-9 px-4 rounded-[9px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold flex items-center gap-2 border border-white/[0.08] cursor-pointer shrink-0 self-start sm:self-auto transition-colors"
+              >
+                <LogOut className="size-3.5" />
+                <span>Sign out</span>
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => void signOut()}
-              className="h-8 px-3.5 rounded-[7px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold flex items-center gap-1.5 border-none cursor-pointer shrink-0 transition-colors"
-            >
-              <LogOut className="size-3.5" />
-              <span>Sign out</span>
-            </button>
-          </div>
 
-          {/* Delete Account */}
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h3 className="text-sm font-bold text-white m-0">Delete account</h3>
-              <p className="text-[11px] text-white/50 m-0 mt-0.5 leading-snug">
-                Schedule your account for permanent deletion. A 2-week grace period applies before data is removed.
-              </p>
+            <div className="h-px bg-white/[0.06]" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-white m-0">Delete account</h3>
+                <p className="text-xs text-white/50 m-0 mt-0.5 leading-snug">
+                  Schedule your account for permanent deletion. A 2-week grace period applies before data is removed.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!confirmDelete) {
+                    setConfirmDelete(true)
+                    setFeedback({
+                      type: 'err',
+                      text: 'Click "Confirm delete" to schedule account deletion.',
+                    })
+                  } else {
+                    setConfirmDelete(false)
+                    setFeedback({
+                      type: 'ok',
+                      text: 'Account deletion scheduled (2-week grace period).',
+                    })
+                  }
+                }}
+                className="h-9 px-4 rounded-[9px] bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 border border-rose-500/30 text-xs font-semibold flex items-center gap-2 cursor-pointer shrink-0 self-start sm:self-auto transition-colors"
+              >
+                <Trash2 className="size-3.5" />
+                <span>{confirmDelete ? 'Confirm delete' : 'Delete account'}</span>
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                if (!confirmDelete) {
-                  setConfirmDelete(true)
-                  setFeedback({
-                    type: 'err',
-                    text: 'Click "Confirm delete" to schedule account deletion.',
-                  })
-                } else {
-                  setConfirmDelete(false)
-                  setFeedback({
-                    type: 'ok',
-                    text: 'Account deletion scheduled (2-week grace period).',
-                  })
-                }
-              }}
-              className="h-8 px-3.5 rounded-[7px] bg-[#ef4444] hover:bg-[#dc2626] text-white text-xs font-semibold flex items-center gap-1.5 border-none cursor-pointer shrink-0 transition-colors"
-            >
-              <Trash2 className="size-3.5" />
-              <span>{confirmDelete ? 'Confirm delete' : 'Delete account'}</span>
-            </button>
           </div>
         </div>
       ) : (
-        <div className="max-w-[460px] pt-8">
-          <h2 className="text-base font-bold text-white m-0 mb-2">{activeTab}</h2>
+        <div className="rounded-2xl bg-[#101012]/90 backdrop-blur-xl border border-white/[0.06] shadow-2xl p-6">
+          <h2 className="text-base font-bold text-white m-0 mb-1.5">{activeTab}</h2>
           <p className="text-xs text-white/50 m-0">
             {activeTab} settings will be available in a future update.
           </p>
@@ -510,7 +535,7 @@ export function Settings() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="h-9 px-4 rounded-[7px] bg-white/[0.08] hover:bg-white/[0.13] text-white text-xs font-semibold border-none cursor-pointer transition-colors"
+                className="h-9 px-4 rounded-[9px] bg-white/[0.06] hover:bg-white/[0.11] text-white/85 text-xs font-semibold border border-white/[0.08] cursor-pointer transition-colors"
               >
                 Cancel
               </button>
@@ -518,12 +543,13 @@ export function Settings() {
                 type="button"
                 disabled={saving}
                 onClick={handleSaveModal}
-                className="h-9 px-4 rounded-[7px] bg-[#ee3b4b] hover:bg-[#dc2d3d] disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 border-none cursor-pointer transition-colors"
+                className="h-9 px-4 rounded-[9px] bg-white hover:bg-white/90 disabled:opacity-50 text-[#0c0d10] text-xs font-bold flex items-center gap-1.5 border-none cursor-pointer shadow-[0_6px_20px_rgba(255,255,255,0.14)] transition-colors"
               >
                 {modalField === 'username' ? (
                   <>
                     <UserIcon className="size-3.5" />
-                    <span>{saving ? 'Saving...' : 'Change for 500 Novelo'}</span>
+                    <span>{saving ? 'Saving...' : 'Change for 500'}</span>
+                    <img src="/novelo-currency.png" alt="Novelo" className="size-3.5 object-contain" />
                   </>
                 ) : (
                   <>
