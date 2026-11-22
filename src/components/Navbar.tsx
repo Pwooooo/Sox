@@ -27,6 +27,7 @@ export function Navbar({
   sidebarCollapsed = false,
   onToggleSidebar,
   onOpenSettings,
+  onNavigate,
 }: NavbarProps) {
   const { user, setShowAuthModal } = useAuth()
   const [isTauri, setIsTauri] = useState(
