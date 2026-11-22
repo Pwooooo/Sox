@@ -401,10 +401,10 @@ export function Settings() {
                   setActiveTab(t)
                   setFeedback(null)
                 }}
-                className={`h-9 px-3.5 rounded-[9px] text-xs font-semibold whitespace-nowrap text-left cursor-pointer transition-all ${
+                className={`h-10 px-3.5 rounded-[10px] text-[13.5px] whitespace-nowrap text-left border-none cursor-pointer transition-all ${
                   active
-                    ? 'bg-white/[0.1] text-white border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
-                    : 'bg-transparent text-white/55 hover:text-white hover:bg-white/[0.04] border border-transparent'
+                    ? 'bg-white/[0.08] backdrop-blur-xs text-white shadow-xs font-semibold'
+                    : 'bg-transparent text-white/70 hover:text-white hover:bg-white/[0.04] font-medium'
                 }`}
               >
                 {t}
