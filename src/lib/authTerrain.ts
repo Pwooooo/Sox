@@ -645,8 +645,8 @@ export class TerrainSurface {
         color: '#ffffff',
         roughness: 0.86,
         metalness: 0,
-        emissive: new THREE.Color('#13260b'),
-        emissiveIntensity: 0.05,
+        emissive: new THREE.Color('#1d3812'),
+        emissiveIntensity: 0.11,
         side: THREE.DoubleSide,
       })
       grassMat.onBeforeCompile = (shader) => {
@@ -657,7 +657,7 @@ export class TerrainSurface {
           '#include <color_vertex>',
           `#include <color_vertex>
           #ifdef USE_INSTANCING_COLOR
-            vColor *= mix(0.45, 1.05, clamp(position.y / 0.68, 0.0, 1.0));
+            vColor *= mix(0.68, 1.08, clamp(position.y / 0.68, 0.0, 1.0));
           #endif`,
         )
         shader.vertexShader = shader.vertexShader.replace(
@@ -798,8 +798,8 @@ export class TerrainSurface {
           alphaToCoverage: true,
           roughness: 0.78,
           metalness: 0,
-          emissive: new THREE.Color('#112614'),
-          emissiveIntensity: 0.08,
+          emissive: new THREE.Color('#18361c'),
+          emissiveIntensity: 0.16,
           side: THREE.DoubleSide,
         })
         const leavesPerTree = 56

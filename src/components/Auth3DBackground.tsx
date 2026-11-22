@@ -47,7 +47,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, cfg.pixelRatioCap))
     renderer.setSize(w, h)
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 0.88
+    renderer.toneMappingExposure = 1.04
     if (cfg.shadows) {
       renderer.shadowMap.enabled = true
       renderer.shadowMap.type = THREE.PCFSoftShadowMap
@@ -87,9 +87,9 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       side: THREE.BackSide,
       depthWrite: false,
       uniforms: {
-        topColor: { value: new THREE.Color('#5b92d1') },
-        horizonColor: { value: new THREE.Color('#dce8f2') },
-        bottomColor: { value: new THREE.Color('#f5f7fa') },
+        topColor: { value: new THREE.Color('#6ea6e6') },
+        horizonColor: { value: new THREE.Color('#e8f2fa') },
+        bottomColor: { value: new THREE.Color('#f8fafc') },
         sunDir: { value: new THREE.Vector3(62, 82, 48).normalize() },
         sunColor: { value: new THREE.Color('#fff9ed') },
         uTime: { value: 0 },
@@ -169,17 +169,17 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     envScene.add(skyDome.clone())
     const envRT = pmrem.fromScene(envScene, 0.04)
     scene.environment = envRT.texture
-    scene.environmentIntensity = 0.42
+    scene.environmentIntensity = 0.68
     pmrem.dispose()
 
-    // Crisp sunlit daylight with rich ambient/emissive shadow depth
-    const hemi = new THREE.HemisphereLight('#d8e8f8', '#22331d', 0.68)
+    // Balanced sunlit daylight with soft ambient fill & rich shadows
+    const hemi = new THREE.HemisphereLight('#e8f2fc', '#3e5434', 1.05)
     scene.add(hemi)
 
-    const ambient = new THREE.AmbientLight('#dce6f2', 0.18)
+    const ambient = new THREE.AmbientLight('#e6eef8', 0.32)
     scene.add(ambient)
 
-    const sunLight = new THREE.DirectionalLight('#fff5e0', 1.85)
+    const sunLight = new THREE.DirectionalLight('#fff6e5', 1.55)
     sunLight.position.set(62, 82, 48)
     if (cfg.shadows) {
       sunLight.castShadow = true
@@ -197,7 +197,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     }
     scene.add(sunLight)
 
-    const rimLight = new THREE.DirectionalLight('#cde4fa', 0.22)
+    const rimLight = new THREE.DirectionalLight('#d8ecfc', 0.34)
     rimLight.position.set(-55, 40, -55)
     scene.add(rimLight)
 
