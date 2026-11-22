@@ -153,34 +153,6 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
               : 'Log in to Novelo'}
         </h1>
 
-        {/* Segmented Pill Switcher */}
-        {mode === 'both' && (
-          <div className="grid grid-cols-2 p-1 rounded-2xl bg-white/[0.04] border border-white/[0.06] mb-5">
-            <button
-              type="button"
-              onClick={() => switchTab('register')}
-              className={`h-8 rounded-xl text-xs font-bold border-none cursor-pointer transition-all ${
-                activeTab === 'register'
-                  ? 'bg-white text-[#0c0d10] shadow-sm'
-                  : 'bg-transparent text-white/55 hover:text-white'
-              }`}
-            >
-              Sign Up
-            </button>
-            <button
-              type="button"
-              onClick={() => switchTab('login')}
-              className={`h-8 rounded-xl text-xs font-bold border-none cursor-pointer transition-all ${
-                activeTab === 'login'
-                  ? 'bg-white text-[#0c0d10] shadow-sm'
-                  : 'bg-transparent text-white/55 hover:text-white'
-              }`}
-            >
-              Log In
-            </button>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           {error && (
             <div className="p-3 rounded-xl bg-rose-500/12 border border-rose-500/25 text-xs text-rose-200 leading-snug">
@@ -396,6 +368,19 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                 ? 'Create an account'
                 : 'Log in'}
           </button>
+
+          {mode === 'both' && (
+            <p className="text-xs text-white/50 text-center m-0 pt-2">
+              {activeTab === 'register' ? 'Already have an account? ' : "Don't have an account? "}
+              <button
+                type="button"
+                onClick={() => switchTab(activeTab === 'register' ? 'login' : 'register')}
+                className="text-white font-bold bg-transparent border-none p-0 cursor-pointer hover:underline"
+              >
+                {activeTab === 'register' ? 'Log in' : 'Sign up'}
+              </button>
+            </p>
+          )}
 
           {mode === 'login-only' && (
             <p className="text-[11px] text-white/40 text-center m-0 pt-1">
