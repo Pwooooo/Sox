@@ -161,6 +161,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                 <div className="relative aspect-square w-full rounded-xl bg-[#18181c] overflow-hidden">
                   <PlayerModel3D
                     mode="full"
+                    useSavedColors={false}
                     clothing={toClothingSelection(item.type, item.textureDataUrl)}
                     className="w-full h-full"
                   />
@@ -368,6 +369,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
               <PlayerModel3D
                 mode="full"
                 interactive
+                useSavedColors={false}
                 clothing={previewClothing}
                 className="w-full h-full"
               />

@@ -196,6 +196,7 @@ interface PlayerModel3DProps {
   className?: string
   bodyColors?: BodyColors
   clothing?: ClothingSelection
+  useSavedColors?: boolean
 }
 
 export function PlayerModel3D({
@@ -204,6 +205,7 @@ export function PlayerModel3D({
   className = '',
   bodyColors,
   clothing,
+  useSavedColors = true,
 }: PlayerModel3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const partMaterialsRef = useRef<Partial<Record<keyof BodyColors, THREE.MeshStandardMaterial[]>>>({})
@@ -213,7 +215,7 @@ export function PlayerModel3D({
   clothingRef.current = clothing
   const applyClothingRef = useRef<((sel?: ClothingSelection) => void) | null>(null)
   const [savedColors, setSavedColors] = useState<BodyColors | null>(() => loadSavedBodyColors())
-  const effectiveColors = bodyColors ?? savedColors ?? undefined
+  const effectiveColors = bodyColors ?? (useSavedColors ? savedColors ?? undefined : undefined)
   const bodyColorsRef = useRef<BodyColors | undefined>(effectiveColors)
   bodyColorsRef.current = effectiveColors
 
