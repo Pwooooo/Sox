@@ -118,7 +118,7 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
         className="fixed inset-0 z-[1] pointer-events-none"
         style={{
           background:
-            'radial-gradient(circle at center, rgba(7,7,9,0.22) 0%, rgba(7,7,9,0.78) 100%)',
+            'radial-gradient(circle at center, rgba(14,10,16,0.02) 35%, rgba(14,10,16,0.28) 100%)',
         }}
       />
 
