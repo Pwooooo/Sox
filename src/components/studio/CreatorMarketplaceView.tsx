@@ -122,20 +122,30 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
           </h1>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilterTab(tab)}
-              className={`px-3 h-8 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none select-none ${
-                filterTab === tab
-                  ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
-                  : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
-              }`}
-            >
-              {tab === 'All' ? 'All' : `${tab}s`}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="h-8 px-3.5 rounded-[8px] bg-white text-black hover:bg-neutral-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95 mr-1"
+          >
+            <Plus className="size-3.5 stroke-[2.5]" />
+            <span>Create New</span>
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setFilterTab(tab)}
+                className={`px-3 h-8 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none select-none ${
+                  filterTab === tab
+                    ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
+                    : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                {tab === 'All' ? 'All' : `${tab}s`}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -204,15 +214,6 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
           </div>
         )}
       </div>
-
-      {/* Floating + Create Button (Bottom Right) */}
-      <button
-        onClick={() => setIsCreateOpen(true)}
-        title="Create an item"
-        className="fixed bottom-6 right-6 z-30 size-12 rounded-full bg-white text-black hover:bg-neutral-200 shadow-2xl flex items-center justify-center cursor-pointer border-none transition-transform hover:scale-105 active:scale-95"
-      >
-        <Plus className="size-5 stroke-[2.5]" />
-      </button>
 
       {/* Create an Item Modal */}
       {isCreateOpen && (
