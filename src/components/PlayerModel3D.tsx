@@ -122,6 +122,7 @@ export interface ClothingSelection {
 }
 
 interface ClothingPartSlot {
+  mesh: THREE.Mesh
   attachParent: THREE.Object3D
   size: THREE.Vector3
   localPos: THREE.Vector3
@@ -129,65 +130,126 @@ interface ClothingPartSlot {
   localScale: THREE.Vector3
 }
 
-function cropTemplateRegion(
-  img: HTMLImageElement,
-  rx: number,
-  ry: number,
-  rw: number,
-  rh: number
-): THREE.MeshStandardMaterial {
-  const sx = img.width / 585
-  const sy = img.height / 559
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.max(1, Math.round(rw * sx))
-  canvas.height = Math.max(1, Math.round(rh * sy))
-  const ctx = canvas.getContext('2d')
-  if (ctx) {
-    ctx.drawImage(
-      img,
-      rx * sx,
-      ry * sy,
-      rw * sx,
-      rh * sy,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    )
-  }
-  const tex = new THREE.CanvasTexture(canvas)
-  tex.colorSpace = THREE.SRGBColorSpace
-  return new THREE.MeshStandardMaterial({
-    map: tex,
-    transparent: true,
-    alphaTest: 0.05,
-    roughness: 0.65,
-    metalness: 0,
-    depthWrite: true,
-    polygonOffset: true,
-    polygonOffsetFactor: -1,
-  })
+interface TemplateRegions {
+  px: [number, number, number, number]
+  nx: [number, number, number, number]
+  py: [number, number, number, number]
+  ny: [number, number, number, number]
+  pz: [number, number, number, number]
+  nz: [number, number, number, number]
 }
 
-function buildClothingBoxMaterials(
-  img: HTMLImageElement,
-  regions: {
-    px: [number, number, number, number]
-    nx: [number, number, number, number]
-    py: [number, number, number, number]
-    ny: [number, number, number, number]
-    pz: [number, number, number, number]
-    nz: [number, number, number, number]
+const TORSO_REGIONS: TemplateRegions = {
+  px: [361, 74, 64, 128],
+  nx: [165, 74, 64, 128],
+  py: [231, 8, 128, 64],
+  ny: [231, 204, 128, 64],
+  pz: [231, 74, 128, 128],
+  nz: [427, 74, 128, 128],
+}
+
+const RIGHT_LIMB_REGIONS: TemplateRegions = {
+  px: [19, 355, 64, 128],
+  nx: [151, 355, 64, 128],
+  py: [217, 289, 64, 64],
+  ny: [217, 485, 64, 64],
+  pz: [217, 355, 64, 128],
+  nz: [85, 355, 64, 128],
+}
+
+const LEFT_LIMB_REGIONS: TemplateRegions = {
+  px: [374, 355, 64, 128],
+  nx: [440, 355, 64, 128],
+  py: [308, 289, 64, 64],
+  ny: [308, 485, 64, 64],
+  pz: [308, 355, 64, 128],
+  nz: [506, 355, 64, 128],
+}
+
+function buildConformalClothingGeo(
+  sourceMesh: THREE.Mesh,
+  regions: TemplateRegions,
+  inflate: number
+): THREE.BufferGeometry {
+  const geo = sourceMesh.geometry.index
+    ? sourceMesh.geometry.toNonIndexed()
+    : sourceMesh.geometry.clone()
+  geo.computeBoundingBox()
+  const bb = geo.boundingBox ?? new THREE.Box3()
+  const min = bb.min
+  const size = new THREE.Vector3()
+  bb.getSize(size)
+  if (size.x < 0.0001) size.x = 1
+  if (size.y < 0.0001) size.y = 1
+  if (size.z < 0.0001) size.z = 1
+
+  const pos = geo.getAttribute('position')
+  const norm = geo.getAttribute('normal')
+  const count = pos.count
+  const uvs = new Float32Array(count * 2)
+
+  const a = new THREE.Vector3()
+  const b = new THREE.Vector3()
+  const c = new THREE.Vector3()
+  const ab = new THREE.Vector3()
+  const ac = new THREE.Vector3()
+  const fn = new THREE.Vector3()
+  const vn = new THREE.Vector3()
+
+  for (let i = 0; i + 2 < count; i += 3) {
+    a.fromBufferAttribute(pos, i)
+    b.fromBufferAttribute(pos, i + 1)
+    c.fromBufferAttribute(pos, i + 2)
+    ab.subVectors(b, a)
+    ac.subVectors(c, a)
+    fn.crossVectors(ab, ac)
+
+    const ax = Math.abs(fn.x)
+    const ay = Math.abs(fn.y)
+    const az = Math.abs(fn.z)
+
+    let axis: 'px' | 'nx' | 'py' | 'ny' | 'pz' | 'nz' = 'pz'
+    if (az >= ax && az >= ay) axis = fn.z >= 0 ? 'pz' : 'nz'
+    else if (ax >= ay && ax >= az) axis = fn.x >= 0 ? 'px' : 'nx'
+    else axis = fn.y >= 0 ? 'py' : 'ny'
+
+    const [rx, ry, rw, rh] = regions[axis]
+
+    for (let k = 0; k < 3; k++) {
+      const idx = i + k
+      const vx = pos.getX(idx)
+      const vy = pos.getY(idx)
+      const vz = pos.getZ(idx)
+
+      const nx = (vx - min.x) / size.x
+      const ny = (vy - min.y) / size.y
+      const nz = (vz - min.z) / size.z
+
+      let fu = 0.5
+      let fv = 0.5
+      if (axis === 'pz') { fu = nx; fv = 1 - ny }
+      else if (axis === 'nz') { fu = 1 - nx; fv = 1 - ny }
+      else if (axis === 'px') { fu = 1 - nz; fv = 1 - ny }
+      else if (axis === 'nx') { fu = nz; fv = 1 - ny }
+      else if (axis === 'py') { fu = nx; fv = nz }
+      else { fu = nx; fv = 1 - nz }
+
+      fu = Math.max(0.003, Math.min(0.997, fu))
+      fv = Math.max(0.003, Math.min(0.997, fv))
+
+      uvs[idx * 2] = (rx + fu * rw) / 585
+      uvs[idx * 2 + 1] = 1 - (ry + fv * rh) / 559
+
+      if (norm) {
+        vn.fromBufferAttribute(norm, idx).normalize()
+        pos.setXYZ(idx, vx + vn.x * inflate, vy + vn.y * inflate, vz + vn.z * inflate)
+      }
+    }
   }
-): THREE.MeshStandardMaterial[] {
-  return [
-    cropTemplateRegion(img, ...regions.px),
-    cropTemplateRegion(img, ...regions.nx),
-    cropTemplateRegion(img, ...regions.py),
-    cropTemplateRegion(img, ...regions.ny),
-    cropTemplateRegion(img, ...regions.pz),
-    cropTemplateRegion(img, ...regions.nz),
-  ]
+
+  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
+  pos.needsUpdate = true
+  return geo
 }
 
 interface PlayerModel3DProps {
@@ -486,6 +548,7 @@ export function PlayerModel3D({
         const pScale = new THREE.Vector3()
         attachParent.getWorldScale(pScale)
         slots[key] = {
+          mesh,
           attachParent,
           size: pSize,
           localPos,
@@ -509,72 +572,58 @@ export function PlayerModel3D({
         clothingMeshesRef.current = []
         if (!sel || disposed) return
 
-        const spawnOverlayBox = (
+        const spawnConformalOverlay = (
           key: 'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg',
-          mats: THREE.MeshStandardMaterial[],
+          regions: TemplateRegions,
+          mat: THREE.MeshStandardMaterial,
           inflate: number
         ) => {
           const slot = clothingSlotsRef.current[key]
-          if (!slot) return
-          const geo = new THREE.BoxGeometry(
-            slot.size.x + inflate,
-            slot.size.y + inflate,
-            slot.size.z + inflate
-          )
-          const overlay = new THREE.Mesh(geo, mats)
-          overlay.position.copy(slot.localPos)
-          overlay.quaternion.copy(slot.localQuat)
-          overlay.scale.copy(slot.localScale)
-          slot.attachParent.add(overlay)
+          if (!slot || !slot.mesh.parent) return
+          const geo = buildConformalClothingGeo(slot.mesh, regions, inflate)
+          let overlay: THREE.Mesh
+          if ((slot.mesh as THREE.SkinnedMesh).isSkinnedMesh) {
+            const srcSkinned = slot.mesh as THREE.SkinnedMesh
+            const skinned = new THREE.SkinnedMesh(geo, mat)
+            skinned.bind(srcSkinned.skeleton, srcSkinned.bindMatrix)
+            overlay = skinned
+          } else {
+            overlay = new THREE.Mesh(geo, mat)
+            overlay.position.copy(slot.mesh.position)
+            overlay.quaternion.copy(slot.mesh.quaternion)
+            overlay.scale.copy(slot.mesh.scale)
+          }
+          slot.mesh.parent.add(overlay)
           clothingMeshesRef.current.push(overlay)
         }
 
+        const makeTemplateMat = (src: string) => {
+          const tex = new THREE.TextureLoader().load(src)
+          tex.colorSpace = THREE.SRGBColorSpace
+          return new THREE.MeshStandardMaterial({
+            map: tex,
+            transparent: true,
+            alphaTest: 0.05,
+            roughness: 0.65,
+            metalness: 0,
+            depthWrite: true,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+          })
+        }
+
         if (sel.pants) {
-          const img = new Image()
-          img.crossOrigin = 'anonymous'
-          img.onload = () => {
-            if (disposed) return
-            spawnOverlayBox('torso', buildClothingBoxMaterials(img, {
-              px: [361, 74, 64, 128], nx: [165, 74, 64, 128],
-              py: [231, 8, 128, 64], ny: [231, 204, 128, 64],
-              pz: [231, 74, 128, 128], nz: [427, 74, 128, 128],
-            }), 0.012)
-            spawnOverlayBox('rightLeg', buildClothingBoxMaterials(img, {
-              px: [19, 355, 64, 128], nx: [151, 355, 64, 128],
-              py: [217, 289, 64, 64], ny: [217, 485, 64, 64],
-              pz: [217, 355, 64, 128], nz: [85, 355, 64, 128],
-            }), 0.014)
-            spawnOverlayBox('leftLeg', buildClothingBoxMaterials(img, {
-              px: [374, 355, 64, 128], nx: [440, 355, 64, 128],
-              py: [308, 289, 64, 64], ny: [308, 485, 64, 64],
-              pz: [308, 355, 64, 128], nz: [506, 355, 64, 128],
-            }), 0.014)
-          }
-          img.src = sel.pants
+          const pantsMat = makeTemplateMat(sel.pants)
+          spawnConformalOverlay('torso', TORSO_REGIONS, pantsMat, 0.004)
+          spawnConformalOverlay('rightLeg', RIGHT_LIMB_REGIONS, pantsMat, 0.005)
+          spawnConformalOverlay('leftLeg', LEFT_LIMB_REGIONS, pantsMat, 0.005)
         }
 
         if (sel.shirt) {
-          const img = new Image()
-          img.crossOrigin = 'anonymous'
-          img.onload = () => {
-            if (disposed) return
-            spawnOverlayBox('torso', buildClothingBoxMaterials(img, {
-              px: [361, 74, 64, 128], nx: [165, 74, 64, 128],
-              py: [231, 8, 128, 64], ny: [231, 204, 128, 64],
-              pz: [231, 74, 128, 128], nz: [427, 74, 128, 128],
-            }), 0.022)
-            spawnOverlayBox('rightArm', buildClothingBoxMaterials(img, {
-              px: [19, 355, 64, 128], nx: [151, 355, 64, 128],
-              py: [217, 289, 64, 64], ny: [217, 485, 64, 64],
-              pz: [217, 355, 64, 128], nz: [85, 355, 64, 128],
-            }), 0.022)
-            spawnOverlayBox('leftArm', buildClothingBoxMaterials(img, {
-              px: [374, 355, 64, 128], nx: [440, 355, 64, 128],
-              py: [308, 289, 64, 64], ny: [308, 485, 64, 64],
-              pz: [308, 355, 64, 128], nz: [506, 355, 64, 128],
-            }), 0.022)
-          }
-          img.src = sel.shirt
+          const shirtMat = makeTemplateMat(sel.shirt)
+          spawnConformalOverlay('torso', TORSO_REGIONS, shirtMat, 0.008)
+          spawnConformalOverlay('rightArm', RIGHT_LIMB_REGIONS, shirtMat, 0.008)
+          spawnConformalOverlay('leftArm', LEFT_LIMB_REGIONS, shirtMat, 0.008)
         }
 
         if (sel.tshirt) {
