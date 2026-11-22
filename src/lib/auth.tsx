@@ -21,6 +21,54 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+const BLOCKED_USERNAME_TERMS = [
+  'admin',
+  'administrator',
+  'moderator',
+  'staff',
+  'official',
+  'support',
+  'system',
+  'novelo',
+  'fuck',
+  'shit',
+  'bitch',
+  'asshole',
+  'nigger',
+  'nigga',
+  'faggot',
+  'retard',
+  'cunt',
+  'whore',
+  'slut',
+  'porn',
+  'nazi',
+]
+
+/** Validates Novelo username rules (3-20 chars, A-Z/0-9, max 1 non-edge underscore, no spaces, moderation). */
+export function validateUsername(raw: string): string | null {
+  if (/\s/.test(raw)) {
+    return 'Usernames cannot contain spaces.'
+  }
+  if (raw.length < 3 || raw.length > 20) {
+    return 'Username must be 3–20 characters long.'
+  }
+  if (!/^[a-zA-Z0-9_]+$/.test(raw)) {
+    return 'Use only letters (A–Z), numbers (0–9), and up to one underscore (_).'
+  }
+  if (raw.startsWith('_') || raw.endsWith('_')) {
+    return 'Underscore cannot be at the beginning or end.'
+  }
+  if ((raw.match(/_/g) ?? []).length > 1) {
+    return 'Username can contain at most one underscore (_).'
+  }
+  const lower = raw.toLowerCase()
+  if (BLOCKED_USERNAME_TERMS.some((term) => lower.includes(term))) {
+    return 'That username violates community guidelines.'
+  }
+  return null
+}
+
 export function AuthProvider({
   children,
   autoPromptWhenLoggedOut = true,
@@ -110,19 +158,26 @@ export function AuthProvider({
     if (!supabase) {
       return { error: 'Supabase is not configured yet (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' }
     }
-    const cleanUsername = username.trim()
-    if (cleanUsername.length < 3 || cleanUsername.length > 24) {
-      return { error: 'Username must be between 3 and 24 characters.' }
+    const usernameError = validateUsername(username)
+    if (usernameError) {
+      return { error: usernameError }
     }
-    if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
-      return { error: 'Username can only contain letters, numbers, and underscores.' }
+
+    // Check username uniqueness (case-insensitive) before creating auth user
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .ilike('username', username)
+      .maybeSingle()
+    if (existingProfile) {
+      return { error: 'That username is already taken.' }
     }
 
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
-        data: { username: cleanUsername },
+        data: { username },
       },
     })
     if (error) return { error: error.message }

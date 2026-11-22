@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Check, User, Mail, Lock, Calendar } from 'lucide-react'
-import { useAuth } from '@/lib/auth'
+import { useAuth, validateUsername } from '@/lib/auth'
 import { Auth3DBackground } from '@/components/Auth3DBackground'
 
 interface AuthModalProps {
@@ -64,6 +64,11 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
     if (activeTab === 'register') {
       if (!isAtLeast13(birthday)) {
         setError('You must be at least 13 years old to create an account.')
+        return
+      }
+      const usernameErr = validateUsername(username)
+      if (usernameErr) {
+        setError(usernameErr)
         return
       }
       if (password.length < 8) {
@@ -331,13 +336,18 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                       type="text"
                       required
                       minLength={3}
-                      maxLength={24}
+                      maxLength={20}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Preferred username"
                       className="w-full h-10 pl-9 pr-3.5 rounded-[7px] bg-[#233423]/55 backdrop-blur-md hover:bg-[#2a3f2a]/65 border border-[#a8cf98]/[0.20] text-xs text-white placeholder:text-white/50 focus:outline-none focus:border-[#ffe4b8]/45 focus:bg-[#283c28]/75 transition-all"
                     />
                   </div>
+                  {username.length > 0 && validateUsername(username) && (
+                    <span className="text-[10.5px] text-rose-300 leading-tight">
+                      {validateUsername(username)}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-1.5">
