@@ -42,6 +42,7 @@ import {
 } from 'lucide-react'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
+import { CreatorMarketplaceView } from '@/components/studio/CreatorMarketplaceView'
 import { WaveBackground } from '@/components/WaveBackground'
 import { UnderConstruction } from '@/components/UnderConstruction'
 
@@ -1282,7 +1283,9 @@ export function Create({ onClose }: CreateProps) {
 
         {/* Main Workspace matching Reference Image */}
         <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar bg-transparent">
-          {primarySidebarTab !== 'Games' ? (
+          {primarySidebarTab === 'Marketplace' ? (
+            <CreatorMarketplaceView title="Marketplace" />
+          ) : primarySidebarTab !== 'Games' ? (
             <>
               <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
@@ -1297,6 +1300,8 @@ export function Create({ onClose }: CreateProps) {
                 onGoHome={onClose}
               />
             </>
+          ) : subSidebarTab === 'Avatar items' ? (
+            <CreatorMarketplaceView title="Avatar items" />
           ) : subSidebarTab !== 'Experiences' ? (
             <>
               <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">

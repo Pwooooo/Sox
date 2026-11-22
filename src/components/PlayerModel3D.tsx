@@ -115,11 +115,87 @@ function resolveBodyPartKey(name: string): keyof BodyColors | null {
   return null
 }
 
+export interface ClothingSelection {
+  shirt?: string
+  pants?: string
+  tshirt?: string
+}
+
+interface ClothingPartSlot {
+  attachParent: THREE.Object3D
+  size: THREE.Vector3
+  localPos: THREE.Vector3
+  localQuat: THREE.Quaternion
+  localScale: THREE.Vector3
+}
+
+function cropTemplateRegion(
+  img: HTMLImageElement,
+  rx: number,
+  ry: number,
+  rw: number,
+  rh: number
+): THREE.MeshStandardMaterial {
+  const sx = img.width / 585
+  const sy = img.height / 559
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(rw * sx))
+  canvas.height = Math.max(1, Math.round(rh * sy))
+  const ctx = canvas.getContext('2d')
+  if (ctx) {
+    ctx.drawImage(
+      img,
+      rx * sx,
+      ry * sy,
+      rw * sx,
+      rh * sy,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    )
+  }
+  const tex = new THREE.CanvasTexture(canvas)
+  tex.colorSpace = THREE.SRGBColorSpace
+  return new THREE.MeshStandardMaterial({
+    map: tex,
+    transparent: true,
+    alphaTest: 0.05,
+    roughness: 0.65,
+    metalness: 0,
+    depthWrite: true,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+  })
+}
+
+function buildClothingBoxMaterials(
+  img: HTMLImageElement,
+  regions: {
+    px: [number, number, number, number]
+    nx: [number, number, number, number]
+    py: [number, number, number, number]
+    ny: [number, number, number, number]
+    pz: [number, number, number, number]
+    nz: [number, number, number, number]
+  }
+): THREE.MeshStandardMaterial[] {
+  return [
+    cropTemplateRegion(img, ...regions.px),
+    cropTemplateRegion(img, ...regions.nx),
+    cropTemplateRegion(img, ...regions.py),
+    cropTemplateRegion(img, ...regions.ny),
+    cropTemplateRegion(img, ...regions.pz),
+    cropTemplateRegion(img, ...regions.nz),
+  ]
+}
+
 interface PlayerModel3DProps {
   mode?: 'full' | 'headshot'
   interactive?: boolean
   className?: string
   bodyColors?: BodyColors
+  clothing?: ClothingSelection
 }
 
 export function PlayerModel3D({
@@ -127,13 +203,23 @@ export function PlayerModel3D({
   interactive = false,
   className = '',
   bodyColors,
+  clothing,
 }: PlayerModel3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const partMaterialsRef = useRef<Partial<Record<keyof BodyColors, THREE.MeshStandardMaterial[]>>>({})
+  const clothingSlotsRef = useRef<Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', ClothingPartSlot>>>({})
+  const clothingMeshesRef = useRef<THREE.Mesh[]>([])
+  const clothingRef = useRef<ClothingSelection | undefined>(clothing)
+  clothingRef.current = clothing
+  const applyClothingRef = useRef<((sel?: ClothingSelection) => void) | null>(null)
   const [savedColors, setSavedColors] = useState<BodyColors | null>(() => loadSavedBodyColors())
   const effectiveColors = bodyColors ?? savedColors ?? undefined
   const bodyColorsRef = useRef<BodyColors | undefined>(effectiveColors)
   bodyColorsRef.current = effectiveColors
+
+  useEffect(() => {
+    applyClothingRef.current?.(clothing)
+  }, [clothing])
 
   useEffect(() => {
     const onUpdate = (e: Event) => {
@@ -154,6 +240,10 @@ export function PlayerModel3D({
   }, [])
 
   useEffect(() => {
+    applyClothingRef.current?.(clothing)
+  }, [clothing])
+
+  useEffect(() => {
     if (!effectiveColors) return
     const map = partMaterialsRef.current
     ;(Object.keys(effectiveColors) as (keyof BodyColors)[]).forEach((part) => {
@@ -164,6 +254,10 @@ export function PlayerModel3D({
       }
     })
   }, [effectiveColors])
+
+  useEffect(() => {
+    applyClothingRef.current?.(clothing)
+  }, [clothing])
 
   useEffect(() => {
     const container = containerRef.current
@@ -349,6 +443,168 @@ export function PlayerModel3D({
         )
         attachParent.add(faceMesh)
       }
+
+      // Build rest-pose clothing attachment slots for Torso, Arms, and Legs
+      const partMeshes: Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', THREE.Mesh>> = {}
+      const partBones: Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', THREE.Object3D>> = {}
+      model.traverse((obj) => {
+        const clean = obj.name.toLowerCase().replace(/[^a-z0-9]/g, '')
+        if ((obj as THREE.Mesh).isMesh) {
+          if (clean.includes('torso')) partMeshes.torso = obj as THREE.Mesh
+          else if (clean.includes('leftarm')) partMeshes.leftArm = obj as THREE.Mesh
+          else if (clean.includes('rightarm')) partMeshes.rightArm = obj as THREE.Mesh
+          else if (clean.includes('leftleg')) partMeshes.leftLeg = obj as THREE.Mesh
+          else if (clean.includes('rightleg')) partMeshes.rightLeg = obj as THREE.Mesh
+        }
+        if ((obj as THREE.Bone).isBone) {
+          if (clean === 'uppertorso') partBones.torso = obj
+          else if (clean === 'upperarml') partBones.leftArm = obj
+          else if (clean === 'upperarmr') partBones.rightArm = obj
+          else if (clean === 'upperlegl') partBones.leftLeg = obj
+          else if (clean === 'upperlegr') partBones.rightLeg = obj
+        }
+      })
+
+      const slots: Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', ClothingPartSlot>> = {}
+      ;(['torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'] as const).forEach((key) => {
+        const mesh = partMeshes[key]
+        if (!mesh) return
+        const pBox = new THREE.Box3().setFromObject(mesh)
+        if (pBox.isEmpty()) return
+        const pSize = new THREE.Vector3()
+        const pCenter = new THREE.Vector3()
+        pBox.getSize(pSize)
+        pBox.getCenter(pCenter)
+        const attachParent = partBones[key] || mesh
+        attachParent.updateMatrixWorld(true)
+        const localPos = pCenter.clone()
+        attachParent.worldToLocal(localPos)
+        const pQuat = new THREE.Quaternion()
+        attachParent.getWorldQuaternion(pQuat)
+        const pScale = new THREE.Vector3()
+        attachParent.getWorldScale(pScale)
+        slots[key] = {
+          attachParent,
+          size: pSize,
+          localPos,
+          localQuat: pQuat.invert(),
+          localScale: new THREE.Vector3(
+            pScale.x > 0.0001 ? 1 / pScale.x : 1,
+            pScale.y > 0.0001 ? 1 / pScale.y : 1,
+            pScale.z > 0.0001 ? 1 / pScale.z : 1,
+          ),
+        }
+      })
+      clothingSlotsRef.current = slots
+
+      const applyClothing = (sel?: ClothingSelection) => {
+        for (const oldMesh of clothingMeshesRef.current) {
+          oldMesh.parent?.remove(oldMesh)
+          oldMesh.geometry.dispose()
+          if (Array.isArray(oldMesh.material)) oldMesh.material.forEach((m) => m.dispose())
+          else oldMesh.material.dispose()
+        }
+        clothingMeshesRef.current = []
+        if (!sel || disposed) return
+
+        const spawnOverlayBox = (
+          key: 'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg',
+          mats: THREE.MeshStandardMaterial[],
+          inflate: number
+        ) => {
+          const slot = clothingSlotsRef.current[key]
+          if (!slot) return
+          const geo = new THREE.BoxGeometry(
+            slot.size.x + inflate,
+            slot.size.y + inflate,
+            slot.size.z + inflate
+          )
+          const overlay = new THREE.Mesh(geo, mats)
+          overlay.position.copy(slot.localPos)
+          overlay.quaternion.copy(slot.localQuat)
+          overlay.scale.copy(slot.localScale)
+          slot.attachParent.add(overlay)
+          clothingMeshesRef.current.push(overlay)
+        }
+
+        if (sel.pants) {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.onload = () => {
+            if (disposed) return
+            spawnOverlayBox('torso', buildClothingBoxMaterials(img, {
+              px: [361, 74, 64, 128], nx: [165, 74, 64, 128],
+              py: [231, 8, 128, 64], ny: [231, 204, 128, 64],
+              pz: [231, 74, 128, 128], nz: [427, 74, 128, 128],
+            }), 0.012)
+            spawnOverlayBox('rightLeg', buildClothingBoxMaterials(img, {
+              px: [19, 355, 64, 128], nx: [151, 355, 64, 128],
+              py: [217, 289, 64, 64], ny: [217, 485, 64, 64],
+              pz: [217, 355, 64, 128], nz: [85, 355, 64, 128],
+            }), 0.014)
+            spawnOverlayBox('leftLeg', buildClothingBoxMaterials(img, {
+              px: [374, 355, 64, 128], nx: [440, 355, 64, 128],
+              py: [308, 289, 64, 64], ny: [308, 485, 64, 64],
+              pz: [308, 355, 64, 128], nz: [506, 355, 64, 128],
+            }), 0.014)
+          }
+          img.src = sel.pants
+        }
+
+        if (sel.shirt) {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.onload = () => {
+            if (disposed) return
+            spawnOverlayBox('torso', buildClothingBoxMaterials(img, {
+              px: [361, 74, 64, 128], nx: [165, 74, 64, 128],
+              py: [231, 8, 128, 64], ny: [231, 204, 128, 64],
+              pz: [231, 74, 128, 128], nz: [427, 74, 128, 128],
+            }), 0.022)
+            spawnOverlayBox('rightArm', buildClothingBoxMaterials(img, {
+              px: [19, 355, 64, 128], nx: [151, 355, 64, 128],
+              py: [217, 289, 64, 64], ny: [217, 485, 64, 64],
+              pz: [217, 355, 64, 128], nz: [85, 355, 64, 128],
+            }), 0.022)
+            spawnOverlayBox('leftArm', buildClothingBoxMaterials(img, {
+              px: [374, 355, 64, 128], nx: [440, 355, 64, 128],
+              py: [308, 289, 64, 64], ny: [308, 485, 64, 64],
+              pz: [308, 355, 64, 128], nz: [506, 355, 64, 128],
+            }), 0.022)
+          }
+          img.src = sel.shirt
+        }
+
+        if (sel.tshirt) {
+          const slot = clothingSlotsRef.current.torso
+          if (slot) {
+            const tex = new THREE.TextureLoader().load(sel.tshirt)
+            tex.colorSpace = THREE.SRGBColorSpace
+            const mat = new THREE.MeshStandardMaterial({
+              map: tex,
+              transparent: true,
+              alphaTest: 0.05,
+              roughness: 0.7,
+              metalness: 0,
+              depthWrite: false,
+              polygonOffset: true,
+              polygonOffsetFactor: -2,
+            })
+            const decalSize = Math.min(slot.size.x, slot.size.y) * 0.75
+            const decal = new THREE.Mesh(new THREE.PlaneGeometry(decalSize, decalSize), mat)
+            const frontOffset = new THREE.Vector3(0, 0, slot.size.z * 0.5 + 0.028)
+            frontOffset.applyQuaternion(slot.localQuat)
+            decal.position.copy(slot.localPos).add(frontOffset)
+            decal.quaternion.copy(slot.localQuat)
+            decal.scale.copy(slot.localScale)
+            slot.attachParent.add(decal)
+            clothingMeshesRef.current.push(decal)
+          }
+        }
+      }
+
+      applyClothingRef.current = applyClothing
+      applyClothing(clothingRef.current)
 
       root.add(model)
       model.updateMatrixWorld(true)
