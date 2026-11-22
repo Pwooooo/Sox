@@ -1,7 +1,13 @@
-import { useState } from 'react'
-import { Search, Sparkles } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
-import { UnderConstruction } from '@/components/UnderConstruction'
+import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import {
+  loadCreatedClothing,
+  CLOTHING_UPDATED_EVENT,
+  CreatedClothingItem,
+} from '@/data/clothingStore'
+import { useAuth } from '@/lib/auth'
 
 interface InventoryItem {
   id: string
@@ -13,20 +19,63 @@ interface InventoryItem {
   faceType?: 'derp' | 'smirk' | 'smile'
   shirtType?: 'cat' | 'white' | 'black'
   isOffSale?: boolean
+  clothing?: ClothingSelection
 }
-
-const LUDUVO_ITEMS: InventoryItem[] = []
 
 const TABS = ['All', 'Favorites', 'Accessories', 'Shirts', 'Pants', 'Faces', 'Bundles'] as const
 
+function toInventoryItem(item: CreatedClothingItem, fallbackUsername: string): InventoryItem {
+  const clothing: ClothingSelection =
+    item.type === 'Shirt'
+      ? { shirt: item.textureDataUrl }
+      : item.type === 'Pants'
+        ? { pants: item.textureDataUrl }
+        : { tshirt: item.textureDataUrl }
+  const creator =
+    !item.creator || item.creator === 'JadexDraft1337' ? fallbackUsername : item.creator
+  return {
+    id: item.id,
+    name: item.name,
+    creator,
+    priceDisplay: item.price === 0 ? 'Free' : item.price.toLocaleString(),
+    category: item.type === 'Pants' ? 'Pants' : 'Shirts',
+    type: 'shirt',
+    clothing,
+  }
+}
+
 export function Inventory() {
+  const { user, profile } = useAuth()
+  const currentUsername =
+    profile?.username || (user?.user_metadata?.username as string) || 'Player'
   const [activeTab, setActiveTab] = useState<string>('All')
   const [search, setSearch] = useState('')
-  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null)
+  const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
+    loadCreatedClothing()
+  )
 
-  const filteredItems = LUDUVO_ITEMS.filter((item) => {
-    const matchesTab = activeTab === 'All' || item.category === activeTab || (activeTab === 'Favorites' && item.creator === 'sky')
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.creator.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    const sync = () => setCreatedItems(loadCreatedClothing())
+    window.addEventListener(CLOTHING_UPDATED_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  const inventoryItems: InventoryItem[] = createdItems.map((it) =>
+    toInventoryItem(it, currentUsername)
+  )
+
+  const filteredItems = inventoryItems.filter((item) => {
+    const matchesTab =
+      activeTab === 'All' ||
+      item.category === activeTab ||
+      (activeTab === 'Favorites' && item.creator === currentUsername)
+    const matchesSearch =
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.creator.toLowerCase().includes(search.toLowerCase())
     return matchesTab && matchesSearch
   })
 
@@ -64,31 +113,42 @@ export function Inventory() {
         />
       </div>
 
-      {/* 3. Cards Grid matching Luduvo style from Image 2 */}
+      {/* 3. Cards Grid */}
       {filteredItems.length === 0 ? (
-        <UnderConstruction
-          onGoBack={() => {
-            setActiveTab('All')
-            setSearch('')
-          }}
-        />
+        <div className="rounded-2xl bg-[#101012]/90 border border-white/[0.06] p-12 text-center">
+          <p className="text-sm font-semibold text-white/70 m-0">No items in your inventory yet</p>
+          <p className="text-xs text-white/40 m-0 mt-1">
+            Items you create in Studio Marketplace or acquire will appear here.
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3.5">
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              onClick={() => setSelectedItem(item)}
               className="group rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
             >
-              {/* Mannequin Preview Container (Seamless 3D Isometric Mannequin) */}
-              <IsometricMannequin
-                name={item.name}
-                type={item.type}
-                shirtType={item.shirtType}
-                faceType={item.faceType}
-              />
+              {item.clothing ? (
+                <div className="w-full h-36 max-h-36 rounded-xl overflow-hidden">
+                  <PlayerModel3D
+                    mode="full"
+                    useSavedColors={false}
+                    autoRotate={false}
+                    initialYaw={0.22}
+                    clothing={item.clothing}
+                    className="w-full h-full"
+                  />
+                </div>
+              ) : (
+                <IsometricMannequin
+                  name={item.name}
+                  type={item.type}
+                  shirtType={item.shirtType}
+                  faceType={item.faceType}
+                />
+              )}
 
-              {/* Bottom Info matching Image 1 */}
+              {/* Bottom Info */}
               <div className="flex flex-col gap-0.5 text-left pt-1">
                 <h4 className="text-xs md:text-sm font-bold text-white leading-tight truncate group-hover:text-white">
                   {item.name}

@@ -3,6 +3,15 @@ import { Sparkles, Check, Save, RotateCw, X, Plus } from 'lucide-react'
 import { ITEMS, Item } from '@/data/items'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { PlayerModel3D, loadSavedBodyColors, saveBodyColors } from '@/components/PlayerModel3D'
+import {
+  loadCreatedClothing,
+  loadEquippedClothingIds,
+  saveEquippedClothingIds,
+  resolveEquippedClothing,
+  CLOTHING_UPDATED_EVENT,
+  CreatedClothingItem,
+  EquippedClothingIds,
+} from '@/data/clothingStore'
 
 type BodyPart = 'all' | 'head' | 'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg'
 type CategoryTab = 'Hats' | 'Hairs' | 'Faces' | 'Clothings' | 'Accessorys' | 'Body'
@@ -98,7 +107,23 @@ export function AvatarEditor() {
   const [selectedPart, setSelectedPart] = useState<BodyPart>('torso')
   const [activeTab, setActiveTab] = useState<CategoryTab>('Hats')
   const [equippedIds, setEquippedIds] = useState<number[]>([1, 4])
+  const [createdClothing, setCreatedClothing] = useState<CreatedClothingItem[]>(() =>
+    loadCreatedClothing()
+  )
+  const [equippedClothingIds, setEquippedClothingIds] = useState<EquippedClothingIds>(() =>
+    loadEquippedClothingIds()
+  )
   const [savedNotification, setSavedNotification] = useState(false)
+
+  useEffect(() => {
+    const sync = () => setCreatedClothing(loadCreatedClothing())
+    window.addEventListener(CLOTHING_UPDATED_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
   const [redrawKey, setRedrawKey] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
 
@@ -225,6 +250,17 @@ export function AvatarEditor() {
     )
   }
 
+  const toggleEquipClothing = (item: CreatedClothingItem) => {
+    setEquippedClothingIds((prev) => {
+      const key =
+        item.type === 'Shirt' ? 'shirtId' : item.type === 'Pants' ? 'pantsId' : 'tshirtId'
+      return {
+        ...prev,
+        [key]: prev[key] === item.id ? undefined : item.id,
+      }
+    })
+  }
+
   const handleRedraw = () => {
     setIsSpinning(true)
     setRedrawKey((k) => k + 1)
@@ -233,6 +269,7 @@ export function AvatarEditor() {
 
   const handleSave = () => {
     saveBodyColors(bodyColors)
+    saveEquippedClothingIds(equippedClothingIds)
     setSavedNotification(true)
     setTimeout(() => setSavedNotification(false), 2500)
   }
@@ -308,6 +345,7 @@ export function AvatarEditor() {
               mode="full"
               interactive
               bodyColors={bodyColors}
+              clothing={resolveEquippedClothing(equippedClothingIds)}
               className="w-full h-full relative z-10"
             />
           </div>
@@ -630,13 +668,82 @@ export function AvatarEditor() {
             <div className="p-6 rounded-2xl bg-[#0e0e10] border border-white/[0.04] flex flex-col gap-4 shadow-xl">
               <div className="flex items-center justify-between pb-1 border-b border-white/[0.04]">
                 <span className="text-xs font-bold text-white/60 uppercase tracking-wider">
-                  {activeTab} ({filteredItems.length} items)
+                  {activeTab} (
+                  {activeTab === 'Clothings'
+                    ? filteredItems.length + createdClothing.length
+                    : filteredItems.length}{' '}
+                  items)
                 </span>
                 <span className="text-xs text-white/40">Click any item to equip or unequip</span>
               </div>
 
               {/* 5-Column Grid matching Screenshot 2 & Card Design */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3.5">
+                {activeTab === 'Clothings' &&
+                  createdClothing.map((cItem) => {
+                    const isEquipped =
+                      equippedClothingIds.shirtId === cItem.id ||
+                      equippedClothingIds.pantsId === cItem.id ||
+                      equippedClothingIds.tshirtId === cItem.id
+                    const clothingSel =
+                      cItem.type === 'Shirt'
+                        ? { shirt: cItem.textureDataUrl }
+                        : cItem.type === 'Pants'
+                          ? { pants: cItem.textureDataUrl }
+                          : { tshirt: cItem.textureDataUrl }
+                    return (
+                      <div
+                        key={cItem.id}
+                        onClick={() => toggleEquipClothing(cItem)}
+                        className={`group rounded-[12px] p-2.5 flex flex-col gap-2 cursor-pointer transition-colors duration-150 relative select-none ${
+                          isEquipped
+                            ? 'bg-[#1c1c1f] ring-1 ring-white/20 shadow-lg'
+                            : 'bg-[#121214] hover:bg-[#1c1c1f]'
+                        }`}
+                      >
+                        {isEquipped && (
+                          <div className="absolute top-2 right-2 size-5 rounded-full bg-white text-black flex items-center justify-center shadow-md z-20">
+                            <Check className="size-3 stroke-[3]" />
+                          </div>
+                        )}
+
+                        <div className="w-full h-32 rounded-xl overflow-hidden">
+                          <PlayerModel3D
+                            mode="full"
+                            useSavedColors={false}
+                            useSavedClothing={false}
+                            autoRotate={false}
+                            initialYaw={0.22}
+                            clothing={clothingSel}
+                            className="w-full h-full"
+                          />
+                        </div>
+
+                        <div className="w-full flex flex-col gap-0.5 text-left">
+                          <h4 className="text-xs md:text-[13px] font-bold text-white truncate leading-tight">
+                            {cItem.name}
+                          </h4>
+                          <span className="text-[11px] text-white/50 truncate">
+                            By <span className="text-white/70 font-medium">{cItem.creator}</span>
+                          </span>
+                          <div className="flex items-center gap-1 mt-0.5 text-xs font-bold text-white">
+                            {cItem.price === 0 ? (
+                              <span className="text-[11px] font-bold text-white/80">Free</span>
+                            ) : (
+                              <>
+                                <img
+                                  src="/novelo-currency.png"
+                                  alt="Currency"
+                                  className="size-3 object-contain shrink-0"
+                                />
+                                <span>{cItem.price}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
                 {filteredItems.map((item) => {
                   const isEquipped = equippedIds.includes(item.id)
                   return (

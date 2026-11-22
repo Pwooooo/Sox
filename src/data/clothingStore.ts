@@ -13,7 +13,49 @@ export interface CreatedClothingItem {
 }
 
 const STORAGE_KEY = 'novelo_created_clothing_v1'
+const EQUIPPED_STORAGE_KEY = 'novelo_equipped_clothing_v1'
 export const CLOTHING_UPDATED_EVENT = 'novelo-clothing-updated'
+export const EQUIPPED_CLOTHING_EVENT = 'novelo-equipped-clothing-updated'
+
+export interface EquippedClothingIds {
+  shirtId?: string
+  pantsId?: string
+  tshirtId?: string
+}
+
+export function loadEquippedClothingIds(): EquippedClothingIds {
+  try {
+    const raw = localStorage.getItem(EQUIPPED_STORAGE_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? (parsed as EquippedClothingIds) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function saveEquippedClothingIds(ids: EquippedClothingIds): void {
+  try {
+    localStorage.setItem(EQUIPPED_STORAGE_KEY, JSON.stringify(ids))
+    window.dispatchEvent(new CustomEvent(EQUIPPED_CLOTHING_EVENT, { detail: ids }))
+  } catch {
+    // ignore
+  }
+}
+
+export function resolveEquippedClothing(ids: EquippedClothingIds): {
+  shirt?: string
+  pants?: string
+  tshirt?: string
+} {
+  const all = loadCreatedClothing()
+  const byId = new Map(all.map((i) => [i.id, i]))
+  return {
+    shirt: ids.shirtId ? byId.get(ids.shirtId)?.textureDataUrl : undefined,
+    pants: ids.pantsId ? byId.get(ids.pantsId)?.textureDataUrl : undefined,
+    tshirt: ids.tshirtId ? byId.get(ids.tshirtId)?.textureDataUrl : undefined,
+  }
+}
 
 export function loadCreatedClothing(): CreatedClothingItem[] {
   try {

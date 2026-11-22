@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import {
+  loadEquippedClothingIds,
+  resolveEquippedClothing,
+  EQUIPPED_CLOTHING_EVENT,
+  CLOTHING_UPDATED_EVENT,
+} from '@/data/clothingStore'
 
 function applyAreaWeightedNormals(geometry: THREE.BufferGeometry): void {
   const pos = geometry.getAttribute('position')
@@ -259,6 +265,7 @@ interface PlayerModel3DProps {
   bodyColors?: BodyColors
   clothing?: ClothingSelection
   useSavedColors?: boolean
+  useSavedClothing?: boolean
   autoRotate?: boolean
   initialYaw?: number
 }
@@ -270,6 +277,7 @@ export function PlayerModel3D({
   bodyColors,
   clothing,
   useSavedColors = true,
+  useSavedClothing = true,
   autoRotate = true,
   initialYaw,
 }: PlayerModel3DProps) {
@@ -277,8 +285,12 @@ export function PlayerModel3D({
   const partMaterialsRef = useRef<Partial<Record<keyof BodyColors, THREE.MeshStandardMaterial[]>>>({})
   const clothingSlotsRef = useRef<Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', ClothingPartSlot>>>({})
   const clothingMeshesRef = useRef<THREE.Mesh[]>([])
-  const clothingRef = useRef<ClothingSelection | undefined>(clothing)
-  clothingRef.current = clothing
+  const [savedClothing, setSavedClothing] = useState<ClothingSelection>(() =>
+    resolveEquippedClothing(loadEquippedClothingIds())
+  )
+  const effectiveClothing = clothing ?? (useSavedClothing ? savedClothing : undefined)
+  const clothingRef = useRef<ClothingSelection | undefined>(effectiveClothing)
+  clothingRef.current = effectiveClothing
   const applyClothingRef = useRef<((sel?: ClothingSelection) => void) | null>(null)
   const [savedColors, setSavedColors] = useState<BodyColors | null>(() => loadSavedBodyColors())
   const effectiveColors = bodyColors ?? (useSavedColors ? savedColors ?? undefined : undefined)
@@ -286,8 +298,21 @@ export function PlayerModel3D({
   bodyColorsRef.current = effectiveColors
 
   useEffect(() => {
-    applyClothingRef.current?.(clothing)
-  }, [clothing])
+    const syncClothing = () =>
+      setSavedClothing(resolveEquippedClothing(loadEquippedClothingIds()))
+    window.addEventListener(EQUIPPED_CLOTHING_EVENT, syncClothing)
+    window.addEventListener(CLOTHING_UPDATED_EVENT, syncClothing)
+    window.addEventListener('storage', syncClothing)
+    return () => {
+      window.removeEventListener(EQUIPPED_CLOTHING_EVENT, syncClothing)
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, syncClothing)
+      window.removeEventListener('storage', syncClothing)
+    }
+  }, [])
+
+  useEffect(() => {
+    applyClothingRef.current?.(effectiveClothing)
+  }, [effectiveClothing])
 
   useEffect(() => {
     const onUpdate = (e: Event) => {
@@ -308,8 +333,21 @@ export function PlayerModel3D({
   }, [])
 
   useEffect(() => {
-    applyClothingRef.current?.(clothing)
-  }, [clothing])
+    const syncClothing = () =>
+      setSavedClothing(resolveEquippedClothing(loadEquippedClothingIds()))
+    window.addEventListener(EQUIPPED_CLOTHING_EVENT, syncClothing)
+    window.addEventListener(CLOTHING_UPDATED_EVENT, syncClothing)
+    window.addEventListener('storage', syncClothing)
+    return () => {
+      window.removeEventListener(EQUIPPED_CLOTHING_EVENT, syncClothing)
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, syncClothing)
+      window.removeEventListener('storage', syncClothing)
+    }
+  }, [])
+
+  useEffect(() => {
+    applyClothingRef.current?.(effectiveClothing)
+  }, [effectiveClothing])
 
   useEffect(() => {
     if (!effectiveColors) return
@@ -324,8 +362,21 @@ export function PlayerModel3D({
   }, [effectiveColors])
 
   useEffect(() => {
-    applyClothingRef.current?.(clothing)
-  }, [clothing])
+    const syncClothing = () =>
+      setSavedClothing(resolveEquippedClothing(loadEquippedClothingIds()))
+    window.addEventListener(EQUIPPED_CLOTHING_EVENT, syncClothing)
+    window.addEventListener(CLOTHING_UPDATED_EVENT, syncClothing)
+    window.addEventListener('storage', syncClothing)
+    return () => {
+      window.removeEventListener(EQUIPPED_CLOTHING_EVENT, syncClothing)
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, syncClothing)
+      window.removeEventListener('storage', syncClothing)
+    }
+  }, [])
+
+  useEffect(() => {
+    applyClothingRef.current?.(effectiveClothing)
+  }, [effectiveClothing])
 
   useEffect(() => {
     const container = containerRef.current
