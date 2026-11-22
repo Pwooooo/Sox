@@ -43,8 +43,24 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
   const [agreedTerms, setAgreedTerms] = useState(false)
   const [keepLoggedIn, setKeepLoggedIn] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [resending, setResending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
+
+  const resendEmailTarget = email.trim() || (identifier.includes('@') ? identifier.trim() : '')
+  const handleResend = async () => {
+    if (resending || !resendEmailTarget) return
+    setError(null)
+    clearAuthUrlError()
+    setResending(true)
+    try {
+      const res = await resendVerification(resendEmailTarget)
+      if (res.error) setError(res.error)
+      else setInfo(`Verification email resent to ${resendEmailTarget}! Check your inbox and spam folder.`)
+    } finally {
+      setResending(false)
+    }
+  }
 
   const activeTab = mode === 'login-only' ? 'login' : tab
   const strength = useMemo(() => getPasswordStrength(password), [password])
@@ -298,25 +314,32 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
 
         <form onSubmit={handleSubmit} className="relative z-10 flex flex-col gap-3.5">
           {(error || authUrlError) && (
-            <div className="text-xs text-rose-300 text-center leading-snug">
-              {error || authUrlError}
+            <div className="text-xs text-rose-300 text-center leading-snug flex flex-col items-center gap-1">
+              <span>{error || authUrlError}</span>
+              {authUrlError && resendEmailTarget && (
+                <button
+                  type="button"
+                  disabled={resending}
+                  onClick={handleResend}
+                  className="text-[11px] font-semibold text-rose-200 hover:text-white underline bg-transparent border-none p-0 cursor-pointer disabled:opacity-50"
+                >
+                  {resending ? 'Sending...' : 'Resend verification email'}
+                </button>
+              )}
             </div>
           )}
 
           {info && (
             <div className="text-xs text-emerald-300 text-center leading-snug flex flex-col items-center gap-1">
               <span>{info}</span>
-              {email && (
+              {resendEmailTarget && (
                 <button
                   type="button"
-                  onClick={async () => {
-                    const res = await resendVerification(email)
-                    if (res.error) setError(res.error)
-                    else setInfo('Verification email resent! Check your inbox.')
-                  }}
-                  className="text-[11px] font-semibold text-emerald-200 hover:text-white underline bg-transparent border-none p-0 cursor-pointer"
+                  disabled={resending}
+                  onClick={handleResend}
+                  className="text-[11px] font-semibold text-emerald-200 hover:text-white underline bg-transparent border-none p-0 cursor-pointer disabled:opacity-50"
                 >
-                  Resend verification email
+                  {resending ? 'Sending...' : 'Resend verification email'}
                 </button>
               )}
             </div>
