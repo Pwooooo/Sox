@@ -432,10 +432,7 @@ export class TerrainSurface {
       const edgeZ = 1 - Math.pow(Math.abs(lz) / (this.depth * 0.5), 6)
       const edgeMask = Math.max(0, Math.min(1, edgeX * edgeZ))
 
-      // Sculpt an open sunlit foreground meadow (lz > -8) rising to a dramatic mountain ridge (lz < -12)
-      const ridgeBoost = lz < -8 ? Math.pow(Math.min(1, (-8 - lz) / 85), 1.35) * 0.65 : 0
-      const meadowFlatten = lz > -4 && Math.abs(lx) < 48 ? 0.52 : 1.0
-      const y = (hNorm * meadowFlatten + ridgeBoost) * maxHeight * edgeMask
+      const y = hNorm * maxHeight * edgeMask
       if (hasWater && y < maxHeight * 0.16) {
         tmpColor.lerp(blendColor.set('#d9bc82'), 0.65)
       }
@@ -448,23 +445,6 @@ export class TerrainSurface {
 
     geom.setAttribute('color', new THREE.BufferAttribute(colors, 3))
     geom.computeVertexNormals()
-
-    // Slope-based exposed granite cliff coloring on steep mountain faces
-    const normAttr = geom.attributes.normal
-    const colorAttrAfter = geom.attributes.color
-    for (let i = 0; i < count; i++) {
-      const ny = normAttr.getY(i)
-      const py = posAttr.getY(i)
-      if (ny < 0.78 && py > maxHeight * 0.28) {
-        const rockT = Math.min(1, ((0.78 - ny) / 0.22) * 0.92)
-        const rockShade = 0.85 + (i % 5) * 0.04
-        tmpColor.setRGB(colorAttrAfter.getX(i), colorAttrAfter.getY(i), colorAttrAfter.getZ(i))
-        blendColor.setRGB(0.62 * rockShade, 0.56 * rockShade, 0.48 * rockShade)
-        tmpColor.lerp(blendColor, rockT)
-        colorAttrAfter.setXYZ(i, tmpColor.r, tmpColor.g, tmpColor.b)
-      }
-    }
-    colorAttrAfter.needsUpdate = true
 
     const terrainTex = createTerrainDetailTexture(512)
     this.terrainTex = terrainTex
@@ -764,7 +744,7 @@ export class TerrainSurface {
           emissive: new THREE.Color('#ece59e'),
           emissiveIntensity: 0.22,
         })
-        const flowerCount = Math.min(5500, flowerCandidates.length * 3)
+        const flowerCount = Math.min(3600, flowerCandidates.length * 2)
         const flowerInst = new THREE.InstancedMesh(flowerGeo, flowerMat, flowerCount)
         for (let i = 0; i < flowerCount; i++) {
           const pt = flowerCandidates[i % flowerCandidates.length]
@@ -789,26 +769,10 @@ export class TerrainSurface {
         this.group.add(flowerInst)
       }
 
-      // 2. Dense Forested Mountain & Meadow Border + Hero Midground Tree
-      const forestCandidates = grassPoints.filter((pt) => {
-        const lx = pt.x - this.origin[0]
-        const lz = pt.z - this.origin[2]
-        const inOpenMeadow = lz >= -6 && lz <= 54 && Math.abs(lx) < 38
-        if (inOpenMeadow) return false
-        const forestNoise = fbm2D(pt.x * 0.038, pt.z * 0.038, cfg.seed + 505, 3)
-        return lz < -10 || forestNoise > 0.42
-      })
-      const heroY = this.getHeightAt(this.origin[0] + 9, this.origin[2] + 6)
-      const heroTree = { x: this.origin[0] + 9, y: heroY, z: this.origin[2] + 6, r: 0.4, g: 0.6, b: 0.25 }
-      const treeList: typeof grassPoints = [heroTree]
-      const forestCount = Math.min(1150, Math.max(240, Math.floor(forestCandidates.length * 0.18)))
-      for (let t = 0; t < forestCount && forestCandidates.length > 0; t++) {
-        const hashT = Math.sin(t * 91.73 + 17.3) * 43758.5453
-        const randIdx = Math.floor((hashT - Math.floor(hashT)) * forestCandidates.length)
-        treeList.push(forestCandidates[randIdx])
-      }
-      const treeCount = treeList.length
-      if (treeCount > 0) {
+      // 2. Custom Leafy Trees (branching 3D skeleton + 512px veined leaf sprigs)
+      const treeCandidates = grassPoints.filter((pt) => pt.y < this.origin[1] + maxHeight * 0.62)
+      const treeCount = Math.min(200, Math.max(30, Math.floor(treeCandidates.length / 150)))
+      if (treeCandidates.length > 0 && treeCount > 0) {
         const trunkGeo = buildBranchingTreeGeometry()
         const barkTex = createBarkTexture(512)
         this.barkTex = barkTex
@@ -827,52 +791,54 @@ export class TerrainSurface {
         leafTex.minFilter = THREE.LinearMipmapLinearFilter
         leafTex.magFilter = THREE.LinearFilter
         this.leafTex = leafTex
-        const leafCardGeo = new THREE.PlaneGeometry(2.85, 2.85)
+        const leafCardGeo = new THREE.PlaneGeometry(2.35, 2.35)
         const leafMat = new THREE.MeshStandardMaterial({
           map: leafTex,
           alphaTest: 0.2,
           alphaToCoverage: true,
-          roughness: 0.8,
+          roughness: 0.78,
           metalness: 0,
-          emissive: new THREE.Color('#132b16'),
-          emissiveIntensity: 0.12,
+          emissive: new THREE.Color('#18361c'),
+          emissiveIntensity: 0.16,
           side: THREE.DoubleSide,
         })
-        const leavesPerTree = 36
+        const leavesPerTree = 56
         const leaves = new THREE.InstancedMesh(leafCardGeo, leafMat, treeCount * leavesPerTree)
         leaves.castShadow = true
         leaves.receiveShadow = true
 
-        const leafPalette = ['#2e5429', '#3b6633', '#47763b', '#274723', '#538242']
+        const leafPalette = ['#4f7f4c', '#5d8f56', '#6ca161', '#437043', '#75ab66']
         let leafIdx = 0
 
         for (let t = 0; t < treeCount; t++) {
-          const pt = treeList[t]
-          const s = t === 0 ? 1.45 : 1.05 + (t % 6) * 0.22
+          const hashT = Math.sin(t * 91.73 + 17.3) * 43758.5453
+          const randIdx = Math.floor((hashT - Math.floor(hashT)) * treeCandidates.length)
+          const pt = treeCandidates[randIdx]
+          const s = 0.92 + (t % 5) * 0.16
           const rotY = (t * 2.39996) % (Math.PI * 2)
 
-          dummy.position.set(pt.x, pt.y - 0.18, pt.z)
+          dummy.position.set(pt.x, pt.y - 0.15, pt.z)
           dummy.rotation.set(0, rotY, 0)
           dummy.scale.set(s, s, s)
           dummy.updateMatrix()
           trunks.setMatrixAt(t, dummy.matrix)
 
           for (let l = 0; l < leavesPerTree; l++) {
-            const angle = (l / leavesPerTree) * Math.PI * 2 * 3.8 + rotY
-            const tier = l < 12 ? 0 : l < 24 ? 1 : l < 32 ? 2 : 3
-            const radius = tier === 0 ? 1.55 : tier === 1 ? 1.25 : tier === 2 ? 0.8 : 0.28
-            const ly = tier === 0 ? 2.85 : tier === 1 ? 3.75 : tier === 2 ? 4.6 : 5.3
+            const angle = (l / leavesPerTree) * Math.PI * 2 * 4.3 + rotY
+            const tier = l < 18 ? 0 : l < 36 ? 1 : l < 48 ? 2 : 3
+            const radius = tier === 0 ? 1.45 : tier === 1 ? 1.2 : tier === 2 ? 0.78 : 0.28
+            const ly = tier === 0 ? 2.8 : tier === 1 ? 3.7 : tier === 2 ? 4.55 : 5.25
             dummy.position.set(
               pt.x + Math.cos(angle) * radius * s,
-              pt.y + (ly + ((l % 3) - 1) * 0.26) * s,
+              pt.y + (ly + ((l % 3) - 1) * 0.24) * s,
               pt.z + Math.sin(angle) * radius * s,
             )
             dummy.rotation.set(
-              ((l % 5) - 2) * 0.38,
+              ((l % 5) - 2) * 0.36,
               angle + l * 0.9,
-              ((l % 3) - 1) * 0.44,
+              ((l % 3) - 1) * 0.42,
             )
-            const ls = s * (0.9 + (l % 3) * 0.18)
+            const ls = s * (0.85 + (l % 3) * 0.18)
             dummy.scale.set(ls, ls, ls)
             dummy.updateMatrix()
             leaves.setMatrixAt(leafIdx, dummy.matrix)

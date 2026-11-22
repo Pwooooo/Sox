@@ -47,7 +47,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, cfg.pixelRatioCap))
     renderer.setSize(w, h)
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.02
+    renderer.toneMappingExposure = 0.96
     if (cfg.shadows) {
       renderer.shadowMap.enabled = true
       renderer.shadowMap.type = THREE.PCFSoftShadowMap
@@ -55,8 +55,8 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     container.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color('#c8ddf0')
-    scene.fog = new THREE.FogExp2('#c8ddf0', 0.0012)
+    scene.background = new THREE.Color('#f2c09a')
+    scene.fog = new THREE.FogExp2('#f2c09a', 0.0018)
 
     const camera = new THREE.PerspectiveCamera(48, w / h, 0.2, 520)
 
@@ -81,17 +81,17 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       composer.addPass(new OutputPass())
     }
 
-    // Crisp Golden-Afternoon Sky Dome with Puffy Cumulus Clouds
+    // Soft Cozy Sunset Sky Dome
     const skyGeo = new THREE.SphereGeometry(480, 32, 20)
     const skyMat = new THREE.ShaderMaterial({
       side: THREE.BackSide,
       depthWrite: false,
       uniforms: {
-        topColor: { value: new THREE.Color('#3b73b8') },
-        horizonColor: { value: new THREE.Color('#d2e4f4') },
-        bottomColor: { value: new THREE.Color('#f5efe6') },
-        sunDir: { value: new THREE.Vector3(76, 48, 44).normalize() },
-        sunColor: { value: new THREE.Color('#ffe5be') },
+        topColor: { value: new THREE.Color('#5470a8') },
+        horizonColor: { value: new THREE.Color('#f6b888') },
+        bottomColor: { value: new THREE.Color('#fbe2c4') },
+        sunDir: { value: new THREE.Vector3(78, 22, 48).normalize() },
+        sunColor: { value: new THREE.Color('#ffd8a6') },
         uTime: { value: 0 },
       },
       vertexShader: `
@@ -142,18 +142,15 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
             ? mix(horizonColor, topColor, pow(clamp(h, 0.0, 1.0), 0.52))
             : mix(horizonColor, bottomColor, pow(clamp(-h, 0.0, 1.0), 0.55));
 
-          // Sculpted puffy cumulus clouds in the upper sky dome
-          if (h > 0.02) {
-            vec2 cloudUV = dir.xz / (h + 0.22) * 0.95 + vec2(uTime * 0.009, uTime * 0.003);
+          // Soft sunlit cumulus clouds in the upper sky dome
+          if (h > 0.015) {
+            vec2 cloudUV = dir.xz / (h + 0.18) * 1.15 + vec2(uTime * 0.012, uTime * 0.005);
             float n = fbmCloud(cloudUV);
-            float detail = fbmCloud(cloudUV * 2.4 - vec2(uTime * 0.006, 0.0));
-            float shape = n * 0.8 + detail * 0.22;
-            float density = smoothstep(0.47, 0.62, shape);
-            float horizonFade = smoothstep(0.02, 0.16, h);
-            float cloudAlpha = density * horizonFade * 0.92;
-            vec3 cloudShadow = vec3(0.66, 0.72, 0.80);
-            vec3 cloudHighlight = vec3(0.99, 0.98, 0.96);
-            vec3 cloudLit = mix(cloudShadow, cloudHighlight, smoothstep(0.46, 0.68, shape));
+            float detail = fbmCloud(cloudUV * 2.3 - vec2(uTime * 0.008, 0.0));
+            float density = smoothstep(0.46, 0.80, n * 0.78 + detail * 0.25);
+            float horizonFade = smoothstep(0.015, 0.22, h);
+            float cloudAlpha = density * horizonFade * 0.82;
+            vec3 cloudLit = mix(vec3(0.78, 0.66, 0.74), vec3(1.0, 0.91, 0.80), smoothstep(0.35, 0.75, n));
             col = mix(col, cloudLit, cloudAlpha);
           }
 
@@ -175,15 +172,15 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     scene.environmentIntensity = 0.65
     pmrem.dispose()
 
-    // Crisp golden-afternoon daylight with grounded tree shadows
-    const hemi = new THREE.HemisphereLight('#dcecff', '#3a4a2a', 0.95)
+    // Soft cozy golden-hour sunset lighting
+    const hemi = new THREE.HemisphereLight('#ffdcb8', '#3c4a2e', 0.92)
     scene.add(hemi)
 
-    const ambient = new THREE.AmbientLight('#f5efe6', 0.24)
+    const ambient = new THREE.AmbientLight('#ffe8d2', 0.28)
     scene.add(ambient)
 
-    const sunLight = new THREE.DirectionalLight('#ffe4be', 2.15)
-    sunLight.position.set(76, 48, 44)
+    const sunLight = new THREE.DirectionalLight('#ffb978', 1.75)
+    sunLight.position.set(78, 26, 48)
     if (cfg.shadows) {
       sunLight.castShadow = true
       sunLight.shadow.mapSize.set(cfg.shadowMapSize, cfg.shadowMapSize)
@@ -238,20 +235,21 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
       terrain.update(t)
       skyMat.uniforms.uTime.value = t
 
-      const camX = -10 + Math.sin(t * 0.065) * 14
-      const camZ = 40 + Math.cos(t * 0.05) * 6
-      const lookX = 6 + Math.sin(t * 0.04) * 6
-      const lookZ = -32
+      const orbit = t * 0.045
+      const camX = Math.sin(orbit) * 44
+      const camZ = Math.cos(orbit) * 44
+      const lookX = Math.sin(orbit + 0.7) * 14
+      const lookZ = Math.cos(orbit + 0.7) * 14
 
-      // Keep camera safely above the meadow looking out across the hero tree & mountain ridge
+      // Keep camera safely above hills and water at all times
       const groundAtCam = terrain.getHeightAt(camX, camZ)
       const groundAtLook = terrain.getHeightAt(lookX, lookZ)
-      const targetCamY = Math.max(20, groundAtCam + 6.0)
-      const targetLookY = Math.max(19, groundAtLook * 0.55 + 10)
+      const targetCamY = Math.max(19.5 + Math.sin(t * 0.16) * 1.5, groundAtCam + 8.5)
+      const targetLookY = Math.max(12.5, groundAtLook + 3.5)
       smoothCamY += (targetCamY - smoothCamY) * 0.06
       smoothLookY += (targetLookY - smoothLookY) * 0.06
 
-      camera.position.set(camX, Math.max(smoothCamY, groundAtCam + 5.0), camZ)
+      camera.position.set(camX, Math.max(smoothCamY, groundAtCam + 6.5), camZ)
       camera.lookAt(lookX, smoothLookY, lookZ)
 
       if (composer) {
@@ -281,6 +279,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     <div
       ref={containerRef}
       className="fixed inset-0 z-0 pointer-events-none"
+      style={{ filter: 'blur(2.5px)', transform: 'scale(1.015)' }}
       aria-hidden="true"
     />
   )
