@@ -231,7 +231,7 @@ export function PlayerModel3D({
         faceGeo.computeVertexNormals()
 
         const faceMesh = new THREE.Mesh(faceGeo, faceMat)
-        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.08, headBox.max.z + 0.005)
+        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.03, headBox.max.z + 0.005)
 
         const attachParent = headTarget || headMesh || model
         attachParent.updateMatrixWorld(true)
