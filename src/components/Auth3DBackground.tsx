@@ -279,6 +279,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
     <div
       ref={containerRef}
       className="fixed inset-0 z-0 pointer-events-none"
+      style={{ filter: 'blur(2.5px)', transform: 'scale(1.015)' }}
       aria-hidden="true"
     />
   )
