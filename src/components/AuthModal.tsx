@@ -124,25 +124,16 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
 
       {/* Frosted Glass Card with Top Specular Edge */}
       <div className="w-full max-w-[460px] relative z-10 rounded-3xl bg-[#0e0e12]/70 backdrop-blur-2xl border border-white/[0.08] shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-7 md:p-8 overflow-hidden">
-        {/* Hand-Drawn Ink & Wash Sunny Cozy Forest Backdrop */}
+        {/* Firewatch-Style Layered Paper-Cut Sunset Forest Backdrop */}
         <div
           className="absolute inset-0 pointer-events-none overflow-hidden"
           style={{
             maskImage:
-              'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 62%, rgba(0,0,0,0.5) 88%, rgba(0,0,0,0.22) 100%)',
+              'linear-gradient(to bottom, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.92) 70%, rgba(0,0,0,0.65) 100%)',
             WebkitMaskImage:
-              'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 62%, rgba(0,0,0,0.5) 88%, rgba(0,0,0,0.22) 100%)',
+              'linear-gradient(to bottom, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.92) 70%, rgba(0,0,0,0.65) 100%)',
           }}
         >
-          {/* Warm Sunlit Sky Wash */}
-          <div
-            className="absolute -top-14 right-0 size-72 rounded-full"
-            style={{
-              background:
-                'radial-gradient(circle, rgba(255,216,148,0.24) 0%, rgba(255,180,110,0.09) 48%, transparent 74%)',
-            }}
-          />
-
           <svg
             viewBox="0 0 460 560"
             className="w-full h-full"
@@ -150,130 +141,121 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
             aria-hidden="true"
           >
             <defs>
-              {/* Subtle organic pencil/ink paper wobble */}
-              <filter id="novelo-sketch" x="-5%" y="-5%" width="110%" height="110%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" result="noise" />
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.4" xChannelSelector="R" yChannelSelector="G" />
+              {/* Atmospheric sunset sky wash */}
+              <linearGradient id="fw-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f5b887" stopOpacity="0.22" />
+                <stop offset="38%" stopColor="#d98779" stopOpacity="0.16" />
+                <stop offset="75%" stopColor="#35443a" stopOpacity="0.12" />
+                <stop offset="100%" stopColor="#0d120f" stopOpacity="0.3" />
+              </linearGradient>
+              <radialGradient id="fw-sun-glow" cx="78%" cy="13%" r="48%">
+                <stop offset="0%" stopColor="#fff0cc" stopOpacity="0.65" />
+                <stop offset="28%" stopColor="#ffc585" stopOpacity="0.28" />
+                <stop offset="68%" stopColor="#e88d67" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#e88d67" stopOpacity="0" />
+              </radialGradient>
+              <linearGradient id="fw-ray" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ffe4b5" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#ffe4b5" stopOpacity="0" />
+              </linearGradient>
+
+              {/* 5 Depth-Layered Atmospheric Silhouettes (far -> near) */}
+              <linearGradient id="fw-layer-1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#c49389" stopOpacity="0.45" />
+                <stop offset="100%" stopColor="#6b5862" stopOpacity="0.22" />
+              </linearGradient>
+              <linearGradient id="fw-layer-2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#758f6e" stopOpacity="0.52" />
+                <stop offset="100%" stopColor="#344537" stopOpacity="0.34" />
+              </linearGradient>
+              <linearGradient id="fw-layer-3" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#4c6b46" stopOpacity="0.68" />
+                <stop offset="100%" stopColor="#223322" stopOpacity="0.52" />
+              </linearGradient>
+              <linearGradient id="fw-layer-4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#2f4a2c" stopOpacity="0.82" />
+                <stop offset="100%" stopColor="#142114" stopOpacity="0.72" />
+              </linearGradient>
+              <linearGradient id="fw-layer-5" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#162415" stopOpacity="0.92" />
+                <stop offset="100%" stopColor="#0a100a" stopOpacity="0.95" />
+              </linearGradient>
+
+              {/* Soft paper-grain texture */}
+              <filter id="fw-grain" x="0%" y="0%" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+                <feColorMatrix type="saturate" values="0" />
               </filter>
-              <linearGradient id="novelo-wash-hill1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#9ec87d" stopOpacity="0.22" />
-                <stop offset="100%" stopColor="#354f2b" stopOpacity="0.06" />
-              </linearGradient>
-              <linearGradient id="novelo-wash-hill2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#81b462" stopOpacity="0.28" />
-                <stop offset="100%" stopColor="#263b1e" stopOpacity="0.08" />
-              </linearGradient>
-              <linearGradient id="novelo-wash-hill3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6ea350" stopOpacity="0.32" />
-                <stop offset="100%" stopColor="#1b2b15" stopOpacity="0.05" />
-              </linearGradient>
             </defs>
 
-            <g filter="url(#novelo-sketch)" strokeLinecap="round" strokeLinejoin="round">
-              {/* Hand-Drawn Sun & Sketchy Rays */}
-              <g transform="translate(374, 58)">
-                <circle cx="0" cy="0" r="24" fill="#ffe4b5" fillOpacity="0.26" stroke="#ffdfa6" strokeWidth="1.5" strokeOpacity="0.65" />
-                <circle cx="0" cy="0" r="15" fill="#fff0cf" fillOpacity="0.32" />
-                <g stroke="#ffdfa6" strokeWidth="1.35" strokeOpacity="0.52">
-                  <path d="M-34 -2 Q-42 -3 -48 -1" />
-                  <path d="M-28 20 Q-37 26 -44 33" />
-                  <path d="M-12 32 Q-16 42 -19 50" />
-                  <path d="M12 32 Q16 41 19 48" />
-                  <path d="M29 19 Q38 25 45 30" />
-                  <path d="M-29 -21 Q-37 -27 -44 -32" />
-                  <path d="M-10 -33 Q-13 -42 -15 -49" />
-                  <path d="M14 -32 Q18 -40 22 -46" />
-                </g>
-              </g>
+            {/* Sky & Glowing Sunset Sun */}
+            <rect width="460" height="560" fill="url(#fw-sky)" />
+            <rect width="460" height="560" fill="url(#fw-sun-glow)" />
 
-              {/* Sketchy Storybook Clouds */}
-              <g fill="#ffedd4" fillOpacity="0.1" stroke="#ffe5c2" strokeWidth="1.3" strokeOpacity="0.42">
-                <path d="M26 56 C26 44, 42 36, 54 42 C60 28, 82 26, 92 38 C106 34, 120 42, 118 54 C126 58, 122 66, 108 66 L34 66 C22 66, 20 58, 26 56 Z" />
-                <path d="M220 42 C222 33, 236 28, 246 34 C254 24, 272 24, 278 35 C288 33, 298 40, 294 48 L224 48 Z" />
-              </g>
+            {/* Soft Volumetric Sunbeams */}
+            <polygon points="362,72 60,310 155,340" fill="url(#fw-ray)" />
+            <polygon points="362,72 195,355 295,375" fill="url(#fw-ray)" />
 
-              {/* Distant Rolling Hills */}
-              <path
-                d="M-8 238 Q95 190 212 222 T468 208 L468 560 L-8 560 Z"
-                fill="url(#novelo-wash-hill1)"
-                stroke="#b7de99"
-                strokeWidth="1.4"
-                strokeOpacity="0.38"
-              />
+            {/* Glowing Sun Disc */}
+            <circle cx="362" cy="72" r="34" fill="#ffe0aa" fillOpacity="0.24" />
+            <circle cx="362" cy="72" r="20" fill="#ffefd1" fillOpacity="0.55" />
+            <circle cx="362" cy="72" r="12" fill="#fff8e8" fillOpacity="0.88" />
 
-              {/* Midground Hand-Sketched Pine & Leafy Oak Trees */}
-              <g fill="#9ed17f" fillOpacity="0.2" stroke="#c3e8a6" strokeWidth="1.35" strokeOpacity="0.46">
-                {/* Left cluster */}
-                <path d="M16 254 Q26 218 32 184 Q40 218 50 254 Q34 250 16 254 Z" />
-                <path d="M21 224 Q29 196 32 172 Q37 196 45 224" fill="none" />
-                <path d="M32 252 L32 272" fill="none" />
+            {/* Layer 1: Distant Misty Mountain Ridge */}
+            <path
+              d="M0 202 L58 174 L118 194 L182 158 L248 188 L322 152 L392 180 L460 162 L460 560 L0 560 Z"
+              fill="url(#fw-layer-1)"
+            />
 
-                <path d="M48 262 Q60 214 68 168 Q78 214 90 262 Q70 256 48 262 Z" />
-                <path d="M54 226 Q64 190 68 156 Q74 190 84 226" fill="none" />
-                <path d="M68 260 L68 282" fill="none" />
-
-                {/* Left leafy oak */}
-                <path d="M84 228 C76 214, 88 196, 104 200 C112 186, 134 188, 138 204 C152 204, 158 222, 146 232 C136 240, 94 240, 84 228 Z" />
-                <path d="M114 236 L114 268 M114 248 L104 238 M114 244 L126 236" fill="none" />
-
-                {/* Right cluster */}
-                <path d="M332 254 Q344 210 352 168 Q362 210 374 254 Q354 248 332 254 Z" />
-                <path d="M338 220 Q347 186 352 154 Q358 186 368 220" fill="none" />
-                <path d="M352 252 L352 276" fill="none" />
-
-                <path d="M372 248 Q382 212 390 180 Q400 212 410 248 Q392 244 372 248 Z" />
-                <path d="M390 246 L390 268" fill="none" />
-
-                {/* Right leafy oak */}
-                <path d="M402 224 C394 208, 408 190, 424 194 C434 180, 454 184, 458 202 C466 208, 464 226, 450 232 C438 236, 410 236, 402 224 Z" />
-                <path d="M432 232 L432 266 M432 244 L420 234" fill="none" />
-              </g>
-
-              {/* Rolling Midground & Foreground Meadow Slopes */}
-              <path
-                d="M-8 292 Q132 256 264 286 T468 272 L468 560 L-8 560 Z"
-                fill="url(#novelo-wash-hill2)"
-                stroke="#a5d384"
-                strokeWidth="1.3"
-                strokeOpacity="0.34"
-              />
-              <path
-                d="M-8 386 Q128 354 268 382 T468 370 L468 560 L-8 560 Z"
-                fill="url(#novelo-wash-hill3)"
-                stroke="#8ec26d"
-                strokeWidth="1.25"
-                strokeOpacity="0.32"
-              />
-
-              {/* Foreground Framing Pines & Meadow Grass Tufts */}
-              <g fill="#7fb862" fillOpacity="0.22" stroke="#a8d88a" strokeWidth="1.4" strokeOpacity="0.45">
-                <path d="M-6 410 Q12 356 22 310 Q34 356 48 410 Z" />
-                <path d="M412 412 Q428 352 438 302 Q450 352 466 412 Z" />
-                {/* Sketchy grass & wildflower tufts */}
-                <path d="M48 420 Q44 406 38 400 M48 420 Q50 404 52 396 M48 420 Q56 408 62 402" fill="none" />
-                <path d="M376 426 Q372 412 366 406 M376 426 Q378 410 380 402 M376 426 Q384 414 390 408" fill="none" />
-                <path d="M180 498 Q176 486 172 480 M180 498 Q182 484 184 476 M180 498 Q188 488 192 482" fill="none" />
-                <path d="M310 506 Q306 494 302 488 M310 506 Q312 492 314 484" fill="none" />
-              </g>
+            {/* Layer 2: Hazy Pine Ridge with Soft Forest Crest */}
+            <path
+              d="M0 232 Q74 202 146 226 Q220 198 296 220 Q378 192 460 214 L460 560 L0 560 Z"
+              fill="url(#fw-layer-2)"
+            />
+            <g fill="url(#fw-layer-2)">
+              <path d="M18 226 L28 192 L38 226 Z M34 224 L46 186 L58 224 Z M344 210 L356 174 L368 210 Z M366 208 L378 178 L390 208 Z M408 212 L422 170 L436 212 Z" />
             </g>
 
-            {/* Warm Sunlit Fireflies / Pollen Specks */}
-            <g fill="#fff0c9">
-              <circle cx="88" cy="112" r="1.5" opacity="0.65" />
-              <circle cx="144" cy="74" r="1.1" opacity="0.5" />
-              <circle cx="298" cy="108" r="1.3" opacity="0.6" />
-              <circle cx="418" cy="136" r="1.4" opacity="0.6" />
-              <circle cx="34" cy="322" r="1.3" opacity="0.55" />
-              <circle cx="426" cy="340" r="1.4" opacity="0.55" />
+            {/* Layer 3: Midground Rolling Forest Hills & Pine Silhouettes */}
+            <path
+              d="M0 284 Q112 248 228 278 T460 256 L460 560 L0 560 Z"
+              fill="url(#fw-layer-3)"
+            />
+            <g fill="url(#fw-layer-3)">
+              <path d="M8 282 L22 232 L36 282 Z M32 278 L48 220 L64 278 Z M58 274 L72 236 L86 274 Z" />
+              <path d="M312 272 L326 228 L340 272 Z M336 270 L354 212 L372 270 Z M368 266 L384 224 L400 266 Z M404 262 L424 208 L444 262 Z" />
             </g>
+
+            {/* Layer 4: Closer Lush Treeline & Meadow Valley */}
+            <path
+              d="M0 366 Q130 332 252 358 T460 342 L460 560 L0 560 Z"
+              fill="url(#fw-layer-4)"
+            />
+            <g fill="url(#fw-layer-4)">
+              <path d="M-8 368 L14 294 L36 368 Z M26 364 L46 306 L66 364 Z" />
+              <path d="M388 352 L410 288 L432 352 Z M420 350 L444 276 L468 350 Z" />
+            </g>
+
+            {/* Layer 5: Deep Foreground Pine Framing (Bottom Corners) */}
+            <path
+              d="M0 448 Q125 426 240 448 T460 436 L460 560 L0 560 Z"
+              fill="url(#fw-layer-5)"
+            />
+            <g fill="url(#fw-layer-5)">
+              <path d="M-10 462 L18 362 L46 462 Z M24 468 L48 390 L72 468 Z" />
+              <path d="M396 456 L422 374 L448 456 Z M428 460 L456 356 L484 460 Z" />
+            </g>
+
+            {/* Subtle Tactile Paper Grain */}
+            <rect width="460" height="560" filter="url(#fw-grain)" opacity="0.045" />
           </svg>
 
-          {/* Soft center readability scrim so form text stays crisp over the sketch */}
+          {/* Soft center readability scrim so form text stays crisp over the layers */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(ellipse 78% 58% at 50% 56%, rgba(10,11,15,0.68) 0%, rgba(10,11,15,0.28) 72%, transparent 100%)',
+                'radial-gradient(ellipse 80% 56% at 50% 56%, rgba(10,11,15,0.52) 0%, rgba(10,11,15,0.18) 74%, transparent 100%)',
             }}
           />
         </div>
