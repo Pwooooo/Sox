@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface FriendItem {
   id: string
@@ -10,40 +11,7 @@ interface FriendItem {
   avatarUrl?: string
 }
 
-const FRIENDS_DATA: FriendItem[] = [
-  {
-    id: 'f-1',
-    name: 'Carro',
-    avatarBg: '#1f2024',
-    headColor: '#fcd34d',
-    shirtColor: '#3b82f6',
-    hat: 'boat',
-  },
-  {
-    id: 'f-2',
-    name: 'dev',
-    avatarBg: '#1f2024',
-    headColor: '#18181b',
-    shirtColor: '#166534',
-    hat: 'horns',
-  },
-  {
-    id: 'f-3',
-    name: 'Krampus',
-    avatarBg: '#1f2024',
-    headColor: '#9ca3af',
-    shirtColor: '#6b7280',
-    hat: 'none',
-  },
-  {
-    id: 'f-4',
-    name: 'Krampus',
-    avatarBg: '#1f2024',
-    headColor: '#facc15',
-    shirtColor: '#eab308',
-    hat: 'none',
-  },
-]
+const FRIENDS_DATA: FriendItem[] = []
 
 export function FriendsHeader({ username = 'Sky' }: { username?: string }) {
   // Determine greeting based on local hour
@@ -54,25 +22,9 @@ export function FriendsHeader({ username = 'Sky' }: { username?: string }) {
     <div className="flex flex-col gap-4">
       {/* Top Profile Avatar & Greeting */}
       <div className="flex items-center gap-4">
-        {/* User Circular Headshot Avatar matching Screenshot 5 */}
+        {/* User Circular Headshot Avatar */}
         <div className="size-14 md:size-16 rounded-full bg-[#181818] border border-white/10 flex items-center justify-center overflow-hidden shrink-0 shadow-md">
-          {/* Blocky avatar illustration with collar / bow */}
-          <div className="relative size-10 md:size-11 flex flex-col items-center">
-            {/* Head */}
-            <div className="size-8 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm">
-              {/* Eyes */}
-              <div className="flex gap-2 mb-0.5">
-                <div className="size-1 rounded-full bg-black" />
-                <div className="size-1 rounded-full bg-black" />
-              </div>
-              {/* Smile */}
-              <div className="w-2.5 h-1 border-b-[1.5px] border-black rounded-b-full" />
-            </div>
-            {/* Neck / Collar */}
-            <div className="w-10 h-3 bg-neutral-900 -mt-0.5 rounded-b flex items-center justify-center">
-              <div className="w-2 h-1.5 bg-white/40 rounded-sm" />
-            </div>
-          </div>
+          <PlayerModel3D mode="headshot" className="w-full h-full" />
         </div>
 
         {/* Greeting Text */}
