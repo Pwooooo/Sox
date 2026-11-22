@@ -124,137 +124,158 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
 
       {/* Frosted Glass Card with Top Specular Edge */}
       <div className="w-full max-w-[460px] relative z-10 rounded-3xl bg-[#0e0e12]/70 backdrop-blur-2xl border border-white/[0.08] shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-7 md:p-8 overflow-hidden">
-        {/* Halftone Sunny Cozy Forest Header & Mid-Card Texture */}
+        {/* Hand-Drawn Ink & Wash Sunny Cozy Forest Backdrop */}
         <div
-          className="absolute inset-x-0 top-0 h-[85%] pointer-events-none overflow-hidden"
+          className="absolute inset-0 pointer-events-none overflow-hidden"
           style={{
             maskImage:
-              'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 55%, rgba(0,0,0,0.45) 80%, transparent 100%)',
+              'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 62%, rgba(0,0,0,0.5) 88%, rgba(0,0,0,0.22) 100%)',
             WebkitMaskImage:
-              'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 55%, rgba(0,0,0,0.45) 80%, transparent 100%)',
+              'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 62%, rgba(0,0,0,0.5) 88%, rgba(0,0,0,0.22) 100%)',
           }}
         >
-          {/* Warm Sun Glow */}
+          {/* Warm Sunlit Sky Wash */}
           <div
-            className="absolute -top-12 right-2 size-64 rounded-full"
+            className="absolute -top-14 right-0 size-72 rounded-full"
             style={{
               background:
-                'radial-gradient(circle, rgba(255,214,145,0.34) 0%, rgba(255,180,110,0.14) 48%, transparent 74%)',
+                'radial-gradient(circle, rgba(255,216,148,0.24) 0%, rgba(255,180,110,0.09) 48%, transparent 74%)',
             }}
           />
-          {/* Dotted Halftone Sun, Sunbeams, Clouds & Layered Forest Silhouette */}
+
           <svg
-            viewBox="0 0 460 460"
+            viewBox="0 0 460 560"
             className="w-full h-full"
-            preserveAspectRatio="xMidYMin slice"
+            preserveAspectRatio="xMidYMid slice"
             aria-hidden="true"
           >
             <defs>
-              <pattern id="novelo-halftone" width="5" height="5" patternUnits="userSpaceOnUse">
-                <circle cx="2.2" cy="2.2" r="1.35" fill="currentColor" />
-              </pattern>
-              <mask id="novelo-dot-mask">
-                <rect width="460" height="460" fill="url(#novelo-halftone)" className="text-white" />
-              </mask>
-              <linearGradient id="novelo-sun-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#ffebb8" stopOpacity="1" />
-                <stop offset="100%" stopColor="#f5a566" stopOpacity="0.45" />
+              {/* Subtle organic pencil/ink paper wobble */}
+              <filter id="novelo-sketch" x="-5%" y="-5%" width="110%" height="110%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.4" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+              <linearGradient id="novelo-wash-hill1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#9ec87d" stopOpacity="0.22" />
+                <stop offset="100%" stopColor="#354f2b" stopOpacity="0.06" />
               </linearGradient>
-              <linearGradient id="novelo-beam-grad" x1="1" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#ffe5b4" stopOpacity="0.32" />
-                <stop offset="100%" stopColor="#ffe5b4" stopOpacity="0" />
+              <linearGradient id="novelo-wash-hill2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#81b462" stopOpacity="0.28" />
+                <stop offset="100%" stopColor="#263b1e" stopOpacity="0.08" />
               </linearGradient>
-              <linearGradient id="novelo-hill-back" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#b0db95" stopOpacity="0.58" />
-                <stop offset="100%" stopColor="#405d34" stopOpacity="0.16" />
-              </linearGradient>
-              <linearGradient id="novelo-hill-mid" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#94c973" stopOpacity="0.68" />
-                <stop offset="100%" stopColor="#314a27" stopOpacity="0.18" />
-              </linearGradient>
-              <linearGradient id="novelo-hill-front" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#7db85e" stopOpacity="0.72" />
-                <stop offset="100%" stopColor="#23361c" stopOpacity="0.08" />
+              <linearGradient id="novelo-wash-hill3" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#6ea350" stopOpacity="0.32" />
+                <stop offset="100%" stopColor="#1b2b15" stopOpacity="0.05" />
               </linearGradient>
             </defs>
 
-            <g mask="url(#novelo-dot-mask)">
-              {/* Diagonal Warm Sunbeams */}
-              <polygon points="366,54 110,270 195,305" fill="url(#novelo-beam-grad)" />
-              <polygon points="366,54 220,315 315,335" fill="url(#novelo-beam-grad)" />
-
-              {/* Halftone Sky & Sun Halo */}
-              <circle cx="366" cy="54" r="76" fill="url(#novelo-sun-grad)" opacity="0.36" />
-              <circle cx="366" cy="54" r="42" fill="url(#novelo-sun-grad)" opacity="0.6" />
-              <circle cx="366" cy="54" r="20" fill="#fff4da" opacity="0.95" />
-
-              {/* Soft Dotted Cloud Wisps */}
-              <path
-                d="M28 54 Q48 32 74 44 Q98 26 124 44 Q146 40 152 56 L22 56 Z"
-                fill="#ffeed6"
-                opacity="0.34"
-              />
-              <path
-                d="M214 38 Q232 22 254 32 Q272 18 292 34 L210 40 Z"
-                fill="#ffeed6"
-                opacity="0.28"
-              />
-
-              {/* Distant Rolling Meadow Ridge */}
-              <path
-                d="M0 205 Q96 154 205 186 T390 168 T460 185 L460 460 L0 460 Z"
-                fill="url(#novelo-hill-back)"
-              />
-
-              {/* Midground Forest Tree Line */}
-              <g fill="#b8e39a" opacity="0.56">
-                <path d="M12 248 L30 172 L48 248 Z M16 216 L30 156 L44 216 Z" />
-                <path d="M46 254 L66 164 L86 254 Z M51 218 L66 146 L81 218 Z" />
-                <path d="M84 256 L100 188 L116 256 Z" />
-                <circle cx="136" cy="206" r="22" />
-                <circle cx="158" cy="214" r="17" />
-                <circle cx="290" cy="218" r="16" />
-                <path d="M312 252 L328 180 L344 252 Z" />
-                <path d="M342 256 L362 160 L382 256 Z M347 218 L362 142 L377 218 Z" />
-                <path d="M382 250 L400 174 L418 250 Z" />
-                <circle cx="428" cy="202" r="24" />
-                <circle cx="448" cy="214" r="18" />
+            <g filter="url(#novelo-sketch)" strokeLinecap="round" strokeLinejoin="round">
+              {/* Hand-Drawn Sun & Sketchy Rays */}
+              <g transform="translate(374, 58)">
+                <circle cx="0" cy="0" r="24" fill="#ffe4b5" fillOpacity="0.26" stroke="#ffdfa6" strokeWidth="1.5" strokeOpacity="0.65" />
+                <circle cx="0" cy="0" r="15" fill="#fff0cf" fillOpacity="0.32" />
+                <g stroke="#ffdfa6" strokeWidth="1.35" strokeOpacity="0.52">
+                  <path d="M-34 -2 Q-42 -3 -48 -1" />
+                  <path d="M-28 20 Q-37 26 -44 33" />
+                  <path d="M-12 32 Q-16 42 -19 50" />
+                  <path d="M12 32 Q16 41 19 48" />
+                  <path d="M29 19 Q38 25 45 30" />
+                  <path d="M-29 -21 Q-37 -27 -44 -32" />
+                  <path d="M-10 -33 Q-13 -42 -15 -49" />
+                  <path d="M14 -32 Q18 -40 22 -46" />
+                </g>
               </g>
 
-              {/* Midground Slope */}
-              <path
-                d="M0 242 Q125 204 248 232 T460 220 L460 460 L0 460 Z"
-                fill="url(#novelo-hill-mid)"
-              />
-
-              {/* Foreground Cozy Pines & Sunlit Meadow */}
-              <g fill="#90cc6e" opacity="0.62">
-                <path d="M-4 328 L18 236 L40 328 Z M2 288 L18 214 L34 288 Z" />
-                <path d="M38 334 L56 260 L74 334 Z" />
-                <path d="M386 332 L406 248 L426 332 Z" />
-                <path d="M416 336 L440 232 L464 336 Z M422 292 L440 212 L458 292 Z" />
+              {/* Sketchy Storybook Clouds */}
+              <g fill="#ffedd4" fillOpacity="0.1" stroke="#ffe5c2" strokeWidth="1.3" strokeOpacity="0.42">
+                <path d="M26 56 C26 44, 42 36, 54 42 C60 28, 82 26, 92 38 C106 34, 120 42, 118 54 C126 58, 122 66, 108 66 L34 66 C22 66, 20 58, 26 56 Z" />
+                <path d="M220 42 C222 33, 236 28, 246 34 C254 24, 272 24, 278 35 C288 33, 298 40, 294 48 L224 48 Z" />
               </g>
 
+              {/* Distant Rolling Hills */}
               <path
-                d="M0 306 Q140 276 260 298 T460 288 L460 460 L0 460 Z"
-                fill="url(#novelo-hill-front)"
+                d="M-8 238 Q95 190 212 222 T468 208 L468 560 L-8 560 Z"
+                fill="url(#novelo-wash-hill1)"
+                stroke="#b7de99"
+                strokeWidth="1.4"
+                strokeOpacity="0.38"
               />
+
+              {/* Midground Hand-Sketched Pine & Leafy Oak Trees */}
+              <g fill="#9ed17f" fillOpacity="0.2" stroke="#c3e8a6" strokeWidth="1.35" strokeOpacity="0.46">
+                {/* Left cluster */}
+                <path d="M16 254 Q26 218 32 184 Q40 218 50 254 Q34 250 16 254 Z" />
+                <path d="M21 224 Q29 196 32 172 Q37 196 45 224" fill="none" />
+                <path d="M32 252 L32 272" fill="none" />
+
+                <path d="M48 262 Q60 214 68 168 Q78 214 90 262 Q70 256 48 262 Z" />
+                <path d="M54 226 Q64 190 68 156 Q74 190 84 226" fill="none" />
+                <path d="M68 260 L68 282" fill="none" />
+
+                {/* Left leafy oak */}
+                <path d="M84 228 C76 214, 88 196, 104 200 C112 186, 134 188, 138 204 C152 204, 158 222, 146 232 C136 240, 94 240, 84 228 Z" />
+                <path d="M114 236 L114 268 M114 248 L104 238 M114 244 L126 236" fill="none" />
+
+                {/* Right cluster */}
+                <path d="M332 254 Q344 210 352 168 Q362 210 374 254 Q354 248 332 254 Z" />
+                <path d="M338 220 Q347 186 352 154 Q358 186 368 220" fill="none" />
+                <path d="M352 252 L352 276" fill="none" />
+
+                <path d="M372 248 Q382 212 390 180 Q400 212 410 248 Q392 244 372 248 Z" />
+                <path d="M390 246 L390 268" fill="none" />
+
+                {/* Right leafy oak */}
+                <path d="M402 224 C394 208, 408 190, 424 194 C434 180, 454 184, 458 202 C466 208, 464 226, 450 232 C438 236, 410 236, 402 224 Z" />
+                <path d="M432 232 L432 266 M432 244 L420 234" fill="none" />
+              </g>
+
+              {/* Rolling Midground & Foreground Meadow Slopes */}
+              <path
+                d="M-8 292 Q132 256 264 286 T468 272 L468 560 L-8 560 Z"
+                fill="url(#novelo-wash-hill2)"
+                stroke="#a5d384"
+                strokeWidth="1.3"
+                strokeOpacity="0.34"
+              />
+              <path
+                d="M-8 386 Q128 354 268 382 T468 370 L468 560 L-8 560 Z"
+                fill="url(#novelo-wash-hill3)"
+                stroke="#8ec26d"
+                strokeWidth="1.25"
+                strokeOpacity="0.32"
+              />
+
+              {/* Foreground Framing Pines & Meadow Grass Tufts */}
+              <g fill="#7fb862" fillOpacity="0.22" stroke="#a8d88a" strokeWidth="1.4" strokeOpacity="0.45">
+                <path d="M-6 410 Q12 356 22 310 Q34 356 48 410 Z" />
+                <path d="M412 412 Q428 352 438 302 Q450 352 466 412 Z" />
+                {/* Sketchy grass & wildflower tufts */}
+                <path d="M48 420 Q44 406 38 400 M48 420 Q50 404 52 396 M48 420 Q56 408 62 402" fill="none" />
+                <path d="M376 426 Q372 412 366 406 M376 426 Q378 410 380 402 M376 426 Q384 414 390 408" fill="none" />
+                <path d="M180 498 Q176 486 172 480 M180 498 Q182 484 184 476 M180 498 Q188 488 192 482" fill="none" />
+                <path d="M310 506 Q306 494 302 488 M310 506 Q312 492 314 484" fill="none" />
+              </g>
             </g>
 
-            {/* Subtle Sunlit Pollen / Firefly Sparkles */}
-            <g fill="#fff0cc">
-              <circle cx="72" cy="82" r="1.4" opacity="0.7" />
-              <circle cx="128" cy="48" r="1.1" opacity="0.55" />
-              <circle cx="176" cy="112" r="1.3" opacity="0.6" />
-              <circle cx="272" cy="158" r="1.2" opacity="0.55" />
-              <circle cx="312" cy="96" r="1.3" opacity="0.65" />
-              <circle cx="332" cy="36" r="1.1" opacity="0.55" />
-              <circle cx="412" cy="108" r="1.4" opacity="0.7" />
-              <circle cx="430" cy="46" r="1.1" opacity="0.5" />
-              <circle cx="104" cy="264" r="1.2" opacity="0.5" />
-              <circle cx="356" cy="276" r="1.3" opacity="0.55" />
+            {/* Warm Sunlit Fireflies / Pollen Specks */}
+            <g fill="#fff0c9">
+              <circle cx="88" cy="112" r="1.5" opacity="0.65" />
+              <circle cx="144" cy="74" r="1.1" opacity="0.5" />
+              <circle cx="298" cy="108" r="1.3" opacity="0.6" />
+              <circle cx="418" cy="136" r="1.4" opacity="0.6" />
+              <circle cx="34" cy="322" r="1.3" opacity="0.55" />
+              <circle cx="426" cy="340" r="1.4" opacity="0.55" />
             </g>
           </svg>
+
+          {/* Soft center readability scrim so form text stays crisp over the sketch */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse 78% 58% at 50% 56%, rgba(10,11,15,0.68) 0%, rgba(10,11,15,0.28) 72%, transparent 100%)',
+            }}
+          />
         </div>
 
         <div
@@ -302,28 +323,28 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
           {activeTab === 'register' ? (
             <>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/80">Birthday</label>
+                <label className="text-xs font-semibold text-white/90">Birthday</label>
                 <div className="relative">
-                  <Calendar className="size-3.5 text-white/35 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Calendar className="size-3.5 text-white/55 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="date"
                     required
                     value={birthday}
                     max={new Date().toISOString().split('T')[0]}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.07] text-xs text-white focus:outline-none focus:border-white/25 focus:bg-white/[0.07] transition-all [color-scheme:dark]"
+                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all [color-scheme:dark]"
                   />
                 </div>
-                <span className="text-[11px] text-white/40">
+                <span className="text-[11px] text-white/65">
                   You must be at least 13 years old.
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-white/80">Username</label>
+                  <label className="text-xs font-semibold text-white/90">Username</label>
                   <div className="relative">
-                    <User className="size-3.5 text-white/35 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <User className="size-3.5 text-white/55 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="text"
                       required
@@ -332,31 +353,31 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Preferred username"
-                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.07] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 focus:bg-white/[0.07] transition-all"
+                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-white/80">Email</label>
+                  <label className="text-xs font-semibold text-white/90">Email</label>
                   <div className="relative">
-                    <Mail className="size-3.5 text-white/35 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Mail className="size-3.5 text-white/55 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.07] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 focus:bg-white/[0.07] transition-all"
+                      className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
                     />
                   </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/80">Password</label>
+                <label className="text-xs font-semibold text-white/90">Password</label>
                 <div className="relative">
-                  <Lock className="size-3.5 text-white/35 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Lock className="size-3.5 text-white/55 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
@@ -364,12 +385,12 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.07] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 focus:bg-white/[0.07] transition-all"
+                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
+                    className="size-8 rounded-lg flex items-center justify-center text-white/55 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -381,12 +402,12 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
                     <div
                       key={seg}
                       className={`h-[3px] rounded-full transition-colors duration-200 ${
-                        strength >= seg ? strengthColors[strength] : 'bg-white/[0.08]'
+                        strength >= seg ? strengthColors[strength] : 'bg-white/[0.12]'
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-[11px] text-white/40">
+                <span className="text-[11px] text-white/65">
                   Must be at least 8 characters long
                 </span>
               </div>
@@ -434,36 +455,36 @@ export function AuthModal({ mode = 'both', onClose }: AuthModalProps) {
           ) : (
             <>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/80">Username or Email</label>
+                <label className="text-xs font-semibold text-white/90">Username or Email</label>
                 <div className="relative">
-                  <User className="size-3.5 text-white/35 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <User className="size-3.5 text-white/55 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="Enter your username or email"
-                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.07] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 focus:bg-white/[0.07] transition-all"
+                    className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/80">Password</label>
+                <label className="text-xs font-semibold text-white/90">Password</label>
                 <div className="relative">
-                  <Lock className="size-3.5 text-white/35 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Lock className="size-3.5 text-white/55 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.07] text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 focus:bg-white/[0.07] transition-all"
+                    className="w-full h-10 pl-9 pr-10 rounded-xl bg-[#0a0b0f]/75 hover:bg-[#0a0b0f]/85 border border-white/[0.12] text-xs text-white placeholder:text-white/45 focus:outline-none focus:border-white/30 focus:bg-[#0a0b0f]/92 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
+                    className="size-8 rounded-lg flex items-center justify-center text-white/55 hover:text-white bg-transparent border-none cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 transition-colors"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
