@@ -3,6 +3,7 @@ import { Sparkles, Check, Save, RotateCw, X, Plus } from 'lucide-react'
 import { ITEMS, Item } from '@/data/items'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { PlayerModel3D, loadSavedBodyColors, saveBodyColors } from '@/components/PlayerModel3D'
+import { useAuth } from '@/lib/auth'
 import {
   loadCreatedClothing,
   loadEquippedClothingIds,
@@ -93,6 +94,9 @@ function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
 }
 
 export function AvatarEditor() {
+  const { user, profile } = useAuth()
+  const currentUsername =
+    profile?.username || (user?.user_metadata?.username as string) || 'Player'
   const [bodyColors, setBodyColors] = useState<BodyColors>(() => (
     loadSavedBodyColors() ?? {
       head: '#eab308',
@@ -254,10 +258,12 @@ export function AvatarEditor() {
     setEquippedClothingIds((prev) => {
       const key =
         item.type === 'Shirt' ? 'shirtId' : item.type === 'Pants' ? 'pantsId' : 'tshirtId'
-      return {
+      const next: EquippedClothingIds = {
         ...prev,
         [key]: prev[key] === item.id ? undefined : item.id,
       }
+      saveEquippedClothingIds(next)
+      return next
     })
   }
 
@@ -724,7 +730,12 @@ export function AvatarEditor() {
                             {cItem.name}
                           </h4>
                           <span className="text-[11px] text-white/50 truncate">
-                            By <span className="text-white/70 font-medium">{cItem.creator}</span>
+                            By{' '}
+                            <span className="text-white/70 font-medium">
+                              {!cItem.creator || cItem.creator === 'JadexDraft1337'
+                                ? currentUsername
+                                : cItem.creator}
+                            </span>
                           </span>
                           <div className="flex items-center gap-1 mt-0.5 text-xs font-bold text-white">
                             {cItem.price === 0 ? (
