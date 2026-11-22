@@ -213,9 +213,9 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
       {/* Create an Item Modal */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative w-full max-w-[840px] rounded-2xl bg-[#151515] border border-white/[0.08] shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
+          <div className="relative w-full max-w-[840px] rounded-2xl bg-[#141414] border border-white/[0.08] shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
             {/* Left Column: Form */}
-            <div className="md:col-span-6 p-6 flex flex-col gap-4 bg-[#151515] border-b md:border-b-0 md:border-r border-white/[0.06]">
+            <div className="md:col-span-6 p-6 flex flex-col gap-4 bg-[#141414] border-b md:border-b-0 md:border-r border-white/[0.06]">
               <h2 className="text-base font-black text-white tracking-tight">Create an item</h2>
 
               {/* Type */}
@@ -226,8 +226,8 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   onChange={setItemType}
                   options={TYPE_OPTIONS}
                   className="w-full"
-                  buttonClassName="w-full justify-between h-9 !bg-[#151515] hover:!bg-[#1c1c1c] !border-white/[0.12] rounded-[8px]"
-                  menuClassName="w-full !bg-[#151515] !border-white/[0.12]"
+                  buttonClassName="w-full justify-between h-9 !bg-[#1c1c1c] hover:!bg-[#222222] !border-white/[0.12] rounded-[8px]"
+                  menuClassName="w-full !bg-[#1c1c1c] !border-white/[0.12]"
                 />
               </div>
 
@@ -238,8 +238,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Classic Novelo Shirt"
-                  className="w-full h-9 px-3 rounded-[8px] bg-[#151515] border border-white/[0.12] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
+                  className="w-full h-9 px-3 rounded-[8px] bg-[#1c1c1c] border border-white/[0.12] text-xs text-white outline-none focus:border-white/30 transition-colors"
                 />
               </div>
 
@@ -250,8 +249,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  placeholder="Optional item description..."
-                  className="w-full p-3 rounded-[8px] bg-[#151515] border border-white/[0.12] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/30 resize-none transition-colors"
+                  className="w-full p-3 rounded-[8px] bg-[#1c1c1c] border border-white/[0.12] text-xs text-white outline-none focus:border-white/30 resize-none transition-colors"
                 />
               </div>
 
@@ -269,7 +267,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     min={0}
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#151515] border border-white/[0.12] text-xs text-white outline-none focus:border-white/30 transition-colors"
+                    className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#1c1c1c] border border-white/[0.12] text-xs text-white outline-none focus:border-white/30 transition-colors"
                   />
                 </div>
               </div>
@@ -302,8 +300,8 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   }}
                   className={`rounded-[8px] border border-dashed p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
                     isDraggingFile
-                      ? 'border-white/35 bg-[#1c1c1c]'
-                      : 'border-white/[0.14] hover:border-white/30 bg-[#151515] hover:bg-[#191919]'
+                      ? 'border-white/35 bg-[#242424]'
+                      : 'border-white/[0.14] hover:border-white/30 bg-[#1c1c1c] hover:bg-[#222222]'
                   }`}
                 >
                   <div className="size-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/70">
