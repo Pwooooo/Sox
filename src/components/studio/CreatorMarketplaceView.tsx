@@ -213,51 +213,51 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
       {/* Create an Item Modal */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative w-full max-w-[840px] rounded-2xl bg-[#18181a] border border-white/[0.08] shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
+          <div className="relative w-full max-w-[840px] rounded-2xl bg-[#151515] border border-white/[0.08] shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
             {/* Left Column: Form */}
-            <div className="md:col-span-6 p-6 flex flex-col gap-4 bg-[#18181a] border-b md:border-b-0 md:border-r border-white/[0.06]">
+            <div className="md:col-span-6 p-6 flex flex-col gap-4 bg-[#151515] border-b md:border-b-0 md:border-r border-white/[0.06]">
               <h2 className="text-base font-black text-white tracking-tight">Create an item</h2>
 
               {/* Type */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/70">Type</label>
+                <label className="text-xs font-semibold text-white/75">Type</label>
                 <CustomDropdown
                   value={itemType}
                   onChange={setItemType}
                   options={TYPE_OPTIONS}
                   className="w-full"
-                  buttonClassName="w-full justify-between h-9 bg-[#111113] hover:bg-[#141416] border-white/[0.08] rounded-[8px]"
-                  menuClassName="w-full bg-[#111113] border-white/[0.08]"
+                  buttonClassName="w-full justify-between h-9 !bg-[#151515] hover:!bg-[#1c1c1c] !border-white/[0.12] rounded-[8px]"
+                  menuClassName="w-full !bg-[#151515] !border-white/[0.12]"
                 />
               </div>
 
               {/* Name */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/70">Name</label>
+                <label className="text-xs font-semibold text-white/75">Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Classic Novelo Shirt"
-                  className="w-full h-9 px-3 rounded-[8px] bg-[#111113] border border-white/[0.08] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/25 transition-colors"
+                  className="w-full h-9 px-3 rounded-[8px] bg-[#151515] border border-white/[0.12] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
                 />
               </div>
 
               {/* Description */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/70">Description</label>
+                <label className="text-xs font-semibold text-white/75">Description</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="Optional item description..."
-                  className="w-full p-3 rounded-[8px] bg-[#111113] border border-white/[0.08] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/25 resize-none transition-colors"
+                  className="w-full p-3 rounded-[8px] bg-[#151515] border border-white/[0.12] text-xs text-white placeholder:text-white/25 outline-none focus:border-white/30 resize-none transition-colors"
                 />
               </div>
 
               {/* Price in Novelo */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/70">Price in Novelo</label>
+                <label className="text-xs font-semibold text-white/75">Price in Novelo</label>
                 <div className="relative flex items-center">
                   <img
                     src="/novelo-currency.png"
@@ -269,14 +269,14 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     min={0}
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#111113] border border-white/[0.08] text-xs text-white outline-none focus:border-white/25 transition-colors"
+                    className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#151515] border border-white/[0.12] text-xs text-white outline-none focus:border-white/30 transition-colors"
                   />
                 </div>
               </div>
 
               {/* Clothing File Dropzone */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/70">Clothing file</label>
+                <label className="text-xs font-semibold text-white/75">Clothing file</label>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -302,8 +302,8 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   }}
                   className={`rounded-[8px] border border-dashed p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
                     isDraggingFile
-                      ? 'border-white/35 bg-[#151518]'
-                      : 'border-white/[0.12] hover:border-white/25 bg-[#111113] hover:bg-[#141416]'
+                      ? 'border-white/35 bg-[#1c1c1c]'
+                      : 'border-white/[0.14] hover:border-white/30 bg-[#151515] hover:bg-[#191919]'
                   }`}
                 >
                   <div className="size-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/70">
@@ -338,7 +338,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                     resetForm()
                     setIsCreateOpen(false)
                   }}
-                  className="h-9 px-4 rounded-[8px] bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.06] text-white/85 hover:text-white text-xs font-bold cursor-pointer transition-colors"
+                  className="h-9 px-4 rounded-[8px] bg-[#262626] hover:bg-[#303030] border border-white/[0.06] text-white/90 hover:text-white text-xs font-bold cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
@@ -354,7 +354,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
             </div>
 
             {/* Right Column: Live 3D Preview */}
-            <div className="md:col-span-6 relative bg-[#111113] min-h-[380px] md:min-h-[480px] flex items-center justify-center">
+            <div className="md:col-span-6 relative bg-[#111111] min-h-[380px] md:min-h-[480px] flex items-center justify-center">
               <button
                 type="button"
                 onClick={() => {
