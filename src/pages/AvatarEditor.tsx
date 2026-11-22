@@ -95,10 +95,6 @@ export function AvatarEditor() {
     }
   ))
 
-  useEffect(() => {
-    saveBodyColors(bodyColors)
-  }, [bodyColors])
-
   const [selectedPart, setSelectedPart] = useState<BodyPart>('torso')
   const [activeTab, setActiveTab] = useState<CategoryTab>('Hats')
   const [equippedIds, setEquippedIds] = useState<number[]>([1, 4])
