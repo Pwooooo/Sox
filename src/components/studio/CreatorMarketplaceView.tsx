@@ -215,7 +215,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="relative w-full max-w-[840px] rounded-2xl bg-[#141414] border border-white/[0.08] shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
             {/* Left Column: Form */}
-            <div className="md:col-span-6 p-6 flex flex-col gap-4 bg-[#141414] border-b md:border-b-0 md:border-r border-white/[0.06]">
+            <div className="md:col-span-6 p-6 flex flex-col gap-4 bg-[#141414]">
               <h2 className="text-base font-black text-white tracking-tight">Create an item</h2>
 
               {/* Type */}
