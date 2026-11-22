@@ -217,9 +217,9 @@ export function PlayerModel3D({
         const hCenter = new THREE.Vector3()
         headBox.getSize(hSize)
         headBox.getCenter(hCenter)
-        const faceSize = Math.min(hSize.x, hSize.y) * 0.96
+        const faceSize = Math.min(hSize.x, hSize.y) * 0.94
         const faceGeo = new THREE.PlaneGeometry(faceSize, faceSize, 16, 1)
-        const cylRadius = Math.max(hSize.z * 0.5 + 0.008, faceSize * 0.55)
+        const cylRadius = hSize.z * 0.5 + 0.005
         const posAttr = faceGeo.getAttribute('position')
         for (let i = 0; i < posAttr.count; i++) {
           const x = posAttr.getX(i)
@@ -230,7 +230,7 @@ export function PlayerModel3D({
         faceGeo.computeVertexNormals()
 
         const faceMesh = new THREE.Mesh(faceGeo, faceMat)
-        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.02, headBox.max.z + 0.008)
+        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.09, headBox.max.z + 0.005)
 
         const attachParent = headTarget || headMesh || model
         attachParent.updateMatrixWorld(true)
