@@ -7,6 +7,7 @@ import {
   type UserProfile,
 } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface ProfileProject {
   id: string
@@ -106,20 +107,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               {/* Circular Avatar with Blue Status Dot */}
               <div className="relative">
                 <div className="size-24 md:size-28 rounded-full bg-[#141416] border-4 border-[#0a0a0a] flex items-center justify-center overflow-hidden shadow-2xl">
-                  {/* Blocky Character Headshot */}
-                  <div className="relative size-16 flex flex-col items-center justify-center">
-                    <div className="size-11 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm">
-                      <div className="flex gap-2.5 mb-0.5">
-                        <div className="size-1 rounded-full bg-black" />
-                        <div className="size-1 rounded-full bg-black" />
-                      </div>
-                      <div className="w-3.5 h-1 border-b-[1.5px] border-black rounded-b-full" />
-                    </div>
-                    {/* Collar & Bow */}
-                    <div className="w-14 h-3 bg-neutral-900 -mt-0.5 rounded-b flex items-center justify-center">
-                      <div className="size-2 bg-neutral-400 rotate-45" />
-                    </div>
-                  </div>
+                  <PlayerModel3D mode="headshot" className="w-full h-full" />
                 </div>
 
                 {/* Blue Online / Verified Dot */}
@@ -213,63 +201,10 @@ export function Profile({ profileId }: { profileId?: number | null }) {
       {activeTab === 'About' && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
           {/* Left Column: 3D Full-Body Character Card */}
-          <div className="md:col-span-4 rounded-2xl bg-[#0f0f12] border border-white/[0.05] p-6 flex flex-col items-center justify-center min-h-[380px] shadow-xl relative overflow-hidden">
+          <div className="md:col-span-4 rounded-2xl bg-[#0f0f12] border border-white/[0.05] p-4 flex flex-col items-center justify-center h-[400px] shadow-xl relative overflow-hidden">
             {/* Ground Ambient Glow */}
-            <div className="absolute bottom-10 w-44 h-8 bg-black/80 rounded-full blur-md" />
-
-            {/* Blocky Character Standing */}
-            <div className="relative flex flex-col items-center transition-transform hover:scale-105 duration-300">
-              {/* Head */}
-              <div className="size-16 rounded-sm bg-white flex flex-col items-center justify-center relative shadow-sm z-10">
-                <div className="flex gap-3 mb-1">
-                  <div className="size-1.5 rounded-full bg-black" />
-                  <div className="size-1.5 rounded-full bg-black" />
-                </div>
-                <div className="w-4 h-1 border-b-2 border-black rounded-b-full" />
-              </div>
-
-              {/* Torso & Uniform with Collar and Buttons */}
-              <div className="flex items-start gap-1 mt-1 z-10">
-                {/* Left Arm */}
-                <div className="w-8 h-24 bg-[#141416] rounded-sm shadow-md" />
-
-                {/* Torso */}
-                <div className="w-20 h-24 bg-[#141416] rounded-sm shadow-md flex flex-col items-center pt-1 relative">
-                  {/* Collar frills */}
-                  <div className="w-16 h-3 bg-white/90 rounded-sm flex items-center justify-center mb-1">
-                    <div className="size-2 bg-neutral-900 rotate-45" />
-                  </div>
-                  {/* Uniform Double Buttons */}
-                  <div className="flex flex-col gap-2 mt-1">
-                    <div className="flex gap-4">
-                      <div className="size-1 rounded-full bg-neutral-400" />
-                      <div className="size-1 rounded-full bg-neutral-400" />
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="size-1 rounded-full bg-neutral-400" />
-                      <div className="size-1 rounded-full bg-neutral-400" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Arm */}
-                <div className="w-8 h-24 bg-[#141416] rounded-sm shadow-md" />
-              </div>
-
-              {/* Legs with Frills & Stockings */}
-              <div className="flex items-center gap-1 mt-1 z-10">
-                {/* Left Leg */}
-                <div className="w-9 h-24 bg-[#141416] rounded-b-sm flex flex-col justify-start">
-                  <div className="w-full h-4 bg-white/95 rounded-t-xs" />
-                </div>
-                {/* Right Leg */}
-                <div className="w-9 h-24 bg-[#141416] rounded-b-sm flex flex-col justify-start">
-                  <div className="w-full h-4 bg-white/95 rounded-t-xs flex items-center justify-center">
-                    <div className="size-1 bg-black rounded-full" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="absolute bottom-8 w-44 h-8 bg-black/80 rounded-full blur-md pointer-events-none" />
+            <PlayerModel3D mode="full" interactive className="w-full h-full relative z-10" />
           </div>
 
           {/* Right Column: Game Showcase Card */}

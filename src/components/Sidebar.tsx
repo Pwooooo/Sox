@@ -16,6 +16,7 @@ import {
   PanelLeftClose,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface SidebarProps {
   collapsed?: boolean
@@ -132,13 +133,7 @@ export function Sidebar({
         >
           {/* Avatar circular headshot */}
           <div className="size-7 rounded-full bg-[#1a1a1a]/80 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-sm group-hover:border-white/30 transition-colors">
-            <div className="relative size-5 flex flex-col items-center justify-center">
-              <div className="w-4 h-1.5 bg-emerald-700 rounded-t-sm -mb-0.5 z-10" />
-              <div className="size-3 rounded-sm bg-neutral-300 flex items-center justify-center gap-0.5">
-                <div className="size-0.5 rounded-full bg-black" />
-                <div className="size-0.5 rounded-full bg-black" />
-              </div>
-            </div>
+            <PlayerModel3D mode="headshot" className="w-full h-full" />
           </div>
 
           {/* Username */}

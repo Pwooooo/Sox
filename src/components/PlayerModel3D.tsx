@@ -1,0 +1,189 @@
+import { useEffect, useRef } from 'react'
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+
+interface PlayerModel3DProps {
+  mode?: 'full' | 'headshot'
+  interactive?: boolean
+  className?: string
+}
+
+export function PlayerModel3D({
+  mode = 'full',
+  interactive = false,
+  className = '',
+}: PlayerModel3DProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    let renderer: THREE.WebGLRenderer | null = null
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
+    } catch {
+      return
+    }
+
+    const w = Math.max(1, container.clientWidth)
+    const h = Math.max(1, container.clientHeight)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setSize(w, h)
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMappingExposure = 1.08
+    container.appendChild(renderer.domElement)
+
+    const scene = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(mode === 'headshot' ? 30 : 34, w / h, 0.1, 100)
+    if (mode === 'headshot') {
+      camera.position.set(0.35, 3.85, 2.75)
+      camera.lookAt(0, 3.72, 0)
+    } else {
+      camera.position.set(0.95, 2.75, 7.6)
+      camera.lookAt(0, 2.3, 0)
+    }
+
+    // Studio 3-point lighting
+    const hemi = new THREE.HemisphereLight('#f8fafc', '#2b2d36', 1.15)
+    scene.add(hemi)
+
+    const keyLight = new THREE.DirectionalLight('#fff5e6', 1.8)
+    keyLight.position.set(3.5, 6.5, 5.5)
+    scene.add(keyLight)
+
+    const rimLight = new THREE.DirectionalLight('#b8d4ff', 0.9)
+    rimLight.position.set(-4.0, 4.5, -4.5)
+    scene.add(rimLight)
+
+    const root = new THREE.Group()
+    scene.add(root)
+
+    let mixer: THREE.AnimationMixer | null = null
+    let disposed = false
+    let yaw = mode === 'headshot' ? 0.15 : 0.25
+    let dragging = false
+    let lastX = 0
+
+    const loader = new GLTFLoader()
+    loader.load('/models/Novelo_Player.glb', (gltf) => {
+      if (disposed) return
+      const model = gltf.scene
+      model.traverse((obj) => {
+        if ((obj as THREE.Mesh).isMesh) {
+          const mesh = obj as THREE.Mesh
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+          for (const m of mats) {
+            if (m instanceof THREE.MeshPhysicalMaterial) {
+              m.clearcoat = 0
+              m.roughness = 0.52
+              m.needsUpdate = true
+            } else if (m instanceof THREE.MeshStandardMaterial) {
+              m.roughness = 0.52
+              m.needsUpdate = true
+            }
+          }
+        }
+      })
+
+      const box = new THREE.Box3().setFromObject(model)
+      const size = new THREE.Vector3()
+      box.getSize(size)
+      if (size.y > 0.001) {
+        const scale = 4.7 / size.y
+        model.scale.setScalar(scale)
+        model.updateMatrixWorld(true)
+        const scaledBox = new THREE.Box3().setFromObject(model)
+        model.position.y -= scaledBox.min.y
+      }
+
+      root.add(model)
+      if (gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(model)
+        const idle =
+          gltf.animations.find((c) => c.name === 'Novelo_Idle') ?? gltf.animations[0]
+        mixer.clipAction(idle).play()
+      }
+    })
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (!interactive) return
+      dragging = true
+      lastX = e.clientX
+      container.setPointerCapture(e.pointerId)
+    }
+    const onPointerMove = (e: PointerEvent) => {
+      if (!interactive || !dragging) return
+      const dx = e.clientX - lastX
+      lastX = e.clientX
+      yaw += dx * 0.012
+    }
+    const onPointerUp = (e: PointerEvent) => {
+      if (!interactive || !dragging) return
+      dragging = false
+      try {
+        container.releasePointerCapture(e.pointerId)
+      } catch {
+        // ignore
+      }
+    }
+
+    if (interactive) {
+      container.addEventListener('pointerdown', onPointerDown)
+      container.addEventListener('pointermove', onPointerMove)
+      container.addEventListener('pointerup', onPointerUp)
+      container.addEventListener('pointercancel', onPointerUp)
+    }
+
+    const onResize = () => {
+      if (!container || !renderer) return
+      const nw = Math.max(1, container.clientWidth)
+      const nh = Math.max(1, container.clientHeight)
+      camera.aspect = nw / nh
+      camera.updateProjectionMatrix()
+      renderer.setSize(nw, nh)
+    }
+    window.addEventListener('resize', onResize)
+
+    let rafId = 0
+    const clock = new THREE.Clock()
+    const animate = () => {
+      rafId = requestAnimationFrame(animate)
+      const dt = Math.min(clock.getDelta(), 0.05)
+      if (mixer) mixer.update(dt)
+      if (mode === 'full' && !dragging) {
+        yaw += dt * 0.25
+      }
+      root.rotation.y = yaw
+      renderer?.render(scene, camera)
+    }
+    animate()
+
+    return () => {
+      disposed = true
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('resize', onResize)
+      if (interactive) {
+        container.removeEventListener('pointerdown', onPointerDown)
+        container.removeEventListener('pointermove', onPointerMove)
+        container.removeEventListener('pointerup', onPointerUp)
+        container.removeEventListener('pointercancel', onPointerUp)
+      }
+      mixer?.stopAllAction()
+      if (renderer) {
+        renderer.dispose()
+        if (renderer.domElement.parentNode === container) {
+          container.removeChild(renderer.domElement)
+        }
+      }
+    }
+  }, [mode, interactive])
+
+  return (
+    <div
+      ref={containerRef}
+      className={className}
+      style={interactive ? { cursor: 'grab' } : undefined}
+    />
+  )
+}
