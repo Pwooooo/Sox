@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Sparkles, Check, Save, RotateCw, X, Plus } from 'lucide-react'
 import { ITEMS, Item } from '@/data/items'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
-import { PlayerModel3D } from '@/components/PlayerModel3D'
+import { PlayerModel3D, loadSavedBodyColors, saveBodyColors } from '@/components/PlayerModel3D'
 
 type BodyPart = 'all' | 'head' | 'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg'
 type CategoryTab = 'Hats' | 'Hairs' | 'Faces' | 'Clothings' | 'Accessorys' | 'Body'
@@ -84,14 +84,20 @@ function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
 }
 
 export function AvatarEditor() {
-  const [bodyColors, setBodyColors] = useState<BodyColors>({
-    head: '#eab308',
-    torso: '#3b82f6',
-    leftArm: '#eab308',
-    rightArm: '#eab308',
-    leftLeg: '#18181b',
-    rightLeg: '#18181b',
-  })
+  const [bodyColors, setBodyColors] = useState<BodyColors>(() => (
+    loadSavedBodyColors() ?? {
+      head: '#eab308',
+      torso: '#3b82f6',
+      leftArm: '#eab308',
+      rightArm: '#eab308',
+      leftLeg: '#18181b',
+      rightLeg: '#18181b',
+    }
+  ))
+
+  useEffect(() => {
+    saveBodyColors(bodyColors)
+  }, [bodyColors])
 
   const [selectedPart, setSelectedPart] = useState<BodyPart>('torso')
   const [activeTab, setActiveTab] = useState<CategoryTab>('Hats')
@@ -230,6 +236,7 @@ export function AvatarEditor() {
   }
 
   const handleSave = () => {
+    saveBodyColors(bodyColors)
     setSavedNotification(true)
     setTimeout(() => setSavedNotification(false), 2500)
   }

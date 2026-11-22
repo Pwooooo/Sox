@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
@@ -78,14 +78,40 @@ export interface BodyColors {
   rightLeg: string
 }
 
+const AVATAR_COLORS_STORAGE_KEY = 'novelo_avatar_body_colors'
+const AVATAR_COLORS_EVENT = 'novelo-avatar-colors-updated'
+
+export function loadSavedBodyColors(): BodyColors | null {
+  try {
+    const raw = localStorage.getItem(AVATAR_COLORS_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (parsed && typeof parsed.head === 'string' && typeof parsed.torso === 'string') {
+      return parsed as BodyColors
+    }
+  } catch {
+    // ignore
+  }
+  return null
+}
+
+export function saveBodyColors(colors: BodyColors) {
+  try {
+    localStorage.setItem(AVATAR_COLORS_STORAGE_KEY, JSON.stringify(colors))
+    window.dispatchEvent(new CustomEvent(AVATAR_COLORS_EVENT, { detail: colors }))
+  } catch {
+    // ignore
+  }
+}
+
 function resolveBodyPartKey(name: string): keyof BodyColors | null {
-  const n = name.toLowerCase()
-  if (n.includes('head')) return 'head'
-  if (n.includes('torso')) return 'torso'
-  if (n.includes('left arm')) return 'leftArm'
-  if (n.includes('right arm')) return 'rightArm'
-  if (n.includes('left leg')) return 'leftLeg'
-  if (n.includes('right leg')) return 'rightLeg'
+  const clean = name.toLowerCase().replace(/[^a-z0-9]/g, '')
+  if (clean.includes('head')) return 'head'
+  if (clean.includes('torso')) return 'torso'
+  if (clean.includes('leftarm')) return 'leftArm'
+  if (clean.includes('rightarm')) return 'rightArm'
+  if (clean.includes('leftleg')) return 'leftLeg'
+  if (clean.includes('rightleg')) return 'rightLeg'
   return null
 }
 
@@ -104,20 +130,40 @@ export function PlayerModel3D({
 }: PlayerModel3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const partMaterialsRef = useRef<Partial<Record<keyof BodyColors, THREE.MeshStandardMaterial[]>>>({})
-  const bodyColorsRef = useRef<BodyColors | undefined>(bodyColors)
-  bodyColorsRef.current = bodyColors
+  const [savedColors, setSavedColors] = useState<BodyColors | null>(() => loadSavedBodyColors())
+  const effectiveColors = bodyColors ?? savedColors ?? undefined
+  const bodyColorsRef = useRef<BodyColors | undefined>(effectiveColors)
+  bodyColorsRef.current = effectiveColors
 
   useEffect(() => {
-    if (!bodyColors) return
+    const onUpdate = (e: Event) => {
+      const detail = (e as CustomEvent<BodyColors>).detail
+      setSavedColors(detail ?? loadSavedBodyColors())
+    }
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === AVATAR_COLORS_STORAGE_KEY) {
+        setSavedColors(loadSavedBodyColors())
+      }
+    }
+    window.addEventListener(AVATAR_COLORS_EVENT, onUpdate)
+    window.addEventListener('storage', onStorage)
+    return () => {
+      window.removeEventListener(AVATAR_COLORS_EVENT, onUpdate)
+      window.removeEventListener('storage', onStorage)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!effectiveColors) return
     const map = partMaterialsRef.current
-    ;(Object.keys(bodyColors) as (keyof BodyColors)[]).forEach((part) => {
+    ;(Object.keys(effectiveColors) as (keyof BodyColors)[]).forEach((part) => {
       const mats = map[part]
       if (!mats) return
       for (const m of mats) {
-        m.color.set(bodyColors[part])
+        m.color.set(effectiveColors[part])
       }
     })
-  }, [bodyColors])
+  }, [effectiveColors])
 
   useEffect(() => {
     const container = containerRef.current
