@@ -166,6 +166,76 @@ export function PlayerModel3D({
       }
 
       root.add(model)
+      model.updateMatrixWorld(true)
+
+      // Attach starter face decal onto the front of the Head (bone-tracked if rigged)
+      const faceTex = new THREE.TextureLoader().load('/models/Novelo_Standard_Face.png')
+      faceTex.colorSpace = THREE.SRGBColorSpace
+      const faceMat = new THREE.MeshStandardMaterial({
+        map: faceTex,
+        transparent: true,
+        alphaTest: 0.05,
+        roughness: 0.45,
+        metalness: 0,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+      })
+
+      let headTarget: THREE.Object3D | null = null
+      let headMesh: THREE.Mesh | null = null
+      model.traverse((obj) => {
+        const lower = obj.name.toLowerCase()
+        if (!headTarget && (obj as THREE.Bone).isBone && lower.includes('head')) {
+          headTarget = obj
+        }
+        if (!headMesh && (obj as THREE.Mesh).isMesh && lower.includes('head')) {
+          headMesh = obj as THREE.Mesh
+        }
+      })
+
+      // Measure the world-space head bounds (top ~25% of the 4.7-tall normalized model)
+      const headBox = new THREE.Box3()
+      if (headMesh) {
+        headBox.setFromObject(headMesh)
+      } else {
+        const wp = new THREE.Vector3()
+        model.traverse((obj) => {
+          if ((obj as THREE.Mesh).isMesh) {
+            const pos = (obj as THREE.Mesh).geometry.getAttribute('position')
+            if (!pos) return
+            for (let i = 0; i < pos.count; i++) {
+              wp.fromBufferAttribute(pos, i).applyMatrix4(obj.matrixWorld)
+              if (wp.y >= 3.45) headBox.expandByPoint(wp)
+            }
+          }
+        })
+      }
+
+      if (!headBox.isEmpty()) {
+        const hSize = new THREE.Vector3()
+        const hCenter = new THREE.Vector3()
+        headBox.getSize(hSize)
+        headBox.getCenter(hCenter)
+        const faceSize = Math.min(hSize.x, hSize.y) * 0.78
+        const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(faceSize, faceSize), faceMat)
+        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y + hSize.y * 0.02, headBox.max.z + 0.015)
+
+        const attachParent = headTarget || headMesh || model
+        attachParent.updateMatrixWorld(true)
+        attachParent.worldToLocal(worldFront)
+        faceMesh.position.copy(worldFront)
+        // Counter-scale so faceMesh keeps exact world size inside scaled/rigged parent
+        const pScale = new THREE.Vector3()
+        attachParent.getWorldScale(pScale)
+        faceMesh.scale.set(
+          pScale.x > 0.0001 ? 1 / pScale.x : 1,
+          pScale.y > 0.0001 ? 1 / pScale.y : 1,
+          pScale.z > 0.0001 ? 1 / pScale.z : 1,
+        )
+        attachParent.add(faceMesh)
+      }
+
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model)
         const idle =
