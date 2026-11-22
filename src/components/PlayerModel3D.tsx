@@ -165,7 +165,8 @@ export function PlayerModel3D({
         model.position.y -= scaledBox.min.y
       }
 
-      root.add(model)
+      // Compute head bounds and attach starter face BEFORE adding to `root`
+      // so `root.rotation.y` (which animates while GLB loads) never offsets the decal.
       model.updateMatrixWorld(true)
 
       // Attach starter face decal onto the front of the Head (bone-tracked if rigged)
@@ -230,13 +231,13 @@ export function PlayerModel3D({
         faceGeo.computeVertexNormals()
 
         const faceMesh = new THREE.Mesh(faceGeo, faceMat)
-        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.09, headBox.max.z + 0.005)
+        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.08, headBox.max.z + 0.005)
 
         const attachParent = headTarget || headMesh || model
         attachParent.updateMatrixWorld(true)
         attachParent.worldToLocal(worldFront)
         faceMesh.position.copy(worldFront)
-        // Counter-rotate & counter-scale so faceMesh faces world +Z at exact size inside rigged parent
+        // Counter-rotate & counter-scale so faceMesh faces model +Z at exact size inside rigged parent
         const pQuat = new THREE.Quaternion()
         attachParent.getWorldQuaternion(pQuat)
         faceMesh.quaternion.copy(pQuat).invert()
@@ -249,6 +250,9 @@ export function PlayerModel3D({
         )
         attachParent.add(faceMesh)
       }
+
+      root.add(model)
+      model.updateMatrixWorld(true)
 
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model)
