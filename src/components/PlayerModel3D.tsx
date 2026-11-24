@@ -298,11 +298,20 @@ export function applyAvatarToRiggedModel(
     if (!partKey) return
 
     if (colors) {
-      mesh.material = new THREE.MeshStandardMaterial({
-        color: colors[partKey],
-        roughness: 0.52,
-        metalness: 0,
-      })
+      if (!mesh.userData.__noveloMatCloned) {
+        const rawMats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+        const cloned = rawMats.map((m) => m.clone())
+        mesh.material = Array.isArray(mesh.material) ? cloned : cloned[0]
+        mesh.userData.__noveloMatCloned = true
+      }
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      for (const m of mats) {
+        if (m instanceof THREE.MeshStandardMaterial) {
+          m.color.set(colors[partKey])
+          m.roughness = 0.52
+          m.needsUpdate = true
+        }
+      }
     }
 
     if (partKey !== 'head') {
