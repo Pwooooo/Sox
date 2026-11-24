@@ -79,11 +79,11 @@ export function Marketplace() {
 
   const handleBuy = (item: MarketItem | ItemDetailData) => {
     if (userBalance < item.price) {
-      alert('Insufficient Novelo balance! Please acquire more currency from the Store.')
+      alert('Insufficient Novlux balance! Please acquire more currency from the Store.')
       return
     }
     setUserBalance((prev) => prev - item.price)
-    alert(`Purchased ${item.name} for ${item.price} Novelo!`)
+    alert(`Purchased ${item.name} for ${item.price} Novlux!`)
   }
 
   const toDetailData = (item: MarketItem): ItemDetailData => ({

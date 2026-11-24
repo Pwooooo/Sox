@@ -168,7 +168,7 @@ export function Navbar({
           <button
             onClick={() => onNavigate?.('Store')}
             className="flex items-center gap-1.5 cursor-pointer text-white/90 hover:text-white select-none bg-transparent border-none p-0"
-            title="Novelo Balance (Open Store)"
+            title="Novlux Balance (Open Store)"
           >
             <img
               src="/currency.png"

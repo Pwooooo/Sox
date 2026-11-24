@@ -28,7 +28,7 @@ export function Store() {
   const handleBuy = (item: PackageItem) => {
     setPurchasingId(item.id)
     setTimeout(() => {
-      alert(`Success! Added ${item.amount} Novelo to your balance.`)
+      alert(`Success! Added ${item.amount} Novlux to your balance.`)
       setPurchasingId(null)
     }, 700)
   }
@@ -53,7 +53,7 @@ export function Store() {
             Novelo Store
           </h1>
           <p className="text-xs md:text-sm text-white/50 mt-1">
-            Purchase Novelo currency to unlock exclusive items, upgrades, and experiences
+            Purchase Novlux to unlock exclusive items, upgrades, and experiences
           </p>
         </div>
 

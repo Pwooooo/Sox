@@ -259,13 +259,13 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                 />
               </div>
 
-              {/* Price in Novelo */}
+              {/* Price in Novlux */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-white/75">Price in Novelo</label>
+                <label className="text-xs font-semibold text-white/75">Price in Novlux</label>
                 <div className="relative flex items-center">
                   <img
                     src="/novelo-currency.png"
-                    alt="Novelo"
+                    alt="Novlux"
                     className="size-3.5 object-contain absolute left-3 pointer-events-none"
                   />
                   <input
