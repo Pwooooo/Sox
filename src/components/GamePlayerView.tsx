@@ -109,6 +109,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
   const [errorMsg, setErrorMsg] = useState('')
 
   const [menuOpen, setMenuOpen] = useState(false)
+  const [playerListOpen, setPlayerListOpen] = useState(true)
   const [menuTab, setMenuTab] = useState<'people' | 'settings'>('people')
   const [peopleView, setPeopleView] = useState<'grid' | 'list'>('grid')
   const [volume, setVolume] = useState(8)
@@ -213,6 +214,13 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       } else if (menuOpen && e.key.toLowerCase() === 'r') {
         e.preventDefault()
         handleRespawn()
+      } else if (
+        e.key === 'Tab' &&
+        document.activeElement !== chatInputRef.current &&
+        !menuOpen
+      ) {
+        e.preventDefault()
+        setPlayerListOpen((v) => !v)
       } else if (
         e.key === '/' &&
         document.activeElement !== chatInputRef.current &&
@@ -330,9 +338,13 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
         <div className="h-10 px-1.5 rounded-full bg-[#111114]/85 backdrop-blur-md border border-white/[0.1] flex items-center gap-1 shadow-lg">
           <button
             type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            title="Menu (Esc)"
-            className="size-8 rounded-full hover:bg-white/[0.08] text-white/85 hover:text-white flex items-center justify-center cursor-pointer border-none bg-transparent transition-colors"
+            onClick={() => setPlayerListOpen((v) => !v)}
+            title="Player List (Tab)"
+            className={`size-8 rounded-full flex items-center justify-center cursor-pointer border-none transition-colors ${
+              playerListOpen
+                ? 'bg-white/[0.12] text-white'
+                : 'bg-transparent text-white/85 hover:bg-white/[0.08] hover:text-white'
+            }`}
           >
             <Menu className="size-4" />
           </button>
@@ -393,6 +405,29 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
               <Send className="size-3" />
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Top-Right Player List */}
+      {playerListOpen && status === 'playing' && !menuOpen && (
+        <div className="fixed top-3 right-3 z-20 w-56 rounded-[12px] bg-[#111114]/75 backdrop-blur-md border border-white/[0.08] overflow-hidden shadow-xl">
+          <div className="px-3 py-2 border-b border-white/[0.06] flex items-center justify-between text-[11px] font-bold text-white/75 uppercase tracking-wider">
+            <span>People</span>
+            <span className="text-white/50">1</span>
+          </div>
+          <div className="p-1.5 flex flex-col gap-1 max-h-60 overflow-y-auto no-scrollbar">
+            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors">
+              <div className="size-7 rounded-full bg-black/50 border border-white/[0.08] overflow-hidden shrink-0">
+                <PlayerModel3D mode="headshot" className="w-full h-full" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-white truncate">
+                  {profile?.display_name || (user?.user_metadata?.display_name as string | undefined) || currentUsername}
+                </p>
+                <p className="text-[10px] text-white/45 truncate">@{currentUsername}</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
