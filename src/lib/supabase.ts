@@ -67,12 +67,13 @@ export async function fetchProfileById(id: number): Promise<UserProfile | null> 
 }
 
 export async function searchProfilesByUsername(query: string): Promise<UserProfile[]> {
-  const clean = query.trim().replace(/^@/, '')
+  const clean = query.trim().replace(/^@/, '').replace(/[,%()]/g, '')
   if (!supabase || !clean) return []
   const { data, error } = await supabase
     .from('profiles')
     .select('id, auth_uid, username, display_name, created_at')
-    .ilike('username', `%${clean}%`)
+    .or(`username.ilike.%${clean}%,display_name.ilike.%${clean}%`)
+    .order('username', { ascending: true })
     .limit(4)
   if (error || !data) return []
   return data as UserProfile[]

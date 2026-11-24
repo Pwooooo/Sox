@@ -15,6 +15,7 @@ import {
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
 import { WaveBackground } from '@/components/WaveBackground'
 import { searchProfilesByUsername, UserProfile } from '@/lib/supabase'
+import { useAuth } from '@/lib/auth'
 import {
   CreatedClothingItem,
   loadEquippedClothingIds,
@@ -70,6 +71,7 @@ export function ItemDetailModal({
   onSelectDiscoverItem,
   onBuy,
 }: ItemDetailModalProps) {
+  const { profile: currentProfile } = useAuth()
   const [isTryOn, setIsTryOn] = useState(false)
   const [is2D, setIs2D] = useState(false)
   const [liked, setLiked] = useState<ItemVoteState>(() => loadItemVotes()[item.id] ?? null)
@@ -102,7 +104,16 @@ export function ItemDetailModal({
     const timer = setTimeout(async () => {
       const results = await searchProfilesByUsername(q)
       if (!cancelled) {
-        setGiftMatches(results)
+        const merged = [...results]
+        if (
+          currentProfile &&
+          !merged.some((p) => p.id === currentProfile.id) &&
+          (currentProfile.username.toLowerCase().includes(q.toLowerCase()) ||
+            (currentProfile.display_name || '').toLowerCase().includes(q.toLowerCase()))
+        ) {
+          merged.unshift(currentProfile)
+        }
+        setGiftMatches(merged)
         setGiftSearching(false)
       }
     }, 180)
@@ -232,11 +243,14 @@ export function ItemDetailModal({
     setLiked(next)
   }
 
+  const matchedRecipient = giftMatches.find(
+    (p) => p.username.toLowerCase() === giftRecipient.trim().replace(/^@/, '').toLowerCase()
+  )
+
   const handleSendGift = (e: React.FormEvent) => {
     e.preventDefault()
-    const recipient = giftRecipient.trim()
-    if (!recipient) {
-      setStatusMsg({ text: 'Enter a username to gift this item to.', error: true })
+    if (!matchedRecipient) {
+      setStatusMsg({ text: 'Select a valid player to gift this item to.', error: true })
       return
     }
     const balance = loadNovluxBalance()
@@ -255,7 +269,7 @@ export function ItemDetailModal({
     setGiftMatches([])
     const priceLabel = item.price === 0 ? 'Free' : `${item.price.toLocaleString()} Novlux`
     setStatusMsg({
-      text: `Bought & gifted ${item.name} to @${recipient.replace(/^@/, '')} for ${priceLabel}!`,
+      text: `Bought & gifted ${item.name} to @${matchedRecipient.username} for ${priceLabel}!`,
       error: false,
     })
   }
@@ -534,6 +548,8 @@ export function ItemDetailModal({
                           const isSelected =
                             p.username.toLowerCase() ===
                             giftRecipient.trim().replace(/^@/, '').toLowerCase()
+                          const isSelf =
+                            p.username.toLowerCase() === currentUsername.toLowerCase()
                           return (
                             <button
                               key={p.id}
@@ -546,14 +562,15 @@ export function ItemDetailModal({
                               }`}
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <div className="size-8 rounded-full bg-[#1b1b1e] border border-white/10 flex items-center justify-center shrink-0">
-                                  <div className="size-5 rounded-[4px] bg-[#e5e5e5] flex flex-col items-center justify-center">
-                                    <div className="flex gap-1 mb-0.5">
-                                      <div className="size-0.5 rounded-full bg-black" />
-                                      <div className="size-0.5 rounded-full bg-black" />
-                                    </div>
-                                    <div className="w-2 h-0.5 rounded-full bg-black/80" />
-                                  </div>
+                                <div className="size-9 rounded-full bg-[#111113] border border-white/10 overflow-hidden shrink-0">
+                                  <PlayerModel3D
+                                    mode="headshot"
+                                    interactive={false}
+                                    autoRotate={false}
+                                    useSavedColors={isSelf}
+                                    useSavedClothing={isSelf}
+                                    className="w-full h-full"
+                                  />
                                 </div>
                                 <div className="min-w-0">
                                   <div className="text-xs font-bold text-white truncate">
@@ -577,29 +594,8 @@ export function ItemDetailModal({
                           )
                         })
                       ) : (
-                        <div className="flex items-center justify-between gap-2.5 p-2 rounded-[8px] bg-[#101012] border border-white/[0.06]">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="size-8 rounded-full bg-[#1b1b1e] border border-white/10 flex items-center justify-center shrink-0">
-                              <div className="size-5 rounded-[4px] bg-[#e5e5e5] flex flex-col items-center justify-center">
-                                <div className="flex gap-1 mb-0.5">
-                                  <div className="size-0.5 rounded-full bg-black" />
-                                  <div className="size-0.5 rounded-full bg-black" />
-                                </div>
-                                <div className="w-2 h-0.5 rounded-full bg-black/80" />
-                              </div>
-                            </div>
-                            <div className="min-w-0">
-                              <div className="text-xs font-bold text-white truncate">
-                                {giftRecipient.trim().replace(/^@/, '')}
-                              </div>
-                              <div className="text-[11px] text-white/50 truncate">
-                                @{giftRecipient.trim().replace(/^@/, '')}
-                              </div>
-                            </div>
-                          </div>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.08] text-white/70 shrink-0">
-                            Recipient
-                          </span>
+                        <div className="text-[11px] text-white/45 px-1">
+                          No player found matching &ldquo;{giftRecipient.trim().replace(/^@/, '')}&rdquo;.
                         </div>
                       )}
                     </div>
