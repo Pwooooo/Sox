@@ -750,13 +750,13 @@ export function Forum() {
         >
           <form
             onSubmit={handleCreateThread}
-            className="w-full max-w-lg rounded-2xl bg-[#141414] border border-white/10 p-6 flex flex-col gap-4 text-white shadow-2xl"
+            className="w-full max-w-lg rounded-[12px] bg-[#111113] border border-white/[0.08] p-5 flex flex-col gap-4 text-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-white">Start a Discussion</h3>
+            <h3 className="text-base font-bold text-white">Start a Discussion</h3>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-white/60">Category</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-white/60">Category</label>
               <CustomDropdown
                 value={newCategory}
                 onChange={setNewCategory}
@@ -765,46 +765,46 @@ export function Forum() {
                   label: c,
                 }))}
                 className="w-full"
-                buttonClassName="w-full h-10 px-3 rounded-xl bg-[#1a1a1a] border border-white/10 text-xs text-white justify-between"
+                buttonClassName="w-full h-9"
                 menuClassName="w-full"
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-white/60">Title</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-white/60">Title</label>
               <input
                 type="text"
                 placeholder="Topic or question title..."
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="h-10 px-3.5 rounded-xl bg-[#1a1a1a] border border-white/10 text-xs text-white focus:outline-none"
+                className="h-9 px-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
                 autoFocus
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-white/60">Content</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-white/60">Content</label>
               <textarea
                 rows={4}
                 placeholder="What would you like to discuss? Provide details..."
                 value={newBody}
                 onChange={(e) => setNewBody(e.target.value)}
-                className="p-3.5 rounded-xl bg-[#1a1a1a] border border-white/10 text-xs text-white focus:outline-none resize-none"
+                className="p-3 rounded-[8px] bg-[#141416] border border-white/10 text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25 resize-none"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-xl bg-white/10 text-white/80 hover:bg-white/20 text-xs font-bold cursor-pointer border-none"
+                className="h-8.5 px-3.5 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-white/80 hover:text-white text-xs font-semibold cursor-pointer transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!newTitle.trim()}
-                className="px-4 py-2 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold cursor-pointer border-none shadow-md"
+                className="h-8.5 px-3.5 rounded-[8px] bg-white text-black hover:bg-neutral-200 disabled:opacity-40 text-xs font-bold cursor-pointer border-none transition-colors"
               >
                 Post Discussion
               </button>
