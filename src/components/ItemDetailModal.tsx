@@ -144,69 +144,25 @@ export function ItemDetailModal({
           </div>
 
           {/* Right: Info & Actions */}
-          <div className="md:col-span-7 flex flex-col justify-between gap-5">
-            <div className="flex flex-col gap-3">
-              {/* Header Row */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight truncate">
-                    {item.name}
-                  </h2>
-                  <p className="text-xs text-white/50 mt-0.5">
-                    By <span className="text-white/80 font-semibold">{item.creator}</span>
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    title="More options"
-                    className="size-8 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-white/60 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
-                  >
-                    <MoreHorizontal className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    title="Close"
-                    className="size-8 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-white/60 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
+          <div className="md:col-span-7 flex flex-col gap-5">
+            {/* Header Row */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight truncate">
+                  {item.name}
+                </h2>
+                <p className="text-xs text-white/50 mt-0.5">
+                  By <span className="text-white/80 font-semibold">{item.creator}</span>
+                </p>
               </div>
 
-              {/* Description */}
-              <p className="text-xs text-white/60 leading-relaxed min-h-[36px]">
-                {item.description || 'No description provided.'}
-              </p>
-            </div>
-
-            {/* Bottom Metadata + Action Row */}
-            <div className="flex flex-col gap-4">
-              {/* Metadata & Rating Row */}
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-10 md:gap-14">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[11px] text-white/45 font-medium">Created</span>
-                    <span className="text-xs font-semibold text-white">{createdDateStr}</span>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[11px] text-white/45 font-medium">Sales</span>
-                    <span className="text-xs font-semibold text-white">{item.sold ?? 0}</span>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[11px] text-white/45 font-medium">Asset Type</span>
-                    <span className="text-xs font-semibold text-white">{item.assetType}</span>
-                  </div>
-                </div>
-
+              <div className="flex items-center gap-1.5 shrink-0">
                 {/* Likes / Dislikes */}
-                <div className="flex items-center rounded-[10px] bg-[#161618] border border-white/[0.08] overflow-hidden">
+                <div className="flex items-center rounded-[8px] bg-[#161618] border border-white/[0.08] overflow-hidden mr-1">
                   <button
                     type="button"
                     onClick={() => setLiked(liked === 'up' ? null : 'up')}
-                    className={`h-8 px-3 flex items-center gap-1.5 text-xs font-semibold cursor-pointer border-none transition-colors ${
+                    className={`h-8 px-2.5 flex items-center gap-1 text-xs font-semibold cursor-pointer border-none transition-colors ${
                       liked === 'up'
                         ? 'bg-white/[0.12] text-white'
                         : 'bg-transparent text-white/60 hover:text-white'
@@ -219,7 +175,7 @@ export function ItemDetailModal({
                   <button
                     type="button"
                     onClick={() => setLiked(liked === 'down' ? null : 'down')}
-                    className={`h-8 px-3 flex items-center gap-1.5 text-xs font-semibold cursor-pointer border-none transition-colors ${
+                    className={`h-8 px-2.5 flex items-center gap-1 text-xs font-semibold cursor-pointer border-none transition-colors ${
                       liked === 'down'
                         ? 'bg-white/[0.12] text-white'
                         : 'bg-transparent text-white/60 hover:text-white'
@@ -229,15 +185,49 @@ export function ItemDetailModal({
                     <span>{liked === 'down' ? 1 : 0}</span>
                   </button>
                 </div>
-              </div>
 
-              {/* Buy / Equip + Secondary Buttons */}
-              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  title="More options"
+                  className="size-8 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-white/60 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <MoreHorizontal className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  title="Close"
+                  className="size-8 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-white/60 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Price + Stacked Buy / Add to Cart Layout */}
+            <div className="grid grid-cols-[110px_1fr] gap-y-2.5 items-start">
+              <span className="text-xs font-medium text-white/45 pt-1">Price</span>
+              <div className="flex flex-col gap-2 max-w-[360px]">
+                <div className="flex items-center gap-1.5 text-base font-black text-white">
+                  {item.price === 0 ? (
+                    <span>Free</span>
+                  ) : (
+                    <>
+                      <img
+                        src="/novelo-currency.png"
+                        alt="Novlux"
+                        className="size-4 object-contain shrink-0"
+                      />
+                      <span>{item.price.toLocaleString()}</span>
+                    </>
+                  )}
+                </div>
+
                 {item.isOwned ? (
                   <button
                     type="button"
                     onClick={handleToggleEquip}
-                    className={`flex-1 min-w-[160px] h-10 px-4 rounded-[10px] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98] ${
+                    className={`w-full h-10 px-4 rounded-[10px] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98] ${
                       isEquipped
                         ? 'bg-white/[0.12] text-white hover:bg-white/[0.18]'
                         : 'bg-white text-black hover:bg-neutral-200'
@@ -250,56 +240,81 @@ export function ItemDetailModal({
                   <button
                     type="button"
                     onClick={() => onBuy?.(item)}
-                    className="flex-1 min-w-[160px] h-10 px-4 rounded-[10px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98]"
+                    className="w-full h-10 px-4 rounded-[10px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98]"
                   >
-                    {item.price === 0 ? (
-                      <span>Get for Free</span>
-                    ) : (
-                      <>
-                        <span>Buy for</span>
-                        <img
-                          src="/novelo-currency.png"
-                          alt="Novelo"
-                          className="size-3.5 object-contain"
-                        />
-                        <span>{item.price.toLocaleString()}</span>
-                      </>
-                    )}
+                    <span>Buy</span>
                   </button>
                 )}
 
                 <button
                   type="button"
-                  className="h-10 px-3.5 rounded-[10px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-xs font-semibold text-white/80 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
-                >
-                  <Gift className="size-3.5" />
-                  <span>Gift</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFavorited((v) => !v)}
-                  className={`h-10 px-3.5 rounded-[10px] border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors ${
-                    favorited
-                      ? 'bg-white/[0.12] border-white/25 text-white'
-                      : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/80 hover:text-white'
-                  }`}
-                >
-                  <Heart className={`size-3.5 ${favorited ? 'fill-current' : ''}`} />
-                  <span>Favorite</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => setWishlisted((v) => !v)}
-                  className={`h-10 px-3.5 rounded-[10px] border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors ${
-                    wishlisted
-                      ? 'bg-white/[0.12] border-white/25 text-white'
-                      : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/80 hover:text-white'
-                  }`}
+                  className="w-full h-10 px-4 rounded-[10px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                 >
-                  <Bookmark className={`size-3.5 ${wishlisted ? 'fill-current' : ''}`} />
-                  <span>Wishlist</span>
+                  <span>{wishlisted ? 'Added to cart' : 'Add to cart'}</span>
                 </button>
+
+                <div className="flex items-center gap-2 pt-0.5">
+                  <button
+                    type="button"
+                    className="flex-1 h-8 px-2.5 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-[11px] font-semibold text-white/75 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <Gift className="size-3" />
+                    <span>Gift</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFavorited((v) => !v)}
+                    className={`flex-1 h-8 px-2.5 rounded-[8px] border text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                      favorited
+                        ? 'bg-white/[0.12] border-white/25 text-white'
+                        : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/75 hover:text-white'
+                    }`}
+                  >
+                    <Heart className={`size-3 ${favorited ? 'fill-current' : ''}`} />
+                    <span>Favorite</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWishlisted((v) => !v)}
+                    className={`flex-1 h-8 px-2.5 rounded-[8px] border text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                      wishlisted
+                        ? 'bg-white/[0.12] border-white/25 text-white'
+                        : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/75 hover:text-white'
+                    }`}
+                  >
+                    <Bookmark className={`size-3 ${wishlisted ? 'fill-current' : ''}`} />
+                    <span>Wishlist</span>
+                  </button>
+                </div>
               </div>
+            </div>
+
+            {/* Label / Value Details Grid */}
+            <div className="grid grid-cols-[110px_1fr] gap-y-2.5 text-xs pt-1">
+              <span className="text-white/45 font-medium">Tradable</span>
+              <span className="text-white/90 font-medium">No</span>
+
+              <span className="text-white/45 font-medium">Type</span>
+              <span className="text-white/90 font-medium">
+                {item.clothingType ? `Classic ${item.clothingType}s` : item.assetType}
+              </span>
+
+              <span className="text-white/45 font-medium">Created</span>
+              <span className="text-white/90 font-medium">{createdDateStr}</span>
+
+              <span className="text-white/45 font-medium">Updated</span>
+              <span className="text-white/90 font-medium">{createdDateStr}</span>
+
+              <span className="text-white/45 font-medium">Placement</span>
+              <span className="text-white/90 font-medium">
+                Clothing | {item.clothingType ? `Classic ${item.clothingType}` : item.assetType}
+              </span>
+
+              <span className="text-white/45 font-medium">Description</span>
+              <span className="text-white/80 leading-relaxed">
+                {item.description || 'No description provided.'}
+              </span>
             </div>
           </div>
         </div>
