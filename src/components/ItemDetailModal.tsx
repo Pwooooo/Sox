@@ -561,7 +561,7 @@ export function ItemDetailModal({
                               onClick={() => setGiftRecipient(p.username)}
                               className={`w-full flex items-center justify-between gap-2.5 p-2 rounded-[8px] border text-left cursor-pointer transition-colors ${
                                 isSelected
-                                  ? 'bg-[#02b070]/15 border-[#02b070]/50'
+                                  ? 'bg-white/[0.08] border-white/20'
                                   : 'bg-[#101012] hover:bg-white/[0.05] border-white/[0.06]'
                               }`}
                             >
