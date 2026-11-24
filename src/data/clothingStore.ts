@@ -223,61 +223,6 @@ export function loadEquippedClothingIds(): EquippedClothingIds {
   }
 }
 
-async function compressDataUrlForSync(dataUrl: string, targetBytes = 18000): Promise<string> {
-  if (!dataUrl || dataUrl.length <= targetBytes || typeof document === 'undefined') {
-    return dataUrl
-  }
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => {
-      try {
-        const attempts: Array<{ maxDim: number; quality: number }> = [
-          { maxDim: 512, quality: 0.8 },
-          { maxDim: 384, quality: 0.72 },
-          { maxDim: 256, quality: 0.65 },
-        ]
-        let best = dataUrl
-        for (const { maxDim, quality } of attempts) {
-          const scale = Math.min(1, maxDim / Math.max(img.width || maxDim, img.height || maxDim))
-          const w = Math.max(1, Math.round((img.width || maxDim) * scale))
-          const h = Math.max(1, Math.round((img.height || maxDim) * scale))
-          const canvas = document.createElement('canvas')
-          canvas.width = w
-          canvas.height = h
-          const ctx = canvas.getContext('2d')
-          if (!ctx) break
-          ctx.drawImage(img, 0, 0, w, h)
-          const webp = canvas.toDataURL('image/webp', quality)
-          if (webp.length < best.length) best = webp
-          if (best.length <= targetBytes) break
-        }
-        resolve(best)
-      } catch {
-        resolve(dataUrl)
-      }
-    }
-    img.onerror = () => resolve(dataUrl)
-    img.src = dataUrl
-  })
-}
-
-export async function prepareClothingItemsForSync(
-  items: CreatedClothingItem[],
-  maxTotalBytes = 250000
-): Promise<CreatedClothingItem[]> {
-  const out: CreatedClothingItem[] = []
-  let total = 0
-  for (const item of items) {
-    const textureDataUrl = await compressDataUrlForSync(item.textureDataUrl)
-    const entry: CreatedClothingItem = { ...item, textureDataUrl }
-    const size = JSON.stringify(entry).length
-    if (total + size > maxTotalBytes) break
-    out.push(entry)
-    total += size
-  }
-  return out
-}
-
 export function saveEquippedClothingIds(ids: EquippedClothingIds, syncRemote = true): void {
   try {
     localStorage.setItem(EQUIPPED_STORAGE_KEY, JSON.stringify(ids))
@@ -286,15 +231,7 @@ export function saveEquippedClothingIds(ids: EquippedClothingIds, syncRemote = t
     // ignore
   }
   if (syncRemote) {
-    const all = loadCreatedClothing()
-    const equippedIdsSet = new Set([ids.shirtId, ids.pantsId, ids.tshirtId].filter(Boolean) as string[])
-    const equippedItems = all.filter((i) => equippedIdsSet.has(i.id))
-    void prepareClothingItemsForSync(equippedItems, 90000).then((syncedItems) => {
-      syncUserMetadata({
-        equipped_clothing: ids,
-        equipped_clothing_items: syncedItems,
-      })
-    })
+    syncUserMetadata({ equipped_clothing: ids })
   }
 }
 
@@ -371,18 +308,11 @@ export function loadCreatedClothing(): CreatedClothingItem[] {
   }
 }
 
-export function saveCreatedClothing(items: CreatedClothingItem[], syncRemote = true): void {
+export function saveCreatedClothing(items: CreatedClothingItem[], _syncRemote = true): void {
   try {
     const serialized = JSON.stringify(items)
     localStorage.setItem(STORAGE_KEY, serialized)
     window.dispatchEvent(new CustomEvent(CLOTHING_UPDATED_EVENT, { detail: items }))
-    if (syncRemote) {
-      void prepareClothingItemsForSync(items, 250000).then((syncedItems) => {
-        if (syncedItems.length > 0 || items.length === 0) {
-          syncUserMetadata({ created_clothing: syncedItems })
-        }
-      })
-    }
   } catch {
     // ignore storage quota errors
   }

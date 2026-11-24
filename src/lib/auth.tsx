@@ -19,7 +19,6 @@ import {
   saveFavoriteItemIds,
   loadCreatedClothing,
   saveCreatedClothing,
-  prepareClothingItemsForSync,
   type CreatedClothingItem,
 } from '@/data/clothingStore'
 
@@ -160,18 +159,15 @@ export function AuthProvider({
       const mergedMap = new Map<string, CreatedClothingItem>()
       for (const item of localExisting) mergedMap.set(String(item.id), item)
       for (const [id, item] of remoteClothingMap.entries()) mergedMap.set(id, item)
-      const mergedList = Array.from(mergedMap.values())
-      saveCreatedClothing(mergedList, false)
-      if (mergedList.length > (Array.isArray(meta.created_clothing) ? meta.created_clothing.length : 0)) {
-        const compressed = await prepareClothingItemsForSync(mergedList, 250000)
-        if (compressed.length > 0) pendingUpload.created_clothing = compressed
-      }
-    } else {
-      const localCreated = loadCreatedClothing()
-      if (localCreated.length > 0) {
-        const compressed = await prepareClothingItemsForSync(localCreated, 250000)
-        if (compressed.length > 0) pendingUpload.created_clothing = compressed
-      }
+      saveCreatedClothing(Array.from(mergedMap.values()), false)
+    }
+
+    // Purge large base64 clothing arrays from JWT user_metadata to prevent HTTP 431 header bloat
+    if (meta.created_clothing !== undefined && meta.created_clothing !== null) {
+      pendingUpload.created_clothing = null
+    }
+    if (meta.equipped_clothing_items !== undefined && meta.equipped_clothing_items !== null) {
+      pendingUpload.equipped_clothing_items = null
     }
 
     if (meta.equipped_clothing && typeof meta.equipped_clothing === 'object') {
@@ -180,11 +176,6 @@ export function AuthProvider({
       const localEquipped = loadEquippedClothingIds()
       if (Object.values(localEquipped).some(Boolean)) {
         pendingUpload.equipped_clothing = localEquipped
-        const equippedSet = new Set(Object.values(localEquipped).filter(Boolean) as string[])
-        const equippedItems = loadCreatedClothing().filter((i) => equippedSet.has(i.id))
-        if (equippedItems.length > 0) {
-          pendingUpload.equipped_clothing_items = await prepareClothingItemsForSync(equippedItems, 90000)
-        }
       }
     }
 
