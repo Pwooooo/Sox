@@ -4,6 +4,7 @@ import { ITEMS, Item } from '@/data/items'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { PlayerModel3D, loadSavedBodyColors, saveBodyColors } from '@/components/PlayerModel3D'
 import { useAuth } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
 import {
   loadCreatedClothing,
   loadEquippedClothingIds,
@@ -274,6 +275,14 @@ export function AvatarEditor() {
   const handleSave = () => {
     saveBodyColors(bodyColors)
     saveEquippedClothingIds(equippedClothingIds)
+    if (supabase && user) {
+      void supabase.auth.updateUser({
+        data: {
+          avatar_colors: bodyColors,
+          equipped_clothing: equippedClothingIds,
+        },
+      })
+    }
     setSavedNotification(true)
     setTimeout(() => setSavedNotification(false), 2500)
   }

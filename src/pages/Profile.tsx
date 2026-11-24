@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket, Gamepad2, X } from 'lucide-react'
 import { UnderConstruction } from '@/components/UnderConstruction'
 import {
+  supabase,
   fetchProfileById,
   fetchExperiencesByOwnerId,
   type UserProfile,
@@ -24,7 +25,9 @@ export function Profile({ profileId }: { profileId?: number | null }) {
   const [viewedProfile, setViewedProfile] = useState<UserProfile | null>(null)
   const [novluxBalance, setNovluxBalance] = useState<number>(() => loadNovluxBalance())
   const [editOpen, setEditOpen] = useState(false)
+  const [displayNameDraft, setDisplayNameDraft] = useState('')
   const [bioDraft, setBioDraft] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
 
   const targetId = profileId ?? myProfile?.id ?? null
   const isOwnProfile = targetId === null || (myProfile?.id !== undefined && targetId === myProfile.id)
@@ -157,7 +160,11 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               <div className="flex flex-col mb-1">
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                    {viewedProfile?.display_name || viewedProfile?.username || ownFallbackUsername || (targetId ? `User #${targetId}` : 'Guest')}
+                    {viewedProfile?.display_name ||
+                      (isOwnProfile ? (user?.user_metadata?.display_name as string | undefined) : undefined) ||
+                      viewedProfile?.username ||
+                      ownFallbackUsername ||
+                      (targetId ? `User #${targetId}` : 'Guest')}
                   </h1>
                   {(viewedProfile?.id ?? targetId) === 1 && (
                     <>
@@ -178,6 +185,11 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               <div className="flex items-center gap-2 mb-2">
                 <button
                   onClick={() => {
+                    setDisplayNameDraft(
+                      viewedProfile?.display_name ||
+                        (user?.user_metadata?.display_name as string | undefined) ||
+                        ''
+                    )
                     setBioDraft(bio)
                     setEditOpen(true)
                   }}
@@ -371,6 +383,17 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               </button>
             </div>
             <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-white/70">Display Name</label>
+              <input
+                type="text"
+                maxLength={30}
+                value={displayNameDraft}
+                onChange={(e) => setDisplayNameDraft(e.target.value)}
+                placeholder={viewedProfile?.username || ownFallbackUsername || 'Display name'}
+                className="h-9 rounded-xl bg-[#18181b] border border-white/10 px-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-white/70">Bio / Status</label>
               <textarea
                 rows={3}
@@ -389,23 +412,44 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  const trimmed = bioDraft.trim()
-                  setBio(trimmed)
+                disabled={savingProfile}
+                onClick={async () => {
+                  const trimmedBio = bioDraft.trim()
+                  const trimmedDisplay = displayNameDraft.trim()
+                  setSavingProfile(true)
+                  setBio(trimmedBio)
                   try {
-                    if (trimmed) {
-                      localStorage.setItem(bioStorageKey, trimmed)
+                    if (trimmedBio) {
+                      localStorage.setItem(bioStorageKey, trimmedBio)
                     } else {
                       localStorage.removeItem(bioStorageKey)
                     }
                   } catch {
                     // ignore storage errors
                   }
+                  if (supabase && user) {
+                    await supabase.auth.updateUser({
+                      data: {
+                        display_name: trimmedDisplay || null,
+                        bio: trimmedBio,
+                      },
+                    })
+                    if (viewedProfile?.id) {
+                      await supabase
+                        .from('profiles')
+                        .update({ display_name: trimmedDisplay || null })
+                        .eq('id', viewedProfile.id)
+                      setViewedProfile((prev) =>
+                        prev ? { ...prev, display_name: trimmedDisplay || null } : prev
+                      )
+                    }
+                  }
+                  setSavingProfile(false)
                   setEditOpen(false)
                 }}
-                className="h-9 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold cursor-pointer border-none"
+                className="h-9 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 disabled:opacity-50 text-xs font-bold cursor-pointer border-none"
               >
-                Save
+                {savingProfile ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

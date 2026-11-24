@@ -6,6 +6,8 @@ import {
   fetchProfileByAuthUid,
   type UserProfile,
 } from '@/lib/supabase'
+import { loadSavedBodyColors, saveBodyColors } from '@/components/PlayerModel3D'
+import { loadEquippedClothingIds, saveEquippedClothingIds } from '@/data/clothingStore'
 
 interface AuthContextValue {
   user: User | null
@@ -116,6 +118,38 @@ export function AuthProvider({
       p = await fetchProfileByAuthUid(u.id)
     }
     setProfile(p)
+
+    const meta = (u.user_metadata || {}) as Record<string, any>
+    const pendingUpload: Record<string, any> = {}
+
+    if (meta.avatar_colors && typeof meta.avatar_colors === 'object') {
+      saveBodyColors(meta.avatar_colors)
+    } else {
+      const localColors = loadSavedBodyColors()
+      if (localColors) pendingUpload.avatar_colors = localColors
+    }
+
+    if (meta.equipped_clothing && typeof meta.equipped_clothing === 'object') {
+      saveEquippedClothingIds(meta.equipped_clothing)
+    } else {
+      const localEquipped = loadEquippedClothingIds()
+      if (Object.values(localEquipped).some(Boolean)) {
+        pendingUpload.equipped_clothing = localEquipped
+      }
+    }
+
+    if (typeof meta.bio === 'string' && p?.id) {
+      try {
+        if (meta.bio) localStorage.setItem(`novelo_profile_bio_${p.id}`, meta.bio)
+        else localStorage.removeItem(`novelo_profile_bio_${p.id}`)
+      } catch {
+        // ignore storage errors
+      }
+    }
+
+    if (supabase && Object.keys(pendingUpload).length > 0) {
+      void supabase.auth.updateUser({ data: pendingUpload })
+    }
   }, [])
 
   useEffect(() => {
