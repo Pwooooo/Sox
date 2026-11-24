@@ -1,9 +1,10 @@
-import { useState, ReactNode } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { WaveBackground } from '@/components/WaveBackground'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
+import { loadNovluxBalance, NOVLUX_BALANCE_EVENT } from '@/data/clothingStore'
 
 interface LayoutProps {
   activeTab?: string
@@ -13,7 +14,18 @@ interface LayoutProps {
 
 export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [balance, setBalance] = useState(() => loadNovluxBalance())
   const { user, profile } = useAuth()
+
+  useEffect(() => {
+    const syncBalance = () => setBalance(loadNovluxBalance())
+    window.addEventListener(NOVLUX_BALANCE_EVENT, syncBalance)
+    window.addEventListener('storage', syncBalance)
+    return () => {
+      window.removeEventListener(NOVLUX_BALANCE_EVENT, syncBalance)
+      window.removeEventListener('storage', syncBalance)
+    }
+  }, [])
   const displayUsername =
     profile?.username ||
     (user?.user_metadata?.username as string | undefined) ||
@@ -27,7 +39,7 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
 
       {/* Top Navbar */}
       <Navbar
-        balance={1250}
+        balance={balance}
         unreadNotifications={1}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}

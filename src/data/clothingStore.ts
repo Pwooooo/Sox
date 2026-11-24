@@ -14,8 +14,132 @@ export interface CreatedClothingItem {
 
 const STORAGE_KEY = 'novelo_created_clothing_v1'
 const EQUIPPED_STORAGE_KEY = 'novelo_equipped_clothing_v1'
+const BALANCE_STORAGE_KEY = 'novelo_novlux_balance_v1'
+const OWNED_STORAGE_KEY = 'novelo_owned_items_v1'
+const FAVORITES_STORAGE_KEY = 'novelo_favorite_items_v1'
+const VOTES_STORAGE_KEY = 'novelo_item_votes_v1'
+
 export const CLOTHING_UPDATED_EVENT = 'novelo-clothing-updated'
 export const EQUIPPED_CLOTHING_EVENT = 'novelo-equipped-clothing-updated'
+export const NOVLUX_BALANCE_EVENT = 'novelo-novlux-balance-updated'
+export const OWNED_ITEMS_EVENT = 'novelo-owned-items-updated'
+export const FAVORITE_ITEMS_EVENT = 'novelo-favorite-items-updated'
+export const ITEM_VOTES_EVENT = 'novelo-item-votes-updated'
+
+export function loadNovluxBalance(): number {
+  try {
+    const raw = localStorage.getItem(BALANCE_STORAGE_KEY)
+    if (raw === null) return 1250
+    const parsed = Number(raw)
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 1250
+  } catch {
+    return 1250
+  }
+}
+
+export function saveNovluxBalance(amount: number): void {
+  const safe = Math.max(0, Math.floor(amount))
+  try {
+    localStorage.setItem(BALANCE_STORAGE_KEY, String(safe))
+    window.dispatchEvent(new CustomEvent(NOVLUX_BALANCE_EVENT, { detail: safe }))
+  } catch {
+    // ignore
+  }
+}
+
+export function loadOwnedItemIds(): string[] {
+  try {
+    const raw = localStorage.getItem(OWNED_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.map(String) : []
+  } catch {
+    return []
+  }
+}
+
+export function addOwnedItemId(id: string): string[] {
+  const current = loadOwnedItemIds()
+  if (current.includes(id)) return current
+  const next = [...current, id]
+  try {
+    localStorage.setItem(OWNED_STORAGE_KEY, JSON.stringify(next))
+    window.dispatchEvent(new CustomEvent(OWNED_ITEMS_EVENT, { detail: next }))
+  } catch {
+    // ignore
+  }
+  return next
+}
+
+export function loadFavoriteItemIds(): string[] {
+  try {
+    const raw = localStorage.getItem(FAVORITES_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.map(String) : []
+  } catch {
+    return []
+  }
+}
+
+export function toggleFavoriteItemId(id: string): boolean {
+  const current = loadFavoriteItemIds()
+  const exists = current.includes(id)
+  const next = exists ? current.filter((x) => x !== id) : [...current, id]
+  try {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(next))
+    window.dispatchEvent(new CustomEvent(FAVORITE_ITEMS_EVENT, { detail: next }))
+  } catch {
+    // ignore
+  }
+  return !exists
+}
+
+export type ItemVoteState = 'up' | 'down' | null
+
+export function loadItemVotes(): Record<string, 'up' | 'down'> {
+  try {
+    const raw = localStorage.getItem(VOTES_STORAGE_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, 'up' | 'down'>) : {}
+  } catch {
+    return {}
+  }
+}
+
+export function toggleItemVote(id: string, vote: 'up' | 'down'): ItemVoteState {
+  const current = loadItemVotes()
+  const nextVal: ItemVoteState = current[id] === vote ? null : vote
+  const next = { ...current }
+  if (nextVal === null) {
+    delete next[id]
+  } else {
+    next[id] = nextVal
+  }
+  try {
+    localStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(next))
+    window.dispatchEvent(new CustomEvent(ITEM_VOTES_EVENT, { detail: next }))
+  } catch {
+    // ignore
+  }
+  return nextVal
+}
+
+export function incrementItemSales(id: string): void {
+  const items = loadCreatedClothing()
+  let changed = false
+  const next = items.map((it) => {
+    if (it.id === id) {
+      changed = true
+      return { ...it, sold: (it.sold ?? 0) + 1 }
+    }
+    return it
+  })
+  if (changed) {
+    saveCreatedClothing(next)
+  }
+}
 
 export interface EquippedClothingIds {
   shirtId?: string

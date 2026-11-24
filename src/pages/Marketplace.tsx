@@ -57,7 +57,6 @@ export function Marketplace({ initialItemId }: { initialItemId?: string | null }
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All Categories')
   const [sort, setSort] = useState('Relevance')
-  const [userBalance, setUserBalance] = useState(1250)
   const [selectedItem, setSelectedItem] = useState<ItemDetailData | null>(null)
   const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
     loadCreatedClothing()
@@ -96,15 +95,6 @@ export function Marketplace({ initialItemId }: { initialItemId?: string | null }
   const marketplaceItems: MarketItem[] = createdItems.map((it) =>
     toMarketItem(it, currentUsername)
   )
-
-  const handleBuy = (item: MarketItem | ItemDetailData) => {
-    if (userBalance < item.price) {
-      alert('Insufficient Novlux balance! Please acquire more currency from the Store.')
-      return
-    }
-    setUserBalance((prev) => prev - item.price)
-    alert(`Purchased ${item.name} for ${item.price} Novlux!`)
-  }
 
   const toDetailData = (item: MarketItem): ItemDetailData => ({
     id: item.id,
@@ -269,7 +259,6 @@ export function Marketplace({ initialItemId }: { initialItemId?: string | null }
           currentUsername={currentUsername}
           onClose={() => setSelectedItem(null)}
           onSelectDiscoverItem={(dItem) => setSelectedItem(toDetailData(toMarketItem(dItem, currentUsername)))}
-          onBuy={handleBuy}
         />
       )}
     </div>

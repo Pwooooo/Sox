@@ -18,6 +18,16 @@ import {
   loadEquippedClothingIds,
   saveEquippedClothingIds,
   resolveEquippedClothing,
+  loadNovluxBalance,
+  saveNovluxBalance,
+  loadOwnedItemIds,
+  addOwnedItemId,
+  loadFavoriteItemIds,
+  toggleFavoriteItemId,
+  loadItemVotes,
+  toggleItemVote,
+  incrementItemSales,
+  ItemVoteState,
 } from '@/data/clothingStore'
 
 export interface ItemDetailData {
@@ -59,20 +69,34 @@ export function ItemDetailModal({
 }: ItemDetailModalProps) {
   const [isTryOn, setIsTryOn] = useState(false)
   const [is2D, setIs2D] = useState(false)
-  const [liked, setLiked] = useState<'up' | 'down' | null>(null)
-  const [favorited, setFavorited] = useState(false)
+  const [liked, setLiked] = useState<ItemVoteState>(() => loadItemVotes()[item.id] ?? null)
+  const [favorited, setFavorited] = useState(() => loadFavoriteItemIds().includes(item.id))
+  const [isOwnedState, setIsOwnedState] = useState(
+    () => Boolean(item.isOwned) || loadOwnedItemIds().includes(item.id)
+  )
+  const [salesCount, setSalesCount] = useState(() => item.sold ?? 0)
   const [equippedIds, setEquippedIds] = useState(() => loadEquippedClothingIds())
   const [menuOpen, setMenuOpen] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
+  const [giftOpen, setGiftOpen] = useState(false)
+  const [giftRecipient, setGiftRecipient] = useState('')
+  const [statusMsg, setStatusMsg] = useState<{ text: string; error?: boolean } | null>(null)
   const discoverRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    setLiked(loadItemVotes()[item.id] ?? null)
+    setFavorited(loadFavoriteItemIds().includes(item.id))
+    setIsOwnedState(Boolean(item.isOwned) || loadOwnedItemIds().includes(item.id))
+    setSalesCount(item.sold ?? 0)
+    setGiftOpen(false)
+    setGiftRecipient('')
+    setStatusMsg(null)
     const targetPath = `/item/${encodeURIComponent(item.id)}`
     if (window.location.pathname !== targetPath) {
       window.history.pushState({}, '', targetPath)
     }
-  }, [item.id])
+  }, [item.id, item.isOwned, item.sold])
 
   useEffect(() => {
     return () => {
@@ -143,6 +167,57 @@ export function ItemDetailModal({
   const previewClothing: ClothingSelection | undefined = isTryOn
     ? { ...resolveEquippedClothing(equippedIds), ...item.clothing }
     : item.clothing
+
+  const handleBuyClick = () => {
+    const balance = loadNovluxBalance()
+    if (balance < item.price) {
+      setStatusMsg({
+        text: `Not enough Novlux (need ${item.price.toLocaleString()}, have ${balance.toLocaleString()})`,
+        error: true,
+      })
+      return
+    }
+    saveNovluxBalance(balance - item.price)
+    addOwnedItemId(item.id)
+    incrementItemSales(item.id)
+    setIsOwnedState(true)
+    setSalesCount((c) => c + 1)
+    setStatusMsg({ text: 'Purchased! You can now equip this item.', error: false })
+    onBuy?.(item)
+  }
+
+  const handleToggleFavorite = () => {
+    const next = toggleFavoriteItemId(item.id)
+    setFavorited(next)
+  }
+
+  const handleVote = (vote: 'up' | 'down') => {
+    const next = toggleItemVote(item.id, vote)
+    setLiked(next)
+  }
+
+  const handleSendGift = (e: React.FormEvent) => {
+    e.preventDefault()
+    const recipient = giftRecipient.trim()
+    if (!recipient) {
+      setStatusMsg({ text: 'Enter a username to gift this item to.', error: true })
+      return
+    }
+    const balance = loadNovluxBalance()
+    if (balance < item.price) {
+      setStatusMsg({
+        text: `Not enough Novlux to gift (need ${item.price.toLocaleString()}, have ${balance.toLocaleString()})`,
+        error: true,
+      })
+      return
+    }
+    saveNovluxBalance(balance - item.price)
+    incrementItemSales(item.id)
+    setSalesCount((c) => c + 1)
+    setGiftOpen(false)
+    setGiftRecipient('')
+    setStatusMsg({ text: `Gifted ${item.name} to ${recipient}!`, error: false })
+  }
 
   const createdDateStr = item.createdAt
     ? new Date(item.createdAt).toLocaleDateString()
@@ -272,7 +347,7 @@ export function ItemDetailModal({
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[11px] font-medium text-white/45">Sales</span>
-                    <span className="text-xs font-bold text-white/90">{item.sold ?? 0}</span>
+                    <span className="text-xs font-bold text-white/90">{salesCount}</span>
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[11px] font-medium text-white/45">Asset Type</span>
@@ -285,7 +360,7 @@ export function ItemDetailModal({
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => setLiked(liked === 'up' ? null : 'up')}
+                    onClick={() => handleVote('up')}
                     className={`h-9 px-3 rounded-[8px] border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors ${
                       liked === 'up'
                         ? 'bg-white/[0.12] border-white/25 text-white'
@@ -297,7 +372,7 @@ export function ItemDetailModal({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setLiked(liked === 'down' ? null : 'down')}
+                    onClick={() => handleVote('down')}
                     className={`h-9 px-3 rounded-[8px] border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors ${
                       liked === 'down'
                         ? 'bg-white/[0.12] border-white/25 text-white'
@@ -312,7 +387,7 @@ export function ItemDetailModal({
 
               {/* Buy + Gift / Favorite Row */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
-                {item.isOwned ? (
+                {isOwnedState ? (
                   <button
                     type="button"
                     onClick={handleToggleEquip}
@@ -328,7 +403,7 @@ export function ItemDetailModal({
                 ) : (
                   <button
                     type="button"
-                    onClick={() => onBuy?.(item)}
+                    onClick={handleBuyClick}
                     className="flex-1 min-w-[180px] h-10 px-4 rounded-[10px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98]"
                   >
                     <span>Buy for</span>
@@ -350,25 +425,64 @@ export function ItemDetailModal({
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
-                    className="h-10 px-3.5 rounded-[10px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-xs font-semibold text-white/80 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
+                    onClick={() => {
+                      setGiftOpen((v) => !v)
+                      setStatusMsg(null)
+                    }}
+                    className={`h-10 px-3.5 rounded-[10px] border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors ${
+                      giftOpen
+                        ? 'bg-white/[0.12] border-white/25 text-white'
+                        : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/80 hover:text-white'
+                    }`}
                   >
                     <Gift className="size-3.5" />
                     <span>Gift</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFavorited((v) => !v)}
+                    onClick={handleToggleFavorite}
                     className={`h-10 px-3.5 rounded-[10px] border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors ${
                       favorited
                         ? 'bg-white/[0.12] border-white/25 text-white'
                         : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/80 hover:text-white'
                     }`}
                   >
-                    <Heart className={`size-3.5 ${favorited ? 'fill-current' : ''}`} />
-                    <span>Favorite</span>
+                    <Heart className={`size-3.5 ${favorited ? 'fill-current text-rose-400' : ''}`} />
+                    <span>{favorited ? 'Favorited' : 'Favorite'}</span>
                   </button>
                 </div>
               </div>
+
+              {giftOpen && (
+                <form
+                  onSubmit={handleSendGift}
+                  className="flex items-center gap-2 p-2 rounded-[10px] bg-[#161618] border border-white/[0.08]"
+                >
+                  <input
+                    type="text"
+                    value={giftRecipient}
+                    onChange={(e) => setGiftRecipient(e.target.value)}
+                    placeholder="Recipient username..."
+                    className="flex-1 h-8 px-2.5 rounded-[7px] bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
+                  />
+                  <button
+                    type="submit"
+                    className="h-8 px-3 rounded-[7px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold cursor-pointer border-none transition-colors shrink-0"
+                  >
+                    Send Gift
+                  </button>
+                </form>
+              )}
+
+              {statusMsg && (
+                <p
+                  className={`text-xs font-medium ${
+                    statusMsg.error ? 'text-rose-400' : 'text-[#02b070]'
+                  }`}
+                >
+                  {statusMsg.text}
+                </p>
+              )}
             </div>
           </div>
         </div>

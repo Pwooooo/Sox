@@ -7,6 +7,8 @@ import {
   loadCreatedClothing,
   CLOTHING_UPDATED_EVENT,
   CreatedClothingItem,
+  loadFavoriteItemIds,
+  FAVORITE_ITEMS_EVENT,
 } from '@/data/clothingStore'
 import { useAuth } from '@/lib/auth'
 
@@ -65,6 +67,7 @@ export function Inventory() {
   const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
     loadCreatedClothing()
   )
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => loadFavoriteItemIds())
 
   const toDetailData = (item: InventoryItem): ItemDetailData => ({
     id: item.id,
@@ -81,11 +84,16 @@ export function Inventory() {
   })
 
   useEffect(() => {
-    const sync = () => setCreatedItems(loadCreatedClothing())
+    const sync = () => {
+      setCreatedItems(loadCreatedClothing())
+      setFavoriteIds(loadFavoriteItemIds())
+    }
     window.addEventListener(CLOTHING_UPDATED_EVENT, sync)
+    window.addEventListener(FAVORITE_ITEMS_EVENT, sync)
     window.addEventListener('storage', sync)
     return () => {
       window.removeEventListener(CLOTHING_UPDATED_EVENT, sync)
+      window.removeEventListener(FAVORITE_ITEMS_EVENT, sync)
       window.removeEventListener('storage', sync)
     }
   }, [])
@@ -98,7 +106,7 @@ export function Inventory() {
     const matchesTab =
       activeTab === 'All' ||
       item.category === activeTab ||
-      (activeTab === 'Favorites' && item.creator === currentUsername)
+      (activeTab === 'Favorites' && favoriteIds.includes(item.id))
     const matchesSearch =
       item.name.toLowerCase().includes(search.toLowerCase()) ||
       item.creator.toLowerCase().includes(search.toLowerCase())
