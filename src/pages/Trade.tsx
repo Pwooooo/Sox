@@ -986,7 +986,7 @@ export function Trade() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        {currentPartnerData.name}'s Offer (Receiving)
+                        {selectedPartnerName || 'Partner'}'s Offer (Receiving)
                       </h4>
                       <span className="text-[11px] text-white/40">
                         {selectedReceiveItems.length}/4 items selected
@@ -1045,7 +1045,7 @@ export function Trade() {
                     <div className="mt-2 p-2.5 rounded-xl bg-[#121214] flex flex-col gap-2 shadow-xl animate-in fade-in-50 duration-150">
                       <div className="flex items-center justify-between px-1">
                         <span className="text-[11px] font-bold text-white/70">
-                          Select item from {currentPartnerData.name}'s items:
+                          Select item from {selectedPartnerName || 'Partner'}'s items:
                         </span>
                         <button
                           onClick={() => {
@@ -1063,7 +1063,7 @@ export function Trade() {
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-white/40 pointer-events-none" />
                         <input
                           type="text"
-                          placeholder={`Search ${currentPartnerData.name}'s items...`}
+                          placeholder={`Search ${selectedPartnerName || 'Partner'}'s items...`}
                           value={dropdownSearch}
                           onChange={(e) => setDropdownSearch(e.target.value)}
                           className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#18181c] text-xs text-white placeholder:text-white/30 focus:outline-none border-none"
