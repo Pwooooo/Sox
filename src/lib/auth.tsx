@@ -19,6 +19,8 @@ import {
   saveFavoriteItemIds,
   loadCreatedClothing,
   saveCreatedClothing,
+  prepareClothingItemsForSync,
+  type CreatedClothingItem,
 } from '@/data/clothingStore'
 
 interface AuthContextValue {
@@ -141,12 +143,43 @@ export function AuthProvider({
       if (localColors) pendingUpload.avatar_colors = localColors
     }
 
+    const remoteClothingMap = new Map<string, CreatedClothingItem>()
+    if (Array.isArray(meta.created_clothing)) {
+      for (const item of meta.created_clothing as CreatedClothingItem[]) {
+        if (item?.id) remoteClothingMap.set(String(item.id), item)
+      }
+    }
+    if (Array.isArray(meta.equipped_clothing_items)) {
+      for (const item of meta.equipped_clothing_items as CreatedClothingItem[]) {
+        if (item?.id) remoteClothingMap.set(String(item.id), item)
+      }
+    }
+
+    if (remoteClothingMap.size > 0) {
+      const localExisting = loadCreatedClothing()
+      const mergedMap = new Map<string, CreatedClothingItem>()
+      for (const item of localExisting) mergedMap.set(String(item.id), item)
+      for (const [id, item] of remoteClothingMap.entries()) mergedMap.set(id, item)
+      saveCreatedClothing(Array.from(mergedMap.values()), false)
+    } else {
+      const localCreated = loadCreatedClothing()
+      if (localCreated.length > 0) {
+        const compressed = await prepareClothingItemsForSync(localCreated, 120000)
+        if (compressed.length > 0) pendingUpload.created_clothing = compressed
+      }
+    }
+
     if (meta.equipped_clothing && typeof meta.equipped_clothing === 'object') {
       saveEquippedClothingIds(meta.equipped_clothing, false)
     } else {
       const localEquipped = loadEquippedClothingIds()
       if (Object.values(localEquipped).some(Boolean)) {
         pendingUpload.equipped_clothing = localEquipped
+        const equippedSet = new Set(Object.values(localEquipped).filter(Boolean) as string[])
+        const equippedItems = loadCreatedClothing().filter((i) => equippedSet.has(i.id))
+        if (equippedItems.length > 0) {
+          pendingUpload.equipped_clothing_items = await prepareClothingItemsForSync(equippedItems, 90000)
+        }
       }
     }
 
@@ -168,15 +201,6 @@ export function AuthProvider({
     } else {
       const localFavs = loadFavoriteItemIds()
       if (localFavs.length > 0) pendingUpload.favorite_items = localFavs
-    }
-
-    if (Array.isArray(meta.created_clothing)) {
-      saveCreatedClothing(meta.created_clothing, false)
-    } else {
-      const localCreated = loadCreatedClothing()
-      if (localCreated.length > 0 && JSON.stringify(localCreated).length <= 24000) {
-        pendingUpload.created_clothing = localCreated
-      }
     }
 
     if (typeof meta.bio === 'string' && p?.id) {

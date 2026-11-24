@@ -111,7 +111,7 @@ export function AvatarEditor() {
 
   const [selectedPart, setSelectedPart] = useState<BodyPart>('torso')
   const [activeTab, setActiveTab] = useState<CategoryTab>('Hats')
-  const [equippedIds, setEquippedIds] = useState<number[]>([1, 4])
+  const [equippedIds, setEquippedIds] = useState<number[]>([])
   const [createdClothing, setCreatedClothing] = useState<CreatedClothingItem[]>(() =>
     loadCreatedClothing()
   )
