@@ -4,7 +4,6 @@ import {
   Shirt,
   Gift,
   Heart,
-  Bookmark,
   ThumbsUp,
   ThumbsDown,
   MoreHorizontal,
@@ -60,7 +59,6 @@ export function ItemDetailModal({
   const [is2D, setIs2D] = useState(false)
   const [liked, setLiked] = useState<'up' | 'down' | null>(null)
   const [favorited, setFavorited] = useState(false)
-  const [wishlisted, setWishlisted] = useState(false)
   const [equippedIds, setEquippedIds] = useState(() => loadEquippedClothingIds())
   const discoverRef = useRef<HTMLDivElement>(null)
 
@@ -248,15 +246,7 @@ export function ItemDetailModal({
                   </button>
                 )}
 
-                <button
-                  type="button"
-                  onClick={() => setWishlisted((v) => !v)}
-                  className="w-full h-9.5 px-4 rounded-[10px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
-                >
-                  <span>{wishlisted ? 'Added to cart' : 'Add to cart'}</span>
-                </button>
-
-                <div className="grid grid-cols-3 gap-2 pt-0.5">
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
                   <button
                     type="button"
                     className="h-8 px-2.5 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-[11px] font-semibold text-white/75 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
@@ -275,18 +265,6 @@ export function ItemDetailModal({
                   >
                     <Heart className={`size-3 ${favorited ? 'fill-current' : ''}`} />
                     <span>Favorite</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setWishlisted((v) => !v)}
-                    className={`h-8 px-2.5 rounded-[8px] border text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
-                      wishlisted
-                        ? 'bg-white/[0.12] border-white/25 text-white'
-                        : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/75 hover:text-white'
-                    }`}
-                  >
-                    <Bookmark className={`size-3 ${wishlisted ? 'fill-current' : ''}`} />
-                    <span>Wishlist</span>
                   </button>
                 </div>
               </div>
