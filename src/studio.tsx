@@ -97,7 +97,7 @@ function StudioApp() {
       : null)
 
   useEffect(() => {
-    if (!user || !profile || !hydrated) return
+    if (!user || !effectiveProfile || !hydrated) return
     let cancelled = false
     ;(async () => {
       try {
@@ -108,7 +108,7 @@ function StudioApp() {
         for (const p of projects) {
           const r = remoteById.get(p.id)
           if (!r || p.updatedAt > r.updated_at) {
-            await upsertRemoteExperience(p, profile)
+            await upsertRemoteExperience(p, effectiveProfile)
           }
         }
         // Merge remote projects into Studio list

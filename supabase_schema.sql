@@ -98,3 +98,11 @@ create policy "Users can update their own experiences"
 create policy "Users can delete their own experiences"
   on public.experiences for delete
   using (auth.uid() = owner_uid);
+
+-- 5. Table & schema privileges for anon & authenticated roles
+grant usage on schema public to anon, authenticated;
+grant select on public.profiles to anon, authenticated;
+grant insert, update on public.profiles to authenticated;
+grant select on public.experiences to anon;
+grant select, insert, update, delete on public.experiences to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
