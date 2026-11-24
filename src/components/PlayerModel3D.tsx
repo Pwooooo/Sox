@@ -276,11 +276,99 @@ function buildConformalClothingGeo(
   return geo
 }
 
+export function attachStandardFaceToModel(model: THREE.Object3D): void {
+  if (model.userData.__noveloFaceAttached) return
+  model.userData.__noveloFaceAttached = true
+  model.updateMatrixWorld(true)
+
+  let headTarget: THREE.Object3D | null = null
+  let headMesh: THREE.Mesh | null = null
+  model.traverse((obj) => {
+    const lower = obj.name.toLowerCase()
+    if (!headTarget && (obj as THREE.Bone).isBone && lower.includes('head')) {
+      headTarget = obj
+    }
+    if (!headMesh && (obj as THREE.Mesh).isMesh && lower.includes('head')) {
+      headMesh = obj as THREE.Mesh
+    }
+  })
+
+  const headBox = new THREE.Box3()
+  if (headMesh) {
+    headBox.setFromObject(headMesh)
+  } else {
+    const wp = new THREE.Vector3()
+    model.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        const pos = (obj as THREE.Mesh).geometry.getAttribute('position')
+        if (!pos) return
+        for (let i = 0; i < pos.count; i++) {
+          wp.fromBufferAttribute(pos, i).applyMatrix4(obj.matrixWorld)
+          if (wp.y >= 3.45) headBox.expandByPoint(wp)
+        }
+      }
+    })
+  }
+  if (headBox.isEmpty()) return
+
+  const faceTex = new THREE.TextureLoader().load('/models/Novelo_Standard_Face.png')
+  faceTex.colorSpace = THREE.SRGBColorSpace
+  const faceMat = new THREE.MeshStandardMaterial({
+    map: faceTex,
+    transparent: true,
+    alphaTest: 0.05,
+    roughness: 0.8,
+    metalness: 0,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+  })
+
+  const hSize = new THREE.Vector3()
+  const hCenter = new THREE.Vector3()
+  headBox.getSize(hSize)
+  headBox.getCenter(hCenter)
+  const faceSize = Math.min(hSize.x, hSize.y) * 0.94
+  const faceGeo = new THREE.PlaneGeometry(faceSize, faceSize, 16, 1)
+  const cylRadius = hSize.z * 0.5 + 0.005
+  const posAttr = faceGeo.getAttribute('position')
+  for (let i = 0; i < posAttr.count; i++) {
+    const x = posAttr.getX(i)
+    const theta = x / cylRadius
+    posAttr.setX(i, cylRadius * Math.sin(theta))
+    posAttr.setZ(i, cylRadius * Math.cos(theta) - cylRadius)
+  }
+  faceGeo.computeVertexNormals()
+
+  const faceMesh = new THREE.Mesh(faceGeo, faceMat)
+  const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.03, headBox.max.z + 0.005)
+  const attachParent = headTarget || headMesh || model
+  attachParent.updateMatrixWorld(true)
+  attachParent.worldToLocal(worldFront)
+  faceMesh.position.copy(worldFront)
+
+  const pQuat = new THREE.Quaternion()
+  attachParent.getWorldQuaternion(pQuat)
+  const mQuat = new THREE.Quaternion()
+  model.getWorldQuaternion(mQuat)
+  faceMesh.quaternion.copy(pQuat).invert().multiply(mQuat)
+
+  const pScale = new THREE.Vector3()
+  attachParent.getWorldScale(pScale)
+  faceMesh.scale.set(
+    pScale.x > 0.0001 ? 1 / pScale.x : 1,
+    pScale.y > 0.0001 ? 1 / pScale.y : 1,
+    pScale.z > 0.0001 ? 1 / pScale.z : 1,
+  )
+  attachParent.add(faceMesh)
+}
+
 export function applyAvatarToRiggedModel(
   model: THREE.Object3D,
   colors: BodyColors | null,
   sel?: ClothingSelection
 ): void {
+  attachStandardFaceToModel(model)
   const prevOverlays: THREE.Mesh[] = []
   const slots: Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', THREE.Mesh>> = {}
 
@@ -656,86 +744,7 @@ export function PlayerModel3D({
       model.updateMatrixWorld(true)
 
       // Attach starter face decal onto the front of the Head (bone-tracked if rigged)
-      const faceTex = new THREE.TextureLoader().load('/models/Novelo_Standard_Face.png')
-      faceTex.colorSpace = THREE.SRGBColorSpace
-      const faceMat = new THREE.MeshStandardMaterial({
-        map: faceTex,
-        transparent: true,
-        alphaTest: 0.05,
-        roughness: 0.8,
-        metalness: 0,
-        depthWrite: false,
-        polygonOffset: true,
-        polygonOffsetFactor: -2,
-      })
-
-      let headTarget: THREE.Object3D | null = null
-      let headMesh: THREE.Mesh | null = null
-      model.traverse((obj) => {
-        const lower = obj.name.toLowerCase()
-        if (!headTarget && (obj as THREE.Bone).isBone && lower.includes('head')) {
-          headTarget = obj
-        }
-        if (!headMesh && (obj as THREE.Mesh).isMesh && lower.includes('head')) {
-          headMesh = obj as THREE.Mesh
-        }
-      })
-
-      // Measure the world-space head bounds (top ~25% of the 4.7-tall normalized model)
-      const headBox = new THREE.Box3()
-      if (headMesh) {
-        headBox.setFromObject(headMesh)
-      } else {
-        const wp = new THREE.Vector3()
-        model.traverse((obj) => {
-          if ((obj as THREE.Mesh).isMesh) {
-            const pos = (obj as THREE.Mesh).geometry.getAttribute('position')
-            if (!pos) return
-            for (let i = 0; i < pos.count; i++) {
-              wp.fromBufferAttribute(pos, i).applyMatrix4(obj.matrixWorld)
-              if (wp.y >= 3.45) headBox.expandByPoint(wp)
-            }
-          }
-        })
-      }
-
-      if (!headBox.isEmpty()) {
-        const hSize = new THREE.Vector3()
-        const hCenter = new THREE.Vector3()
-        headBox.getSize(hSize)
-        headBox.getCenter(hCenter)
-        const faceSize = Math.min(hSize.x, hSize.y) * 0.94
-        const faceGeo = new THREE.PlaneGeometry(faceSize, faceSize, 16, 1)
-        const cylRadius = hSize.z * 0.5 + 0.005
-        const posAttr = faceGeo.getAttribute('position')
-        for (let i = 0; i < posAttr.count; i++) {
-          const x = posAttr.getX(i)
-          const theta = x / cylRadius
-          posAttr.setX(i, cylRadius * Math.sin(theta))
-          posAttr.setZ(i, cylRadius * Math.cos(theta) - cylRadius)
-        }
-        faceGeo.computeVertexNormals()
-
-        const faceMesh = new THREE.Mesh(faceGeo, faceMat)
-        const worldFront = new THREE.Vector3(hCenter.x, hCenter.y - hSize.y * 0.03, headBox.max.z + 0.005)
-
-        const attachParent = headTarget || headMesh || model
-        attachParent.updateMatrixWorld(true)
-        attachParent.worldToLocal(worldFront)
-        faceMesh.position.copy(worldFront)
-        // Counter-rotate & counter-scale so faceMesh faces model +Z at exact size inside rigged parent
-        const pQuat = new THREE.Quaternion()
-        attachParent.getWorldQuaternion(pQuat)
-        faceMesh.quaternion.copy(pQuat).invert()
-        const pScale = new THREE.Vector3()
-        attachParent.getWorldScale(pScale)
-        faceMesh.scale.set(
-          pScale.x > 0.0001 ? 1 / pScale.x : 1,
-          pScale.y > 0.0001 ? 1 / pScale.y : 1,
-          pScale.z > 0.0001 ? 1 / pScale.z : 1,
-        )
-        attachParent.add(faceMesh)
-      }
+      attachStandardFaceToModel(model)
 
       // Build rest-pose clothing attachment slots for Torso, Arms, and Legs
       const partMeshes: Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', THREE.Mesh>> = {}
