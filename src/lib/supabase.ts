@@ -72,9 +72,9 @@ export async function searchProfilesByUsername(query: string): Promise<UserProfi
   const { data, error } = await supabase
     .from('profiles')
     .select('id, auth_uid, username, display_name, created_at')
-    .or(`username.ilike.%${clean}%,display_name.ilike.%${clean}%`)
+    .ilike('username', `%${clean}%`)
     .order('username', { ascending: true })
-    .limit(4)
+    .limit(6)
   if (error || !data) return []
   return data as UserProfile[]
 }

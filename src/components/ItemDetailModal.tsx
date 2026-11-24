@@ -71,7 +71,7 @@ export function ItemDetailModal({
   onSelectDiscoverItem,
   onBuy,
 }: ItemDetailModalProps) {
-  const { profile: currentProfile } = useAuth()
+  const { user, profile: currentProfile } = useAuth()
   const [isTryOn, setIsTryOn] = useState(false)
   const [is2D, setIs2D] = useState(false)
   const [liked, setLiked] = useState<ItemVoteState>(() => loadItemVotes()[item.id] ?? null)
@@ -105,13 +105,20 @@ export function ItemDetailModal({
       const results = await searchProfilesByUsername(q)
       if (!cancelled) {
         const merged = [...results]
+        const selfName = currentProfile?.username || currentUsername
         if (
-          currentProfile &&
-          !merged.some((p) => p.id === currentProfile.id) &&
-          (currentProfile.username.toLowerCase().includes(q.toLowerCase()) ||
-            (currentProfile.display_name || '').toLowerCase().includes(q.toLowerCase()))
+          selfName &&
+          !merged.some((p) => p.username.toLowerCase() === selfName.toLowerCase()) &&
+          (selfName.toLowerCase().includes(q.toLowerCase()) ||
+            (currentProfile?.display_name || '').toLowerCase().includes(q.toLowerCase()))
         ) {
-          merged.unshift(currentProfile)
+          merged.unshift({
+            id: currentProfile?.id ?? 0,
+            auth_uid: currentProfile?.auth_uid ?? user?.id ?? '',
+            username: selfName,
+            display_name: currentProfile?.display_name ?? null,
+            created_at: currentProfile?.created_at ?? '',
+          })
         }
         setGiftMatches(merged)
         setGiftSearching(false)
@@ -121,7 +128,7 @@ export function ItemDetailModal({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [giftOpen, giftRecipient])
+  }, [giftOpen, giftRecipient, currentProfile, currentUsername, user?.id])
 
   useEffect(() => {
     setLiked(loadItemVotes()[item.id] ?? null)
