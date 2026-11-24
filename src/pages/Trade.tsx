@@ -89,6 +89,25 @@ function toTradeItem(item: CreatedClothingItem, fallbackUsername: string): Trade
   }
 }
 
+function TradeItemPreview({ item, className = 'w-full h-full' }: { item: TradeItem; className?: string }) {
+  if (item.clothing) {
+    return (
+      <div className={className}>
+        <PlayerModel3D
+          mode="full"
+          useSavedColors={false}
+          useSavedClothing={false}
+          autoRotate={false}
+          initialYaw={0.22}
+          clothing={item.clothing}
+          className="w-full h-full"
+        />
+      </div>
+    )
+  }
+  return <IsometricMannequin name={item.name} type={item.type} className={className} />
+}
+
 export function Trade() {
   const { user, profile } = useAuth()
   const currentUsername =
@@ -888,7 +907,7 @@ export function Trade() {
                             ✕
                           </button>
                           <div className="w-full flex-1 flex items-center justify-center overflow-hidden pt-1">
-                            <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full max-h-12" />
+                            <TradeItemPreview item={item} className="h-12 w-full max-h-12" />
                           </div>
                           <div className="w-full text-center pb-0.5 px-0.5">
                             <span className="text-[9.5px] font-bold text-white truncate block w-full leading-tight">
@@ -959,7 +978,7 @@ export function Trade() {
                             >
                               <div className="flex items-center gap-2 min-w-0">
                                 <div className="size-7 rounded-md bg-[#121214] flex items-center justify-center overflow-hidden shrink-0">
-                                  <IsometricMannequin name={item.name} type={item.type} className="h-6 w-6" />
+                                  <TradeItemPreview item={item} className="h-6 w-6" />
                                 </div>
                                 <span className="text-xs font-bold text-white truncate">
                                   {item.name}
@@ -1016,7 +1035,7 @@ export function Trade() {
                             ✕
                           </button>
                           <div className="w-full flex-1 flex items-center justify-center overflow-hidden pt-1">
-                            <IsometricMannequin name={item.name} type={item.type} className="h-12 w-full max-h-12" />
+                            <TradeItemPreview item={item} className="h-12 w-full max-h-12" />
                           </div>
                           <div className="w-full text-center pb-0.5 px-0.5">
                             <span className="text-[9.5px] font-bold text-white truncate block w-full leading-tight">
@@ -1087,7 +1106,7 @@ export function Trade() {
                             >
                               <div className="flex items-center gap-2 min-w-0">
                                 <div className="size-7 rounded-md bg-[#121214] flex items-center justify-center overflow-hidden shrink-0">
-                                  <IsometricMannequin name={item.name} type={item.type} className="h-6 w-6" />
+                                  <TradeItemPreview item={item} className="h-6 w-6" />
                                 </div>
                                 <span className="text-xs font-bold text-white truncate">
                                   {item.name}
