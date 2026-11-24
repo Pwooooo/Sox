@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket, Gamepad2 } from 'lucide-react'
+import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket, Gamepad2, X } from 'lucide-react'
 import { UnderConstruction } from '@/components/UnderConstruction'
 import {
   fetchProfileById,
@@ -8,6 +8,7 @@ import {
 } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
+import { loadNovluxBalance } from '@/data/clothingStore'
 
 interface ProfileProject {
   id: string
@@ -21,8 +22,39 @@ export function Profile({ profileId }: { profileId?: number | null }) {
   const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
   const [projects, setProjects] = useState<ProfileProject[]>([])
   const [viewedProfile, setViewedProfile] = useState<UserProfile | null>(null)
+  const [novluxBalance, setNovluxBalance] = useState<number>(() => loadNovluxBalance())
+  const [editOpen, setEditOpen] = useState(false)
+  const [bioDraft, setBioDraft] = useState('')
 
   const targetId = profileId ?? myProfile?.id ?? null
+  const isOwnProfile = targetId === null || (myProfile?.id !== undefined && targetId === myProfile.id)
+  const bioStorageKey = `novelo_profile_bio_${targetId ?? 'guest'}`
+  const [bio, setBio] = useState<string>(() => {
+    try {
+      return localStorage.getItem(`novelo_profile_bio_${profileId ?? myProfile?.id ?? 'guest'}`) || ''
+    } catch {
+      return ''
+    }
+  })
+
+  useEffect(() => {
+    try {
+      setBio(localStorage.getItem(bioStorageKey) || '')
+    } catch {
+      setBio('')
+    }
+  }, [bioStorageKey])
+
+  useEffect(() => {
+    const refreshBalance = () => setNovluxBalance(loadNovluxBalance())
+    window.addEventListener('focus', refreshBalance)
+    window.addEventListener('storage', refreshBalance)
+    return () => {
+      window.removeEventListener('focus', refreshBalance)
+      window.removeEventListener('storage', refreshBalance)
+    }
+  }, [])
+
   const ownFallbackUsername =
     !profileId && user
       ? (user.user_metadata?.username as string | undefined) || user.email?.split('@')[0]
@@ -107,11 +139,18 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               {/* Circular Avatar with Blue Status Dot */}
               <div className="relative">
                 <div className="size-24 md:size-28 rounded-full bg-[#141416] border-4 border-[#0a0a0a] flex items-center justify-center overflow-hidden shadow-2xl">
-                  <PlayerModel3D mode="headshot" className="w-full h-full" />
+                  <PlayerModel3D
+                    mode="headshot"
+                    useSavedColors={isOwnProfile}
+                    useSavedClothing={isOwnProfile}
+                    className="w-full h-full"
+                  />
                 </div>
 
                 {/* Blue Online / Verified Dot */}
-                <span className="absolute bottom-1 right-1 size-5 rounded-full bg-[#00a2ff] border-3 border-[#0a0a0a] shadow-sm" />
+                {isOwnProfile && (
+                  <span className="absolute bottom-1 right-1 size-5 rounded-full bg-[#00a2ff] border-3 border-[#0a0a0a] shadow-sm" />
+                )}
               </div>
 
               {/* Username & Badges */}
@@ -120,9 +159,12 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                   <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
                     {viewedProfile?.display_name || viewedProfile?.username || ownFallbackUsername || (targetId ? `User #${targetId}` : 'Guest')}
                   </h1>
-                  {/* Cat badge & Rocket badge */}
-                  <Cat className="size-4 text-white/80" />
-                  <Rocket className="size-4 text-white/80" />
+                  {(viewedProfile?.id ?? targetId) === 1 && (
+                    <>
+                      <Cat className="size-4 text-white/80" />
+                      <Rocket className="size-4 text-white/80" />
+                    </>
+                  )}
                 </div>
                 <span className="text-xs text-white/50 font-medium">
                   @{(viewedProfile?.username || ownFallbackUsername || 'guest').toLowerCase()}
@@ -132,47 +174,59 @@ export function Profile({ profileId }: { profileId?: number | null }) {
             </div>
 
             {/* Right Action Buttons matching reference #1d1d1d */}
-            <div className="flex items-center gap-2 mb-2">
-              <button
-                onClick={() => alert('Edit Profile modal opened')}
-                className="h-9 px-3.5 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
-              >
-                <Edit3 className="size-3.5 stroke-[2]" />
-                <span>Edit Profile</span>
-              </button>
-              <button
-                className="size-9 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
-              >
-                <MoreHorizontal className="size-4" />
-              </button>
-            </div>
+            {isOwnProfile && (
+              <div className="flex items-center gap-2 mb-2">
+                <button
+                  onClick={() => {
+                    setBioDraft(bio)
+                    setEditOpen(true)
+                  }}
+                  className="h-9 px-3.5 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+                >
+                  <Edit3 className="size-3.5 stroke-[2]" />
+                  <span>Edit Profile</span>
+                </button>
+                <button
+                  className="size-9 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+                >
+                  <MoreHorizontal className="size-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Subtitle & Metadata Line */}
         <div className="px-3 flex flex-col gap-1.5">
-          <span className="text-xs font-bold text-white/90">Pwo Luduvian</span>
+          {bio && <span className="text-xs font-bold text-white/90">{bio}</span>}
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/50">
             <div className="flex items-center gap-1.5">
               <Users className="size-3.5" />
-              <span>4 friends</span>
+              <span>0 friends</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Calendar className="size-3.5" />
-              <span>Joined 5/22/2026</span>
+              <span>
+                Joined{' '}
+                {(() => {
+                  const raw = viewedProfile?.created_at || (isOwnProfile ? user?.created_at : undefined)
+                  if (!raw) return '—'
+                  const d = new Date(raw)
+                  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString()
+                })()}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Clock className="size-3.5" />
-              <span>Online Now</span>
+              <span>{isOwnProfile ? 'Online Now' : 'Offline'}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain opacity-70" />
-              <span>0</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span>No past usernames</span>
-            </div>
+            {isOwnProfile && (
+              <div className="flex items-center gap-1.5">
+                <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain opacity-70" />
+                <span>{novluxBalance.toLocaleString()}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -204,13 +258,22 @@ export function Profile({ profileId }: { profileId?: number | null }) {
           <div className="md:col-span-4 rounded-2xl bg-[#0f0f12] border border-white/[0.05] p-4 flex flex-col items-center justify-center h-[400px] shadow-xl relative overflow-hidden">
             {/* Ground Ambient Glow */}
             <div className="absolute bottom-8 w-44 h-8 bg-black/80 rounded-full blur-md pointer-events-none" />
-            <PlayerModel3D mode="full" interactive className="w-full h-full relative z-10" />
+            <PlayerModel3D
+              mode="full"
+              interactive
+              useSavedColors={isOwnProfile}
+              useSavedClothing={isOwnProfile}
+              className="w-full h-full relative z-10"
+            />
           </div>
 
           {/* Right Column: Game Showcase Card */}
           <div className="md:col-span-8 rounded-2xl bg-[#0f0f12] border border-white/[0.05] p-5 flex flex-col gap-4 shadow-xl">
             {/* Title with Arrow */}
-            <div className="flex items-center gap-1 text-sm font-bold text-white tracking-tight cursor-pointer hover:text-white/80 transition-colors">
+            <div
+              onClick={() => setActiveTab('Games')}
+              className="flex items-center gap-1 text-sm font-bold text-white tracking-tight cursor-pointer hover:text-white/80 transition-colors w-fit"
+            >
               <span>Game Showcase</span>
               <ChevronRight className="size-4" />
             </div>
@@ -292,6 +355,61 @@ export function Profile({ profileId }: { profileId?: number | null }) {
       {/* Other tabs placeholder */}
       {activeTab !== 'About' && activeTab !== 'Games' && (
         <UnderConstruction onGoBack={() => setActiveTab('About')} />
+      )}
+
+      {/* Edit Profile Modal */}
+      {editOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-[#111114] border border-white/10 p-5 flex flex-col gap-4 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white">Edit Profile</h3>
+              <button
+                onClick={() => setEditOpen(false)}
+                className="size-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white cursor-pointer border-none bg-transparent"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-white/70">Bio / Status</label>
+              <textarea
+                rows={3}
+                maxLength={160}
+                value={bioDraft}
+                onChange={(e) => setBioDraft(e.target.value)}
+                placeholder="Write a short bio..."
+                className="w-full rounded-xl bg-[#18181b] border border-white/10 p-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
+              />
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => setEditOpen(false)}
+                className="h-9 px-4 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-semibold cursor-pointer border-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = bioDraft.trim()
+                  setBio(trimmed)
+                  try {
+                    if (trimmed) {
+                      localStorage.setItem(bioStorageKey, trimmed)
+                    } else {
+                      localStorage.removeItem(bioStorageKey)
+                    }
+                  } catch {
+                    // ignore storage errors
+                  }
+                  setEditOpen(false)
+                }}
+                className="h-9 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold cursor-pointer border-none"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

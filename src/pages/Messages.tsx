@@ -20,68 +20,15 @@ interface Conversation {
   messages: Message[]
 }
 
-const INITIAL_CONVERSATIONS: Conversation[] = [
-  {
-    id: 'c1',
-    name: 'Carro',
-    avatarColor: '#fcd34d',
-    status: 'in-game',
-    lastMessage: 'Hop on The Strongest Battlegrounds, we need a 4th!',
-    time: '2m ago',
-    unread: 2,
-    messages: [
-      { id: 'm1', senderId: 'c1', text: 'Yo Sky! Are you online?', time: '18:42', isMe: false },
-      { id: 'm2', senderId: 'me', text: 'Yeah just checking out the new Novelo update', time: '18:44', isMe: true },
-      { id: 'm3', senderId: 'c1', text: 'Hop on The Strongest Battlegrounds, we need a 4th!', time: '18:45', isMe: false },
-    ],
-  },
-  {
-    id: 'c2',
-    name: 'dev',
-    avatarColor: '#18181b',
-    status: 'online',
-    lastMessage: 'Pushed the changes to main branch. Check it out.',
-    time: '1h ago',
-    unread: 0,
-    messages: [
-      { id: 'm4', senderId: 'c2', text: 'Hey, did you test the sword combat mechanics?', time: '17:15', isMe: false },
-      { id: 'm5', senderId: 'me', text: 'Yes, hitboxes are much cleaner now', time: '17:20', isMe: true },
-      { id: 'm6', senderId: 'c2', text: 'Pushed the changes to main branch. Check it out.', time: '17:30', isMe: false },
-    ],
-  },
-  {
-    id: 'c3',
-    name: 'Krampus',
-    avatarColor: '#9ca3af',
-    status: 'online',
-    lastMessage: 'Are you trading that Crown of Novelo?',
-    time: '3h ago',
-    unread: 0,
-    messages: [
-      { id: 'm7', senderId: 'c3', text: 'Are you trading that Crown of Novelo?', time: '15:10', isMe: false },
-    ],
-  },
-  {
-    id: 'c4',
-    name: 'Novelo System',
-    avatarColor: '#ffffff',
-    status: 'offline',
-    lastMessage: 'Welcome to Novelo! Enjoy the smooth experience.',
-    time: '1d ago',
-    unread: 0,
-    messages: [
-      { id: 'm8', senderId: 'sys', text: 'Welcome to Novelo! Enjoy the smooth experience.', time: 'Yesterday', isMe: false },
-    ],
-  },
-]
+const INITIAL_CONVERSATIONS: Conversation[] = []
 
 export function Messages() {
   const [conversations, setConversations] = useState(INITIAL_CONVERSATIONS)
-  const [selectedId, setSelectedId] = useState('c1')
+  const [selectedId, setSelectedId] = useState('')
   const [inputText, setInputText] = useState('')
   const [search, setSearch] = useState('')
 
-  const activeConvo = conversations.find((c) => c.id === selectedId) || conversations[0]
+  const activeConvo = conversations.find((c) => c.id === selectedId) || conversations[0] || null
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault()
@@ -188,71 +135,82 @@ export function Messages() {
 
         {/* Right Side: Chat Window (No dividers) */}
         <div className="flex-1 flex flex-col bg-[#09090b]/80 min-w-0">
-          {/* Active Chat Header */}
-          <div className="h-16 px-5 flex items-center justify-between shrink-0 bg-[#0e0e10]/40">
-            <div className="flex items-center gap-3">
-              <div
-                className="size-9 rounded-full flex items-center justify-center shadow-xs"
-                style={{ backgroundColor: activeConvo.avatarColor }}
-              >
-                <div className="size-1.5 rounded-full bg-black/60" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-white leading-tight">{activeConvo.name}</h3>
-                <span className="text-[11px] text-emerald-400 capitalize">
-                  {activeConvo.status === 'in-game' ? 'In Experience' : activeConvo.status}
-                </span>
-              </div>
+          {!activeConvo ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 gap-2">
+              <p className="text-sm font-bold text-white/80">No conversations yet</p>
+              <p className="text-xs text-white/40">
+                Add friends to start messaging them here.
+              </p>
             </div>
-
-            <button className="size-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer border-none bg-transparent">
-              <MoreVertical className="size-4" />
-            </button>
-          </div>
-
-          {/* Messages Stream */}
-          <div className="flex-1 p-5 overflow-y-auto no-scrollbar flex flex-col gap-3">
-            {activeConvo.messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex flex-col max-w-[75%] ${
-                  msg.isMe ? 'self-end items-end' : 'self-start items-start'
-                }`}
-              >
-                <div
-                  className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm leading-relaxed ${
-                    msg.isMe
-                      ? 'bg-white text-black font-medium rounded-br-xs shadow-md'
-                      : 'bg-[#18181a] text-white rounded-bl-xs'
-                  }`}
-                >
-                  {msg.text}
+          ) : (
+            <>
+              {/* Active Chat Header */}
+              <div className="h-16 px-5 flex items-center justify-between shrink-0 bg-[#0e0e10]/40">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="size-9 rounded-full flex items-center justify-center shadow-xs"
+                    style={{ backgroundColor: activeConvo.avatarColor }}
+                  >
+                    <div className="size-1.5 rounded-full bg-black/60" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white leading-tight">{activeConvo.name}</h3>
+                    <span className="text-[11px] text-emerald-400 capitalize">
+                      {activeConvo.status === 'in-game' ? 'In Experience' : activeConvo.status}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[10px] text-white/30 mt-1 px-1">{msg.time}</span>
-              </div>
-            ))}
-          </div>
 
-          {/* Input Bar */}
-          <form
-            onSubmit={handleSend}
-            className="p-3.5 bg-[#0e0e10]/60 flex items-center gap-2"
-          >
-            <input
-              type="text"
-              placeholder={`Message ${activeConvo.name}...`}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 h-10 px-4 rounded-xl bg-[#141416] text-xs md:text-sm text-white placeholder:text-white/40 focus:outline-none transition-all"
-            />
-            <button
-              type="submit"
-              disabled={!inputText.trim()}
-              className="size-10 rounded-xl bg-white text-black disabled:bg-white/10 disabled:text-white/30 hover:bg-neutral-200 transition-all flex items-center justify-center cursor-pointer border-none shrink-0 shadow-md"
-            >
-              <Send className="size-4" />
-            </button>
-          </form>
+                <button className="size-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer border-none bg-transparent">
+                  <MoreVertical className="size-4" />
+                </button>
+              </div>
+
+              {/* Messages Stream */}
+              <div className="flex-1 p-5 overflow-y-auto no-scrollbar flex flex-col gap-3">
+                {activeConvo.messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex flex-col max-w-[75%] ${
+                      msg.isMe ? 'self-end items-end' : 'self-start items-start'
+                    }`}
+                  >
+                    <div
+                      className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm leading-relaxed ${
+                        msg.isMe
+                          ? 'bg-white text-black font-medium rounded-br-xs shadow-md'
+                          : 'bg-[#18181a] text-white rounded-bl-xs'
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                    <span className="text-[10px] text-white/30 mt-1 px-1">{msg.time}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Input Bar */}
+              <form
+                onSubmit={handleSend}
+                className="p-3.5 bg-[#0e0e10]/60 flex items-center gap-2"
+              >
+                <input
+                  type="text"
+                  placeholder={`Message ${activeConvo.name}...`}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  className="flex-1 h-10 px-4 rounded-xl bg-[#141416] text-xs md:text-sm text-white placeholder:text-white/40 focus:outline-none transition-all"
+                />
+                <button
+                  type="submit"
+                  disabled={!inputText.trim()}
+                  className="size-10 rounded-xl bg-white text-black disabled:bg-white/10 disabled:text-white/30 hover:bg-neutral-200 transition-all flex items-center justify-center cursor-pointer border-none shrink-0 shadow-md"
+                >
+                  <Send className="size-4" />
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </div>

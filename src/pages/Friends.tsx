@@ -12,52 +12,15 @@ interface Friend {
   shirtColor: string
 }
 
-const INITIAL_FRIENDS: Friend[] = [
-  {
-    id: '1',
-    name: 'Carro',
-    tag: '@carro_dev',
-    status: 'in-game',
-    gameName: 'The Strongest Battlegrounds',
-    avatarBg: '#1f2024',
-    headColor: '#fcd34d',
-    shirtColor: '#3b82f6',
-  },
-  {
-    id: '2',
-    name: 'dev',
-    tag: '@core_dev',
-    status: 'in-game',
-    gameName: 'Sword Fighting Tournament',
-    avatarBg: '#1f2024',
-    headColor: '#18181b',
-    shirtColor: '#166534',
-  },
-  {
-    id: '3',
-    name: 'Krampus',
-    tag: '@krampus_99',
-    status: 'online',
-    avatarBg: '#1f2024',
-    headColor: '#9ca3af',
-    shirtColor: '#6b7280',
-  },
-  {
-    id: '4',
-    name: 'PixelKnight',
-    tag: '@pixel_pro',
-    status: 'offline',
-    avatarBg: '#1f2024',
-    headColor: '#facc15',
-    shirtColor: '#eab308',
-  },
-]
+const INITIAL_FRIENDS: Friend[] = []
 
-const INITIAL_REQUESTS = [
-  { id: 'r1', name: 'VortexBuilder', tag: '@vortex_b', mutualFriends: 2, headColor: '#ef4444' },
-  { id: 'r2', name: 'NeonSamurai', tag: '@neon_s', mutualFriends: 5, headColor: '#06b6d4' },
-  { id: 'r3', name: 'ShadowGamer', tag: '@shadow_g', mutualFriends: 1, headColor: '#a855f7' },
-]
+const INITIAL_REQUESTS: {
+  id: string
+  name: string
+  tag: string
+  mutualFriends: number
+  headColor: string
+}[] = []
 
 export function Friends() {
   const [activeTab, setActiveTab] = useState<'all' | 'online' | 'requests'>('all')
