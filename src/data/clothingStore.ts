@@ -223,29 +223,35 @@ export function loadEquippedClothingIds(): EquippedClothingIds {
   }
 }
 
-async function compressDataUrlForSync(dataUrl: string): Promise<string> {
-  if (!dataUrl || dataUrl.length <= 24000 || typeof document === 'undefined') {
+async function compressDataUrlForSync(dataUrl: string, targetBytes = 18000): Promise<string> {
+  if (!dataUrl || dataUrl.length <= targetBytes || typeof document === 'undefined') {
     return dataUrl
   }
   return new Promise((resolve) => {
     const img = new Image()
     img.onload = () => {
       try {
-        const maxDim = 512
-        const scale = Math.min(1, maxDim / Math.max(img.width || maxDim, img.height || maxDim))
-        const w = Math.max(1, Math.round((img.width || maxDim) * scale))
-        const h = Math.max(1, Math.round((img.height || maxDim) * scale))
-        const canvas = document.createElement('canvas')
-        canvas.width = w
-        canvas.height = h
-        const ctx = canvas.getContext('2d')
-        if (!ctx) {
-          resolve(dataUrl)
-          return
+        const attempts: Array<{ maxDim: number; quality: number }> = [
+          { maxDim: 512, quality: 0.8 },
+          { maxDim: 384, quality: 0.72 },
+          { maxDim: 256, quality: 0.65 },
+        ]
+        let best = dataUrl
+        for (const { maxDim, quality } of attempts) {
+          const scale = Math.min(1, maxDim / Math.max(img.width || maxDim, img.height || maxDim))
+          const w = Math.max(1, Math.round((img.width || maxDim) * scale))
+          const h = Math.max(1, Math.round((img.height || maxDim) * scale))
+          const canvas = document.createElement('canvas')
+          canvas.width = w
+          canvas.height = h
+          const ctx = canvas.getContext('2d')
+          if (!ctx) break
+          ctx.drawImage(img, 0, 0, w, h)
+          const webp = canvas.toDataURL('image/webp', quality)
+          if (webp.length < best.length) best = webp
+          if (best.length <= targetBytes) break
         }
-        ctx.drawImage(img, 0, 0, w, h)
-        const webp = canvas.toDataURL('image/webp', 0.85)
-        resolve(webp.length < dataUrl.length ? webp : dataUrl)
+        resolve(best)
       } catch {
         resolve(dataUrl)
       }
@@ -257,7 +263,7 @@ async function compressDataUrlForSync(dataUrl: string): Promise<string> {
 
 export async function prepareClothingItemsForSync(
   items: CreatedClothingItem[],
-  maxTotalBytes = 120000
+  maxTotalBytes = 250000
 ): Promise<CreatedClothingItem[]> {
   const out: CreatedClothingItem[] = []
   let total = 0
@@ -371,7 +377,7 @@ export function saveCreatedClothing(items: CreatedClothingItem[], syncRemote = t
     localStorage.setItem(STORAGE_KEY, serialized)
     window.dispatchEvent(new CustomEvent(CLOTHING_UPDATED_EVENT, { detail: items }))
     if (syncRemote) {
-      void prepareClothingItemsForSync(items, 120000).then((syncedItems) => {
+      void prepareClothingItemsForSync(items, 250000).then((syncedItems) => {
         if (syncedItems.length > 0 || items.length === 0) {
           syncUserMetadata({ created_clothing: syncedItems })
         }

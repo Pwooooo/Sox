@@ -160,11 +160,16 @@ export function AuthProvider({
       const mergedMap = new Map<string, CreatedClothingItem>()
       for (const item of localExisting) mergedMap.set(String(item.id), item)
       for (const [id, item] of remoteClothingMap.entries()) mergedMap.set(id, item)
-      saveCreatedClothing(Array.from(mergedMap.values()), false)
+      const mergedList = Array.from(mergedMap.values())
+      saveCreatedClothing(mergedList, false)
+      if (mergedList.length > (Array.isArray(meta.created_clothing) ? meta.created_clothing.length : 0)) {
+        const compressed = await prepareClothingItemsForSync(mergedList, 250000)
+        if (compressed.length > 0) pendingUpload.created_clothing = compressed
+      }
     } else {
       const localCreated = loadCreatedClothing()
       if (localCreated.length > 0) {
-        const compressed = await prepareClothingItemsForSync(localCreated, 120000)
+        const compressed = await prepareClothingItemsForSync(localCreated, 250000)
         if (compressed.length > 0) pendingUpload.created_clothing = compressed
       }
     }
