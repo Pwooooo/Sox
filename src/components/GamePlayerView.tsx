@@ -15,7 +15,18 @@ import {
 import { NoveloViewport, createStarterWorld, type NvloDocument } from '@engine/index'
 import { fetchExperienceById } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
-import { PlayerModel3D } from '@/components/PlayerModel3D'
+import {
+  PlayerModel3D,
+  loadSavedBodyColors,
+  applyAvatarToRiggedModel,
+  AVATAR_COLORS_EVENT,
+} from '@/components/PlayerModel3D'
+import {
+  loadEquippedClothingIds,
+  resolveEquippedClothing,
+  EQUIPPED_CLOTHING_EVENT,
+  CLOTHING_UPDATED_EVENT,
+} from '@/data/clothingStore'
 
 interface GamePlayerViewProps {
   gameId: string
@@ -150,6 +161,30 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
         viewportRef.current = viewport
         viewport.loadDocument(loaded.doc || createStarterWorld(loaded.name))
         viewport.startPlay()
+
+        const applyInGameAvatar = () => {
+          const charGroup = (viewport as any)?.character?.group
+          if (!charGroup || !charGroup.children || charGroup.children.length < 2) return false
+          const riggedModel = charGroup.children[1]
+          if (!riggedModel) return false
+          applyAvatarToRiggedModel(
+            riggedModel,
+            loadSavedBodyColors(),
+            resolveEquippedClothing(loadEquippedClothingIds())
+          )
+          return true
+        }
+
+        if (!applyInGameAvatar()) {
+          let tries = 0
+          const poll = window.setInterval(() => {
+            tries += 1
+            if (cancelled || applyInGameAvatar() || tries >= 40) {
+              window.clearInterval(poll)
+            }
+          }, 150)
+        }
+
         setStatus('playing')
         setMessages([
           {
@@ -203,6 +238,27 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       }
     }
   }, [gameId])
+
+  useEffect(() => {
+    const syncInGameAvatar = () => {
+      const charGroup = (viewportRef.current as any)?.character?.group
+      const riggedModel = charGroup?.children?.[1]
+      if (!riggedModel) return
+      applyAvatarToRiggedModel(
+        riggedModel,
+        loadSavedBodyColors(),
+        resolveEquippedClothing(loadEquippedClothingIds())
+      )
+    }
+    window.addEventListener(AVATAR_COLORS_EVENT, syncInGameAvatar)
+    window.addEventListener(EQUIPPED_CLOTHING_EVENT, syncInGameAvatar)
+    window.addEventListener(CLOTHING_UPDATED_EVENT, syncInGameAvatar)
+    return () => {
+      window.removeEventListener(AVATAR_COLORS_EVENT, syncInGameAvatar)
+      window.removeEventListener(EQUIPPED_CLOTHING_EVENT, syncInGameAvatar)
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, syncInGameAvatar)
+    }
+  }, [])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

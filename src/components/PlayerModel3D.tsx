@@ -86,7 +86,7 @@ export interface BodyColors {
 }
 
 const AVATAR_COLORS_STORAGE_KEY = 'novelo_avatar_body_colors'
-const AVATAR_COLORS_EVENT = 'novelo-avatar-colors-updated'
+export const AVATAR_COLORS_EVENT = 'novelo-avatar-colors-updated'
 
 export function loadSavedBodyColors(): BodyColors | null {
   try {
@@ -274,6 +274,153 @@ function buildConformalClothingGeo(
   geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
   pos.needsUpdate = true
   return geo
+}
+
+export function applyAvatarToRiggedModel(
+  model: THREE.Object3D,
+  colors: BodyColors | null,
+  sel?: ClothingSelection
+): void {
+  const prevOverlays: THREE.Mesh[] = []
+  const slots: Partial<Record<'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg', THREE.Mesh>> = {}
+
+  model.updateMatrixWorld(true)
+  const modelInv = new THREE.Matrix4().copy(model.matrixWorld).invert()
+
+  model.traverse((obj) => {
+    if (!(obj as THREE.Mesh).isMesh) return
+    const mesh = obj as THREE.Mesh
+    if (mesh.userData?.__noveloClothingOverlay) {
+      prevOverlays.push(mesh)
+      return
+    }
+    const partKey = resolveBodyPartKey(mesh.name)
+    if (!partKey) return
+
+    if (colors) {
+      mesh.material = new THREE.MeshStandardMaterial({
+        color: colors[partKey],
+        roughness: 0.52,
+        metalness: 0,
+      })
+    }
+
+    if (partKey !== 'head') {
+      slots[partKey] = mesh
+    }
+  })
+
+  for (const old of prevOverlays) {
+    old.parent?.remove(old)
+    old.geometry.dispose()
+    if (Array.isArray(old.material)) old.material.forEach((m) => m.dispose())
+    else old.material.dispose()
+  }
+
+  if (!sel) return
+
+  const makeTemplateMat = (src: string) => {
+    const tex = new THREE.TextureLoader().load(src)
+    tex.colorSpace = THREE.SRGBColorSpace
+    return new THREE.MeshStandardMaterial({
+      map: tex,
+      transparent: true,
+      alphaTest: 0.05,
+      roughness: 0.65,
+      metalness: 0,
+      side: THREE.DoubleSide,
+      depthWrite: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+    })
+  }
+
+  const spawnOverlay = (
+    key: 'torso' | 'leftArm' | 'rightArm' | 'leftLeg' | 'rightLeg',
+    regions: TemplateRegions,
+    mat: THREE.MeshStandardMaterial,
+    inflate: number
+  ) => {
+    const baseMesh = slots[key]
+    if (!baseMesh || !baseMesh.parent) return
+    const geo = buildConformalClothingGeo(baseMesh, regions, inflate)
+    let overlay: THREE.Mesh
+    if ((baseMesh as THREE.SkinnedMesh).isSkinnedMesh) {
+      const srcSkinned = baseMesh as THREE.SkinnedMesh
+      const skinned = new THREE.SkinnedMesh(geo, mat)
+      skinned.bind(srcSkinned.skeleton, srcSkinned.bindMatrix)
+      overlay = skinned
+    } else {
+      overlay = new THREE.Mesh(geo, mat)
+      overlay.position.copy(baseMesh.position)
+      overlay.quaternion.copy(baseMesh.quaternion)
+      overlay.scale.copy(baseMesh.scale)
+    }
+    overlay.userData.__noveloClothingOverlay = true
+    baseMesh.parent.add(overlay)
+  }
+
+  if (sel.pants) {
+    const pantsMat = makeTemplateMat(sel.pants)
+    spawnOverlay('torso', TORSO_REGIONS, pantsMat, 0.004)
+    spawnOverlay('rightLeg', RIGHT_LIMB_REGIONS, pantsMat, 0.005)
+    spawnOverlay('leftLeg', LEFT_LIMB_REGIONS, pantsMat, 0.005)
+  }
+
+  if (sel.shirt) {
+    const shirtMat = makeTemplateMat(sel.shirt)
+    spawnOverlay('torso', TORSO_REGIONS, shirtMat, 0.008)
+    spawnOverlay('rightArm', RIGHT_LIMB_REGIONS, shirtMat, 0.008)
+    spawnOverlay('leftArm', LEFT_LIMB_REGIONS, shirtMat, 0.008)
+  }
+
+  if (sel.tshirt && slots.torso) {
+    const torsoMesh = slots.torso
+    const box = new THREE.Box3().setFromObject(torsoMesh)
+    const size = new THREE.Vector3()
+    box.getSize(size)
+    const center = new THREE.Vector3()
+    box.getCenter(center)
+    const torsoParent = torsoMesh.parent || model
+    const parentInv = new THREE.Matrix4().copy(torsoParent.matrixWorld).invert()
+    const localPos = center.clone().applyMatrix4(parentInv)
+    const pQuat = new THREE.Quaternion()
+    torsoParent.getWorldQuaternion(pQuat)
+    const mQuat = new THREE.Quaternion()
+    model.getWorldQuaternion(mQuat)
+    const localQuat = pQuat.clone().invert().multiply(mQuat)
+    const pScale = new THREE.Vector3()
+    torsoParent.getWorldScale(pScale)
+    const mScale = new THREE.Vector3()
+    model.getWorldScale(mScale)
+    const localScale = new THREE.Vector3(
+      mScale.x / (pScale.x || 1),
+      mScale.y / (pScale.y || 1),
+      mScale.z / (pScale.z || 1)
+    )
+    void modelInv
+
+    const tex = new THREE.TextureLoader().load(sel.tshirt)
+    tex.colorSpace = THREE.SRGBColorSpace
+    const mat = new THREE.MeshStandardMaterial({
+      map: tex,
+      transparent: true,
+      alphaTest: 0.05,
+      roughness: 0.7,
+      metalness: 0,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+    })
+    const decalSize = Math.min(size.x, size.y) * 0.75
+    const decal = new THREE.Mesh(new THREE.PlaneGeometry(decalSize, decalSize), mat)
+    const frontOffset = new THREE.Vector3(0, 0, size.z * 0.5 + 0.028).applyQuaternion(localQuat)
+    decal.position.copy(localPos).add(frontOffset)
+    decal.quaternion.copy(localQuat)
+    decal.scale.copy(localScale)
+    decal.userData.__noveloClothingOverlay = true
+    torsoParent.add(decal)
+  }
 }
 
 interface PlayerModel3DProps {
