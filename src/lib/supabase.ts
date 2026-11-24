@@ -66,6 +66,18 @@ export async function fetchProfileById(id: number): Promise<UserProfile | null> 
   return data as UserProfile
 }
 
+export async function searchProfilesByUsername(query: string): Promise<UserProfile[]> {
+  const clean = query.trim().replace(/^@/, '')
+  if (!supabase || !clean) return []
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, auth_uid, username, display_name, created_at')
+    .ilike('username', `%${clean}%`)
+    .limit(4)
+  if (error || !data) return []
+  return data as UserProfile[]
+}
+
 export async function fetchPublicExperiences(): Promise<RemoteExperience[]> {
   if (!supabase) return []
   const { data, error } = await supabase

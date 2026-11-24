@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
 import { WaveBackground } from '@/components/WaveBackground'
+import { searchProfilesByUsername, UserProfile } from '@/lib/supabase'
 import {
   CreatedClothingItem,
   loadEquippedClothingIds,
@@ -80,9 +81,34 @@ export function ItemDetailModal({
   const [copiedLink, setCopiedLink] = useState(false)
   const [giftOpen, setGiftOpen] = useState(false)
   const [giftRecipient, setGiftRecipient] = useState('')
+  const [giftMatches, setGiftMatches] = useState<UserProfile[]>([])
+  const [giftSearching, setGiftSearching] = useState(false)
   const [statusMsg, setStatusMsg] = useState<{ text: string; error?: boolean } | null>(null)
   const discoverRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!giftOpen) return
+    const q = giftRecipient.trim().replace(/^@/, '')
+    if (!q) {
+      setGiftMatches([])
+      setGiftSearching(false)
+      return
+    }
+    let cancelled = false
+    setGiftSearching(true)
+    const timer = setTimeout(async () => {
+      const results = await searchProfilesByUsername(q)
+      if (!cancelled) {
+        setGiftMatches(results)
+        setGiftSearching(false)
+      }
+    }, 180)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [giftOpen, giftRecipient])
 
   useEffect(() => {
     setLiked(loadItemVotes()[item.id] ?? null)
@@ -216,7 +242,12 @@ export function ItemDetailModal({
     setSalesCount((c) => c + 1)
     setGiftOpen(false)
     setGiftRecipient('')
-    setStatusMsg({ text: `Gifted ${item.name} to ${recipient}!`, error: false })
+    setGiftMatches([])
+    const priceLabel = item.price === 0 ? 'Free' : `${item.price.toLocaleString()} Novlux`
+    setStatusMsg({
+      text: `Bought & gifted ${item.name} to @${recipient.replace(/^@/, '')} for ${priceLabel}!`,
+      error: false,
+    })
   }
 
   const createdDateStr = item.createdAt
@@ -454,24 +485,103 @@ export function ItemDetailModal({
               </div>
 
               {giftOpen && (
-                <form
-                  onSubmit={handleSendGift}
-                  className="flex items-center gap-2 p-2 rounded-[10px] bg-[#161618] border border-white/[0.08]"
-                >
-                  <input
-                    type="text"
-                    value={giftRecipient}
-                    onChange={(e) => setGiftRecipient(e.target.value)}
-                    placeholder="Recipient username..."
-                    className="flex-1 h-8 px-2.5 rounded-[7px] bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
-                  />
-                  <button
-                    type="submit"
-                    className="h-8 px-3 rounded-[7px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold cursor-pointer border-none transition-colors shrink-0"
-                  >
-                    Send Gift
-                  </button>
-                </form>
+                <div className="flex flex-col gap-2 p-2.5 rounded-[10px] bg-[#161618] border border-white/[0.08]">
+                  <form onSubmit={handleSendGift} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={giftRecipient}
+                      onChange={(e) => setGiftRecipient(e.target.value)}
+                      placeholder="Recipient username..."
+                      className="flex-1 h-8 px-2.5 rounded-[7px] bg-[#0e0e10] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
+                    />
+                    <button
+                      type="submit"
+                      className="h-8 px-3 rounded-[7px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold cursor-pointer border-none transition-colors shrink-0"
+                    >
+                      Send Gift
+                    </button>
+                  </form>
+
+                  {giftRecipient.trim().length > 0 && (
+                    <div className="flex flex-col gap-1.5">
+                      {giftSearching ? (
+                        <div className="text-[11px] text-white/45 px-1">Searching players...</div>
+                      ) : giftMatches.length > 0 ? (
+                        giftMatches.map((p) => {
+                          const isSelected =
+                            p.username.toLowerCase() ===
+                            giftRecipient.trim().replace(/^@/, '').toLowerCase()
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => setGiftRecipient(p.username)}
+                              className={`w-full flex items-center justify-between gap-2.5 p-2 rounded-[8px] border text-left cursor-pointer transition-colors ${
+                                isSelected
+                                  ? 'bg-[#02b070]/15 border-[#02b070]/50'
+                                  : 'bg-[#101012] hover:bg-white/[0.05] border-white/[0.06]'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="size-8 rounded-full bg-[#1b1b1e] border border-white/10 flex items-center justify-center shrink-0">
+                                  <div className="size-5 rounded-[4px] bg-[#e5e5e5] flex flex-col items-center justify-center">
+                                    <div className="flex gap-1 mb-0.5">
+                                      <div className="size-0.5 rounded-full bg-black" />
+                                      <div className="size-0.5 rounded-full bg-black" />
+                                    </div>
+                                    <div className="w-2 h-0.5 rounded-full bg-black/80" />
+                                  </div>
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="text-xs font-bold text-white truncate">
+                                    {p.display_name || p.username}
+                                  </div>
+                                  <div className="text-[11px] text-white/50 truncate">
+                                    @{p.username}
+                                  </div>
+                                </div>
+                              </div>
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                                  isSelected
+                                    ? 'bg-[#02b070] text-white'
+                                    : 'bg-white/[0.08] text-white/70'
+                                }`}
+                              >
+                                {isSelected ? 'Selected' : 'Select'}
+                              </span>
+                            </button>
+                          )
+                        })
+                      ) : (
+                        <div className="flex items-center justify-between gap-2.5 p-2 rounded-[8px] bg-[#101012] border border-white/[0.06]">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="size-8 rounded-full bg-[#1b1b1e] border border-white/10 flex items-center justify-center shrink-0">
+                              <div className="size-5 rounded-[4px] bg-[#e5e5e5] flex flex-col items-center justify-center">
+                                <div className="flex gap-1 mb-0.5">
+                                  <div className="size-0.5 rounded-full bg-black" />
+                                  <div className="size-0.5 rounded-full bg-black" />
+                                </div>
+                                <div className="w-2 h-0.5 rounded-full bg-black/80" />
+                              </div>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-white truncate">
+                                {giftRecipient.trim().replace(/^@/, '')}
+                              </div>
+                              <div className="text-[11px] text-white/50 truncate">
+                                @{giftRecipient.trim().replace(/^@/, '')}
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.08] text-white/70 shrink-0">
+                            Recipient
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
 
               {statusMsg && (
