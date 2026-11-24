@@ -102,12 +102,12 @@ export function ItemDetailModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[960px] rounded-2xl bg-[#101012] border border-white/[0.08] shadow-2xl p-6 flex flex-col gap-6 my-auto"
+        className="w-full max-w-[1060px] rounded-2xl bg-[#111113] border border-white/[0.08] shadow-2xl p-6 flex flex-col gap-6 my-auto"
       >
         {/* Top 2-Column Item Detail */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
           {/* Left: 3D / 2D Preview Card */}
-          <div className="md:col-span-5 relative rounded-2xl bg-[#161618] border border-white/[0.05] aspect-square overflow-hidden flex items-center justify-center">
+          <div className="md:col-span-5 relative rounded-2xl bg-[#18181b] aspect-square overflow-hidden flex items-center justify-center">
             <PlayerModel3D
               mode="full"
               interactive={!is2D}
@@ -185,7 +185,7 @@ export function ItemDetailModal({
             {/* Bottom Metadata + Action Row */}
             <div className="flex flex-col gap-4">
               {/* Metadata & Rating Row */}
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-white/[0.06]">
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
                 <div className="flex items-center gap-6 md:gap-8">
                   <div className="flex flex-col">
                     <span className="text-[11px] text-white/40 font-medium">Created</span>
@@ -250,7 +250,7 @@ export function ItemDetailModal({
                   <button
                     type="button"
                     onClick={() => onBuy?.(item)}
-                    className="flex-1 min-w-[160px] h-10 px-4 rounded-[10px] bg-white text-black hover:bg-neutral-200 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98]"
+                    className="flex-1 min-w-[160px] h-10 px-4 rounded-[10px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98]"
                   >
                     {item.price === 0 ? (
                       <span>Get for Free</span>

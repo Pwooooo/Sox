@@ -97,7 +97,7 @@ export function Marketplace() {
     assetType: item.clothingType || item.category,
     clothingType: item.clothingType,
     clothing: item.clothing,
-    isOwned: item.creator === currentUsername,
+    isOwned: false,
   })
 
   const filteredItems = marketplaceItems.filter((item) => {
