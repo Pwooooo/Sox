@@ -375,11 +375,11 @@ export function Forum() {
                         <MoreHorizontal className="size-3.5" />
                       </button>
                       {openMenuId === activeThread.id && (
-                        <div className="absolute right-0 bottom-7 w-36 rounded-lg bg-[#161618] border border-white/10 p-1 shadow-xl z-20">
+                        <div className="absolute right-0 bottom-7 w-36 rounded-[6px] bg-[#161618] border border-white/10 p-1 shadow-xl z-20">
                           <button
                             type="button"
                             onClick={() => handleDeleteThread(activeThread.id)}
-                            className="w-full h-7 px-2 rounded-md hover:bg-white/[0.08] text-xs text-white/85 flex items-center gap-2 cursor-pointer border-none bg-transparent text-left"
+                            className="w-full h-7 px-2 rounded-[4px] hover:bg-white/[0.08] text-xs text-white/85 flex items-center gap-2 cursor-pointer border-none bg-transparent text-left"
                           >
                             <Trash2 className="size-3.5 text-white/60" />
                             <span>Delete post</span>
@@ -514,11 +514,11 @@ export function Forum() {
                               <MoreHorizontal className="size-3.5" />
                             </button>
                             {openMenuId === rep.id && (
-                              <div className="absolute right-0 bottom-7 w-36 rounded-lg bg-[#161618] border border-white/10 p-1 shadow-xl z-20">
+                              <div className="absolute right-0 bottom-7 w-36 rounded-[6px] bg-[#161618] border border-white/10 p-1 shadow-xl z-20">
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteReply(activeThread.id, rep.id)}
-                                  className="w-full h-7 px-2 rounded-md hover:bg-white/[0.08] text-xs text-white/85 flex items-center gap-2 cursor-pointer border-none bg-transparent text-left"
+                                  className="w-full h-7 px-2 rounded-[4px] hover:bg-white/[0.08] text-xs text-white/85 flex items-center gap-2 cursor-pointer border-none bg-transparent text-left"
                                 >
                                   <Trash2 className="size-3.5 text-white/60" />
                                   <span>Delete reply</span>
