@@ -10,6 +10,8 @@ function getStudioProjectsFile(): string {
   return path.join(appData, 'Novelo', 'studio_projects.json')
 }
 
+const hasLocalEngine = fs.existsSync(path.resolve(__dirname, './Novelo Engine/index.ts'))
+
 export default defineConfig({
   plugins: [
     react(),
@@ -53,10 +55,21 @@ export default defineConfig({
     },
   ],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@engine': path.resolve(__dirname, './Novelo Engine'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      {
+        find: '@engine/index',
+        replacement: hasLocalEngine
+          ? path.resolve(__dirname, './Novelo Engine/index.ts')
+          : path.resolve(__dirname, './src/lib/engineStub.ts'),
+      },
+      {
+        find: '@engine',
+        replacement: hasLocalEngine
+          ? path.resolve(__dirname, './Novelo Engine')
+          : path.resolve(__dirname, './src/lib/engineStub.ts'),
+      },
+    ],
   },
   build: {
     rollupOptions: {
@@ -73,7 +86,7 @@ export default defineConfig({
   },
   server: {
     watch: {
-      ignored: ['**/catroot2/**', 'C:\\Windows\\**', '**/src-tauri/target/**'],
+      ignored: ['**/catroot2/**', 'C:\\Windows\\**', '**/src-tauri/target/**', '**/NoveloApp/**', '**/Novelo Updated version/**'],
     },
   },
 })
