@@ -1491,7 +1491,7 @@ export function Create({ onClose }: CreateProps) {
                   </div>
                 </div>
 
-                {dashboardTab === 'Shared With Me' || showImpacted || showArchived || filteredExperiences.length === 0 ? (
+                {dashboardTab === 'Shared With Me' || showImpacted || showArchived ? (
                   <UnderConstruction
                     onGoBack={() => {
                       setDashboardTab('My Experiences')
@@ -1501,6 +1501,13 @@ export function Create({ onClose }: CreateProps) {
                     }}
                     onGoHome={onClose}
                   />
+                ) : filteredExperiences.length === 0 ? (
+                  <div className="rounded-2xl bg-[#101012]/90 border border-white/[0.06] p-12 text-center">
+                    <p className="text-sm font-bold text-white/80 m-0">No experiences yet</p>
+                    <p className="text-xs text-white/45 m-0 mt-1">
+                      Open Novelo Studio and save a game to sync it here.
+                    </p>
+                  </div>
                 ) : (
                   <>
                     {/* Create Experience Button (White - Image 4) */}

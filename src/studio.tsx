@@ -25,6 +25,7 @@ function StudioApp() {
   const { user, profile, loading } = useAuth()
   const [projects, setProjects] = useState<SavedStudioProject[]>(loadSavedProjects)
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
+  const [hydrated, setHydrated] = useState(false)
   const hydratedRef = useRef(false)
 
   useEffect(() => {
@@ -51,6 +52,7 @@ function StudioApp() {
         // running in browser dev
       } finally {
         hydratedRef.current = true
+        if (!cancelled) setHydrated(true)
       }
     })()
     return () => {
@@ -95,7 +97,7 @@ function StudioApp() {
       : null)
 
   useEffect(() => {
-    if (!user || !effectiveProfile) return
+    if (!user || !profile || !hydrated) return
     let cancelled = false
     ;(async () => {
       try {
@@ -106,7 +108,7 @@ function StudioApp() {
         for (const p of projects) {
           const r = remoteById.get(p.id)
           if (!r || p.updatedAt > r.updated_at) {
-            void upsertRemoteExperience(p, effectiveProfile)
+            await upsertRemoteExperience(p, profile)
           }
         }
         // Merge remote projects into Studio list
@@ -138,7 +140,7 @@ function StudioApp() {
     return () => {
       cancelled = true
     }
-  }, [user?.id, profile?.id])
+  }, [user?.id, profile?.id, hydrated])
 
   const handleCreateProject = (name: string, template: string, preset: LightingPreset) => {
     const doc = createStarterWorld(name)

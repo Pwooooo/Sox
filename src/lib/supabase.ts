@@ -152,7 +152,7 @@ export async function upsertRemoteExperience(
   const { error } = await supabase.from('experiences').upsert(
     {
       id: exp.id,
-      owner_id: profile.id,
+      owner_id: profile.id > 0 ? profile.id : null,
       owner_uid: profile.auth_uid,
       owner_username: profile.username,
       name: exp.name || 'Untitled Experience',
@@ -168,5 +168,8 @@ export async function upsertRemoteExperience(
     },
     { onConflict: 'id' },
   )
+  if (error) {
+    console.error('[Novelo] upsertRemoteExperience failed:', error.message)
+  }
   return !error
 }
