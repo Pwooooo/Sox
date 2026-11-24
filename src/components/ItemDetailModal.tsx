@@ -68,6 +68,21 @@ export function ItemDetailModal({
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const targetPath = `/item/${encodeURIComponent(item.id)}`
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({}, '', targetPath)
+    }
+  }, [item.id])
+
+  useEffect(() => {
+    return () => {
+      if (window.location.pathname.startsWith('/item/')) {
+        window.history.pushState({}, '', '/')
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     if (!menuOpen) return
     const handleOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
