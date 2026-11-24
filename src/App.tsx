@@ -15,6 +15,18 @@ import { Forum } from '@/pages/Forum'
 import { Settings } from '@/pages/Settings'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { AuthModal } from '@/components/AuthModal'
+import { GamePlayerView } from '@/components/GamePlayerView'
+
+function parseJoinIdFromUrl(raw: string): string | null {
+  try {
+    const qIdx = raw.indexOf('?')
+    if (qIdx === -1) return null
+    const params = new URLSearchParams(raw.slice(qIdx))
+    return params.get('entry') || params.get('join') || null
+  } catch {
+    return null
+  }
+}
 
 function parseProfileIdFromPath(pathname: string): number | null {
   const m = pathname.match(/^\/profile\/(\d+)/i)
@@ -36,6 +48,28 @@ function AppContent() {
   const [viewedItemId, setViewedItemId] = useState<string | null>(() =>
     parseItemIdFromPath(window.location.pathname),
   )
+  const [activeGameId, setActiveGameId] = useState<string | null>(() =>
+    parseJoinIdFromUrl(window.location.search),
+  )
+
+  useEffect(() => {
+    const onJoinEvent = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id
+      if (id) setActiveGameId(id)
+    }
+    window.addEventListener('novelo-join-game', onJoinEvent)
+    if ((window as any).__TAURI_INTERNALS__) {
+      import('@tauri-apps/api/core')
+        .then(({ invoke }) => invoke<string | null>('get_launch_deep_link'))
+        .then((deepLink) => {
+          if (!deepLink) return
+          const entryId = parseJoinIdFromUrl(deepLink)
+          if (entryId) setActiveGameId(entryId)
+        })
+        .catch(() => {})
+    }
+    return () => window.removeEventListener('novelo-join-game', onJoinEvent)
+  }, [])
   const [activeTab, setActiveTab] = useState(() => {
     if (parseProfileIdFromPath(window.location.pathname) !== null) {
       return 'Profile'
@@ -83,6 +117,10 @@ function AppContent() {
 
   if (loading) {
     return <div className="min-h-screen w-full bg-[#090909]" />
+  }
+
+  if (activeGameId) {
+    return <GamePlayerView gameId={activeGameId} onLeave={() => setActiveGameId(null)} />
   }
 
   if (!user) {

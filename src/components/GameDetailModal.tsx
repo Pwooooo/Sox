@@ -98,7 +98,14 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
               {/* Classic Roblox Green Play Button */}
               <button
                 onClick={() => {
-                  window.location.href = `novelo://join?entry=${game.id}&token=guest&address=127.0.0.1&port=24221`
+                  if ((window as any).__TAURI_INTERNALS__) {
+                    window.dispatchEvent(
+                      new CustomEvent('novelo-join-game', { detail: { id: game.id } })
+                    )
+                    onClose()
+                  } else {
+                    window.location.href = `novelo://join?entry=${encodeURIComponent(game.id)}&token=guest&address=127.0.0.1&port=24221`
+                  }
                 }}
                 className="w-full h-12 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-white font-extrabold text-base shadow-lg cursor-pointer border-none"
               >

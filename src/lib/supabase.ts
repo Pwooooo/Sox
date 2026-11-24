@@ -91,6 +91,17 @@ export async function fetchPublicExperiences(): Promise<RemoteExperience[]> {
   return data as RemoteExperience[]
 }
 
+export async function fetchExperienceById(id: string): Promise<RemoteExperience | null> {
+  if (!supabase || !id) return null
+  const { data, error } = await supabase
+    .from('experiences')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+  if (error || !data) return null
+  return data as RemoteExperience
+}
+
 export async function fetchExperiencesByOwnerId(ownerId: number): Promise<RemoteExperience[]> {
   if (!supabase) return []
   const { data, error } = await supabase
