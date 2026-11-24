@@ -11,6 +11,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Minus,
+  X,
+  Monitor,
+  PlusCircle,
 } from 'lucide-react'
 import { NoveloViewport, createStarterWorld, type NvloDocument } from '@engine/index'
 import { fetchExperienceById } from '@/lib/supabase'
@@ -121,6 +124,8 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [playerListOpen, setPlayerListOpen] = useState(true)
+  const [selectedPlayerCardOpen, setSelectedPlayerCardOpen] = useState(false)
+  const [examineAvatarOpen, setExamineAvatarOpen] = useState(false)
   const [menuTab, setMenuTab] = useState<'people' | 'settings'>('people')
   const [peopleView, setPeopleView] = useState<'grid' | 'list'>('grid')
   const [volume, setVolume] = useState(8)
@@ -464,24 +469,116 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
         </div>
       )}
 
-      {/* Top-Right Player List */}
+      {/* Top-Right Player List & Player Context Card */}
       {playerListOpen && status === 'playing' && !menuOpen && (
-        <div className="fixed top-3 right-3 z-20 w-56 rounded-[12px] bg-[#111114]/75 backdrop-blur-md border border-white/[0.08] overflow-hidden shadow-xl">
-          <div className="px-3 py-2 border-b border-white/[0.06] flex items-center justify-between text-[11px] font-bold text-white/75 uppercase tracking-wider">
-            <span>People</span>
-            <span className="text-white/50">1</span>
-          </div>
-          <div className="p-1.5 flex flex-col gap-1 max-h-60 overflow-y-auto no-scrollbar">
-            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors">
-              <div className="size-7 rounded-full bg-black/50 border border-white/[0.08] overflow-hidden shrink-0">
-                <PlayerModel3D mode="headshot" className="w-full h-full" />
+        <>
+          {selectedPlayerCardOpen && (
+            <div className="fixed top-3 right-[236px] z-20 w-72 rounded-[10px] bg-[#111114]/88 backdrop-blur-md border border-white/[0.1] overflow-hidden shadow-2xl">
+              <div className="px-4 py-3 flex items-center gap-3 bg-white/[0.03]">
+                <div className="size-12 rounded-lg bg-black/50 border border-white/[0.1] overflow-hidden shrink-0">
+                  <PlayerModel3D mode="headshot" className="w-full h-full" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-white truncate">
+                    {profile?.display_name || (user?.user_metadata?.display_name as string | undefined) || currentUsername}
+                  </p>
+                  <p className="text-xs text-white/55 truncate">@{currentUsername}</p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-white truncate">
+
+              <div className="px-4 py-2.5 border-t border-b border-white/[0.08] flex items-center justify-between text-[11px]">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-white/45 font-bold uppercase tracking-wider text-[10px]">Joined</span>
+                  <span className="text-white/80 font-semibold">Online</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-white/45 font-bold uppercase tracking-wider text-[10px]">Device</span>
+                    <Monitor className="size-3.5 text-white/85" />
+                  </div>
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className="text-white/45 font-bold uppercase tracking-wider text-[10px]">Ping</span>
+                    <span className="text-emerald-400 font-bold">24 ms</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setExamineAvatarOpen(true)}
+                className="w-full px-4 py-2.5 flex items-center gap-2.5 text-xs font-bold text-white/90 hover:bg-white/[0.08] transition-colors cursor-pointer border-none bg-transparent text-left"
+              >
+                <PlusCircle className="size-4 text-white/85" />
+                <span>Examine Avatar</span>
+              </button>
+            </div>
+          )}
+
+          <div className="fixed top-3 right-3 z-20 w-52 rounded-[10px] bg-[#111114]/78 backdrop-blur-md border border-white/[0.08] overflow-hidden shadow-xl">
+            <div className="px-2.5 py-1.5 border-b border-white/[0.06] flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlayerListOpen(false)
+                    setSelectedPlayerCardOpen(false)
+                  }}
+                  title="Close Player List"
+                  className="size-5 rounded hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white cursor-pointer border-none bg-transparent"
+                >
+                  <X className="size-3.5" />
+                </button>
+                <span className="text-[11px] font-bold text-white/75">People</span>
+              </div>
+              <span className="text-[11px] text-white/45 font-semibold">1</span>
+            </div>
+            <div className="p-1 flex flex-col gap-0.5 max-h-60 overflow-y-auto no-scrollbar">
+              <button
+                type="button"
+                onClick={() => setSelectedPlayerCardOpen((v) => !v)}
+                className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors cursor-pointer border-none text-left ${
+                  selectedPlayerCardOpen ? 'bg-white/[0.12]' : 'bg-transparent hover:bg-white/[0.08]'
+                }`}
+              >
+                <div className="size-5 rounded-full bg-black/50 border border-white/[0.1] overflow-hidden shrink-0">
+                  <PlayerModel3D mode="headshot" className="w-full h-full" />
+                </div>
+                <span className="text-xs font-semibold text-white truncate flex-1">
+                  {profile?.display_name || (user?.user_metadata?.display_name as string | undefined) || currentUsername}
+                </span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Examine Avatar Modal */}
+      {examineAvatarOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setExamineAvatarOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-2xl bg-[#111114] border border-white/10 p-4 flex flex-col gap-3 shadow-2xl"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-bold text-white">
                   {profile?.display_name || (user?.user_metadata?.display_name as string | undefined) || currentUsername}
                 </p>
-                <p className="text-[10px] text-white/45 truncate">@{currentUsername}</p>
+                <p className="text-[11px] text-white/50">@{currentUsername}</p>
               </div>
+              <button
+                type="button"
+                onClick={() => setExamineAvatarOpen(false)}
+                className="size-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white cursor-pointer border-none bg-transparent"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <div className="h-80 rounded-xl bg-[#09090b] border border-white/[0.06] overflow-hidden">
+              <PlayerModel3D mode="full" interactive className="w-full h-full" />
             </div>
           </div>
         </div>

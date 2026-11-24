@@ -221,24 +221,44 @@ export function AuthProvider({
     }
 
     let mounted = true
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!mounted) return
-      let sessionUser = data.session?.user ?? null
-      if (sessionUser && supabase) {
-        try {
-          const { data: fresh } = await supabase.auth.getUser()
-          if (fresh?.user) sessionUser = fresh.user
-        } catch {
-          // fallback to cached session user offline
+
+    // Guard against oversized cached JWT tokens (>12 KB) that trigger HTTP 431 on Supabase
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+          const val = localStorage.getItem(key)
+          if (val && val.length > 12000) {
+            localStorage.removeItem(key)
+          }
         }
       }
+    } catch {
+      // ignore storage access issues
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return
+      const sessionUser = data.session?.user ?? null
       setUser(sessionUser)
-      await syncProfile(sessionUser)
-      if (mounted) {
-        setLoading(false)
-        if (!sessionUser && autoPromptWhenLoggedOut) {
-          setShowAuthModal(true)
+      setLoading(false)
+      if (!sessionUser && autoPromptWhenLoggedOut) {
+        setShowAuthModal(true)
+      }
+      if (sessionUser) {
+        void syncProfile(sessionUser)
+        if (supabase) {
+          void supabase.auth
+            .getUser()
+            .then(({ data: fresh }) => {
+              if (mounted && fresh?.user) {
+                setUser(fresh.user)
+                void syncProfile(fresh.user)
+              }
+            })
+            .catch(() => {
+              // ignore offline/network errors
+            })
         }
       }
     })

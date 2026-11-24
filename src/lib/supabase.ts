@@ -87,8 +87,27 @@ export async function fetchPublicExperiences(): Promise<RemoteExperience[]> {
     .eq('privacy', 'Public')
     .eq('archived', false)
     .order('updated_at', { ascending: false })
-  if (error || !data) return []
-  return data as RemoteExperience[]
+  if (!error && data) return data as RemoteExperience[]
+
+  // Fallback to anonymous REST fetch in case the user session token is invalid/oversized
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/experiences?select=*&privacy=eq.Public&archived=eq.false&order=updated_at.desc`,
+      {
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
+        },
+      }
+    )
+    if (res.ok) {
+      const rows = await res.json()
+      return Array.isArray(rows) ? (rows as RemoteExperience[]) : []
+    }
+  } catch {
+    // ignore fallback error
+  }
+  return []
 }
 
 export async function fetchExperienceById(id: string): Promise<RemoteExperience | null> {
