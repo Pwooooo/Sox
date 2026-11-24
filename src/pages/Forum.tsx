@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { MessagesSquare, Plus, ThumbsUp, MessageCircle, Pin, Search, X, Send, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
+import { CustomDropdown } from '@/components/CustomDropdown'
 
 interface ForumReply {
   id: string
@@ -426,17 +427,17 @@ export function Forum() {
 
             <div className="flex flex-col gap-1">
               <label className="text-xs text-white/60">Category</label>
-              <select
+              <CustomDropdown
                 value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="h-10 px-3 rounded-xl bg-[#1a1a1a] border border-white/10 text-xs text-white focus:outline-none cursor-pointer"
-              >
-                {FORUM_CATEGORIES.filter((c) => c !== 'All').map((c) => (
-                  <option key={c} value={c} className="bg-[#141414]">
-                    {c}
-                  </option>
-                ))}
-              </select>
+                onChange={setNewCategory}
+                options={FORUM_CATEGORIES.filter((c) => c !== 'All').map((c) => ({
+                  value: c,
+                  label: c,
+                }))}
+                className="w-full"
+                buttonClassName="w-full h-10 px-3 rounded-xl bg-[#1a1a1a] border border-white/10 text-xs text-white justify-between"
+                menuClassName="w-full"
+              />
             </div>
 
             <div className="flex flex-col gap-1">
