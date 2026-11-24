@@ -71,6 +71,26 @@ export function addOwnedItemId(id: string): string[] {
   return next
 }
 
+export function removeOwnedItemId(id: string): string[] {
+  const next = loadOwnedItemIds().filter((x) => x !== id)
+  try {
+    localStorage.setItem(OWNED_STORAGE_KEY, JSON.stringify(next))
+    window.dispatchEvent(new CustomEvent(OWNED_ITEMS_EVENT, { detail: next }))
+  } catch {
+    // ignore
+  }
+  const equipped = loadEquippedClothingIds()
+  if (equipped.shirtId === id || equipped.pantsId === id || equipped.tshirtId === id) {
+    saveEquippedClothingIds({
+      ...equipped,
+      shirtId: equipped.shirtId === id ? undefined : equipped.shirtId,
+      pantsId: equipped.pantsId === id ? undefined : equipped.pantsId,
+      tshirtId: equipped.tshirtId === id ? undefined : equipped.tshirtId,
+    })
+  }
+  return next
+}
+
 export function loadFavoriteItemIds(): string[] {
   try {
     const raw = localStorage.getItem(FAVORITES_STORAGE_KEY)

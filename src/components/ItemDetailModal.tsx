@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Check,
   Link2,
+  Trash2,
 } from 'lucide-react'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
 import { WaveBackground } from '@/components/WaveBackground'
@@ -23,6 +24,7 @@ import {
   saveNovluxBalance,
   loadOwnedItemIds,
   addOwnedItemId,
+  removeOwnedItemId,
   loadFavoriteItemIds,
   toggleFavoriteItemId,
   loadItemVotes,
@@ -212,6 +214,14 @@ export function ItemDetailModal({
     onBuy?.(item)
   }
 
+  const handleDeleteItem = () => {
+    removeOwnedItemId(item.id)
+    setEquippedIds(loadEquippedClothingIds())
+    setIsOwnedState(false)
+    setMenuOpen(false)
+    setStatusMsg({ text: 'Deleted from your inventory.', error: false })
+  }
+
   const handleToggleFavorite = () => {
     const next = toggleFavoriteItemId(item.id)
     setFavorited(next)
@@ -348,6 +358,19 @@ export function ItemDetailModal({
                           )}
                           <span>{copiedLink ? 'Copied!' : 'Copy link'}</span>
                         </button>
+                        {isOwnedState && (
+                          <>
+                            <div className="my-1 h-px bg-white/[0.08]" />
+                            <button
+                              type="button"
+                              onClick={handleDeleteItem}
+                              className="w-full h-8 px-2.5 rounded-[7px] hover:bg-rose-500/15 text-xs font-medium text-rose-400 hover:text-rose-300 flex items-center gap-2 cursor-pointer border-none bg-transparent transition-colors text-left"
+                            >
+                              <Trash2 className="size-3.5" />
+                              <span>Delete item</span>
+                            </button>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
