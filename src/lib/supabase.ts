@@ -131,6 +131,24 @@ export async function upsertRemoteExperience(
   profile: UserProfile,
 ): Promise<boolean> {
   if (!supabase) return false
+  let existing: Partial<RemoteExperience> | null = null
+  if (
+    exp.privacy === undefined ||
+    exp.doc === undefined ||
+    exp.promo === undefined ||
+    exp.description === undefined ||
+    exp.genre === undefined ||
+    exp.subgenre === undefined ||
+    exp.archived === undefined
+  ) {
+    const { data } = await supabase
+      .from('experiences')
+      .select('promo, description, genre, subgenre, privacy, thumbnail, doc, archived')
+      .eq('id', exp.id)
+      .maybeSingle()
+    if (data) existing = data as Partial<RemoteExperience>
+  }
+
   const { error } = await supabase.from('experiences').upsert(
     {
       id: exp.id,
@@ -138,14 +156,14 @@ export async function upsertRemoteExperience(
       owner_uid: profile.auth_uid,
       owner_username: profile.username,
       name: exp.name || 'Untitled Experience',
-      promo: exp.promo || '',
-      description: exp.description || '',
-      genre: exp.genre || 'Genre',
-      subgenre: exp.subgenre || 'None',
-      privacy: exp.privacy || 'Playtesters',
-      thumbnail: exp.thumbnail || '',
-      doc: exp.doc ?? null,
-      archived: Boolean(exp.archived),
+      promo: exp.promo !== undefined ? exp.promo : (existing?.promo ?? ''),
+      description: exp.description !== undefined ? exp.description : (existing?.description ?? ''),
+      genre: exp.genre !== undefined ? exp.genre : (existing?.genre ?? 'Genre'),
+      subgenre: exp.subgenre !== undefined ? exp.subgenre : (existing?.subgenre ?? 'None'),
+      privacy: exp.privacy !== undefined ? exp.privacy : (existing?.privacy ?? 'Playtesters'),
+      thumbnail: exp.thumbnail !== undefined ? exp.thumbnail : (existing?.thumbnail ?? ''),
+      doc: exp.doc !== undefined ? exp.doc : (existing?.doc ?? null),
+      archived: exp.archived !== undefined ? Boolean(exp.archived) : Boolean(existing?.archived),
       updated_at: exp.updatedAt || Date.now(),
     },
     { onConflict: 'id' },

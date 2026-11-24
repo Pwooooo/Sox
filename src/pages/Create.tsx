@@ -249,35 +249,67 @@ export function Create({ onClose }: CreateProps) {
   useEffect(() => {
     let cancelled = false
     const loadShared = async () => {
-      let rawList: any[] = []
+      const mergedById = new Map<string, any>()
+      let remoteIds = new Set<string>()
       if (user) {
         try {
           const remote = await fetchMyExperiences(user.id)
-          if (remote.length > 0) {
-            rawList = remote.map((r) => ({ ...r, updatedAt: r.updated_at }))
+          remoteIds = new Set(remote.map((r) => r.id))
+          for (const r of remote) {
+            mergedById.set(r.id, { ...r, updatedAt: r.updated_at })
           }
         } catch {
           // ignore
         }
       }
-      if (rawList.length === 0) {
-        try {
-          const res = await fetch('/api/studio-projects')
-          if (res.ok) rawList = await res.json()
-        } catch {
-          // ignore
+      const mergeLocalList = (list: unknown) => {
+        if (!Array.isArray(list)) return
+        for (const p of list) {
+          if (!p || typeof p !== 'object' || !p.id) continue
+          const existing = mergedById.get(p.id)
+          if (!existing || (p.updatedAt || 0) > (existing.updatedAt || 0)) {
+            mergedById.set(p.id, {
+              ...existing,
+              ...p,
+              privacy: existing?.privacy ?? p.privacy ?? 'Playtesters',
+            })
+          }
+          if (user && !remoteIds.has(p.id) && !p.archived) {
+            const syncProfile = profile ?? {
+              id: 0,
+              auth_uid: user.id,
+              username:
+                (user.user_metadata?.username as string | undefined) ||
+                user.email?.split('@')[0] ||
+                'Player',
+              display_name: null,
+              created_at: '',
+            }
+            void upsertRemoteExperience(p, syncProfile)
+          }
         }
       }
-      if (!Array.isArray(rawList) || rawList.length === 0) {
-        try {
-          const { invoke } = await import('@tauri-apps/api/core')
-          const raw = await invoke<string>('load_studio_projects')
-          rawList = JSON.parse(raw)
-        } catch {
-          // ignore
-        }
+      try {
+        const res = await fetch('/api/studio-projects')
+        if (res.ok) mergeLocalList(await res.json())
+      } catch {
+        // ignore
       }
-      if (cancelled || !Array.isArray(rawList) || rawList.length === 0) return
+      try {
+        const { invoke } = await import('@tauri-apps/api/core')
+        const raw = await invoke<string>('load_studio_projects')
+        mergeLocalList(JSON.parse(raw))
+      } catch {
+        // ignore
+      }
+      try {
+        const ls = localStorage.getItem('novelo_studio_projects_v1')
+        if (ls) mergeLocalList(JSON.parse(ls))
+      } catch {
+        // ignore
+      }
+      const rawList = Array.from(mergedById.values())
+      if (cancelled || rawList.length === 0) return
 
       const studioExps: Experience[] = rawList
         .filter((p) => !p.archived)
@@ -371,7 +403,21 @@ export function Create({ onClose }: CreateProps) {
 
     // Sync updates back to Supabase + shared Studio projects file
     ;(async () => {
-      if (profile) {
+      const syncProfile =
+        profile ??
+        (user
+          ? {
+              id: 0,
+              auth_uid: user.id,
+              username:
+                (user.user_metadata?.username as string | undefined) ||
+                user.email?.split('@')[0] ||
+                'Player',
+              display_name: null,
+              created_at: '',
+            }
+          : null)
+      if (syncProfile) {
         try {
           await upsertRemoteExperience(
             {
@@ -385,18 +431,14 @@ export function Create({ onClose }: CreateProps) {
               thumbnail: activeExp.thumbnail,
               updatedAt: Date.now(),
             },
-            profile,
+            syncProfile,
           )
         } catch {
           // ignore
         }
       }
-      try {
-        const res = await fetch('/api/studio-projects')
-        if (!res.ok) return
-        const list = await res.json()
-        if (!Array.isArray(list)) return
-        const nextList = list.map((p: any) =>
+      const patchList = (list: any[]) =>
+        list.map((p: any) =>
           p.id === activeExp.id
             ? {
                 ...p,
@@ -410,10 +452,36 @@ export function Create({ onClose }: CreateProps) {
               }
             : p,
         )
+      try {
+        const lsRaw = localStorage.getItem('novelo_studio_projects_v1')
+        if (lsRaw) {
+          const lsList = JSON.parse(lsRaw)
+          if (Array.isArray(lsList)) {
+            localStorage.setItem('novelo_studio_projects_v1', JSON.stringify(patchList(lsList)))
+          }
+        }
+      } catch {
+        // ignore
+      }
+      try {
+        const { invoke } = await import('@tauri-apps/api/core')
+        const raw = await invoke<string>('load_studio_projects')
+        const list = JSON.parse(raw)
+        if (Array.isArray(list)) {
+          await invoke('save_studio_projects', { json: JSON.stringify(patchList(list)) })
+        }
+      } catch {
+        // ignore
+      }
+      try {
+        const res = await fetch('/api/studio-projects')
+        if (!res.ok) return
+        const list = await res.json()
+        if (!Array.isArray(list)) return
         await fetch('/api/studio-projects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nextList),
+          body: JSON.stringify(patchList(list)),
         })
       } catch {
         // ignore
