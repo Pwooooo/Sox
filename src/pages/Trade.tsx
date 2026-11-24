@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   ChevronDown,
   ArrowLeftRight,
@@ -14,6 +14,16 @@ import {
 } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
+import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import { useAuth } from '@/lib/auth'
+import { searchProfilesByUsername, UserProfile } from '@/lib/supabase'
+import {
+  loadCreatedClothing,
+  loadOwnedItemIds,
+  CLOTHING_UPDATED_EVENT,
+  OWNED_ITEMS_EVENT,
+  CreatedClothingItem,
+} from '@/data/clothingStore'
 
 export interface TradeItem {
   id: string
@@ -21,6 +31,7 @@ export interface TradeItem {
   creator: string
   type: 'hat' | 'hair' | 'face' | 'clothing' | 'accessory' | 'tool'
   value: number
+  clothing?: ClothingSelection
 }
 
 export type TradeCategory = 'Inbound' | 'Outbound' | 'Completed' | 'Inactive'
@@ -38,322 +49,68 @@ export interface TradeRequest {
   note?: string
 }
 
-// User's tradeable inventory
-const USER_INVENTORY: TradeItem[] = [
-  { id: 'u1', name: 'Blue Plaid Fedora', creator: 'Luduvo', type: 'hat', value: 1342 },
-  { id: 'u2', name: 'Crown of Novelo', creator: 'PixelMaster', type: 'hat', value: 250 },
-  { id: 'u3', name: 'Pink Bomber', creator: 'UrbanWear', type: 'hat', value: 50 },
-  { id: 'u4', name: 'Samurai Armor', creator: 'LunarDesigns', type: 'clothing', value: 180 },
-  { id: 'u5', name: 'Jetpack', creator: 'TechTitan', type: 'tool', value: 380 },
-  { id: 'u6', name: 'Angel Halo', creator: 'DivineDesigns', type: 'hat', value: 175 },
-  { id: 'u7', name: 'Pixel Sword', creator: 'RetroRealm', type: 'tool', value: 90 },
-  { id: 'u8', name: 'Viking Helmet', creator: 'NordicNorse', type: 'hat', value: 130 },
-  { id: 'u9', name: 'Flame Skull', creator: 'HellfireHUD', type: 'face', value: 120 },
-  { id: 'u10', name: 'Cat Ears', creator: 'KawaiiClub', type: 'hair', value: 60 },
-  { id: 'u11', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory', value: 500 },
-  { id: 'u12', name: 'Top Hat', creator: 'ClassicCuts', type: 'hat', value: 70 },
-]
+const TRADES_STORAGE_KEY = 'novelo_trades_v1'
 
-// Available partners and their trade pools
-const PARTNERS = [
-  {
-    name: 'GOODEVER',
-    tag: '@goodever',
-    pool: [
-      { id: 'p_g1', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat' as const, value: 780 },
-      { id: 'p_g2', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 450 },
-      { id: 'p_g3', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory' as const, value: 600 },
-    ],
-  },
-  {
-    name: 'ActuallyDot',
-    tag: '@actually_dot',
-    pool: [
-      { id: 'p_a1', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 450 },
-      { id: 'p_a2', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 300 },
-      { id: 'p_a3', name: 'Neon Shades', creator: 'CyberStyle', type: 'face' as const, value: 35 },
-    ],
-  },
-  {
-    name: 'BeetleSlugger',
-    tag: '@beetle_s',
-    pool: [
-      { id: 'p_b1', name: 'Neon Shades', creator: 'CyberStyle', type: 'face' as const, value: 35 },
-      { id: 'p_b2', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool' as const, value: 320 },
-      { id: 'p_b3', name: 'Cyberpunk Jacket', creator: 'NeonNation', type: 'clothing' as const, value: 150 },
-    ],
-  },
-  {
-    name: 'Flaminndragon',
-    tag: '@flaminndragon',
-    pool: [
-      { id: 'p_f1', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool' as const, value: 320 },
-      { id: 'p_f2', name: 'Laser Gun', creator: 'TechTitan', type: 'tool' as const, value: 280 },
-      { id: 'p_f3', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory' as const, value: 500 },
-    ],
-  },
-  {
-    name: 'forzch',
-    tag: '@forzch',
-    pool: [
-      { id: 'p_z1', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory' as const, value: 500 },
-      { id: 'p_z2', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory' as const, value: 200 },
-      { id: 'p_z3', name: 'Tuxedo Suit', creator: 'ClassicCuts', type: 'clothing' as const, value: 200 },
-    ],
-  },
-  {
-    name: 'RblxMellodas',
-    tag: '@rblx_mellodas',
-    pool: [
-      { id: 'p_m1', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory' as const, value: 600 },
-      { id: 'p_m2', name: 'Crown of Novelo', creator: 'PixelMaster', type: 'hat' as const, value: 250 },
-      { id: 'p_m3', name: 'Wizard Beard', creator: 'FantasyForge', type: 'hair' as const, value: 85 },
-    ],
-  },
-  {
-    name: 'BlahBlahNoodles',
-    tag: '@noodles',
-    pool: [
-      { id: 'p_n1', name: 'Laser Gun', creator: 'TechTitan', type: 'tool' as const, value: 280 },
-      { id: 'p_n2', name: 'Pink Bomber', creator: 'UrbanWear', type: 'hat' as const, value: 50 },
-      { id: 'p_n3', name: 'Cat Ears', creator: 'KawaiiClub', type: 'hair' as const, value: 60 },
-    ],
-  },
-  {
-    name: 'Disincline',
-    tag: '@disincline',
-    pool: [
-      { id: 'p_d1', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory' as const, value: 300 },
-      { id: 'p_d2', name: 'Viking Helmet', creator: 'NordicNorse', type: 'hat' as const, value: 130 },
-      { id: 'p_d3', name: 'Samurai Armor', creator: 'LunarDesigns', type: 'clothing' as const, value: 180 },
-    ],
-  },
-  {
-    name: 'smokedmen',
-    tag: '@smokedmen',
-    pool: [
-      { id: 'p_s1', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory' as const, value: 200 },
-      { id: 'p_s2', name: 'Flame Skull', creator: 'HellfireHUD', type: 'face' as const, value: 120 },
-      { id: 'p_s3', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat' as const, value: 780 },
-    ],
-  },
-]
+function loadTrades(): TradeRequest[] {
+  try {
+    const raw = localStorage.getItem(TRADES_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? (parsed as TradeRequest[]) : []
+  } catch {
+    return []
+  }
+}
 
-const INITIAL_TRADES: TradeRequest[] = [
-  {
-    id: 'tr1',
-    category: 'Inbound',
-    partner: 'GOODEVER',
-    partnerTag: '@goodever',
-    date: '4/2/20',
-    expiresDate: '4/7/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri1', name: 'Leopard Fedora', creator: 'NordicNorse', type: 'hat', value: 780 },
-    ],
-    giveItems: [
-      { id: 'gi1', name: 'Blue Plaid Fedora', creator: 'Luduvo', type: 'hat', value: 1342 },
-    ],
-  },
-  {
-    id: 'tr2',
-    category: 'Inbound',
-    partner: 'ActuallyDot',
-    partnerTag: '@actually_dot',
-    date: '4/2/20',
-    expiresDate: '4/7/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri2', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory', value: 450 },
-    ],
-    giveItems: [
-      { id: 'gi2', name: 'Crown of Novelo', creator: 'PixelMaster', type: 'hat', value: 250 },
-    ],
-  },
-  {
-    id: 'tr3',
-    category: 'Inbound',
-    partner: 'BeetleSlugger',
-    partnerTag: '@beetle_s',
-    date: '4/2/20',
-    expiresDate: '4/7/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri3', name: 'Neon Shades', creator: 'CyberStyle', type: 'face', value: 35 },
-    ],
-    giveItems: [
-      { id: 'gi3', name: 'Pink Bomber', creator: 'UrbanWear', type: 'hat', value: 50 },
-    ],
-  },
-  {
-    id: 'tr4',
-    category: 'Inbound',
-    partner: 'Flaminndragon',
-    partnerTag: '@flaminndragon',
-    date: '3/29/20',
-    expiresDate: '4/3/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri4', name: 'Starfall Staff', creator: 'MagicWorks', type: 'tool', value: 320 },
-    ],
-    giveItems: [
-      { id: 'gi4', name: 'Samurai Armor', creator: 'LunarDesigns', type: 'clothing', value: 180 },
-    ],
-  },
-  {
-    id: 'tr5',
-    category: 'Inbound',
-    partner: 'forzch',
-    partnerTag: '@forzch',
-    date: '3/29/20',
-    expiresDate: '4/3/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri5', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory', value: 500 },
-    ],
-    giveItems: [
-      { id: 'gi5', name: 'Jetpack', creator: 'TechTitan', type: 'tool', value: 380 },
-    ],
-  },
-  {
-    id: 'tr6',
-    category: 'Inbound',
-    partner: 'RblxMellodas',
-    partnerTag: '@rblx_mellodas',
-    date: '3/29/20',
-    expiresDate: '4/3/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri6', name: 'Diamond Necklace', creator: 'LuxuryLabs', type: 'accessory', value: 600 },
-    ],
-    giveItems: [
-      { id: 'gi6', name: 'Angel Halo', creator: 'DivineDesigns', type: 'hat', value: 175 },
-    ],
-  },
-  {
-    id: 'tr7',
-    category: 'Inbound',
-    partner: 'BlahBlahNoodles',
-    partnerTag: '@noodles',
-    date: '3/29/20',
-    expiresDate: '4/3/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri7', name: 'Laser Gun', creator: 'TechTitan', type: 'tool', value: 280 },
-    ],
-    giveItems: [
-      { id: 'gi7', name: 'Pixel Sword', creator: 'RetroRealm', type: 'tool', value: 90 },
-    ],
-  },
-  {
-    id: 'tr8',
-    category: 'Inbound',
-    partner: 'Disincline',
-    partnerTag: '@disincline',
-    date: '3/28/20',
-    expiresDate: '4/2/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri8', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory', value: 300 },
-    ],
-    giveItems: [
-      { id: 'gi8', name: 'Viking Helmet', creator: 'NordicNorse', type: 'hat', value: 130 },
-    ],
-  },
-  {
-    id: 'tr9',
-    category: 'Inbound',
-    partner: 'smokedmen',
-    partnerTag: '@smokedmen',
-    date: '3/28/20',
-    expiresDate: '4/2/20',
-    status: 'Unknown',
-    receiveItems: [
-      { id: 'ri9', name: 'Ghostly Aura', creator: 'SpookyStudio', type: 'accessory', value: 200 },
-    ],
-    giveItems: [
-      { id: 'gi9', name: 'Flame Skull', creator: 'HellfireHUD', type: 'face', value: 120 },
-    ],
-  },
-  // Outbound trade
-  {
-    id: 'tr_out_1',
-    category: 'Outbound',
-    partner: 'ActuallyDot',
-    partnerTag: '@actually_dot',
-    date: '4/1/20',
-    expiresDate: '4/6/20',
-    status: 'Pending',
-    receiveItems: [
-      { id: 'ri_out1', name: 'Butterfly Wings', creator: 'FantasyForge', type: 'accessory', value: 300 },
-    ],
-    giveItems: [
-      { id: 'gi_out1', name: 'Golden Watch', creator: 'LuxuryLabs', type: 'accessory', value: 500 },
-    ],
-  },
-  // Completed trade
-  {
-    id: 'tr_comp_1',
-    category: 'Completed',
-    partner: 'forzch',
-    partnerTag: '@forzch',
-    date: '3/20/20',
-    expiresDate: 'Completed',
-    status: 'Completed',
-    receiveItems: [
-      { id: 'ri_c1', name: 'Laser Gun', creator: 'TechTitan', type: 'tool', value: 280 },
-    ],
-    giveItems: [
-      { id: 'gi_c1', name: 'Dragon Wings', creator: 'FantasyForge', type: 'accessory', value: 450 },
-    ],
-  },
-]
+function saveTrades(trades: TradeRequest[]): void {
+  try {
+    localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(trades))
+  } catch {
+    // ignore
+  }
+}
 
-// Authentic Stock Avatar matching Screenshot 10
-export function StockAvatar({ className = '' }: { className?: string }) {
-  return (
-    <div
-      className={`size-9 rounded-full bg-[#202024] flex items-center justify-center overflow-hidden shrink-0 shadow-inner ${className}`}
-    >
-      <svg
-        viewBox="0 0 32 32"
-        className="w-full h-full object-contain"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Head */}
-        <rect x="10" y="7" width="12" height="11" rx="2.5" fill="#d4d4d8" />
-        {/* Eyes */}
-        <circle cx="13" cy="12" r="1" fill="#18181b" />
-        <circle cx="19" cy="12" r="1" fill="#18181b" />
-        {/* Smile */}
-        <path
-          d="M14 14.8C14.5 15.8 17.5 15.8 18 14.8"
-          stroke="#18181b"
-          strokeWidth="0.9"
-          strokeLinecap="round"
-        />
-        {/* Torso / Shoulders */}
-        <path
-          d="M8 21C8 19.5 10 18.5 16 18.5C22 18.5 24 19.5 24 21V32H8V21Z"
-          fill="#3f3f46"
-        />
-      </svg>
-    </div>
-  )
+function toTradeItem(item: CreatedClothingItem, fallbackUsername: string): TradeItem {
+  const clothing: ClothingSelection =
+    item.type === 'Shirt'
+      ? { shirt: item.textureDataUrl }
+      : item.type === 'Pants'
+        ? { pants: item.textureDataUrl }
+        : { tshirt: item.textureDataUrl }
+  const creator =
+    !item.creator || item.creator === 'JadexDraft1337' ? fallbackUsername : item.creator
+  return {
+    id: item.id,
+    name: item.name,
+    creator,
+    type: 'clothing',
+    value: item.price,
+    clothing,
+  }
 }
 
 export function Trade() {
+  const { user, profile } = useAuth()
+  const currentUsername =
+    profile?.username || (user?.user_metadata?.username as string) || 'Player'
+
   const [tradeCategory, setTradeCategory] = useState<TradeCategory>('Inbound')
-  const [selectedTradeId, setSelectedTradeId] = useState('tr1')
-  const [trades, setTrades] = useState<TradeRequest[]>(INITIAL_TRADES)
+  const [selectedTradeId, setSelectedTradeId] = useState('')
+  const [trades, setTrades] = useState<TradeRequest[]>(() => loadTrades())
+  const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
+    loadCreatedClothing()
+  )
+  const [ownedIds, setOwnedIds] = useState<string[]>(() => loadOwnedItemIds())
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [showHowToTrade, setShowHowToTrade] = useState(false)
 
   // Send / Counter Trade Request Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'new' | 'counter'>('new')
-  const [selectedPartnerName, setSelectedPartnerName] = useState('GOODEVER')
+  const [selectedPartnerName, setSelectedPartnerName] = useState('')
+  const [partnerQuery, setPartnerQuery] = useState('')
+  const [partnerMatches, setPartnerMatches] = useState<UserProfile[]>([])
+  const [partnerSearching, setPartnerSearching] = useState(false)
   const [selectedGiveItems, setSelectedGiveItems] = useState<TradeItem[]>([])
   const [selectedReceiveItems, setSelectedReceiveItems] = useState<TradeItem[]>([])
   const [tradeNote, setTradeNote] = useState('')
@@ -361,6 +118,63 @@ export function Trade() {
   // Active Dropdown for Item Selection: 'give' or 'receive'
   const [activeDropdownSide, setActiveDropdownSide] = useState<'give' | 'receive' | null>(null)
   const [dropdownSearch, setDropdownSearch] = useState('')
+
+  useEffect(() => {
+    saveTrades(trades)
+  }, [trades])
+
+  useEffect(() => {
+    const sync = () => {
+      setCreatedItems(loadCreatedClothing())
+      setOwnedIds(loadOwnedItemIds())
+    }
+    window.addEventListener(CLOTHING_UPDATED_EVENT, sync)
+    window.addEventListener(OWNED_ITEMS_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, sync)
+      window.removeEventListener(OWNED_ITEMS_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isModalOpen) return
+    const q = partnerQuery.trim().replace(/^@/, '')
+    if (!q) {
+      setPartnerMatches([])
+      setPartnerSearching(false)
+      return
+    }
+    let cancelled = false
+    setPartnerSearching(true)
+    const timer = setTimeout(async () => {
+      const results = await searchProfilesByUsername(q)
+      if (!cancelled) {
+        const merged = [...results]
+        const selfName = profile?.username || currentUsername
+        if (
+          selfName &&
+          !merged.some((p) => p.username.toLowerCase() === selfName.toLowerCase()) &&
+          selfName.toLowerCase().includes(q.toLowerCase())
+        ) {
+          merged.unshift({
+            id: profile?.id ?? 0,
+            auth_uid: profile?.auth_uid ?? user?.id ?? '',
+            username: selfName,
+            display_name: profile?.display_name ?? null,
+            created_at: profile?.created_at ?? '',
+          })
+        }
+        setPartnerMatches(merged)
+        setPartnerSearching(false)
+      }
+    }, 180)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [isModalOpen, partnerQuery, profile, currentUsername, user?.id])
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
@@ -418,7 +232,9 @@ export function Trade() {
   // Open "New Trade" Modal
   const openNewTradeModal = () => {
     setModalMode('new')
-    setSelectedPartnerName(PARTNERS[0].name)
+    setSelectedPartnerName('')
+    setPartnerQuery('')
+    setPartnerMatches([])
     setSelectedGiveItems([])
     setSelectedReceiveItems([])
     setActiveDropdownSide(null)
@@ -432,6 +248,7 @@ export function Trade() {
     if (!activeTrade) return
     setModalMode('counter')
     setSelectedPartnerName(activeTrade.partner)
+    setPartnerQuery(activeTrade.partner)
     setSelectedGiveItems([...activeTrade.giveItems])
     setSelectedReceiveItems([...activeTrade.receiveItems])
     setActiveDropdownSide(null)
@@ -440,12 +257,29 @@ export function Trade() {
     setIsModalOpen(true)
   }
 
-  // Partner data in modal
-  const currentPartnerData =
-    PARTNERS.find((p) => p.name === selectedPartnerName) || PARTNERS[0]
+  // Real inventories derived from owned/created items
+  const userInventory: TradeItem[] = createdItems
+    .filter(
+      (it) =>
+        ownedIds.includes(it.id) ||
+        !it.creator ||
+        it.creator === 'JadexDraft1337' ||
+        it.creator.toLowerCase() === currentUsername.toLowerCase()
+    )
+    .map((it) => toTradeItem(it, currentUsername))
+
+  const partnerPool: TradeItem[] = selectedPartnerName
+    ? createdItems
+        .filter((it) => {
+          const creator =
+            !it.creator || it.creator === 'JadexDraft1337' ? currentUsername : it.creator
+          return creator.toLowerCase() === selectedPartnerName.toLowerCase()
+        })
+        .map((it) => toTradeItem(it, currentUsername))
+    : []
 
   // Filtered inventories for dropdowns
-  const filteredGiveInventory = USER_INVENTORY.filter(
+  const filteredGiveInventory = userInventory.filter(
     (item) =>
       !selectedGiveItems.some((i) => i.id === item.id) &&
       (dropdownSearch === '' ||
@@ -453,7 +287,7 @@ export function Trade() {
         item.creator.toLowerCase().includes(dropdownSearch.toLowerCase()))
   )
 
-  const filteredReceiveInventory = currentPartnerData.pool.filter(
+  const filteredReceiveInventory = partnerPool.filter(
     (item) =>
       !selectedReceiveItems.some((i) => i.id === item.id) &&
       (dropdownSearch === '' ||
@@ -495,6 +329,10 @@ export function Trade() {
 
   // Handle Send Trade Request
   const handleSendTradeProposal = () => {
+    if (!selectedPartnerName) {
+      showToast('Select a valid trade partner first')
+      return
+    }
     if (selectedGiveItems.length === 0 && selectedReceiveItems.length === 0) {
       showToast('Select at least one item to propose a trade')
       return
@@ -504,8 +342,8 @@ export function Trade() {
     const newTrade: TradeRequest = {
       id: newTradeId,
       category: 'Outbound',
-      partner: currentPartnerData.name,
-      partnerTag: currentPartnerData.tag,
+      partner: selectedPartnerName,
+      partnerTag: `@${selectedPartnerName}`,
       date: 'Today',
       expiresDate: 'In 5 days',
       status: 'Pending',
@@ -518,11 +356,7 @@ export function Trade() {
     setTradeCategory('Outbound')
     setSelectedTradeId(newTradeId)
     setIsModalOpen(false)
-    showToast(
-      modalMode === 'counter'
-        ? `Counter offer sent to ${currentPartnerData.name}!`
-        : `Trade request sent to ${currentPartnerData.name}!`
-    )
+    showToast(`Trade request sent to ${selectedPartnerName}!`)
   }
 
   const modalGiveTotal = selectedGiveItems.reduce((s, i) => s + i.value, 0)
@@ -619,8 +453,16 @@ export function Trade() {
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      {/* Stock Avatar matching image 3 */}
-                      <StockAvatar />
+                      <div className="size-9 rounded-full bg-[#111113] overflow-hidden shrink-0">
+                        <PlayerModel3D
+                          mode="headshot"
+                          interactive={false}
+                          autoRotate={false}
+                          useSavedColors={trade.partner.toLowerCase() === currentUsername.toLowerCase()}
+                          useSavedClothing={trade.partner.toLowerCase() === currentUsername.toLowerCase()}
+                          className="w-full h-full"
+                        />
+                      </div>
 
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs font-bold truncate leading-tight text-white">
@@ -694,11 +536,25 @@ export function Trade() {
                       key={item.id}
                       className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
                     >
-                      <IsometricMannequin
-                        name={item.name}
-                        type={item.type}
-                        className="h-28"
-                      />
+                      {item.clothing ? (
+                        <div className="w-full h-28 rounded-xl overflow-hidden">
+                          <PlayerModel3D
+                            mode="full"
+                            useSavedColors={false}
+                            useSavedClothing={false}
+                            autoRotate={false}
+                            initialYaw={0.22}
+                            clothing={item.clothing}
+                            className="w-full h-full"
+                          />
+                        </div>
+                      ) : (
+                        <IsometricMannequin
+                          name={item.name}
+                          type={item.type}
+                          className="h-28"
+                        />
+                      )}
                       <div className="flex flex-col gap-0.5 text-left pt-1">
                         <h4 className="text-xs font-bold text-white leading-tight truncate group-hover:text-white">
                           {item.name}
@@ -747,11 +603,25 @@ export function Trade() {
                       key={item.id}
                       className="group w-36 sm:w-40 rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
                     >
-                      <IsometricMannequin
-                        name={item.name}
-                        type={item.type}
-                        className="h-28"
-                      />
+                      {item.clothing ? (
+                        <div className="w-full h-28 rounded-xl overflow-hidden">
+                          <PlayerModel3D
+                            mode="full"
+                            useSavedColors={false}
+                            useSavedClothing={false}
+                            autoRotate={false}
+                            initialYaw={0.22}
+                            clothing={item.clothing}
+                            className="w-full h-full"
+                          />
+                        </div>
+                      ) : (
+                        <IsometricMannequin
+                          name={item.name}
+                          type={item.type}
+                          className="h-28"
+                        />
+                      )}
                       <div className="flex flex-col gap-0.5 text-left pt-1">
                         <h4 className="text-xs font-bold text-white leading-tight truncate group-hover:text-white">
                           {item.name}
@@ -897,41 +767,88 @@ export function Trade() {
 
             {/* Modal Body */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-5 no-scrollbar">
-              {/* Partner Picker with Stock Avatars */}
+              {/* Partner Search & Picker */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-white/70 uppercase tracking-wider">
                   Trade Partner
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                  {PARTNERS.map((partner) => {
-                    const isSelected = partner.name === selectedPartnerName
-                    return (
-                      <button
-                        key={partner.name}
-                        onClick={() => {
-                          setSelectedPartnerName(partner.name)
-                          setSelectedReceiveItems([])
-                          setActiveDropdownSide(null)
-                        }}
-                        className={`p-2.5 rounded-xl flex items-center gap-2.5 text-left transition-all cursor-pointer border-none ${
-                          isSelected
-                            ? 'bg-white/[0.12] text-white'
-                            : 'bg-[#18181c] text-white/70 hover:bg-[#202026]'
-                        }`}
-                      >
-                        <StockAvatar className="size-7" />
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-xs font-bold truncate text-white">
-                            {partner.name}
-                          </span>
-                          <span className="text-[10px] text-white/40 truncate">
-                            {partner.pool.length} items
-                          </span>
-                        </div>
-                      </button>
-                    )
-                  })}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/40" />
+                  <input
+                    type="text"
+                    value={partnerQuery}
+                    onChange={(e) => {
+                      setPartnerQuery(e.target.value)
+                      if (
+                        selectedPartnerName &&
+                        e.target.value.trim().toLowerCase() !== selectedPartnerName.toLowerCase()
+                      ) {
+                        setSelectedPartnerName('')
+                      }
+                    }}
+                    placeholder="Search player username..."
+                    className="w-full h-9 pl-9 pr-3 rounded-[10px] bg-[#161618] border border-white/[0.08] text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/25"
+                  />
                 </div>
+                {partnerQuery.trim().length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    {partnerSearching ? (
+                      <div className="text-[11px] text-white/45 px-1">Searching players...</div>
+                    ) : partnerMatches.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {partnerMatches.map((p) => {
+                          const isSelected = p.username === selectedPartnerName
+                          const isSelf = p.username.toLowerCase() === currentUsername.toLowerCase()
+                          return (
+                            <button
+                              key={p.id || p.username}
+                              type="button"
+                              onClick={() => {
+                                setSelectedPartnerName(p.username)
+                                setPartnerQuery(p.username)
+                                setSelectedReceiveItems([])
+                                setActiveDropdownSide(null)
+                              }}
+                              className={`p-2 rounded-[10px] flex items-center justify-between gap-2.5 text-left transition-all cursor-pointer border-none ${
+                                isSelected
+                                  ? 'bg-white/[0.1] text-white'
+                                  : 'bg-[#161618] text-white/75 hover:bg-white/[0.06]'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="size-8 rounded-full bg-[#111113] overflow-hidden shrink-0">
+                                  <PlayerModel3D
+                                    mode="headshot"
+                                    interactive={false}
+                                    autoRotate={false}
+                                    useSavedColors={isSelf}
+                                    useSavedClothing={isSelf}
+                                    className="w-full h-full"
+                                  />
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-xs font-bold truncate text-white">
+                                    {p.display_name || p.username}
+                                  </span>
+                                  <span className="text-[10px] text-white/45 truncate">
+                                    @{p.username}
+                                  </span>
+                                </div>
+                              </div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.08] text-white/75 shrink-0">
+                                {isSelected ? 'Selected' : 'Select'}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-white/45 px-1">
+                        No player found matching &ldquo;{partnerQuery.trim().replace(/^@/, '')}&rdquo;.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Two Column Offer Section (Giving & Receiving) */}
