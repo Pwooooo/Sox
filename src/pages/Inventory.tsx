@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import { ItemDetailModal, ItemDetailData } from '@/components/ItemDetailModal'
 import {
   loadCreatedClothing,
   CLOTHING_UPDATED_EVENT,
@@ -13,9 +14,14 @@ interface InventoryItem {
   id: string
   name: string
   creator: string
+  description?: string
+  price: number
   priceDisplay: string
+  createdAt?: number
+  sold?: number
   category: 'Accessories' | 'Shirts' | 'Pants' | 'Faces' | 'Bundles'
   type: 'antlers' | 'face' | 'shirt' | 'accessory'
+  clothingType?: 'Shirt' | 'Pants' | 'T-Shirt'
   faceType?: 'derp' | 'smirk' | 'smile'
   shirtType?: 'cat' | 'white' | 'black'
   isOffSale?: boolean
@@ -37,9 +43,14 @@ function toInventoryItem(item: CreatedClothingItem, fallbackUsername: string): I
     id: item.id,
     name: item.name,
     creator,
+    description: item.description,
+    price: item.price,
     priceDisplay: item.price === 0 ? 'Free' : item.price.toLocaleString(),
+    createdAt: item.createdAt,
+    sold: item.sold,
     category: item.type === 'Pants' ? 'Pants' : 'Shirts',
     type: 'shirt',
+    clothingType: item.type,
     clothing,
   }
 }
@@ -50,9 +61,24 @@ export function Inventory() {
     profile?.username || (user?.user_metadata?.username as string) || 'Player'
   const [activeTab, setActiveTab] = useState<string>('All')
   const [search, setSearch] = useState('')
+  const [selectedItem, setSelectedItem] = useState<ItemDetailData | null>(null)
   const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
     loadCreatedClothing()
   )
+
+  const toDetailData = (item: InventoryItem): ItemDetailData => ({
+    id: item.id,
+    name: item.name,
+    creator: item.creator,
+    description: item.description,
+    price: item.price,
+    createdAt: item.createdAt,
+    sold: item.sold,
+    assetType: item.clothingType || item.category,
+    clothingType: item.clothingType,
+    clothing: item.clothing,
+    isOwned: true,
+  })
 
   useEffect(() => {
     const sync = () => setCreatedItems(loadCreatedClothing())
@@ -126,6 +152,7 @@ export function Inventory() {
           {filteredItems.map((item) => (
             <div
               key={item.id}
+              onClick={() => setSelectedItem(toDetailData(item))}
               className="group rounded-[14px] p-3 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none"
             >
               {item.clothing ? (
@@ -133,6 +160,7 @@ export function Inventory() {
                   <PlayerModel3D
                     mode="full"
                     useSavedColors={false}
+                    useSavedClothing={false}
                     autoRotate={false}
                     initialYaw={0.22}
                     clothing={item.clothing}
@@ -172,6 +200,18 @@ export function Inventory() {
             </div>
           ))}
         </div>
+      )}
+
+      {selectedItem && (
+        <ItemDetailModal
+          item={selectedItem}
+          discoverItems={createdItems}
+          currentUsername={currentUsername}
+          onClose={() => setSelectedItem(null)}
+          onSelectDiscoverItem={(dItem) =>
+            setSelectedItem(toDetailData(toInventoryItem(dItem, currentUsername)))
+          }
+        />
       )}
     </div>
   )

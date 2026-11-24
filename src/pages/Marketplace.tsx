@@ -3,6 +3,7 @@ import { Search, Filter, Clock, Flame } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import { ItemDetailModal, ItemDetailData } from '@/components/ItemDetailModal'
 import { useAuth } from '@/lib/auth'
 import {
   loadCreatedClothing,
@@ -14,11 +15,15 @@ interface MarketItem {
   id: string
   name: string
   creator: string
+  description?: string
   price: number
+  createdAt?: number
+  sold?: number
   hasRainbow?: boolean
   hasStarBanner?: boolean
   timeLeft?: string
   category: string
+  clothingType?: 'Shirt' | 'Pants' | 'T-Shirt'
   clothing?: ClothingSelection
 }
 
@@ -35,8 +40,12 @@ function toMarketItem(item: CreatedClothingItem, fallbackUsername: string): Mark
     id: item.id,
     name: item.name,
     creator,
+    description: item.description,
     price: item.price,
+    createdAt: item.createdAt,
+    sold: item.sold,
     category: 'Clothing',
+    clothingType: item.type,
     clothing,
   }
 }
@@ -49,6 +58,7 @@ export function Marketplace() {
   const [category, setCategory] = useState('All Categories')
   const [sort, setSort] = useState('Relevance')
   const [userBalance, setUserBalance] = useState(1250)
+  const [selectedItem, setSelectedItem] = useState<ItemDetailData | null>(null)
   const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
     loadCreatedClothing()
   )
@@ -67,7 +77,7 @@ export function Marketplace() {
     toMarketItem(it, currentUsername)
   )
 
-  const handleBuy = (item: MarketItem) => {
+  const handleBuy = (item: MarketItem | ItemDetailData) => {
     if (userBalance < item.price) {
       alert('Insufficient Novelo balance! Please acquire more currency from the Store.')
       return
@@ -75,6 +85,20 @@ export function Marketplace() {
     setUserBalance((prev) => prev - item.price)
     alert(`Purchased ${item.name} for ${item.price} Novelo!`)
   }
+
+  const toDetailData = (item: MarketItem): ItemDetailData => ({
+    id: item.id,
+    name: item.name,
+    creator: item.creator,
+    description: item.description,
+    price: item.price,
+    createdAt: item.createdAt,
+    sold: item.sold,
+    assetType: item.clothingType || item.category,
+    clothingType: item.clothingType,
+    clothing: item.clothing,
+    isOwned: item.creator === currentUsername,
+  })
 
   const filteredItems = marketplaceItems.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.creator.toLowerCase().includes(search.toLowerCase())
@@ -168,7 +192,7 @@ export function Marketplace() {
           {sortedItems.map((item) => (
             <div
               key={item.id}
-              onClick={() => handleBuy(item)}
+              onClick={() => setSelectedItem(toDetailData(item))}
               className="group rounded-[14px] p-2.5 flex flex-col justify-between cursor-pointer transition-colors duration-150 bg-[#121214] hover:bg-[#1c1c1f] select-none relative"
             >
               {/* Limited Time Left Banner (Top Left) */}
@@ -185,6 +209,7 @@ export function Marketplace() {
                   <PlayerModel3D
                     mode="full"
                     useSavedColors={false}
+                    useSavedClothing={false}
                     autoRotate={false}
                     initialYaw={0.22}
                     clothing={item.clothing}
@@ -215,6 +240,17 @@ export function Marketplace() {
             </div>
           ))}
         </div>
+      )}
+
+      {selectedItem && (
+        <ItemDetailModal
+          item={selectedItem}
+          discoverItems={createdItems}
+          currentUsername={currentUsername}
+          onClose={() => setSelectedItem(null)}
+          onSelectDiscoverItem={(dItem) => setSelectedItem(toDetailData(toMarketItem(dItem, currentUsername)))}
+          onBuy={handleBuy}
+        />
       )}
     </div>
   )

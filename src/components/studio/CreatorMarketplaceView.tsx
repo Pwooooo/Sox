@@ -181,6 +181,7 @@ export function CreatorMarketplaceView({ title = 'Marketplace' }: CreatorMarketp
                   <PlayerModel3D
                     mode="full"
                     useSavedColors={false}
+                    useSavedClothing={false}
                     autoRotate={false}
                     initialYaw={0.22}
                     clothing={toClothingSelection(item.type, item.textureDataUrl)}
