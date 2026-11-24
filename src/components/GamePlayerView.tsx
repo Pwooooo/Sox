@@ -473,7 +473,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       {playerListOpen && status === 'playing' && !menuOpen && (
         <>
           {selectedPlayerCardOpen && (
-            <div className="fixed top-9 right-[244px] z-20 w-[276px] rounded-[8px] bg-[#141518]/90 backdrop-blur-md border border-white/[0.08] overflow-visible shadow-2xl">
+            <div className="fixed top-9 right-[276px] z-20 w-[276px] rounded-[8px] bg-black/75 backdrop-blur-md overflow-visible shadow-2xl">
               {/* Top Lighter Header Band with Overlapping Avatar Bust */}
               <div className="px-3.5 pt-2 pb-2.5 bg-[#2a2c30]/90 rounded-t-[8px] flex items-center gap-3 relative">
                 <div className="size-16 -mt-4 rounded-md overflow-hidden shrink-0 drop-shadow-lg">
@@ -511,8 +511,8 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
             </div>
           )}
 
-          <div className="fixed top-3 right-3 z-20 w-56 rounded-[8px] bg-[#18191c]/78 backdrop-blur-md border border-white/[0.06] overflow-hidden shadow-xl">
-            <div className="px-2.5 pt-1.5 pb-1 flex flex-col items-start gap-0.5">
+          <div className="fixed top-3 right-3 z-20 w-[260px] rounded-[8px] bg-black/50 backdrop-blur-md overflow-hidden shadow-xl">
+            <div className="px-3 pt-2 pb-1.5 flex flex-col items-start gap-1">
               <button
                 type="button"
                 onClick={() => {
@@ -520,21 +520,21 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                   setSelectedPlayerCardOpen(false)
                 }}
                 title="Close Player List"
-                className="size-5 -ml-1 rounded hover:bg-white/10 flex items-center justify-center text-white/75 hover:text-white cursor-pointer border-none bg-transparent"
+                className="size-4 -ml-0.5 rounded hover:bg-white/10 flex items-center justify-center text-white/85 hover:text-white cursor-pointer border-none bg-transparent"
               >
-                <X className="size-3.5" />
+                <X className="size-3.5 stroke-[2.2]" />
               </button>
-              <span className="text-[11px] font-medium text-white/65 pl-0.5">People</span>
+              <span className="text-[11px] font-medium text-white/75 pl-1">People</span>
             </div>
-            <div className="flex flex-col max-h-60 overflow-y-auto no-scrollbar border-t border-white/[0.06]">
+            <div className="flex flex-col max-h-60 overflow-y-auto no-scrollbar">
               <button
                 type="button"
                 onClick={() => setSelectedPlayerCardOpen((v) => !v)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 transition-colors cursor-pointer border-none text-left ${
-                  selectedPlayerCardOpen ? 'bg-white/[0.12]' : 'bg-black/20 hover:bg-white/[0.08]'
+                className={`w-full flex items-center gap-3 px-4 py-2 transition-colors cursor-pointer border-none text-left ${
+                  selectedPlayerCardOpen ? 'bg-white/[0.14]' : 'bg-white/[0.04] hover:bg-white/[0.1]'
                 }`}
               >
-                <div className="size-5 rounded-full bg-black/50 border border-white/[0.1] overflow-hidden shrink-0">
+                <div className="size-5 rounded-full overflow-hidden shrink-0">
                   <PlayerModel3D mode="headshot" className="w-full h-full" />
                 </div>
                 <span className="text-xs font-medium text-white truncate flex-1">
