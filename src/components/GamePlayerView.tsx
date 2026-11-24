@@ -388,7 +388,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
           title="Settings (Esc)"
           className="size-10 rounded-full bg-[#111114]/85 hover:bg-[#1b1b20]/95 backdrop-blur-md border border-white/[0.1] flex items-center justify-center cursor-pointer transition-colors shadow-lg"
         >
-          <img src="/logo.png" alt="Novelo" className="size-6 object-contain" />
+          <img src="/ingame-settings-logo.png" alt="Settings" className="size-6 object-contain" />
         </button>
 
         <div className="h-10 px-1.5 rounded-full bg-[#111114]/85 backdrop-blur-md border border-white/[0.1] flex items-center gap-1 shadow-lg">
