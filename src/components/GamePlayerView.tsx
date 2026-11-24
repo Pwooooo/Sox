@@ -531,7 +531,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                 type="button"
                 onClick={() => setSelectedPlayerCardOpen((v) => !v)}
                 className={`w-full flex items-center gap-3 px-4 py-2 transition-colors cursor-pointer border-none text-left ${
-                  selectedPlayerCardOpen ? 'bg-white/[0.14]' : 'bg-white/[0.04] hover:bg-white/[0.1]'
+                  selectedPlayerCardOpen ? 'bg-white/[0.12]' : 'bg-transparent hover:bg-white/[0.08]'
                 }`}
               >
                 <div className="size-5 rounded-full overflow-hidden shrink-0">
