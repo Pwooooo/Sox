@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   X,
   Shirt,
@@ -9,6 +9,7 @@ import {
   MoreHorizontal,
   ChevronRight,
   Check,
+  Link2,
 } from 'lucide-react'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
 import { WaveBackground } from '@/components/WaveBackground'
@@ -61,7 +62,46 @@ export function ItemDetailModal({
   const [liked, setLiked] = useState<'up' | 'down' | null>(null)
   const [favorited, setFavorited] = useState(false)
   const [equippedIds, setEquippedIds] = useState(() => loadEquippedClothingIds())
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
   const discoverRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handleOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [menuOpen])
+
+  const handleCopyLink = async () => {
+    const origin =
+      typeof window !== 'undefined' &&
+      window.location.origin.startsWith('http') &&
+      !window.location.origin.includes('tauri')
+        ? window.location.origin
+        : 'https://novelo.app'
+    const url = `${origin}/item/${encodeURIComponent(item.id)}`
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      const textarea = document.createElement('textarea')
+      textarea.value = url
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+    }
+    setCopiedLink(true)
+    setTimeout(() => {
+      setCopiedLink(false)
+      setMenuOpen(false)
+    }, 1200)
+  }
 
   const isEquipped =
     equippedIds.shirtId === item.id ||
@@ -158,13 +198,37 @@ export function ItemDetailModal({
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    title="More options"
-                    className="size-8 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-white/60 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
-                  >
-                    <MoreHorizontal className="size-4" />
-                  </button>
+                  <div ref={menuRef} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setMenuOpen((v) => !v)}
+                      title="More options"
+                      className={`size-8 rounded-[8px] border flex items-center justify-center cursor-pointer transition-colors ${
+                        menuOpen
+                          ? 'bg-[#1e1e22] border-white/20 text-white'
+                          : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/60 hover:text-white'
+                      }`}
+                    >
+                      <MoreHorizontal className="size-4" />
+                    </button>
+
+                    {menuOpen && (
+                      <div className="absolute right-0 mt-1.5 w-40 rounded-[10px] bg-[#161618] border border-white/[0.1] shadow-xl p-1 z-30">
+                        <button
+                          type="button"
+                          onClick={handleCopyLink}
+                          className="w-full h-8 px-2.5 rounded-[7px] hover:bg-white/[0.08] text-xs font-medium text-white/85 hover:text-white flex items-center gap-2 cursor-pointer border-none bg-transparent transition-colors text-left"
+                        >
+                          {copiedLink ? (
+                            <Check className="size-3.5 text-[#02b070]" />
+                          ) : (
+                            <Link2 className="size-3.5 text-white/60" />
+                          )}
+                          <span>{copiedLink ? 'Copied!' : 'Copy link'}</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={onClose}
