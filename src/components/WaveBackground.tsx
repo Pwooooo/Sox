@@ -1,18 +1,23 @@
 import React from 'react'
 
-export const WaveBackground = React.memo(function WaveBackground() {
+export const WaveBackground = React.memo(function WaveBackground({
+  contained = false,
+}: {
+  contained?: boolean
+}) {
   return (
     <div
       className="page_waveBg"
       aria-hidden="true"
       onContextMenu={(e) => e.preventDefault()}
       style={{
-        position: 'fixed',
+        position: contained ? 'absolute' : 'fixed',
         inset: 0,
         zIndex: 0,
         pointerEvents: 'none',
         overflow: 'hidden',
         userSelect: 'none',
+        ...(contained ? { backgroundColor: 'transparent' } : {}),
       }}
     >
       <svg viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">

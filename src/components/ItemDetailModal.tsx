@@ -11,6 +11,7 @@ import {
   Check,
 } from 'lucide-react'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
+import { WaveBackground } from '@/components/WaveBackground'
 import {
   CreatedClothingItem,
   loadEquippedClothingIds,
@@ -96,16 +97,17 @@ export function ItemDetailModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-[#0a0a0c]/95 backdrop-blur-md flex items-center justify-center p-6 md:p-10 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-[#0a0a0a] flex items-center justify-center p-6 md:p-10 overflow-y-auto"
     >
+      <WaveBackground contained />
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[1160px] flex flex-col gap-8 my-auto"
+        className="relative z-10 w-full max-w-[1160px] flex flex-col gap-8 my-auto"
       >
         {/* Top 2-Column Item Detail */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
           {/* Left: 3D / 2D Preview Card */}
-          <div className="md:col-span-5 relative rounded-xl bg-[#161618] aspect-square overflow-hidden flex items-center justify-center">
+          <div className="md:col-span-5 relative rounded-xl bg-[#161618]/85 border border-white/[0.06] aspect-square overflow-hidden flex items-center justify-center">
             <PlayerModel3D
               mode="full"
               interactive={!is2D}
