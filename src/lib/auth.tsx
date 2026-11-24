@@ -17,6 +17,8 @@ import {
   hasStoredNovluxBalance,
   loadFavoriteItemIds,
   saveFavoriteItemIds,
+  loadCreatedClothing,
+  saveCreatedClothing,
 } from '@/data/clothingStore'
 
 interface AuthContextValue {
@@ -168,6 +170,15 @@ export function AuthProvider({
       if (localFavs.length > 0) pendingUpload.favorite_items = localFavs
     }
 
+    if (Array.isArray(meta.created_clothing)) {
+      saveCreatedClothing(meta.created_clothing, false)
+    } else {
+      const localCreated = loadCreatedClothing()
+      if (localCreated.length > 0 && JSON.stringify(localCreated).length <= 24000) {
+        pendingUpload.created_clothing = localCreated
+      }
+    }
+
     if (typeof meta.bio === 'string' && p?.id) {
       try {
         if (meta.bio) localStorage.setItem(`novelo_profile_bio_${p.id}`, meta.bio)
@@ -192,7 +203,16 @@ export function AuthProvider({
     let mounted = true
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return
-      const sessionUser = data.session?.user ?? null
+      let sessionUser = data.session?.user ?? null
+      if (sessionUser && supabase) {
+        try {
+          const { data: fresh } = await supabase.auth.getUser()
+          if (fresh?.user) sessionUser = fresh.user
+        } catch {
+          // fallback to cached session user offline
+        }
+      }
+      if (!mounted) return
       setUser(sessionUser)
       await syncProfile(sessionUser)
       if (mounted) {
@@ -202,6 +222,20 @@ export function AuthProvider({
         }
       }
     })
+
+    const onWindowFocus = async () => {
+      if (!supabase || !mounted) return
+      try {
+        const { data: fresh } = await supabase.auth.getUser()
+        if (fresh?.user && mounted) {
+          setUser(fresh.user)
+          await syncProfile(fresh.user)
+        }
+      } catch {
+        // ignore focus refresh errors
+      }
+    }
+    window.addEventListener('focus', onWindowFocus)
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null
@@ -214,6 +248,7 @@ export function AuthProvider({
 
     return () => {
       mounted = false
+      window.removeEventListener('focus', onWindowFocus)
       sub.subscription.unsubscribe()
     }
   }, [autoPromptWhenLoggedOut, syncProfile])

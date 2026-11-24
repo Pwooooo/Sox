@@ -308,10 +308,14 @@ export function loadCreatedClothing(): CreatedClothingItem[] {
   }
 }
 
-export function saveCreatedClothing(items: CreatedClothingItem[]): void {
+export function saveCreatedClothing(items: CreatedClothingItem[], syncRemote = true): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+    const serialized = JSON.stringify(items)
+    localStorage.setItem(STORAGE_KEY, serialized)
     window.dispatchEvent(new CustomEvent(CLOTHING_UPDATED_EVENT, { detail: items }))
+    if (syncRemote && serialized.length <= 24000) {
+      syncUserMetadata({ created_clothing: items })
+    }
   } catch {
     // ignore storage quota errors
   }
