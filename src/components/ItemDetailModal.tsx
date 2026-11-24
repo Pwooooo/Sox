@@ -98,16 +98,16 @@ export function ItemDetailModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-[#0a0a0c]/95 backdrop-blur-md flex items-center justify-center p-6 md:p-10 overflow-y-auto"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[1060px] rounded-2xl bg-[#111113] border border-white/[0.08] shadow-2xl p-6 flex flex-col gap-6 my-auto"
+        className="w-full max-w-[1160px] flex flex-col gap-8 my-auto"
       >
         {/* Top 2-Column Item Detail */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
           {/* Left: 3D / 2D Preview Card */}
-          <div className="md:col-span-5 relative rounded-2xl bg-[#18181b] aspect-square overflow-hidden flex items-center justify-center">
+          <div className="md:col-span-5 relative rounded-xl bg-[#161618] aspect-square overflow-hidden flex items-center justify-center">
             <PlayerModel3D
               mode="full"
               interactive={!is2D}
@@ -185,19 +185,19 @@ export function ItemDetailModal({
             {/* Bottom Metadata + Action Row */}
             <div className="flex flex-col gap-4">
               {/* Metadata & Rating Row */}
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                <div className="flex items-center gap-6 md:gap-8">
-                  <div className="flex flex-col">
-                    <span className="text-[11px] text-white/40 font-medium">Created</span>
-                    <span className="text-xs font-bold text-white">{createdDateStr}</span>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-10 md:gap-14">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11px] text-white/45 font-medium">Created</span>
+                    <span className="text-xs font-semibold text-white">{createdDateStr}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[11px] text-white/40 font-medium">Sales</span>
-                    <span className="text-xs font-bold text-white">{item.sold ?? 0}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11px] text-white/45 font-medium">Sales</span>
+                    <span className="text-xs font-semibold text-white">{item.sold ?? 0}</span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[11px] text-white/40 font-medium">Asset Type</span>
-                    <span className="text-xs font-bold text-white">{item.assetType}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11px] text-white/45 font-medium">Asset Type</span>
+                    <span className="text-xs font-semibold text-white">{item.assetType}</span>
                   </div>
                 </div>
 
@@ -306,7 +306,7 @@ export function ItemDetailModal({
 
         {/* Discover More Row */}
         {filteredDiscover.length > 0 && (
-          <div className="flex flex-col gap-3 pt-2 border-t border-white/[0.06] relative">
+          <div className="flex flex-col gap-3 relative">
             <h3 className="text-sm font-bold text-white tracking-tight">Discover more</h3>
             <div className="relative">
               <div
