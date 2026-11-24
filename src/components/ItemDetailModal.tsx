@@ -82,9 +82,10 @@ export function ItemDetailModal({
     const origin =
       typeof window !== 'undefined' &&
       window.location.origin.startsWith('http') &&
-      !window.location.origin.includes('tauri')
+      !window.location.origin.includes('tauri') &&
+      !window.location.origin.includes('localhost')
         ? window.location.origin
-        : 'https://novelo.app'
+        : 'https://playnovelo.vercel.app'
     const url = `${origin}/item/${encodeURIComponent(item.id)}`
     try {
       await navigator.clipboard.writeText(url)

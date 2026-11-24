@@ -23,14 +23,25 @@ function parseProfileIdFromPath(pathname: string): number | null {
   return Number.isFinite(num) && num > 0 ? num : null
 }
 
+function parseItemIdFromPath(pathname: string): string | null {
+  const m = pathname.match(/^\/item\/([^/?#]+)/i)
+  return m ? decodeURIComponent(m[1]) : null
+}
+
 function AppContent() {
   const { user, profile, loading } = useAuth()
   const [viewedProfileId, setViewedProfileId] = useState<number | null>(() =>
     parseProfileIdFromPath(window.location.pathname),
   )
+  const [viewedItemId, setViewedItemId] = useState<string | null>(() =>
+    parseItemIdFromPath(window.location.pathname),
+  )
   const [activeTab, setActiveTab] = useState(() => {
     if (parseProfileIdFromPath(window.location.pathname) !== null) {
       return 'Profile'
+    }
+    if (parseItemIdFromPath(window.location.pathname) !== null) {
+      return 'Marketplace'
     }
     const params = new URLSearchParams(window.location.search)
     return params.get('tab') || 'Home'
@@ -39,9 +50,13 @@ function AppContent() {
   useEffect(() => {
     const onPopState = () => {
       const pid = parseProfileIdFromPath(window.location.pathname)
+      const iid = parseItemIdFromPath(window.location.pathname)
       if (pid !== null) {
         setViewedProfileId(pid)
         setActiveTab('Profile')
+      } else if (iid !== null) {
+        setViewedItemId(iid)
+        setActiveTab('Marketplace')
       } else {
         const params = new URLSearchParams(window.location.search)
         setActiveTab(params.get('tab') || 'Home')
@@ -96,7 +111,7 @@ function AppContent() {
       case 'Inventory':
         return <Inventory />
       case 'Marketplace':
-        return <Marketplace />
+        return <Marketplace initialItemId={viewedItemId} />
       case 'Store':
         return <Store />
       case 'Trade':

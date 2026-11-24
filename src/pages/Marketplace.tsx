@@ -50,7 +50,7 @@ function toMarketItem(item: CreatedClothingItem, fallbackUsername: string): Mark
   }
 }
 
-export function Marketplace() {
+export function Marketplace({ initialItemId }: { initialItemId?: string | null }) {
   const { user, profile } = useAuth()
   const currentUsername =
     profile?.username || (user?.user_metadata?.username as string) || 'Player'
@@ -62,6 +62,26 @@ export function Marketplace() {
   const [createdItems, setCreatedItems] = useState<CreatedClothingItem[]>(() =>
     loadCreatedClothing()
   )
+
+  useEffect(() => {
+    if (!initialItemId) return
+    const match = createdItems.find((it) => it.id === initialItemId)
+    if (match) {
+      const mItem = toMarketItem(match, currentUsername)
+      setSelectedItem({
+        id: mItem.id,
+        name: mItem.name,
+        creator: mItem.creator,
+        description: mItem.description,
+        price: mItem.price,
+        createdAt: mItem.createdAt,
+        sold: mItem.sold,
+        assetType: mItem.clothingType || mItem.category,
+        clothingType: mItem.clothingType,
+        clothing: mItem.clothing,
+      })
+    }
+  }, [initialItemId, createdItems, currentUsername])
 
   useEffect(() => {
     const sync = () => setCreatedItems(loadCreatedClothing())

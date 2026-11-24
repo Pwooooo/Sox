@@ -62,7 +62,55 @@ export function loadCreatedClothing(): CreatedClothingItem[] {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as CreatedClothingItem[]) : []
+    if (!Array.isArray(parsed)) return []
+    const items = parsed as CreatedClothingItem[]
+
+    // Migrate legacy non-numeric IDs (e.g. cloth_...) to sequential numeric IDs ("1", "2", ...)
+    if (items.some((item) => !/^\d+$/.test(String(item.id)))) {
+      const usedIds = new Set(
+        items.filter((i) => /^\d+$/.test(String(i.id))).map((i) => Number(i.id)),
+      )
+      let nextNum = usedIds.size > 0 ? Math.max(...usedIds) + 1 : 1
+      const idMap = new Map<string, string>()
+
+      // Assign lowest numbers to oldest items first
+      const byOldest = [...items].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
+      for (const item of byOldest) {
+        if (!/^\d+$/.test(String(item.id))) {
+          while (usedIds.has(nextNum)) nextNum++
+          idMap.set(item.id, String(nextNum))
+          usedIds.add(nextNum)
+          nextNum++
+        }
+      }
+
+      const migrated = items.map((item) =>
+        idMap.has(item.id) ? { ...item, id: idMap.get(item.id)! } : item,
+      )
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+
+      const equipped = loadEquippedClothingIds()
+      let eqChanged = false
+      const nextEq = { ...equipped }
+      if (nextEq.shirtId && idMap.has(nextEq.shirtId)) {
+        nextEq.shirtId = idMap.get(nextEq.shirtId)
+        eqChanged = true
+      }
+      if (nextEq.pantsId && idMap.has(nextEq.pantsId)) {
+        nextEq.pantsId = idMap.get(nextEq.pantsId)
+        eqChanged = true
+      }
+      if (nextEq.tshirtId && idMap.has(nextEq.tshirtId)) {
+        nextEq.tshirtId = idMap.get(nextEq.tshirtId)
+        eqChanged = true
+      }
+      if (eqChanged) {
+        localStorage.setItem(EQUIPPED_STORAGE_KEY, JSON.stringify(nextEq))
+      }
+      return migrated
+    }
+
+    return items
   } catch {
     return []
   }
@@ -80,13 +128,18 @@ export function saveCreatedClothing(items: CreatedClothingItem[]): void {
 export function addCreatedClothing(
   item: Omit<CreatedClothingItem, 'id' | 'sold' | 'createdAt'>
 ): CreatedClothingItem {
+  const existing = loadCreatedClothing()
+  const maxId = existing.reduce((max, cur) => {
+    const n = Number(cur.id)
+    return Number.isFinite(n) && n > max ? n : max
+  }, 0)
   const created: CreatedClothingItem = {
     ...item,
-    id: `cloth_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    id: String(maxId + 1),
     sold: 0,
     createdAt: Date.now(),
   }
-  const next = [created, ...loadCreatedClothing()]
+  const next = [created, ...existing]
   saveCreatedClothing(next)
   return created
 }
