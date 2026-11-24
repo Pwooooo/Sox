@@ -170,22 +170,13 @@ export function Trade() {
     const timer = setTimeout(async () => {
       const results = await searchProfilesByUsername(q)
       if (!cancelled) {
-        const merged = [...results]
-        const selfName = profile?.username || currentUsername
-        if (
-          selfName &&
-          !merged.some((p) => p.username.toLowerCase() === selfName.toLowerCase()) &&
-          selfName.toLowerCase().includes(q.toLowerCase())
-        ) {
-          merged.unshift({
-            id: profile?.id ?? 0,
-            auth_uid: profile?.auth_uid ?? user?.id ?? '',
-            username: selfName,
-            display_name: profile?.display_name ?? null,
-            created_at: profile?.created_at ?? '',
-          })
-        }
-        setPartnerMatches(merged)
+        const selfName = (profile?.username || currentUsername).toLowerCase()
+        const filtered = results.filter(
+          (p) =>
+            p.username.toLowerCase() !== selfName &&
+            (!profile?.id || p.id !== profile.id)
+        )
+        setPartnerMatches(filtered)
         setPartnerSearching(false)
       }
     }, 180)
@@ -193,7 +184,7 @@ export function Trade() {
       cancelled = true
       clearTimeout(timer)
     }
-  }, [isModalOpen, partnerQuery, profile, currentUsername, user?.id])
+  }, [isModalOpen, partnerQuery, profile, currentUsername])
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
@@ -350,6 +341,10 @@ export function Trade() {
   const handleSendTradeProposal = () => {
     if (!selectedPartnerName) {
       showToast('Select a valid trade partner first')
+      return
+    }
+    if (selectedPartnerName.toLowerCase() === currentUsername.toLowerCase()) {
+      showToast("You can't trade with yourself")
       return
     }
     if (selectedGiveItems.length === 0 && selectedReceiveItems.length === 0) {
