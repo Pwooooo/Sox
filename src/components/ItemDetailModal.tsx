@@ -119,6 +119,35 @@ export function ItemDetailModal({
               className="w-full h-full"
             />
 
+            {/* Bottom-left Like / Dislike pill */}
+            <div className="absolute bottom-3 left-3 z-20 flex items-center rounded-[8px] bg-[#111113]/85 border border-white/10 backdrop-blur-xs overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setLiked(liked === 'up' ? null : 'up')}
+                className={`h-8 px-2.5 flex items-center gap-1 text-xs font-semibold cursor-pointer border-none transition-colors ${
+                  liked === 'up'
+                    ? 'bg-white/[0.15] text-white'
+                    : 'bg-transparent text-white/70 hover:text-white'
+                }`}
+              >
+                <ThumbsUp className="size-3.5" />
+                <span>{liked === 'up' ? 1 : 0}</span>
+              </button>
+              <div className="w-px h-4 bg-white/10" />
+              <button
+                type="button"
+                onClick={() => setLiked(liked === 'down' ? null : 'down')}
+                className={`h-8 px-2.5 flex items-center gap-1 text-xs font-semibold cursor-pointer border-none transition-colors ${
+                  liked === 'down'
+                    ? 'bg-white/[0.15] text-white'
+                    : 'bg-transparent text-white/70 hover:text-white'
+                }`}
+              >
+                <ThumbsDown className="size-3.5" />
+                <span>{liked === 'down' ? 1 : 0}</span>
+              </button>
+            </div>
+
             {/* Bottom-right Try On + 2D/3D buttons */}
             <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5">
               <button
@@ -144,7 +173,7 @@ export function ItemDetailModal({
           </div>
 
           {/* Right: Info & Actions */}
-          <div className="md:col-span-7 flex flex-col gap-5">
+          <div className="md:col-span-7 flex flex-col justify-between gap-4">
             {/* Header Row */}
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -157,35 +186,6 @@ export function ItemDetailModal({
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
-                {/* Likes / Dislikes */}
-                <div className="flex items-center rounded-[8px] bg-[#161618] border border-white/[0.08] overflow-hidden mr-1">
-                  <button
-                    type="button"
-                    onClick={() => setLiked(liked === 'up' ? null : 'up')}
-                    className={`h-8 px-2.5 flex items-center gap-1 text-xs font-semibold cursor-pointer border-none transition-colors ${
-                      liked === 'up'
-                        ? 'bg-white/[0.12] text-white'
-                        : 'bg-transparent text-white/60 hover:text-white'
-                    }`}
-                  >
-                    <ThumbsUp className="size-3.5" />
-                    <span>{liked === 'up' ? 1 : 0}</span>
-                  </button>
-                  <div className="w-px h-4 bg-white/[0.08]" />
-                  <button
-                    type="button"
-                    onClick={() => setLiked(liked === 'down' ? null : 'down')}
-                    className={`h-8 px-2.5 flex items-center gap-1 text-xs font-semibold cursor-pointer border-none transition-colors ${
-                      liked === 'down'
-                        ? 'bg-white/[0.12] text-white'
-                        : 'bg-transparent text-white/60 hover:text-white'
-                    }`}
-                  >
-                    <ThumbsDown className="size-3.5" />
-                    <span>{liked === 'down' ? 1 : 0}</span>
-                  </button>
-                </div>
-
                 <button
                   type="button"
                   title="More options"
@@ -205,9 +205,9 @@ export function ItemDetailModal({
             </div>
 
             {/* Price + Stacked Buy / Add to Cart Layout */}
-            <div className="grid grid-cols-[110px_1fr] gap-y-2.5 items-start">
+            <div className="grid grid-cols-[88px_1fr] gap-x-4 gap-y-2 items-start">
               <span className="text-xs font-medium text-white/45 pt-1">Price</span>
-              <div className="flex flex-col gap-2 max-w-[360px]">
+              <div className="flex flex-col gap-2 max-w-[400px]">
                 <div className="flex items-center gap-1.5 text-base font-black text-white">
                   {item.price === 0 ? (
                     <span>Free</span>
@@ -227,7 +227,7 @@ export function ItemDetailModal({
                   <button
                     type="button"
                     onClick={handleToggleEquip}
-                    className={`w-full h-10 px-4 rounded-[10px] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98] ${
+                    className={`w-full h-9.5 px-4 rounded-[10px] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98] ${
                       isEquipped
                         ? 'bg-white/[0.12] text-white hover:bg-white/[0.18]'
                         : 'bg-white text-black hover:bg-neutral-200'
@@ -240,7 +240,7 @@ export function ItemDetailModal({
                   <button
                     type="button"
                     onClick={() => onBuy?.(item)}
-                    className="w-full h-10 px-4 rounded-[10px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98]"
+                    className="w-full h-9.5 px-4 rounded-[10px] bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none transition-all active:scale-[0.98]"
                   >
                     <span>Buy</span>
                   </button>
@@ -249,15 +249,15 @@ export function ItemDetailModal({
                 <button
                   type="button"
                   onClick={() => setWishlisted((v) => !v)}
-                  className="w-full h-10 px-4 rounded-[10px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                  className="w-full h-9.5 px-4 rounded-[10px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <span>{wishlisted ? 'Added to cart' : 'Add to cart'}</span>
                 </button>
 
-                <div className="flex items-center gap-2 pt-0.5">
+                <div className="grid grid-cols-3 gap-2 pt-0.5">
                   <button
                     type="button"
-                    className="flex-1 h-8 px-2.5 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-[11px] font-semibold text-white/75 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                    className="h-8 px-2.5 rounded-[8px] bg-[#161618] hover:bg-[#1e1e22] border border-white/[0.08] text-[11px] font-semibold text-white/75 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <Gift className="size-3" />
                     <span>Gift</span>
@@ -265,7 +265,7 @@ export function ItemDetailModal({
                   <button
                     type="button"
                     onClick={() => setFavorited((v) => !v)}
-                    className={`flex-1 h-8 px-2.5 rounded-[8px] border text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                    className={`h-8 px-2.5 rounded-[8px] border text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
                       favorited
                         ? 'bg-white/[0.12] border-white/25 text-white'
                         : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/75 hover:text-white'
@@ -277,7 +277,7 @@ export function ItemDetailModal({
                   <button
                     type="button"
                     onClick={() => setWishlisted((v) => !v)}
-                    className={`flex-1 h-8 px-2.5 rounded-[8px] border text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                    className={`h-8 px-2.5 rounded-[8px] border text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
                       wishlisted
                         ? 'bg-white/[0.12] border-white/25 text-white'
                         : 'bg-[#161618] hover:bg-[#1e1e22] border-white/[0.08] text-white/75 hover:text-white'
@@ -291,7 +291,7 @@ export function ItemDetailModal({
             </div>
 
             {/* Label / Value Details Grid */}
-            <div className="grid grid-cols-[110px_1fr] gap-y-2.5 text-xs pt-1">
+            <div className="grid grid-cols-[88px_1fr] gap-x-4 gap-y-2 text-xs">
               <span className="text-white/45 font-medium">Tradable</span>
               <span className="text-white/90 font-medium">No</span>
 
