@@ -373,17 +373,14 @@ export function ItemDetailModal({
                           <span>{copiedLink ? 'Copied!' : 'Copy link'}</span>
                         </button>
                         {isOwnedState && (
-                          <>
-                            <div className="my-1 h-px bg-white/[0.08]" />
-                            <button
-                              type="button"
-                              onClick={handleDeleteItem}
-                              className="w-full h-8 px-2.5 rounded-[7px] hover:bg-rose-500/15 text-xs font-medium text-rose-400 hover:text-rose-300 flex items-center gap-2 cursor-pointer border-none bg-transparent transition-colors text-left"
-                            >
-                              <Trash2 className="size-3.5" />
-                              <span>Delete item</span>
-                            </button>
-                          </>
+                          <button
+                            type="button"
+                            onClick={handleDeleteItem}
+                            className="w-full h-8 px-2.5 rounded-[7px] hover:bg-white/[0.08] text-xs font-medium text-white/85 hover:text-white flex items-center gap-2 cursor-pointer border-none bg-transparent transition-colors text-left"
+                          >
+                            <Trash2 className="size-3.5 text-white/60" />
+                            <span>Delete item</span>
+                          </button>
                         )}
                       </div>
                     )}
