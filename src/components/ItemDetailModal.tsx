@@ -224,7 +224,7 @@ export function ItemDetailModal({
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex flex-col gap-2 w-full max-w-[360px]">
                 {item.isOwned ? (
                   <button
                     type="button"
