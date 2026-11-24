@@ -194,6 +194,20 @@ function buildConformalClothingGeo(
   const count = pos.count
   const uvs = new Float32Array(count * 2)
 
+  // Detect meshes with inverted/inward-pointing normals (e.g. mirrored limbs)
+  const center = new THREE.Vector3()
+  bb.getCenter(center)
+  let outwardDot = 0
+  if (norm) {
+    for (let i = 0; i < count; i++) {
+      outwardDot +=
+        (pos.getX(i) - center.x) * norm.getX(i) +
+        (pos.getY(i) - center.y) * norm.getY(i) +
+        (pos.getZ(i) - center.z) * norm.getZ(i)
+    }
+  }
+  const outwardSign = outwardDot < 0 ? -1 : 1
+
   const a = new THREE.Vector3()
   const b = new THREE.Vector3()
   const c = new THREE.Vector3()
@@ -208,7 +222,7 @@ function buildConformalClothingGeo(
     c.fromBufferAttribute(pos, i + 2)
     ab.subVectors(b, a)
     ac.subVectors(c, a)
-    fn.crossVectors(ab, ac)
+    fn.crossVectors(ab, ac).multiplyScalar(outwardSign)
 
     const ax = Math.abs(fn.x)
     const ay = Math.abs(fn.y)
@@ -247,7 +261,7 @@ function buildConformalClothingGeo(
       uvs[idx * 2 + 1] = 1 - (ry + fv * rh) / 559
 
       if (norm) {
-        vn.fromBufferAttribute(norm, idx).normalize()
+        vn.fromBufferAttribute(norm, idx).normalize().multiplyScalar(outwardSign)
         pos.setXYZ(idx, vx + vn.x * inflate, vy + vn.y * inflate, vz + vn.z * inflate)
       }
     }
@@ -661,6 +675,7 @@ export function PlayerModel3D({
             alphaTest: 0.05,
             roughness: 0.65,
             metalness: 0,
+            side: THREE.DoubleSide,
             depthWrite: true,
             polygonOffset: true,
             polygonOffsetFactor: -1,
