@@ -1,8 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
-import { Loader2, MessageSquare, Menu, LogOut, RotateCcw, Play, Send } from 'lucide-react'
+import {
+  Loader2,
+  MessageSquare,
+  Menu,
+  Send,
+  Users,
+  Settings as SettingsIcon,
+  LayoutGrid,
+  List,
+  ChevronLeft,
+  ChevronRight,
+  Minus,
+} from 'lucide-react'
 import { NoveloViewport, createStarterWorld, type NvloDocument } from '@engine/index'
 import { fetchExperienceById } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface GamePlayerViewProps {
   gameId: string
@@ -96,6 +109,11 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
   const [errorMsg, setErrorMsg] = useState('')
 
   const [menuOpen, setMenuOpen] = useState(false)
+  const [menuTab, setMenuTab] = useState<'people' | 'settings'>('people')
+  const [peopleView, setPeopleView] = useState<'grid' | 'list'>('grid')
+  const [volume, setVolume] = useState(8)
+  const [graphicsQuality, setGraphicsQuality] = useState<'Auto' | 'Low' | 'Medium' | 'High'>('Auto')
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [chatOpen, setChatOpen] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
   const [chatInput, setChatInput] = useState('')
@@ -146,7 +164,28 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       }
     })()
 
-    return () => {
+    const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen()
+        setIsFullscreen(true)
+      } else {
+        await document.exitFullscreen()
+        setIsFullscreen(false)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const cycleQuality = (dir: -1 | 1) => {
+    const order: Array<'Auto' | 'Low' | 'Medium' | 'High'> = ['Auto', 'Low', 'Medium', 'High']
+    const idx = order.indexOf(graphicsQuality)
+    const next = order[(idx + dir + order.length) % order.length]
+    setGraphicsQuality(next)
+  }
+
+  return () => {
       cancelled = true
       viewportRef.current = null
       if (viewport) {
@@ -168,6 +207,12 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMenuOpen((v) => !v)
+      } else if (menuOpen && e.key.toLowerCase() === 'l') {
+        e.preventDefault()
+        onLeave()
+      } else if (menuOpen && e.key.toLowerCase() === 'r') {
+        e.preventDefault()
+        handleRespawn()
       } else if (
         e.key === '/' &&
         document.activeElement !== chatInputRef.current &&
@@ -180,8 +225,29 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       }
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [menuOpen])
+    const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen()
+        setIsFullscreen(true)
+      } else {
+        await document.exitFullscreen()
+        setIsFullscreen(false)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const cycleQuality = (dir: -1 | 1) => {
+    const order: Array<'Auto' | 'Low' | 'Medium' | 'High'> = ['Auto', 'Low', 'Medium', 'High']
+    const idx = order.indexOf(graphicsQuality)
+    const next = order[(idx + dir + order.length) % order.length]
+    setGraphicsQuality(next)
+  }
+
+  return () => window.removeEventListener('keydown', onKeyDown)
+  }, [menuOpen, onLeave])
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -222,6 +288,27 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       }
     }
     setMenuOpen(false)
+  }
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen()
+        setIsFullscreen(true)
+      } else {
+        await document.exitFullscreen()
+        setIsFullscreen(false)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const cycleQuality = (dir: -1 | 1) => {
+    const order: Array<'Auto' | 'Low' | 'Medium' | 'High'> = ['Auto', 'Low', 'Medium', 'High']
+    const idx = order.indexOf(graphicsQuality)
+    const next = order[(idx + dir + order.length) % order.length]
+    setGraphicsQuality(next)
   }
 
   return (
@@ -309,52 +396,250 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
         </div>
       )}
 
-      {/* In-Game Settings / Menu Overlay */}
+      {/* In-Game People & Settings Menu Overlay */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-40 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
           onClick={() => setMenuOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm rounded-[14px] bg-[#121215] border border-white/[0.1] p-5 flex flex-col gap-4 shadow-2xl"
+            className="w-full max-w-3xl h-[min(560px,86vh)] rounded-[14px] bg-[#0e0e11]/95 border border-white/[0.08] flex flex-col justify-between overflow-hidden shadow-2xl"
           >
-            <div className="flex items-center gap-3 pb-3 border-b border-white/[0.08]">
-              <img src="/logo.png" alt="Novelo" className="size-9 object-contain shrink-0" />
-              <div className="min-w-0">
-                <h2 className="text-base font-bold text-white truncate m-0">{gameMeta.name}</h2>
-                {gameMeta.creator && (
-                  <p className="text-xs text-white/50 truncate m-0">by {gameMeta.creator}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
+            {/* Top 2 Tabs: People & Settings */}
+            <div className="grid grid-cols-2 border-b border-white/[0.08] shrink-0">
               <button
                 type="button"
-                onClick={() => setMenuOpen(false)}
-                className="w-full h-10 px-4 rounded-[10px] bg-white text-black hover:bg-neutral-200 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border-none transition-colors"
+                onClick={() => setMenuTab('people')}
+                className={`h-12 flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-0 border-b-2 bg-transparent transition-colors ${
+                  menuTab === 'people'
+                    ? 'border-white text-white'
+                    : 'border-transparent text-white/50 hover:text-white/80'
+                }`}
               >
-                <Play className="size-3.5 fill-current" />
-                <span>Resume</span>
+                <Users className="size-4" />
+                <span>People</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMenuTab('settings')}
+                className={`h-12 flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-0 border-b-2 bg-transparent transition-colors ${
+                  menuTab === 'settings'
+                    ? 'border-white text-white'
+                    : 'border-transparent text-white/50 hover:text-white/80'
+                }`}
+              >
+                <SettingsIcon className="size-4" />
+                <span>Settings</span>
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4 no-scrollbar">
+              {menuTab === 'people' ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white m-0">In this server</h3>
+                    <div className="flex items-center gap-1 bg-[#18181c] p-0.5 rounded-[8px] border border-white/[0.06]">
+                      <button
+                        type="button"
+                        onClick={() => setPeopleView('grid')}
+                        className={`size-7 rounded-[6px] flex items-center justify-center cursor-pointer border-none transition-colors ${
+                          peopleView === 'grid'
+                            ? 'bg-white/[0.12] text-white'
+                            : 'bg-transparent text-white/45 hover:text-white'
+                        }`}
+                      >
+                        <LayoutGrid className="size-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPeopleView('list')}
+                        className={`size-7 rounded-[6px] flex items-center justify-center cursor-pointer border-none transition-colors ${
+                          peopleView === 'list'
+                            ? 'bg-white/[0.12] text-white'
+                            : 'bg-transparent text-white/45 hover:text-white'
+                        }`}
+                      >
+                        <List className="size-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {peopleView === 'grid' ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] p-2.5 flex flex-col gap-2">
+                        <div className="w-full aspect-square rounded-[8px] bg-[#101014] overflow-hidden">
+                          <PlayerModel3D
+                            mode="full"
+                            interactive={false}
+                            autoRotate={false}
+                            initialYaw={0.2}
+                            useSavedColors
+                            useSavedClothing
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-white truncate">
+                            {currentUsername}
+                          </div>
+                          <div className="text-[11px] text-white/45 truncate">
+                            @{currentUsername}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] p-2.5 flex items-center gap-3">
+                        <div className="size-10 rounded-[8px] bg-[#101014] overflow-hidden shrink-0">
+                          <PlayerModel3D
+                            mode="headshot"
+                            interactive={false}
+                            autoRotate={false}
+                            useSavedColors
+                            useSavedClothing
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-white truncate">
+                            {currentUsername}
+                          </div>
+                          <div className="text-[11px] text-white/45 truncate">
+                            @{currentUsername}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col gap-5">
+                  {/* Audio */}
+                  <div className="flex flex-col gap-2.5">
+                    <h3 className="text-sm font-bold text-white m-0">Audio</h3>
+
+                    <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
+                      <span className="text-xs font-semibold text-white/85">Volume</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setVolume((v) => Math.max(0, v - 1))}
+                          className="size-6 rounded-full border border-white/25 text-white/80 hover:text-white flex items-center justify-center bg-transparent cursor-pointer"
+                        >
+                          <Minus className="size-3" />
+                        </button>
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: 10 }, (_, idx) => {
+                            const level = idx + 1
+                            const active = level <= volume
+                            return (
+                              <button
+                                key={level}
+                                type="button"
+                                onClick={() => setVolume(level)}
+                                className={`w-5 h-5 rounded-[4px] border-none cursor-pointer transition-colors ${
+                                  active
+                                    ? 'bg-white/90 hover:bg-white'
+                                    : 'bg-white/15 hover:bg-white/30'
+                                }`}
+                              />
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Experience & Display */}
+                  <div className="flex flex-col gap-2.5">
+                    <h3 className="text-sm font-bold text-white m-0">Display &amp; Graphics</h3>
+
+                    <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
+                      <span className="text-xs font-semibold text-white/85">Graphics Quality</span>
+                      <div className="flex items-center gap-6">
+                        <button
+                          type="button"
+                          onClick={() => cycleQuality(-1)}
+                          className="text-white/60 hover:text-white bg-transparent border-none cursor-pointer p-1"
+                        >
+                          <ChevronLeft className="size-4" />
+                        </button>
+                        <span className="text-xs font-semibold text-white min-w-16 text-center">
+                          {graphicsQuality}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => cycleQuality(1)}
+                          className="text-white/60 hover:text-white bg-transparent border-none cursor-pointer p-1"
+                        >
+                          <ChevronRight className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
+                      <span className="text-xs font-semibold text-white/85">Fullscreen</span>
+                      <div className="flex items-center gap-6">
+                        <button
+                          type="button"
+                          onClick={toggleFullscreen}
+                          className="text-white/60 hover:text-white bg-transparent border-none cursor-pointer p-1"
+                        >
+                          <ChevronLeft className="size-4" />
+                        </button>
+                        <span className="text-xs font-semibold text-white min-w-16 text-center">
+                          {isFullscreen ? 'On' : 'Off'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={toggleFullscreen}
+                          className="text-white/60 hover:text-white bg-transparent border-none cursor-pointer p-1"
+                        >
+                          <ChevronRight className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Action Bar: Leave, Respawn, Resume */}
+            <div className="p-4 border-t border-white/[0.08] grid grid-cols-3 gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={onLeave}
+                className="h-10 px-4 rounded-[10px] bg-[#18181d] hover:bg-[#222229] border border-white/[0.08] text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                <span className="px-1.5 py-0.5 rounded-[4px] border border-white/25 text-[10px] font-bold leading-none">
+                  L
+                </span>
+                <span>Leave</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleRespawn}
-                className="w-full h-10 px-4 rounded-[10px] bg-[#1a1a1f] hover:bg-[#23232a] border border-white/[0.08] text-xs font-semibold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                className="h-10 px-4 rounded-[10px] bg-[#18181d] hover:bg-[#222229] border border-white/[0.08] text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
-                <RotateCcw className="size-3.5" />
-                <span>Reset Character</span>
+                <span className="px-1.5 py-0.5 rounded-[4px] border border-white/25 text-[10px] font-bold leading-none">
+                  R
+                </span>
+                <span>Respawn</span>
               </button>
 
               <button
                 type="button"
-                onClick={onLeave}
-                className="w-full h-10 px-4 rounded-[10px] bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border-none transition-colors"
+                onClick={() => setMenuOpen(false)}
+                className="h-10 px-4 rounded-[10px] bg-[#2a3f78] hover:bg-[#334d92] border border-white/30 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
-                <LogOut className="size-3.5" />
-                <span>Leave</span>
+                <span className="px-1.5 py-0.5 rounded-[4px] border border-white/40 text-[10px] font-bold leading-none">
+                  ESC
+                </span>
+                <span>Resume</span>
               </button>
             </div>
           </div>
