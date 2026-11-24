@@ -175,7 +175,6 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                 </div>
                 <span className="text-xs text-white/50 font-medium">
                   @{(viewedProfile?.username || ownFallbackUsername || 'guest').toLowerCase()}
-                  {viewedProfile?.id ? ` · ID #${viewedProfile.id}` : targetId ? ` · ID #${targetId}` : ''}
                 </span>
               </div>
             </div>

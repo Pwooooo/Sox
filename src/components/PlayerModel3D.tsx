@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {
   loadEquippedClothingIds,
   resolveEquippedClothing,
+  syncUserMetadata,
   EQUIPPED_CLOTHING_EVENT,
   CLOTHING_UPDATED_EVENT,
 } from '@/data/clothingStore'
@@ -101,12 +102,15 @@ export function loadSavedBodyColors(): BodyColors | null {
   return null
 }
 
-export function saveBodyColors(colors: BodyColors) {
+export function saveBodyColors(colors: BodyColors, syncRemote = true) {
   try {
     localStorage.setItem(AVATAR_COLORS_STORAGE_KEY, JSON.stringify(colors))
     window.dispatchEvent(new CustomEvent(AVATAR_COLORS_EVENT, { detail: colors }))
   } catch {
     // ignore
+  }
+  if (syncRemote) {
+    syncUserMetadata({ avatar_colors: colors })
   }
 }
 

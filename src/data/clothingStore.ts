@@ -1,3 +1,5 @@
+import { supabase } from '@/lib/supabase'
+
 export type ClothingType = 'Shirt' | 'Pants' | 'T-Shirt'
 
 export interface CreatedClothingItem {
@@ -26,6 +28,36 @@ export const OWNED_ITEMS_EVENT = 'novelo-owned-items-updated'
 export const FAVORITE_ITEMS_EVENT = 'novelo-favorite-items-updated'
 export const ITEM_VOTES_EVENT = 'novelo-item-votes-updated'
 
+let pendingMetadataPatch: Record<string, unknown> = {}
+let metadataSyncTimer: ReturnType<typeof setTimeout> | null = null
+
+export function syncUserMetadata(patch: Record<string, unknown>): void {
+  if (!supabase) return
+  pendingMetadataPatch = { ...pendingMetadataPatch, ...patch }
+  if (metadataSyncTimer) clearTimeout(metadataSyncTimer)
+  metadataSyncTimer = setTimeout(async () => {
+    const payload = pendingMetadataPatch
+    pendingMetadataPatch = {}
+    metadataSyncTimer = null
+    if (!supabase) return
+    try {
+      const { data } = await supabase.auth.getSession()
+      if (!data.session?.user) return
+      await supabase.auth.updateUser({ data: payload })
+    } catch {
+      // ignore network/auth sync errors
+    }
+  }, 250)
+}
+
+export function hasStoredNovluxBalance(): boolean {
+  try {
+    return localStorage.getItem(BALANCE_STORAGE_KEY) !== null
+  } catch {
+    return false
+  }
+}
+
 export function loadNovluxBalance(): number {
   try {
     const raw = localStorage.getItem(BALANCE_STORAGE_KEY)
@@ -37,13 +69,16 @@ export function loadNovluxBalance(): number {
   }
 }
 
-export function saveNovluxBalance(amount: number): void {
+export function saveNovluxBalance(amount: number, syncRemote = true): void {
   const safe = Math.max(0, Math.floor(amount))
   try {
     localStorage.setItem(BALANCE_STORAGE_KEY, String(safe))
     window.dispatchEvent(new CustomEvent(NOVLUX_BALANCE_EVENT, { detail: safe }))
   } catch {
     // ignore
+  }
+  if (syncRemote) {
+    syncUserMetadata({ novlux_balance: safe })
   }
 }
 
@@ -58,27 +93,28 @@ export function loadOwnedItemIds(): string[] {
   }
 }
 
-export function addOwnedItemId(id: string): string[] {
-  const current = loadOwnedItemIds()
-  if (current.includes(id)) return current
-  const next = [...current, id]
+export function saveOwnedItemIds(ids: string[], syncRemote = true): string[] {
+  const next = Array.from(new Set(ids.map(String)))
   try {
     localStorage.setItem(OWNED_STORAGE_KEY, JSON.stringify(next))
     window.dispatchEvent(new CustomEvent(OWNED_ITEMS_EVENT, { detail: next }))
   } catch {
     // ignore
+  }
+  if (syncRemote) {
+    syncUserMetadata({ owned_items: next })
   }
   return next
 }
 
+export function addOwnedItemId(id: string): string[] {
+  const current = loadOwnedItemIds()
+  if (current.includes(id)) return current
+  return saveOwnedItemIds([...current, id], true)
+}
+
 export function removeOwnedItemId(id: string): string[] {
-  const next = loadOwnedItemIds().filter((x) => x !== id)
-  try {
-    localStorage.setItem(OWNED_STORAGE_KEY, JSON.stringify(next))
-    window.dispatchEvent(new CustomEvent(OWNED_ITEMS_EVENT, { detail: next }))
-  } catch {
-    // ignore
-  }
+  const next = saveOwnedItemIds(loadOwnedItemIds().filter((x) => x !== id), true)
   const equipped = loadEquippedClothingIds()
   if (equipped.shirtId === id || equipped.pantsId === id || equipped.tshirtId === id) {
     saveEquippedClothingIds({
@@ -102,16 +138,25 @@ export function loadFavoriteItemIds(): string[] {
   }
 }
 
-export function toggleFavoriteItemId(id: string): boolean {
-  const current = loadFavoriteItemIds()
-  const exists = current.includes(id)
-  const next = exists ? current.filter((x) => x !== id) : [...current, id]
+export function saveFavoriteItemIds(ids: string[], syncRemote = true): string[] {
+  const next = Array.from(new Set(ids.map(String)))
   try {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(next))
     window.dispatchEvent(new CustomEvent(FAVORITE_ITEMS_EVENT, { detail: next }))
   } catch {
     // ignore
   }
+  if (syncRemote) {
+    syncUserMetadata({ favorite_items: next })
+  }
+  return next
+}
+
+export function toggleFavoriteItemId(id: string): boolean {
+  const current = loadFavoriteItemIds()
+  const exists = current.includes(id)
+  const next = exists ? current.filter((x) => x !== id) : [...current, id]
+  saveFavoriteItemIds(next, true)
   return !exists
 }
 
@@ -178,12 +223,15 @@ export function loadEquippedClothingIds(): EquippedClothingIds {
   }
 }
 
-export function saveEquippedClothingIds(ids: EquippedClothingIds): void {
+export function saveEquippedClothingIds(ids: EquippedClothingIds, syncRemote = true): void {
   try {
     localStorage.setItem(EQUIPPED_STORAGE_KEY, JSON.stringify(ids))
     window.dispatchEvent(new CustomEvent(EQUIPPED_CLOTHING_EVENT, { detail: ids }))
   } catch {
     // ignore
+  }
+  if (syncRemote) {
+    syncUserMetadata({ equipped_clothing: ids })
   }
 }
 

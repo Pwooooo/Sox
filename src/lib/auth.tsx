@@ -7,7 +7,17 @@ import {
   type UserProfile,
 } from '@/lib/supabase'
 import { loadSavedBodyColors, saveBodyColors } from '@/components/PlayerModel3D'
-import { loadEquippedClothingIds, saveEquippedClothingIds } from '@/data/clothingStore'
+import {
+  loadEquippedClothingIds,
+  saveEquippedClothingIds,
+  loadOwnedItemIds,
+  saveOwnedItemIds,
+  loadNovluxBalance,
+  saveNovluxBalance,
+  hasStoredNovluxBalance,
+  loadFavoriteItemIds,
+  saveFavoriteItemIds,
+} from '@/data/clothingStore'
 
 interface AuthContextValue {
   user: User | null
@@ -123,19 +133,39 @@ export function AuthProvider({
     const pendingUpload: Record<string, any> = {}
 
     if (meta.avatar_colors && typeof meta.avatar_colors === 'object') {
-      saveBodyColors(meta.avatar_colors)
+      saveBodyColors(meta.avatar_colors, false)
     } else {
       const localColors = loadSavedBodyColors()
       if (localColors) pendingUpload.avatar_colors = localColors
     }
 
     if (meta.equipped_clothing && typeof meta.equipped_clothing === 'object') {
-      saveEquippedClothingIds(meta.equipped_clothing)
+      saveEquippedClothingIds(meta.equipped_clothing, false)
     } else {
       const localEquipped = loadEquippedClothingIds()
       if (Object.values(localEquipped).some(Boolean)) {
         pendingUpload.equipped_clothing = localEquipped
       }
+    }
+
+    if (Array.isArray(meta.owned_items)) {
+      saveOwnedItemIds(meta.owned_items, false)
+    } else {
+      const localOwned = loadOwnedItemIds()
+      if (localOwned.length > 0) pendingUpload.owned_items = localOwned
+    }
+
+    if (typeof meta.novlux_balance === 'number') {
+      saveNovluxBalance(meta.novlux_balance, false)
+    } else if (hasStoredNovluxBalance()) {
+      pendingUpload.novlux_balance = loadNovluxBalance()
+    }
+
+    if (Array.isArray(meta.favorite_items)) {
+      saveFavoriteItemIds(meta.favorite_items, false)
+    } else {
+      const localFavs = loadFavoriteItemIds()
+      if (localFavs.length > 0) pendingUpload.favorite_items = localFavs
     }
 
     if (typeof meta.bio === 'string' && p?.id) {
