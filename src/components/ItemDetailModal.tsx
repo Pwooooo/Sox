@@ -205,9 +205,9 @@ export function ItemDetailModal({
             </div>
 
             {/* Price + Stacked Buy / Add to Cart Layout */}
-            <div className="grid grid-cols-[88px_1fr] gap-x-4 gap-y-2 items-start">
-              <span className="text-xs font-medium text-white/45 pt-1">Price</span>
-              <div className="flex flex-col gap-2 max-w-[400px]">
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-[88px_1fr] gap-x-4 items-center">
+                <span className="text-xs font-medium text-white/45">Price</span>
                 <div className="flex items-center gap-1.5 text-base font-black text-white">
                   {item.price === 0 ? (
                     <span>Free</span>
@@ -222,7 +222,9 @@ export function ItemDetailModal({
                     </>
                   )}
                 </div>
+              </div>
 
+              <div className="flex flex-col gap-2 w-full">
                 {item.isOwned ? (
                   <button
                     type="button"
