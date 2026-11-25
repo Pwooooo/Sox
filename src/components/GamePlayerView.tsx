@@ -572,39 +572,46 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       {/* In-Game People & Settings Menu Overlay */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/45 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-40 bg-black/15 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
           onClick={() => setMenuOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-3xl h-[min(560px,86vh)] rounded-[12px] bg-black/55 backdrop-blur-xl flex flex-col justify-between overflow-hidden shadow-2xl"
+            className="w-full max-w-3xl h-[min(560px,86vh)] rounded-[12px] bg-black/50 backdrop-blur-md flex flex-col justify-between overflow-hidden shadow-2xl"
           >
-            {/* Top 2 Tabs: People & Settings */}
-            <div className="grid grid-cols-2 border-b border-white/[0.08] shrink-0">
-              <button
-                type="button"
-                onClick={() => setMenuTab('people')}
-                className={`h-12 flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-0 border-b-2 bg-transparent transition-colors ${
-                  menuTab === 'people'
-                    ? 'border-white text-white'
-                    : 'border-transparent text-white/50 hover:text-white/80'
-                }`}
-              >
-                <Users className="size-4" />
-                <span>People</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setMenuTab('settings')}
-                className={`h-12 flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-0 border-b-2 bg-transparent transition-colors ${
-                  menuTab === 'settings'
-                    ? 'border-white text-white'
-                    : 'border-transparent text-white/50 hover:text-white/80'
-                }`}
-              >
-                <SettingsIcon className="size-4" />
-                <span>Settings</span>
-              </button>
+            {/* Top 2 Tabs: People & Settings with Sliding Highlight */}
+            <div className="p-2 border-b border-white/[0.08] shrink-0">
+              <div className="relative grid grid-cols-2">
+                <div
+                  className={`absolute inset-y-0 left-0 w-1/2 rounded-[8px] bg-white/[0.14] transition-transform duration-200 ease-out pointer-events-none ${
+                    menuTab === 'settings' ? 'translate-x-full' : 'translate-x-0'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setMenuTab('people')}
+                  className={`relative z-10 h-10 rounded-[8px] flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-none bg-transparent transition-colors duration-200 ${
+                    menuTab === 'people'
+                      ? 'text-white'
+                      : 'text-white/55 hover:text-white/85 hover:bg-white/[0.06]'
+                  }`}
+                >
+                  <Users className="size-4" />
+                  <span>People</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMenuTab('settings')}
+                  className={`relative z-10 h-10 rounded-[8px] flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-none bg-transparent transition-colors duration-200 ${
+                    menuTab === 'settings'
+                      ? 'text-white'
+                      : 'text-white/55 hover:text-white/85 hover:bg-white/[0.06]'
+                  }`}
+                >
+                  <SettingsIcon className="size-4" />
+                  <span>Settings</span>
+                </button>
+              </div>
             </div>
 
             {/* Tab Content */}
@@ -641,8 +648,8 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
 
                   {peopleView === 'grid' ? (
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] p-2.5 flex flex-col gap-2">
-                        <div className="w-full aspect-square rounded-[8px] bg-[#101014] overflow-hidden">
+                      <div className="rounded-[10px] bg-white/[0.06] p-2.5 flex flex-col gap-2">
+                        <div className="w-full aspect-square rounded-[8px] bg-black/25 overflow-hidden">
                           <PlayerModel3D
                             mode="full"
                             interactive={false}
@@ -665,8 +672,8 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2">
-                      <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] p-2.5 flex items-center gap-3">
-                        <div className="size-10 rounded-[8px] bg-[#101014] overflow-hidden shrink-0">
+                      <div className="rounded-[10px] bg-white/[0.06] p-2.5 flex items-center gap-3">
+                        <div className="size-10 rounded-[8px] bg-black/25 overflow-hidden shrink-0">
                           <PlayerModel3D
                             mode="headshot"
                             interactive={false}
@@ -694,7 +701,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                   <div className="flex flex-col gap-2.5">
                     <h3 className="text-sm font-bold text-white m-0">Audio</h3>
 
-                    <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
+                    <div className="rounded-[10px] bg-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
                       <span className="text-xs font-semibold text-white/85">Volume</span>
                       <div className="flex items-center gap-2">
                         <button
@@ -730,7 +737,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                   <div className="flex flex-col gap-2.5">
                     <h3 className="text-sm font-bold text-white m-0">Display &amp; Graphics</h3>
 
-                    <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
+                    <div className="rounded-[10px] bg-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
                       <span className="text-xs font-semibold text-white/85">Graphics Quality</span>
                       <div className="flex items-center gap-6">
                         <button
@@ -753,7 +760,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                       </div>
                     </div>
 
-                    <div className="rounded-[10px] bg-[#16161b] border border-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
+                    <div className="rounded-[10px] bg-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
                       <span className="text-xs font-semibold text-white/85">Fullscreen</span>
                       <div className="flex items-center gap-6">
                         <button
@@ -785,7 +792,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
               <button
                 type="button"
                 onClick={onLeave}
-                className="h-10 px-4 rounded-[10px] bg-[#18181d] hover:bg-[#222229] border border-white/[0.08] text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                className="h-10 px-4 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.14] border-none text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
               >
                 <span className="px-1.5 py-0.5 rounded-[4px] border border-white/25 text-[10px] font-bold leading-none">
                   L
@@ -796,7 +803,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
               <button
                 type="button"
                 onClick={handleRespawn}
-                className="h-10 px-4 rounded-[10px] bg-[#18181d] hover:bg-[#222229] border border-white/[0.08] text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                className="h-10 px-4 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.14] border-none text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
               >
                 <span className="px-1.5 py-0.5 rounded-[4px] border border-white/25 text-[10px] font-bold leading-none">
                   R
