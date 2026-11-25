@@ -572,12 +572,12 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       {/* In-Game People & Settings Menu Overlay */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-40 bg-black/45 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
           onClick={() => setMenuOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-3xl h-[min(560px,86vh)] rounded-[14px] bg-[#0e0e11]/95 border border-white/[0.08] flex flex-col justify-between overflow-hidden shadow-2xl"
+            className="w-full max-w-3xl h-[min(560px,86vh)] rounded-[12px] bg-black/55 backdrop-blur-xl flex flex-col justify-between overflow-hidden shadow-2xl"
           >
             {/* Top 2 Tabs: People & Settings */}
             <div className="grid grid-cols-2 border-b border-white/[0.08] shrink-0">
@@ -613,7 +613,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                 <>
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-white m-0">In this server</h3>
-                    <div className="flex items-center gap-1 bg-[#18181c] p-0.5 rounded-[8px] border border-white/[0.06]">
+                    <div className="flex items-center gap-1 bg-white/[0.06] p-0.5 rounded-[8px]">
                       <button
                         type="button"
                         onClick={() => setPeopleView('grid')}
