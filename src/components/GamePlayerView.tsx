@@ -383,12 +383,22 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
 
   const toggleFullscreen = async () => {
     try {
+      if (document.pointerLockElement) {
+        document.exitPointerLock?.()
+      }
       if ((window as any).__TAURI_INTERNALS__) {
         const { getCurrentWindow } = await import('@tauri-apps/api/window')
         const win = getCurrentWindow()
         const current = await win.isFullscreen()
-        await win.setFullscreen(!current)
-        setIsFullscreen(!current)
+        const next = !current
+        await win.setFullscreen(next)
+        await win.setIgnoreCursorEvents(false).catch(() => {})
+        await win.setFocus().catch(() => {})
+        setIsFullscreen(next)
+        window.setTimeout(() => {
+          window.dispatchEvent(new Event('resize'))
+          ;(viewportRef.current as any)?.handleResize?.()
+        }, 60)
         return
       }
       if (!document.fullscreenElement) {
