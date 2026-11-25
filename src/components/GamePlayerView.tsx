@@ -128,7 +128,28 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
   const [menuTab, setMenuTab] = useState<'people' | 'settings'>('people')
   const [peopleView, setPeopleView] = useState<'grid' | 'list'>('grid')
   const [volume, setVolume] = useState(8)
-  const [graphicsQuality, setGraphicsQuality] = useState<'Auto' | 'Low' | 'Medium' | 'High'>('Auto')
+  const [graphicsQuality, setGraphicsQuality] = useState<'Auto' | 'Low' | 'Medium' | 'High'>(() => {
+    try {
+      const saved = localStorage.getItem('novelo_player_quality')
+      if (saved === 'Low' || saved === 'Medium' || saved === 'High' || saved === 'Auto') return saved
+    } catch {
+      // ignore
+    }
+    return 'Auto'
+  })
+  const [maxFps, setMaxFps] = useState<60 | 120 | 144 | 240 | 'Unlimited'>(() => {
+    try {
+      const saved = localStorage.getItem('novelo_player_fps')
+      if (saved === '60') return 60
+      if (saved === '120') return 120
+      if (saved === '144') return 144
+      if (saved === '240') return 240
+      if (saved === 'Unlimited') return 'Unlimited'
+    } catch {
+      // ignore
+    }
+    return 60
+  })
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [chatOpen, setChatOpen] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -223,7 +244,44 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     const idx = order.indexOf(graphicsQuality)
     const next = order[(idx + dir + order.length) % order.length]
     setGraphicsQuality(next)
+    try {
+      localStorage.setItem('novelo_player_quality', next)
+    } catch {
+      // ignore
+    }
   }
+
+  const cycleFps = (dir: -1 | 1) => {
+    const order: Array<60 | 120 | 144 | 240 | 'Unlimited'> = [60, 120, 144, 240, 'Unlimited']
+    const idx = order.indexOf(maxFps)
+    const next = order[(idx + dir + order.length) % order.length]
+    setMaxFps(next)
+    try {
+      localStorage.setItem('novelo_player_fps', String(next))
+    } catch {
+      // ignore
+    }
+  }
+
+  useEffect(() => {
+    const vp = viewportRef.current as any
+    const renderer = vp?.renderer
+    if (!renderer) return
+    const dpr = window.devicePixelRatio || 1
+    if (graphicsQuality === 'Low') {
+      renderer.setPixelRatio(0.75)
+      if (renderer.shadowMap) renderer.shadowMap.enabled = false
+    } else if (graphicsQuality === 'Medium') {
+      renderer.setPixelRatio(1)
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    } else if (graphicsQuality === 'High') {
+      renderer.setPixelRatio(Math.min(dpr, 2))
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    } else {
+      renderer.setPixelRatio(Math.min(dpr, 1.5))
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    }
+  }, [graphicsQuality, status])
 
   return () => {
       cancelled = true
@@ -312,7 +370,44 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     const idx = order.indexOf(graphicsQuality)
     const next = order[(idx + dir + order.length) % order.length]
     setGraphicsQuality(next)
+    try {
+      localStorage.setItem('novelo_player_quality', next)
+    } catch {
+      // ignore
+    }
   }
+
+  const cycleFps = (dir: -1 | 1) => {
+    const order: Array<60 | 120 | 144 | 240 | 'Unlimited'> = [60, 120, 144, 240, 'Unlimited']
+    const idx = order.indexOf(maxFps)
+    const next = order[(idx + dir + order.length) % order.length]
+    setMaxFps(next)
+    try {
+      localStorage.setItem('novelo_player_fps', String(next))
+    } catch {
+      // ignore
+    }
+  }
+
+  useEffect(() => {
+    const vp = viewportRef.current as any
+    const renderer = vp?.renderer
+    if (!renderer) return
+    const dpr = window.devicePixelRatio || 1
+    if (graphicsQuality === 'Low') {
+      renderer.setPixelRatio(0.75)
+      if (renderer.shadowMap) renderer.shadowMap.enabled = false
+    } else if (graphicsQuality === 'Medium') {
+      renderer.setPixelRatio(1)
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    } else if (graphicsQuality === 'High') {
+      renderer.setPixelRatio(Math.min(dpr, 2))
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    } else {
+      renderer.setPixelRatio(Math.min(dpr, 1.5))
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    }
+  }, [graphicsQuality, status])
 
   return () => window.removeEventListener('keydown', onKeyDown)
   }, [menuOpen, onLeave])
@@ -377,7 +472,44 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     const idx = order.indexOf(graphicsQuality)
     const next = order[(idx + dir + order.length) % order.length]
     setGraphicsQuality(next)
+    try {
+      localStorage.setItem('novelo_player_quality', next)
+    } catch {
+      // ignore
+    }
   }
+
+  const cycleFps = (dir: -1 | 1) => {
+    const order: Array<60 | 120 | 144 | 240 | 'Unlimited'> = [60, 120, 144, 240, 'Unlimited']
+    const idx = order.indexOf(maxFps)
+    const next = order[(idx + dir + order.length) % order.length]
+    setMaxFps(next)
+    try {
+      localStorage.setItem('novelo_player_fps', String(next))
+    } catch {
+      // ignore
+    }
+  }
+
+  useEffect(() => {
+    const vp = viewportRef.current as any
+    const renderer = vp?.renderer
+    if (!renderer) return
+    const dpr = window.devicePixelRatio || 1
+    if (graphicsQuality === 'Low') {
+      renderer.setPixelRatio(0.75)
+      if (renderer.shadowMap) renderer.shadowMap.enabled = false
+    } else if (graphicsQuality === 'Medium') {
+      renderer.setPixelRatio(1)
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    } else if (graphicsQuality === 'High') {
+      renderer.setPixelRatio(Math.min(dpr, 2))
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    } else {
+      renderer.setPixelRatio(Math.min(dpr, 1.5))
+      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    }
+  }, [graphicsQuality, status])
 
   return (
     <div className="fixed inset-0 z-50 bg-[#09090b] text-white select-none overflow-hidden">
@@ -753,6 +885,29 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                         <button
                           type="button"
                           onClick={() => cycleQuality(1)}
+                          className="text-white/60 hover:text-white bg-transparent border-none cursor-pointer p-1"
+                        >
+                          <ChevronRight className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[10px] bg-white/[0.06] px-4 py-3 flex items-center justify-between gap-4">
+                      <span className="text-xs font-semibold text-white/85">Maximum Frame Rate</span>
+                      <div className="flex items-center gap-6">
+                        <button
+                          type="button"
+                          onClick={() => cycleFps(-1)}
+                          className="text-white/60 hover:text-white bg-transparent border-none cursor-pointer p-1"
+                        >
+                          <ChevronLeft className="size-4" />
+                        </button>
+                        <span className="text-xs font-semibold text-white min-w-20 text-center">
+                          {maxFps === 'Unlimited' ? 'Unlimited' : `${maxFps} FPS`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => cycleFps(1)}
                           className="text-white/60 hover:text-white bg-transparent border-none cursor-pointer p-1"
                         >
                           <ChevronRight className="size-4" />
