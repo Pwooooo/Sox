@@ -392,7 +392,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
           title="Settings (Esc)"
           className="size-10 rounded-[8px] bg-black/50 hover:bg-black/65 backdrop-blur-md border-none flex items-center justify-center cursor-pointer transition-all duration-200 ease-out shadow-lg overflow-hidden"
         >
-          <img src="/ingame-settings-logo.png" alt="Settings" className="size-9 scale-125 object-contain" />
+          <img src="/ingame-settings-logo.png" alt="Settings" className="size-10 scale-[1.7] object-contain" />
         </button>
 
         <div className="h-10 px-1 rounded-[8px] bg-black/50 backdrop-blur-md flex items-center gap-1 shadow-lg">
