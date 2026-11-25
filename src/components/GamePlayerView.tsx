@@ -581,10 +581,10 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
           >
             {/* Top 2 Tabs: People & Settings with Sliding Highlight */}
             <div className="p-2 border-b border-white/[0.08] shrink-0">
-              <div className="relative grid grid-cols-2">
+              <div className="relative grid grid-cols-2 gap-2">
                 <div
-                  className={`absolute inset-y-0 left-0 w-1/2 rounded-[8px] bg-white/[0.14] transition-transform duration-200 ease-out pointer-events-none ${
-                    menuTab === 'settings' ? 'translate-x-full' : 'translate-x-0'
+                  className={`absolute inset-y-0 left-0 w-[calc(50%-4px)] rounded-[8px] bg-white/[0.14] transition-transform duration-200 ease-out pointer-events-none ${
+                    menuTab === 'settings' ? 'translate-x-[calc(100%+8px)]' : 'translate-x-0'
                   }`}
                 />
                 <button
