@@ -225,65 +225,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       }
     })()
 
-    const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen()
-        setIsFullscreen(true)
-      } else {
-        await document.exitFullscreen()
-        setIsFullscreen(false)
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  const cycleQuality = (dir: -1 | 1) => {
-    const order: Array<'Auto' | 'Low' | 'Medium' | 'High'> = ['Auto', 'Low', 'Medium', 'High']
-    const idx = order.indexOf(graphicsQuality)
-    const next = order[(idx + dir + order.length) % order.length]
-    setGraphicsQuality(next)
-    try {
-      localStorage.setItem('novelo_player_quality', next)
-    } catch {
-      // ignore
-    }
-  }
-
-  const cycleFps = (dir: -1 | 1) => {
-    const order: Array<60 | 120 | 144 | 240 | 'Unlimited'> = [60, 120, 144, 240, 'Unlimited']
-    const idx = order.indexOf(maxFps)
-    const next = order[(idx + dir + order.length) % order.length]
-    setMaxFps(next)
-    try {
-      localStorage.setItem('novelo_player_fps', String(next))
-    } catch {
-      // ignore
-    }
-  }
-
-  useEffect(() => {
-    const vp = viewportRef.current as any
-    const renderer = vp?.renderer
-    if (!renderer) return
-    const dpr = window.devicePixelRatio || 1
-    if (graphicsQuality === 'Low') {
-      renderer.setPixelRatio(0.75)
-      if (renderer.shadowMap) renderer.shadowMap.enabled = false
-    } else if (graphicsQuality === 'Medium') {
-      renderer.setPixelRatio(1)
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
-    } else if (graphicsQuality === 'High') {
-      renderer.setPixelRatio(Math.min(dpr, 2))
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
-    } else {
-      renderer.setPixelRatio(Math.min(dpr, 1.5))
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
-    }
-  }, [graphicsQuality, status])
-
-  return () => {
+    return () => {
       cancelled = true
       viewportRef.current = null
       if (viewport) {
@@ -351,65 +293,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       }
     }
     window.addEventListener('keydown', onKeyDown)
-    const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen()
-        setIsFullscreen(true)
-      } else {
-        await document.exitFullscreen()
-        setIsFullscreen(false)
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  const cycleQuality = (dir: -1 | 1) => {
-    const order: Array<'Auto' | 'Low' | 'Medium' | 'High'> = ['Auto', 'Low', 'Medium', 'High']
-    const idx = order.indexOf(graphicsQuality)
-    const next = order[(idx + dir + order.length) % order.length]
-    setGraphicsQuality(next)
-    try {
-      localStorage.setItem('novelo_player_quality', next)
-    } catch {
-      // ignore
-    }
-  }
-
-  const cycleFps = (dir: -1 | 1) => {
-    const order: Array<60 | 120 | 144 | 240 | 'Unlimited'> = [60, 120, 144, 240, 'Unlimited']
-    const idx = order.indexOf(maxFps)
-    const next = order[(idx + dir + order.length) % order.length]
-    setMaxFps(next)
-    try {
-      localStorage.setItem('novelo_player_fps', String(next))
-    } catch {
-      // ignore
-    }
-  }
-
-  useEffect(() => {
-    const vp = viewportRef.current as any
-    const renderer = vp?.renderer
-    if (!renderer) return
-    const dpr = window.devicePixelRatio || 1
-    if (graphicsQuality === 'Low') {
-      renderer.setPixelRatio(0.75)
-      if (renderer.shadowMap) renderer.shadowMap.enabled = false
-    } else if (graphicsQuality === 'Medium') {
-      renderer.setPixelRatio(1)
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
-    } else if (graphicsQuality === 'High') {
-      renderer.setPixelRatio(Math.min(dpr, 2))
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
-    } else {
-      renderer.setPixelRatio(Math.min(dpr, 1.5))
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
-    }
-  }, [graphicsQuality, status])
-
-  return () => window.removeEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
   }, [menuOpen, onLeave])
 
   useEffect(() => {
