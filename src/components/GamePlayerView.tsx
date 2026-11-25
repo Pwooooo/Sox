@@ -12,7 +12,6 @@ import {
   ChevronRight,
   Minus,
   X,
-  Monitor,
   ZoomIn,
 } from 'lucide-react'
 import { NoveloViewport, createStarterWorld, type NvloDocument } from '@engine/index'
@@ -473,9 +472,9 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       {playerListOpen && status === 'playing' && !menuOpen && (
         <>
           {selectedPlayerCardOpen && (
-            <div className="fixed top-9 right-[276px] z-20 w-[276px] rounded-[8px] bg-black/75 backdrop-blur-md overflow-visible shadow-2xl">
+            <div className="fixed top-9 right-[276px] z-20 w-[276px] rounded-[8px] bg-[#141518]/92 backdrop-blur-md overflow-visible shadow-2xl">
               {/* Top Lighter Header Band with Overlapping Avatar Bust */}
-              <div className="px-3.5 pt-2 pb-2.5 bg-[#2a2c30]/90 rounded-t-[8px] flex items-center gap-3 relative">
+              <div className="px-3.5 pt-2 pb-2.5 bg-[#2a2c30]/90 rounded-t-[8px] flex items-center gap-3 relative border-b border-white/[0.08]">
                 <div className="size-16 -mt-4 rounded-md overflow-hidden shrink-0 drop-shadow-lg">
                   <PlayerModel3D mode="headshot" className="w-full h-full" />
                 </div>
@@ -487,23 +486,11 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                 </div>
               </div>
 
-              {/* Middle Stats Band */}
-              <div className="px-4 py-2.5 border-t border-b border-white/[0.08] bg-[#141518]/90 flex items-center justify-end gap-5">
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/55">Device</span>
-                  <Monitor className="size-4 text-white/90" />
-                </div>
-                <div className="flex flex-col items-end gap-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/55">Ping</span>
-                  <span className="text-xs font-bold text-[#22c55e]">24 ms</span>
-                </div>
-              </div>
-
               {/* Bottom Examine Avatar Row */}
               <button
                 type="button"
                 onClick={() => setExamineAvatarOpen(true)}
-                className="w-full px-4 py-3 rounded-b-[8px] flex items-center gap-3 text-[13px] font-bold text-white hover:bg-white/[0.08] transition-colors cursor-pointer border-none bg-[#101114]/90 text-left"
+                className="w-full px-4 py-3 rounded-b-[8px] flex items-center gap-3 text-[13px] font-bold text-white hover:bg-white/[0.08] transition-colors cursor-pointer border-none bg-transparent text-left"
               >
                 <ZoomIn className="size-4 text-white/90" />
                 <span>Examine Avatar</span>
