@@ -390,17 +390,17 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
           title="Settings (Esc)"
-          className="size-10 rounded-full bg-black/50 hover:bg-black/65 backdrop-blur-md border-none flex items-center justify-center cursor-pointer transition-all duration-200 ease-out shadow-lg"
+          className="size-10 rounded-[8px] bg-black/50 hover:bg-black/65 backdrop-blur-md border-none flex items-center justify-center cursor-pointer transition-all duration-200 ease-out shadow-lg"
         >
           <img src="/ingame-settings-logo.png" alt="Settings" className="size-6 object-contain" />
         </button>
 
-        <div className="h-10 px-1.5 rounded-full bg-black/50 backdrop-blur-md flex items-center gap-1 shadow-lg">
+        <div className="h-10 px-1 rounded-[8px] bg-black/50 backdrop-blur-md flex items-center gap-1 shadow-lg">
           <button
             type="button"
             onClick={() => setPlayerListOpen((v) => !v)}
             title="Player List (Tab)"
-            className={`size-8 rounded-full flex items-center justify-center cursor-pointer border-none transition-all duration-200 ease-out ${
+            className={`size-8 rounded-[6px] flex items-center justify-center cursor-pointer border-none transition-all duration-200 ease-out ${
               playerListOpen
                 ? 'bg-white/[0.14] text-white'
                 : 'bg-transparent text-white/85 hover:bg-white/[0.08] hover:text-white'
@@ -413,7 +413,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
             type="button"
             onClick={handleToggleChat}
             title="Toggle Chat (/)"
-            className={`relative size-8 rounded-full flex items-center justify-center cursor-pointer border-none transition-all duration-200 ease-out ${
+            className={`relative size-8 rounded-[6px] flex items-center justify-center cursor-pointer border-none transition-all duration-200 ease-out ${
               chatOpen
                 ? 'bg-white/[0.14] text-white'
                 : 'bg-transparent text-white/85 hover:bg-white/[0.08] hover:text-white'
