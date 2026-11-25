@@ -38,6 +38,7 @@ interface GamePlayerViewProps {
 interface LoadedGame {
   name: string
   creator: string
+  thumbnail?: string
   doc: NvloDocument
 }
 
@@ -55,6 +56,7 @@ async function resolveGameDoc(gameId: string): Promise<LoadedGame | null> {
       return {
         name: remote.name || 'Untitled Experience',
         creator: remote.owner_username || 'Creator',
+        thumbnail: remote.thumbnail || '',
         doc: remote.doc as NvloDocument,
       }
     }
@@ -115,9 +117,10 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
   const chatEndRef = useRef<HTMLDivElement>(null)
 
   const [status, setStatus] = useState<'loading' | 'playing' | 'error'>('loading')
-  const [gameMeta, setGameMeta] = useState<{ name: string; creator: string }>({
+  const [gameMeta, setGameMeta] = useState<{ name: string; creator: string; thumbnail?: string }>({
     name: 'Loading experience...',
     creator: '',
+    thumbnail: '',
   })
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -178,7 +181,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
         return
       }
 
-      setGameMeta({ name: loaded.name, creator: loaded.creator })
+      setGameMeta({ name: loaded.name, creator: loaded.creator, thumbnail: loaded.thumbnail })
 
       const el = containerRef.current
       if (!el) return
@@ -238,6 +241,9 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
             }
           }, 150)
         }
+
+        await new Promise((resolve) => window.setTimeout(resolve, 900))
+        if (cancelled) return
 
         setStatus('playing')
         setMessages([
@@ -987,9 +993,51 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
       )}
 
       {status === 'loading' && (
-        <div className="fixed inset-0 bg-[#09090b] flex flex-col items-center justify-center gap-3 z-50">
-          <Loader2 className="size-7 text-[#02b070] animate-spin" />
-          <p className="text-xs font-semibold text-white/70 m-0">Joining experience...</p>
+        <div className="fixed inset-0 bg-[#232527] flex flex-col items-center justify-center z-50 overflow-hidden select-none">
+          {/* Soft blurred thumbnail ambient glow behind card */}
+          {gameMeta.thumbnail && (
+            <img
+              src={gameMeta.thumbnail}
+              alt=""
+              className="absolute w-[420px] h-[280px] object-cover opacity-35 blur-3xl scale-110 pointer-events-none"
+            />
+          )}
+
+          {/* Center Experience Card */}
+          <div className="relative z-10 w-[540px] max-w-[90vw] rounded-[12px] bg-[#2b2d30]/92 backdrop-blur-md px-8 pb-8 pt-4 shadow-2xl flex flex-col items-center mt-10">
+            <div className="size-36 -mt-20 rounded-[12px] bg-[#18191c] shadow-2xl overflow-hidden flex items-center justify-center border border-white/[0.06]">
+              {gameMeta.thumbnail ? (
+                <img
+                  src={gameMeta.thumbnail}
+                  alt={gameMeta.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src="/ingame-settings-logo.png"
+                  alt="Novelo"
+                  className="size-24 object-contain opacity-90"
+                />
+              )}
+            </div>
+
+            <h2 className="text-xl font-bold text-white mt-5 text-center tracking-tight">
+              {gameMeta.name}
+            </h2>
+            {gameMeta.creator && (
+              <p className="text-xs text-white/55 mt-1.5 text-center m-0">
+                {gameMeta.creator}
+              </p>
+            )}
+          </div>
+
+          {/* Bottom-center status text */}
+          <p className="fixed bottom-4 left-1/2 -translate-x-1/2 text-[11px] text-white/55 m-0">
+            Joining experience...
+          </p>
+
+          {/* Bottom-right spinner */}
+          <div className="fixed bottom-5 right-5 size-6 rounded-full border-2 border-white/20 border-t-white animate-spin" />
         </div>
       )}
 
