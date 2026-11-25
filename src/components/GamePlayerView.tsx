@@ -583,17 +583,17 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
             <div className="p-2 border-b border-white/[0.08] shrink-0">
               <div className="relative grid grid-cols-2 gap-2">
                 <div
-                  className={`absolute inset-y-0 left-0 w-[calc(50%-4px)] rounded-[8px] bg-white/[0.14] transition-transform duration-200 ease-out pointer-events-none ${
-                    menuTab === 'settings' ? 'translate-x-[calc(100%+8px)]' : 'translate-x-0'
+                  className={`absolute inset-y-0 w-[calc(50%-4px)] rounded-[8px] bg-white/[0.14] transition-[left] duration-200 ease-out pointer-events-none ${
+                    menuTab === 'settings' ? 'left-[calc(50%+4px)]' : 'left-0'
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setMenuTab('people')}
-                  className={`relative z-10 h-10 rounded-[8px] flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-none bg-transparent transition-colors duration-200 ${
+                  className={`relative z-10 h-10 rounded-[8px] flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-none bg-transparent outline-none transition-colors duration-150 ${
                     menuTab === 'people'
                       ? 'text-white'
-                      : 'text-white/55 hover:text-white/85 hover:bg-white/[0.06]'
+                      : 'text-white/55 hover:text-white/90'
                   }`}
                 >
                   <Users className="size-4" />
@@ -602,10 +602,10 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
                 <button
                   type="button"
                   onClick={() => setMenuTab('settings')}
-                  className={`relative z-10 h-10 rounded-[8px] flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-none bg-transparent transition-colors duration-200 ${
+                  className={`relative z-10 h-10 rounded-[8px] flex items-center justify-center gap-2 text-xs font-bold cursor-pointer border-none bg-transparent outline-none transition-colors duration-150 ${
                     menuTab === 'settings'
                       ? 'text-white'
-                      : 'text-white/55 hover:text-white/85 hover:bg-white/[0.06]'
+                      : 'text-white/55 hover:text-white/90'
                   }`}
                 >
                   <SettingsIcon className="size-4" />
