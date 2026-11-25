@@ -137,9 +137,10 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     }
     return 'Auto'
   })
-  const [maxFps, setMaxFps] = useState<60 | 120 | 144 | 240 | 'Unlimited'>(() => {
+  const [maxFps, setMaxFps] = useState<30 | 60 | 120 | 144 | 240 | 'Unlimited'>(() => {
     try {
       const saved = localStorage.getItem('novelo_player_fps')
+      if (saved === '30') return 30
       if (saved === '60') return 60
       if (saved === '120') return 120
       if (saved === '144') return 144
@@ -150,6 +151,10 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     }
     return 60
   })
+  const maxFpsRef = useRef<30 | 60 | 120 | 144 | 240 | 'Unlimited'>(maxFps)
+  useEffect(() => {
+    maxFpsRef.current = maxFps
+  }, [maxFps])
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [chatOpen, setChatOpen] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -186,6 +191,29 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
         viewportRef.current = viewport
         viewport.loadDocument(loaded.doc || createStarterWorld(loaded.name))
         viewport.startPlay()
+
+        // Wrap NoveloViewport.animate so Maximum Frame Rate setting throttles rendering cleanly
+        const vpAny = viewport as any
+        if (typeof vpAny.animate === 'function' && !vpAny.__noveloFpsWrapped) {
+          const origAnimate = vpAny.animate
+          let lastRenderMs = 0
+          vpAny.__noveloFpsWrapped = true
+          if (vpAny.rafId) cancelAnimationFrame(vpAny.rafId)
+          vpAny.animate = () => {
+            const cap = maxFpsRef.current
+            if (cap !== 'Unlimited') {
+              const now = performance.now()
+              const minDelta = 1000 / cap
+              if (now - lastRenderMs < minDelta - 0.75) {
+                vpAny.rafId = requestAnimationFrame(vpAny.animate)
+                return
+              }
+              lastRenderMs = now
+            }
+            origAnimate()
+          }
+          vpAny.animate()
+        }
 
         const applyInGameAvatar = () => {
           const charGroup = (viewport as any)?.character?.group
@@ -364,7 +392,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
   }
 
   const cycleFps = (dir: -1 | 1) => {
-    const order: Array<60 | 120 | 144 | 240 | 'Unlimited'> = [60, 120, 144, 240, 'Unlimited']
+    const order: Array<30 | 60 | 120 | 144 | 240 | 'Unlimited'> = [30, 60, 120, 144, 240, 'Unlimited']
     const idx = order.indexOf(maxFps)
     const next = order[(idx + dir + order.length) % order.length]
     setMaxFps(next)
@@ -378,20 +406,48 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
   useEffect(() => {
     const vp = viewportRef.current as any
     const renderer = vp?.renderer
+    const scene = vp?.scene
     if (!renderer) return
     const dpr = window.devicePixelRatio || 1
+    const shadowsOn = graphicsQuality !== 'Low'
+
     if (graphicsQuality === 'Low') {
       renderer.setPixelRatio(0.75)
-      if (renderer.shadowMap) renderer.shadowMap.enabled = false
     } else if (graphicsQuality === 'Medium') {
       renderer.setPixelRatio(1)
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
     } else if (graphicsQuality === 'High') {
       renderer.setPixelRatio(Math.min(dpr, 2))
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
     } else {
       renderer.setPixelRatio(Math.min(dpr, 1.5))
-      if (renderer.shadowMap) renderer.shadowMap.enabled = true
+    }
+
+    if (renderer.shadowMap) {
+      renderer.shadowMap.enabled = shadowsOn
+      renderer.shadowMap.needsUpdate = true
+    }
+
+    if (scene && typeof scene.traverse === 'function') {
+      scene.traverse((obj: any) => {
+        if (obj.isLight) {
+          if (obj.userData.__origCastShadow === undefined) {
+            obj.userData.__origCastShadow = Boolean(obj.castShadow)
+          }
+          obj.castShadow = shadowsOn ? Boolean(obj.userData.__origCastShadow) : false
+        }
+        if (obj.isMesh) {
+          if (obj.userData.__origReceiveShadow === undefined) {
+            obj.userData.__origReceiveShadow = Boolean(obj.receiveShadow)
+          }
+          const nextReceive = shadowsOn ? Boolean(obj.userData.__origReceiveShadow) : false
+          if (obj.receiveShadow !== nextReceive) {
+            obj.receiveShadow = nextReceive
+            const mats = Array.isArray(obj.material) ? obj.material : [obj.material]
+            for (const m of mats) {
+              if (m) m.needsUpdate = true
+            }
+          }
+        }
+      })
     }
   }, [graphicsQuality, status])
 
