@@ -526,12 +526,12 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
               </button>
               <span className="text-[11px] font-medium text-white/75 pl-1">People</span>
             </div>
-            <div className="flex flex-col max-h-60 overflow-y-auto no-scrollbar">
+            <div className="p-1.5 flex flex-col gap-0.5 max-h-60 overflow-y-auto no-scrollbar">
               <button
                 type="button"
                 onClick={() => setSelectedPlayerCardOpen((v) => !v)}
-                className={`w-full flex items-center gap-3 px-4 py-2 transition-colors cursor-pointer border-none text-left ${
-                  selectedPlayerCardOpen ? 'bg-white/[0.12]' : 'bg-transparent hover:bg-white/[0.08]'
+                className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-[6px] transition-all duration-200 ease-out cursor-pointer border-none text-left ${
+                  selectedPlayerCardOpen ? 'bg-white/[0.14]' : 'bg-transparent hover:bg-white/[0.08]'
                 }`}
               >
                 <div className="size-5 rounded-full overflow-hidden shrink-0">
