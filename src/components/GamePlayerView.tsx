@@ -156,6 +156,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     maxFpsRef.current = maxFps
   }, [maxFps])
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const prevWindowBoundsRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null)
   const [chatOpen, setChatOpen] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
   const [chatInput, setChatInput] = useState('')
@@ -372,9 +373,12 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     if (!(window as any).__TAURI_INTERNALS__) return
     void (async () => {
       try {
-        const { getCurrentWindow } = await import('@tauri-apps/api/window')
-        const fs = await getCurrentWindow().isFullscreen()
-        setIsFullscreen(fs)
+        const { getCurrentWindow, currentMonitor } = await import('@tauri-apps/api/window')
+        const win = getCurrentWindow()
+        const [size, monitor] = await Promise.all([win.outerSize(), currentMonitor()])
+        if (monitor && size.width >= monitor.size.width && size.height >= monitor.size.height) {
+          setIsFullscreen(true)
+        }
       } catch {
         // ignore
       }
@@ -387,14 +391,41 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
         document.exitPointerLock?.()
       }
       if ((window as any).__TAURI_INTERNALS__) {
-        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        const { getCurrentWindow, currentMonitor, PhysicalPosition, PhysicalSize } = await import(
+          '@tauri-apps/api/window'
+        )
         const win = getCurrentWindow()
-        const current = await win.isFullscreen()
-        const next = !current
-        await win.setFullscreen(next)
-        await win.setIgnoreCursorEvents(false).catch(() => {})
-        await win.setFocus().catch(() => {})
-        setIsFullscreen(next)
+        const [pos, size, monitor] = await Promise.all([
+          win.outerPosition(),
+          win.outerSize(),
+          currentMonitor(),
+        ])
+        const currentlyFs = Boolean(
+          monitor && size.width >= monitor.size.width && size.height >= monitor.size.height
+        )
+        if (!currentlyFs) {
+          if (!monitor) return
+          prevWindowBoundsRef.current = {
+            x: pos.x,
+            y: pos.y,
+            w: size.width,
+            h: size.height,
+          }
+          await win.setPosition(new PhysicalPosition(monitor.position.x, monitor.position.y))
+          await win.setSize(new PhysicalSize(monitor.size.width, monitor.size.height))
+          await win.setFocus().catch(() => {})
+          setIsFullscreen(true)
+        } else {
+          const prev = prevWindowBoundsRef.current
+          if (prev) {
+            await win.setSize(new PhysicalSize(prev.w, prev.h))
+            await win.setPosition(new PhysicalPosition(prev.x, prev.y))
+          } else {
+            await win.setSize(new PhysicalSize(1280, 800))
+          }
+          await win.setFocus().catch(() => {})
+          setIsFullscreen(false)
+        }
         window.setTimeout(() => {
           window.dispatchEvent(new Event('resize'))
           ;(viewportRef.current as any)?.handleResize?.()
