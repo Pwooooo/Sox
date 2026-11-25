@@ -390,19 +390,19 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
           title="Settings (Esc)"
-          className="size-10 rounded-full bg-[#111114]/85 hover:bg-[#1b1b20]/95 backdrop-blur-md border border-white/[0.1] flex items-center justify-center cursor-pointer transition-colors shadow-lg"
+          className="size-10 rounded-full bg-black/50 hover:bg-black/65 backdrop-blur-md border-none flex items-center justify-center cursor-pointer transition-all duration-200 ease-out shadow-lg"
         >
           <img src="/ingame-settings-logo.png" alt="Settings" className="size-6 object-contain" />
         </button>
 
-        <div className="h-10 px-1.5 rounded-full bg-[#111114]/85 backdrop-blur-md border border-white/[0.1] flex items-center gap-1 shadow-lg">
+        <div className="h-10 px-1.5 rounded-full bg-black/50 backdrop-blur-md flex items-center gap-1 shadow-lg">
           <button
             type="button"
             onClick={() => setPlayerListOpen((v) => !v)}
             title="Player List (Tab)"
-            className={`size-8 rounded-full flex items-center justify-center cursor-pointer border-none transition-colors ${
+            className={`size-8 rounded-full flex items-center justify-center cursor-pointer border-none transition-all duration-200 ease-out ${
               playerListOpen
-                ? 'bg-white/[0.12] text-white'
+                ? 'bg-white/[0.14] text-white'
                 : 'bg-transparent text-white/85 hover:bg-white/[0.08] hover:text-white'
             }`}
           >
@@ -413,7 +413,11 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
             type="button"
             onClick={handleToggleChat}
             title="Toggle Chat (/)"
-            className="relative size-8 rounded-full hover:bg-white/[0.08] text-white/85 hover:text-white flex items-center justify-center cursor-pointer border-none bg-transparent transition-colors"
+            className={`relative size-8 rounded-full flex items-center justify-center cursor-pointer border-none transition-all duration-200 ease-out ${
+              chatOpen
+                ? 'bg-white/[0.14] text-white'
+                : 'bg-transparent text-white/85 hover:bg-white/[0.08] hover:text-white'
+            }`}
           >
             <MessageSquare className="size-4" />
             {!chatOpen && unreadCount > 0 && (
@@ -427,7 +431,7 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
 
       {/* Top-Left Translucent Chat Box */}
       {chatOpen && status === 'playing' && (
-        <div className="fixed top-16 left-3 z-20 w-80 max-w-[calc(100vw-24px)] rounded-[12px] bg-[#111114]/70 backdrop-blur-md border border-white/[0.08] flex flex-col overflow-hidden shadow-xl">
+        <div className="fixed top-16 left-3 z-20 w-80 max-w-[calc(100vw-24px)] rounded-[10px] bg-black/50 backdrop-blur-md flex flex-col overflow-hidden shadow-xl">
           <div className="max-h-44 overflow-y-auto px-3 py-2 flex flex-col gap-1 text-xs no-scrollbar">
             {messages.map((m) => (
               <div key={m.id} className="leading-snug break-words">
