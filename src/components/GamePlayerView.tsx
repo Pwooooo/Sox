@@ -294,7 +294,10 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'F11') {
+        e.preventDefault()
+        void toggleFullscreen()
+      } else if (e.key === 'Escape') {
         setMenuOpen((v) => !v)
       } else if (menuOpen && e.key.toLowerCase() === 'l') {
         e.preventDefault()
@@ -365,8 +368,29 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     setMenuOpen(false)
   }
 
+  useEffect(() => {
+    if (!(window as any).__TAURI_INTERNALS__) return
+    void (async () => {
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        const fs = await getCurrentWindow().isFullscreen()
+        setIsFullscreen(fs)
+      } catch {
+        // ignore
+      }
+    })()
+  }, [])
+
   const toggleFullscreen = async () => {
     try {
+      if ((window as any).__TAURI_INTERNALS__) {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        const win = getCurrentWindow()
+        const current = await win.isFullscreen()
+        await win.setFullscreen(!current)
+        setIsFullscreen(!current)
+        return
+      }
       if (!document.fullscreenElement) {
         await document.documentElement.requestFullscreen()
         setIsFullscreen(true)
