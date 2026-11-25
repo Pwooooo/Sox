@@ -814,9 +814,9 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                className="h-10 px-4 rounded-[10px] bg-[#2a3f78] hover:bg-[#334d92] border border-white/30 text-xs font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                className="h-10 px-4 rounded-[10px] bg-white hover:bg-neutral-200 border-none text-xs font-bold text-black flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
               >
-                <span className="px-1.5 py-0.5 rounded-[4px] border border-white/40 text-[10px] font-bold leading-none">
+                <span className="px-1.5 py-0.5 rounded-[4px] border border-black/30 text-[10px] font-bold leading-none">
                   ESC
                 </span>
                 <span>Resume</span>
