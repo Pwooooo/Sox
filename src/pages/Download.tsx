@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Download as DownloadIcon } from 'lucide-react'
 
 interface HeroApp {
@@ -41,7 +42,68 @@ const COZY_BOKEH = [
 
 const SHOW_FROST_CARDS = false
 
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement | null
+    if (existing) {
+      if (existing.dataset.loaded === 'true') {
+        resolve()
+      } else {
+        existing.addEventListener('load', () => resolve(), { once: true })
+        existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true })
+      }
+      return
+    }
+    const script = document.createElement('script')
+    script.src = src
+    script.async = true
+    script.onload = () => {
+      script.dataset.loaded = 'true'
+      resolve()
+    }
+    script.onerror = () => reject(new Error(`Failed to load ${src}`))
+    document.head.appendChild(script)
+  })
+}
+
 export function Download() {
+  const vantaRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    let vantaEffect: { destroy?: () => void } | null = null
+
+    async function initVanta() {
+      try {
+        const w = window as any
+        if (!w.THREE) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
+        }
+        if (!w.VANTA?.CLOUDS) {
+          await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js')
+        }
+        if (cancelled || !vantaRef.current || !w.VANTA?.CLOUDS) return
+        vantaEffect = w.VANTA.CLOUDS({
+          el: vantaRef.current,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.0,
+          minWidth: 200.0,
+          speed: 0.0,
+        })
+      } catch (err) {
+        console.error('Failed to init Vanta Clouds:', err)
+      }
+    }
+
+    initVanta()
+    return () => {
+      cancelled = true
+      vantaEffect?.destroy?.()
+    }
+  }, [])
+
   return (
     <div className="relative w-full">
       <style>{`
@@ -50,64 +112,18 @@ export function Download() {
           50% { transform: translate3d(12px, 160px, 0); }
           100% { transform: translate3d(-8px, 340px, 0); }
         }
-        @keyframes novelo-clouds-1 {
-          from { background-position: 0 0; }
-          to { background-position: -1000px 0; }
-        }
-        @keyframes novelo-clouds-2 {
-          from { background-position: 0 0; }
-          to { background-position: -1200px 0; }
-        }
-        @keyframes novelo-clouds-3 {
-          from { background-position: 0 0; }
-          to { background-position: -1400px 0; }
-        }
-        .novelo-clouds {
-          opacity: 0.5;
-          pointer-events: none;
-          position: fixed;
-          overflow: hidden;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 420px;
-          z-index: 0;
-          mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
-          -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
-        }
-        .novelo-clouds-1,
-        .novelo-clouds-2,
-        .novelo-clouds-3 {
-          background-repeat: repeat-x;
-          position: absolute;
-          top: 0;
-          right: 0;
-          left: 0;
-          height: 420px;
-        }
-        .novelo-clouds-1 {
-          background-size: 1000px 420px;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='420' viewBox='0 0 1000 420'%3E%3Cdefs%3E%3Cfilter id='b1' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='24'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23b1)' fill='%23cbd5e1' fill-opacity='0.28'%3E%3Cellipse cx='140' cy='110' rx='180' ry='65'/%3E%3Cellipse cx='340' cy='150' rx='210' ry='75'/%3E%3Cellipse cx='620' cy='95' rx='220' ry='70'/%3E%3Cellipse cx='860' cy='140' rx='190' ry='68'/%3E%3C/g%3E%3C/svg%3E");
-          animation: novelo-clouds-1 28s infinite linear;
-        }
-        .novelo-clouds-2 {
-          background-size: 1200px 420px;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='420' viewBox='0 0 1200 420'%3E%3Cdefs%3E%3Cfilter id='b2' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='18'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23b2)' fill='%23e2e8f0' fill-opacity='0.24'%3E%3Cellipse cx='200' cy='175' rx='190' ry='55'/%3E%3Cellipse cx='520' cy='125' rx='240' ry='65'/%3E%3Cellipse cx='840' cy='180' rx='210' ry='58'/%3E%3Cellipse cx='1090' cy='135' rx='160' ry='52'/%3E%3C/g%3E%3C/svg%3E");
-          animation: novelo-clouds-2 20s infinite linear;
-        }
-        .novelo-clouds-3 {
-          background-size: 1400px 420px;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='420' viewBox='0 0 1400 420'%3E%3Cdefs%3E%3Cfilter id='b3' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='30'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23b3)' fill='%2394a3b8' fill-opacity='0.22'%3E%3Cellipse cx='180' cy='220' rx='260' ry='80'/%3E%3Cellipse cx='650' cy='190' rx='290' ry='85'/%3E%3Cellipse cx='1120' cy='230' rx='270' ry='78'/%3E%3C/g%3E%3C/svg%3E");
-          animation: novelo-clouds-3 24s infinite linear;
-        }
       `}</style>
 
-      {/* Parallax drifting clouds header */}
-      <div className="novelo-clouds" aria-hidden="true">
-        <div className="novelo-clouds-1" />
-        <div className="novelo-clouds-2" />
-        <div className="novelo-clouds-3" />
-      </div>
+      {/* Vanta.js Clouds header */}
+      <div
+        ref={vantaRef}
+        className="fixed inset-x-0 top-0 h-[440px] pointer-events-none z-0 overflow-hidden"
+        style={{
+          maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
+        }}
+        aria-hidden="true"
+      />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
 
