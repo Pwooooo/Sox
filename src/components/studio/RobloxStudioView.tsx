@@ -82,6 +82,7 @@ import {
   Coins,
   Check,
 } from 'lucide-react'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface RobloxStudioViewProps {
   onClose?: () => void
@@ -1586,9 +1587,8 @@ export function RobloxStudioView({
           />
 
           {/* Profile Circle */}
-          <div className="relative size-7 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-[11px] ring-1 ring-white/20 shadow-xs cursor-pointer">
-            <span>S</span>
-            <span className="absolute -bottom-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 ring-1 ring-black" />
+          <div className="relative size-7 rounded-full bg-[#1a1a1f] border border-white/10 overflow-hidden shrink-0 shadow-xs cursor-pointer">
+            <PlayerModel3D mode="headshot" className="w-full h-full" />
           </div>
 
           <button className="size-7 rounded-[6px] flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.06] border-none bg-transparent cursor-pointer">
