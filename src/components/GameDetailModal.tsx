@@ -93,7 +93,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
 
   return (
     <div className="fixed inset-0 z-30 pt-14 md:pl-[230px] bg-[#0b0b0e] overflow-y-auto no-scrollbar animate-in fade-in select-none">
-      <div className="relative w-full max-w-5xl mx-auto px-5 py-6 md:px-10 md:py-8 flex flex-col gap-6 text-white">
+      <div className="relative w-full max-w-[900px] mx-auto px-5 py-6 md:px-8 md:py-7 flex flex-col gap-5 text-white">
         {/* Close Button */}
         <button
           onClick={onClose}
