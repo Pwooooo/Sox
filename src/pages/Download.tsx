@@ -1,4 +1,5 @@
 import { Download as DownloadIcon } from 'lucide-react'
+import { CloudHeader } from '@/components/CloudHeader'
 
 interface HeroApp {
   title: string
@@ -51,6 +52,8 @@ export function Download() {
           100% { transform: translate3d(-8px, 340px, 0); }
         }
       `}</style>
+
+      <CloudHeader />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
 
