@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import { Download as DownloadIcon } from 'lucide-react'
 
 interface HeroApp {
@@ -42,74 +41,7 @@ const COZY_BOKEH = [
 
 const SHOW_FROST_CARDS = false
 
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement | null
-    if (existing) {
-      if (existing.dataset.loaded === 'true') {
-        resolve()
-      } else {
-        existing.addEventListener('load', () => resolve(), { once: true })
-        existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true })
-      }
-      return
-    }
-    const script = document.createElement('script')
-    script.src = src
-    script.async = true
-    script.onload = () => {
-      script.dataset.loaded = 'true'
-      resolve()
-    }
-    script.onerror = () => reject(new Error(`Failed to load ${src}`))
-    document.head.appendChild(script)
-  })
-}
-
 export function Download() {
-  const vantaRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    let vantaEffect: { destroy?: () => void } | null = null
-
-    async function initVanta() {
-      try {
-        const w = window as any
-        if (!w.THREE) {
-          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
-        }
-        if (!w.VANTA?.CLOUDS) {
-          await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js')
-        }
-        if (cancelled || !vantaRef.current || !w.VANTA?.CLOUDS) return
-        vantaEffect = w.VANTA.CLOUDS({
-          el: vantaRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 160.0,
-          minWidth: 200.0,
-          skyColor: 0x0a0a0a,
-          cloudColor: 0x334155,
-          cloudShadowColor: 0x0f172a,
-          sunColor: 0x1e293b,
-          sunGlareColor: 0x334155,
-          sunlightColor: 0x475569,
-          speed: 0.0,
-        })
-      } catch (err) {
-        console.error('Failed to init Vanta Clouds:', err)
-      }
-    }
-
-    initVanta()
-    return () => {
-      cancelled = true
-      vantaEffect?.destroy?.()
-    }
-  }, [])
-
   return (
     <div className="relative w-full">
       <style>{`
@@ -119,19 +51,6 @@ export function Download() {
           100% { transform: translate3d(-8px, 340px, 0); }
         }
       `}</style>
-
-      {/* Scaled-down Vanta.js Clouds header (clouds only, dark sky) */}
-      <div
-        className="fixed inset-x-0 top-0 h-[220px] pointer-events-none z-0 overflow-hidden opacity-55"
-        style={{
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 60%, transparent 100%)',
-          WebkitMaskImage:
-            'linear-gradient(to bottom, transparent 0%, black 30%, black 60%, transparent 100%)',
-        }}
-        aria-hidden="true"
-      >
-        <div ref={vantaRef} className="w-full h-[360px] -mt-28 scale-95 origin-top" />
-      </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
 
