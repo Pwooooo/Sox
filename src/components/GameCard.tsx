@@ -3,21 +3,12 @@ import { ThumbsUp, User, Sparkles } from 'lucide-react'
 import { GameDetailData } from '@/data/homeGames'
 import { cn } from '@/lib/utils'
 import { subscribeGamePresence } from '@/lib/gamePresence'
+import { getGameStats, GAME_STATS_EVENT } from '@/lib/gameStats'
 
 function getStoredLikePercent(gameId: string): number {
-  try {
-    const raw = localStorage.getItem('novelo_game_stats_v1')
-    if (!raw) return 0
-    const parsed = JSON.parse(raw)
-    const entry = parsed?.[gameId]
-    if (!entry) return 0
-    const likes = Number(entry.likes) || 0
-    const dislikes = Number(entry.dislikes) || 0
-    const total = likes + dislikes
-    return total > 0 ? Math.round((likes / total) * 100) : 0
-  } catch {
-    return 0
-  }
+  const { likes, dislikes } = getGameStats(gameId)
+  const total = likes + dislikes
+  return total > 0 ? Math.round((likes / total) * 100) : 0
 }
 
 interface GameCardProps {
@@ -40,12 +31,18 @@ export function GameCard({ game, aspect, className, onClick }: GameCardProps) {
         setLikePercent(getStoredLikePercent(game.id))
       }
     }
+    const onStatsEvent = (e: Event) => {
+      const gid = (e as CustomEvent<{ gameId?: string }>).detail?.gameId
+      if (!gid || gid === game.id) setLikePercent(getStoredLikePercent(game.id))
+    }
     window.addEventListener('storage', onStorage)
+    window.addEventListener(GAME_STATS_EVENT, onStatsEvent)
     const unsub = subscribeGamePresence(game.id, (sessions) => {
       setActivePlayers(sessions.length)
     })
     return () => {
       window.removeEventListener('storage', onStorage)
+      window.removeEventListener(GAME_STATS_EVENT, onStatsEvent)
       unsub()
     }
   }, [game.id])

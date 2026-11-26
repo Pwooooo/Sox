@@ -18,6 +18,15 @@ import { GameDetailData } from '@/data/homeGames'
 import { fetchPublicExperiences } from '@/lib/supabase'
 import { subscribeGamePresence, type ActivePlayerSession } from '@/lib/gamePresence'
 import { addNotification } from '@/lib/notifications'
+import {
+  getGameStats,
+  saveGameStats,
+  fetchRemoteGameStats,
+  recordRemoteVisit,
+  syncRemoteCounters,
+  GAME_STATS_EVENT,
+  type StoredGameStats,
+} from '@/lib/gameStats'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface GameDetailModalProps {
@@ -26,53 +35,6 @@ interface GameDetailModalProps {
 }
 
 type DetailTab = 'Servers' | 'Store' | 'Recommended'
-
-interface StoredGameStats {
-  likes: number
-  dislikes: number
-  favorites: number
-  visits: number
-  userVote: 'like' | 'dislike' | null
-  userFavorited: boolean
-  userNotified: boolean
-}
-
-const GAME_STATS_KEY = 'novelo_game_stats_v1'
-
-function loadAllGameStats(): Record<string, StoredGameStats> {
-  try {
-    const raw = localStorage.getItem(GAME_STATS_KEY)
-    if (!raw) return {}
-    const parsed = JSON.parse(raw)
-    return parsed && typeof parsed === 'object' ? (parsed as Record<string, StoredGameStats>) : {}
-  } catch {
-    return {}
-  }
-}
-
-function getGameStats(gameId: string): StoredGameStats {
-  const all = loadAllGameStats()
-  const existing = all[gameId]
-  return {
-    likes: typeof existing?.likes === 'number' ? existing.likes : 0,
-    dislikes: typeof existing?.dislikes === 'number' ? existing.dislikes : 0,
-    favorites: typeof existing?.favorites === 'number' ? existing.favorites : 0,
-    visits: typeof existing?.visits === 'number' ? existing.visits : 0,
-    userVote: existing?.userVote === 'like' || existing?.userVote === 'dislike' ? existing.userVote : null,
-    userFavorited: Boolean(existing?.userFavorited),
-    userNotified: Boolean(existing?.userNotified),
-  }
-}
-
-function saveGameStats(gameId: string, stats: StoredGameStats): void {
-  try {
-    const all = loadAllGameStats()
-    all[gameId] = stats
-    localStorage.setItem(GAME_STATS_KEY, JSON.stringify(all))
-  } catch {
-    // ignore storage errors
-  }
-}
 
 export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   const [currentGame, setCurrentGame] = useState<GameDetailData>(game)
@@ -91,10 +53,42 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   }, [game])
 
   useEffect(() => {
+    let cancelled = false
     setStats(getGameStats(currentGame.id))
-    return subscribeGamePresence(currentGame.id, (sessions) => {
+
+    const syncLocal = () => setStats(getGameStats(currentGame.id))
+    const onStatsEvent = (e: Event) => {
+      const gid = (e as CustomEvent<{ gameId?: string }>).detail?.gameId
+      if (!gid || gid === currentGame.id) syncLocal()
+    }
+    window.addEventListener('storage', syncLocal)
+    window.addEventListener(GAME_STATS_EVENT, onStatsEvent)
+
+    fetchRemoteGameStats(currentGame.id).then((remote) => {
+      if (cancelled || !remote) return
+      setStats((prev) => {
+        const merged: StoredGameStats = {
+          ...prev,
+          visits: Math.max(prev.visits, remote.visits ?? 0),
+          likes: Math.max(prev.likes, remote.likes ?? 0),
+          dislikes: Math.max(prev.dislikes, remote.dislikes ?? 0),
+          favorites: Math.max(prev.favorites, remote.favorites ?? 0),
+        }
+        saveGameStats(currentGame.id, merged)
+        return merged
+      })
+    })
+
+    const unsubPresence = subscribeGamePresence(currentGame.id, (sessions) => {
       setActiveSessions(sessions)
     })
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('storage', syncLocal)
+      window.removeEventListener(GAME_STATS_EVENT, onStatsEvent)
+      unsubPresence()
+    }
   }, [currentGame.id])
 
   const activePlayers = activeSessions.length
@@ -103,6 +97,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
     setStats((prev) => {
       const next = updater(prev)
       saveGameStats(currentGame.id, next)
+      void syncRemoteCounters(currentGame.id, next)
       return next
     })
   }
@@ -189,6 +184,12 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
     const next = { ...cur, visits: cur.visits + 1 }
     saveGameStats(targetId, next)
     if (targetId === currentGame.id) setStats(next)
+    try {
+      sessionStorage.setItem(`novelo_visit_ts_${targetId}`, String(Date.now()))
+    } catch {
+      // ignore
+    }
+    void recordRemoteVisit(targetId)
 
     if ((window as any).__TAURI_INTERNALS__) {
       window.dispatchEvent(new CustomEvent('novelo-join-game', { detail: { id: targetId } }))

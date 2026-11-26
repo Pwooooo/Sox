@@ -17,6 +17,7 @@ import {
 import { NoveloViewport, createStarterWorld, type NvloDocument } from '@engine/index'
 import { fetchExperienceById } from '@/lib/supabase'
 import { joinGamePresence } from '@/lib/gamePresence'
+import { getGameStats, saveGameStats, recordRemoteVisit } from '@/lib/gameStats'
 import { useAuth } from '@/lib/auth'
 import {
   PlayerModel3D,
@@ -163,6 +164,22 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     const accountKey = user?.id || currentUsername.trim().toLowerCase()
     return joinGamePresence(gameId, currentUsername, accountKey)
   }, [gameId, currentUsername, user?.id])
+
+  useEffect(() => {
+    if (status !== 'playing') return
+    let recentlyCounted = false
+    try {
+      const ts = Number(sessionStorage.getItem(`novelo_visit_ts_${gameId}`) || 0)
+      if (Date.now() - ts < 5000) recentlyCounted = true
+    } catch {
+      // ignore
+    }
+    if (!recentlyCounted) {
+      const cur = getGameStats(gameId)
+      saveGameStats(gameId, { ...cur, visits: cur.visits + 1 })
+      void recordRemoteVisit(gameId)
+    }
+  }, [gameId, status])
   const [isFullscreen, setIsFullscreen] = useState(false)
   const prevWindowBoundsRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null)
   const [chatOpen, setChatOpen] = useState(true)
