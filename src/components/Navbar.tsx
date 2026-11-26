@@ -1,4 +1,4 @@
-import { useState, useEffect, type MouseEvent } from 'react'
+import { useState, useEffect, useRef, type MouseEvent } from 'react'
 import {
   Menu as MenuIcon,
   Search,
@@ -8,9 +8,32 @@ import {
   Minus,
   Square,
   X,
+  CheckCheck,
+  Trash2,
+  Gamepad2,
+  Users,
+  Info,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
+import {
+  loadNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  clearNotifications,
+  NOTIFICATIONS_EVENT,
+  type AppNotification,
+} from '@/lib/notifications'
+
+function formatRelativeTime(timestamp: number): string {
+  const diffSec = Math.max(0, Math.floor((Date.now() - timestamp) / 1000))
+  if (diffSec < 60) return 'Just now'
+  const diffMin = Math.floor(diffSec / 60)
+  if (diffMin < 60) return `${diffMin}m ago`
+  const diffHr = Math.floor(diffMin / 60)
+  if (diffHr < 24) return `${diffHr}h ago`
+  return `${Math.floor(diffHr / 24)}d ago`
+}
 
 interface NavbarProps {
   balance?: number
@@ -23,7 +46,7 @@ interface NavbarProps {
 
 export function Navbar({
   balance = 1250,
-  unreadNotifications = 1,
+  unreadNotifications = 0,
   sidebarCollapsed = false,
   onToggleSidebar,
   onOpenSettings,
@@ -33,6 +56,45 @@ export function Navbar({
   const [isTauri, setIsTauri] = useState(
     typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
   )
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all')
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => loadNotifications())
+  const notifContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const sync = () => setNotifications(loadNotifications())
+    window.addEventListener(NOTIFICATIONS_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(NOTIFICATIONS_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!notificationsOpen) return
+    const onMouseDown = (e: globalThis.MouseEvent) => {
+      if (notifContainerRef.current && !notifContainerRef.current.contains(e.target as Node)) {
+        setNotificationsOpen(false)
+      }
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNotificationsOpen(false)
+    }
+    window.addEventListener('mousedown', onMouseDown)
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('mousedown', onMouseDown)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [notificationsOpen])
+
+  const liveUnreadCount =
+    unreadNotifications > 0
+      ? unreadNotifications
+      : notifications.filter((n) => !n.read).length
+  const visibleNotifications =
+    notifFilter === 'unread' ? notifications.filter((n) => !n.read) : notifications
 
   useEffect(() => {
     if (typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)) {
@@ -150,19 +212,167 @@ export function Navbar({
 
         {/* Right Section: Roblox Top-Right Bar (Bell with badge, Currency + balance, Settings Gear) */}
         <div className="flex items-center gap-4 md:gap-5 pr-1 shrink-0">
-          {/* 1. Notification Bell with Red Badge */}
-          <button
-            onClick={() => onNavigate?.('Messages')}
-            className="relative size-7 flex items-center justify-center text-white/75 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
-            title="Notifications & Messages"
-          >
-            <Bell className="size-5 stroke-[1.75]" />
-            {unreadNotifications > 0 && (
-              <span className="absolute -top-1 -right-1 size-4 rounded-full bg-[#e52525] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
-                {unreadNotifications}
-              </span>
+          {/* 1. Notification Bell with Red Badge & Dropdown Tab */}
+          <div ref={notifContainerRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setNotificationsOpen((prev) => !prev)}
+              className={cn(
+                'relative size-7 flex items-center justify-center rounded-md transition-colors cursor-pointer border-none bg-transparent',
+                notificationsOpen ? 'text-white bg-white/10' : 'text-white/75 hover:text-white',
+              )}
+              title="Notifications"
+            >
+              <Bell className="size-5 stroke-[1.75]" />
+              {liveUnreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-[#e52525] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+                  {liveUnreadCount > 99 ? '99+' : liveUnreadCount}
+                </span>
+              )}
+            </button>
+
+            {notificationsOpen && (
+              <div className="absolute right-0 mt-2.5 w-[340px] max-w-[calc(100vw-24px)] rounded-xl bg-[#141418] border border-white/10 shadow-[0_18px_48px_rgba(0,0,0,0.85)] overflow-hidden z-50">
+                {/* Header */}
+                <div className="px-4 py-3 border-b border-white/[0.08] flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-white">Notifications</span>
+                    {liveUnreadCount > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-full bg-[#e52525]/20 text-[#ff6b6b] text-[10px] font-bold tabular-numbers">
+                        {liveUnreadCount}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {notifications.some((n) => !n.read) && (
+                      <button
+                        type="button"
+                        onClick={() => markAllNotificationsRead()}
+                        title="Mark all as read"
+                        className="h-7 px-2 rounded-md text-[11px] font-semibold text-white/70 hover:text-white hover:bg-white/[0.08] flex items-center gap-1 cursor-pointer border-none bg-transparent transition-colors"
+                      >
+                        <CheckCheck className="size-3.5" />
+                        <span>Read all</span>
+                      </button>
+                    )}
+                    {notifications.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => clearNotifications()}
+                        title="Clear all notifications"
+                        className="size-7 rounded-md text-white/55 hover:text-white hover:bg-white/[0.08] flex items-center justify-center cursor-pointer border-none bg-transparent transition-colors"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Filter Tabs: All / Unread */}
+                <div className="px-3 pt-2 pb-1 flex items-center gap-1.5 border-b border-white/[0.06]">
+                  {(['all', 'unread'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setNotifFilter(tab)}
+                      className={cn(
+                        'px-2.5 py-1 rounded-md text-xs font-semibold capitalize cursor-pointer border-none transition-colors',
+                        notifFilter === tab
+                          ? 'bg-white/[0.12] text-white'
+                          : 'bg-transparent text-white/55 hover:text-white/85',
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Notification List */}
+                <div className="max-h-[320px] overflow-y-auto no-scrollbar divide-y divide-white/[0.05]">
+                  {visibleNotifications.length > 0 ? (
+                    visibleNotifications.map((item) => {
+                      const Icon =
+                        item.category === 'experience'
+                          ? Gamepad2
+                          : item.category === 'social'
+                            ? Users
+                            : Info
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            markNotificationRead(item.id)
+                            if (item.actionTab) {
+                              onNavigate?.(item.actionTab)
+                              setNotificationsOpen(false)
+                            }
+                          }}
+                          className={cn(
+                            'w-full px-4 py-3 text-left flex items-start gap-3 hover:bg-white/[0.05] transition-colors cursor-pointer border-none',
+                            item.read ? 'bg-transparent' : 'bg-white/[0.03]',
+                          )}
+                        >
+                          <div className="size-8 rounded-lg bg-white/[0.08] flex items-center justify-center text-white/80 shrink-0 mt-0.5">
+                            <Icon className="size-4" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs font-bold text-white truncate m-0">
+                                {item.title}
+                              </p>
+                              <span className="text-[10px] text-white/40 shrink-0">
+                                {formatRelativeTime(item.createdAt)}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-white/60 m-0 mt-0.5 leading-snug">
+                              {item.body}
+                            </p>
+                          </div>
+                          {!item.read && (
+                            <span className="size-2 rounded-full bg-[#3b82f6] shrink-0 mt-1.5" />
+                          )}
+                        </button>
+                      )
+                    })
+                  ) : (
+                    <div className="py-10 px-4 flex flex-col items-center justify-center gap-2 text-center">
+                      <Bell className="size-6 text-white/25" />
+                      <p className="text-xs font-medium text-white/50 m-0">
+                        {notifFilter === 'unread'
+                          ? 'No unread notifications.'
+                          : "You're all caught up — no notifications right now."}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="px-3 py-2 border-t border-white/[0.08] bg-black/20 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen(false)
+                      onOpenSettings?.()
+                    }}
+                    className="text-[11px] font-semibold text-white/60 hover:text-white cursor-pointer border-none bg-transparent py-1 px-1.5"
+                  >
+                    Notification Settings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen(false)
+                      onNavigate?.('Messages')
+                    }}
+                    className="text-[11px] font-semibold text-white/75 hover:text-white cursor-pointer border-none bg-transparent py-1 px-1.5"
+                  >
+                    View Messages
+                  </button>
+                </div>
+              </div>
             )}
-          </button>
+          </div>
 
           {/* 2. Currency Icon & Balance (Opens Store) */}
           <button

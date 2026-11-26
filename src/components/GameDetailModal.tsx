@@ -17,6 +17,7 @@ import {
 import { GameDetailData } from '@/data/homeGames'
 import { fetchPublicExperiences } from '@/lib/supabase'
 import { subscribeGamePresence, type ActivePlayerSession } from '@/lib/gamePresence'
+import { addNotification } from '@/lib/notifications'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface GameDetailModalProps {
@@ -118,7 +119,16 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   }
 
   const handleToggleNotify = () => {
+    const enabling = !stats.userNotified
     updateStats((prev) => ({ ...prev, userNotified: !prev.userNotified }))
+    if (enabling) {
+      addNotification({
+        title: currentGame.name,
+        body: 'Notifications enabled for this experience.',
+        category: 'experience',
+        actionTab: 'Home',
+      })
+    }
   }
 
   const handleVote = (vote: 'like' | 'dislike') => {

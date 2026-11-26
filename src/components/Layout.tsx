@@ -5,6 +5,7 @@ import { WaveBackground } from '@/components/WaveBackground'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
 import { loadNovluxBalance, NOVLUX_BALANCE_EVENT } from '@/data/clothingStore'
+import { loadNotifications, NOTIFICATIONS_EVENT } from '@/lib/notifications'
 
 interface LayoutProps {
   activeTab?: string
@@ -15,15 +16,24 @@ interface LayoutProps {
 export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [balance, setBalance] = useState(() => loadNovluxBalance())
+  const [unreadNotifications, setUnreadNotifications] = useState(
+    () => loadNotifications().filter((n) => !n.read).length,
+  )
   const { user, profile } = useAuth()
 
   useEffect(() => {
     const syncBalance = () => setBalance(loadNovluxBalance())
+    const syncNotifs = () =>
+      setUnreadNotifications(loadNotifications().filter((n) => !n.read).length)
     window.addEventListener(NOVLUX_BALANCE_EVENT, syncBalance)
+    window.addEventListener(NOTIFICATIONS_EVENT, syncNotifs)
     window.addEventListener('storage', syncBalance)
+    window.addEventListener('storage', syncNotifs)
     return () => {
       window.removeEventListener(NOVLUX_BALANCE_EVENT, syncBalance)
+      window.removeEventListener(NOTIFICATIONS_EVENT, syncNotifs)
       window.removeEventListener('storage', syncBalance)
+      window.removeEventListener('storage', syncNotifs)
     }
   }, [])
   const displayUsername =
@@ -40,7 +50,7 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
       {/* Top Navbar */}
       <Navbar
         balance={balance}
-        unreadNotifications={1}
+        unreadNotifications={unreadNotifications}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
         onOpenSettings={() => onSelectTab?.('Settings')}
