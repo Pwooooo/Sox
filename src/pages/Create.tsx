@@ -1217,18 +1217,6 @@ export function Create({ onClose }: CreateProps) {
                 <Store className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Marketplace' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
                 <span className="hidden md:inline text-xs font-semibold">Items</span>
               </button>
-
-              <button
-                onClick={() => setPrimarySidebarTab('Applications')}
-                className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
-                  primarySidebarTab === 'Applications'
-                    ? 'bg-white/[0.1] text-white font-bold'
-                    : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
-                }`}
-              >
-                <LayoutGrid className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Applications' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
-                <span className="hidden md:inline text-xs font-semibold">Applications</span>
-              </button>
             </div>
 
             {/* Category: Assets */}
@@ -1238,15 +1226,15 @@ export function Create({ onClose }: CreateProps) {
               </span>
 
               <button
-                onClick={() => setPrimarySidebarTab('Library')}
+                onClick={() => setPrimarySidebarTab('Documentation')}
                 className={`flex items-center gap-3 px-2.5 h-8.5 rounded-[8px] transition-colors cursor-pointer border-none text-left ${
-                  primarySidebarTab === 'Library'
+                  primarySidebarTab === 'Documentation'
                     ? 'bg-white/[0.1] text-white font-bold'
                     : 'text-white/60 hover:text-white hover:bg-white/[0.04] bg-transparent'
                 }`}
               >
-                <FileText className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Library' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
-                <span className="hidden md:inline text-xs font-semibold">Library</span>
+                <FileText className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Documentation' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
+                <span className="hidden md:inline text-xs font-semibold">Documentation</span>
               </button>
 
               <button
