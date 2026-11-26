@@ -359,16 +359,6 @@ export function Navbar({
                   >
                     Notification Settings
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNotificationsOpen(false)
-                      onNavigate?.('Messages')
-                    }}
-                    className="text-[11px] font-semibold text-white/75 hover:text-white cursor-pointer border-none bg-transparent py-1 px-1.5"
-                  >
-                    View Messages
-                  </button>
                 </div>
               </div>
             )}
