@@ -15,6 +15,9 @@ import { Forum } from '@/pages/Forum'
 import { Settings } from '@/pages/Settings'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { AuthModal } from '@/components/AuthModal'
+import { hydrateFromUserMetadata, schedulePushUserSync, PROFILE_UPDATED_EVENT } from '@/lib/userSync'
+import { FRIENDS_EVENT } from '@/lib/friendsStore'
+import { NOTIFICATIONS_EVENT } from '@/lib/notifications'
 import { GamePlayerView } from '@/components/GamePlayerView'
 
 function parseJoinIdFromUrl(raw: string): string | null {
@@ -42,6 +45,20 @@ function parseItemIdFromPath(pathname: string): string | null {
 
 function AppContent() {
   const { user, profile, loading } = useAuth()
+
+  useEffect(() => {
+    if (!user) return
+    hydrateFromUserMetadata(user, profile?.id)
+    const onSyncChange = () => schedulePushUserSync(user, profile?.id)
+    window.addEventListener(FRIENDS_EVENT, onSyncChange)
+    window.addEventListener(NOTIFICATIONS_EVENT, onSyncChange)
+    window.addEventListener(PROFILE_UPDATED_EVENT, onSyncChange)
+    return () => {
+      window.removeEventListener(FRIENDS_EVENT, onSyncChange)
+      window.removeEventListener(NOTIFICATIONS_EVENT, onSyncChange)
+      window.removeEventListener(PROFILE_UPDATED_EVENT, onSyncChange)
+    }
+  }, [user, profile?.id])
   const [viewedProfileId, setViewedProfileId] = useState<number | null>(() =>
     parseProfileIdFromPath(window.location.pathname),
   )

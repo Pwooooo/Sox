@@ -14,6 +14,7 @@ import { useAuth } from '@/lib/auth'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 import { loadFriends, FRIENDS_EVENT } from '@/lib/friendsStore'
 import { HsvColorPicker } from '@/components/HsvColorPicker'
+import { PROFILE_UPDATED_EVENT } from '@/lib/userSync'
 
 export function Profile({ profileId }: { profileId?: number | null }) {
   const { user, profile: myProfile } = useAuth()
@@ -53,17 +54,26 @@ export function Profile({ profileId }: { profileId?: number | null }) {
   })
 
   useEffect(() => {
-    try {
-      setBio(localStorage.getItem(bioStorageKey) || '')
-    } catch {
-      setBio('')
+    const syncProfileLocal = () => {
+      try {
+        setBio(localStorage.getItem(bioStorageKey) || '')
+      } catch {
+        setBio('')
+      }
+      try {
+        const savedBanner = localStorage.getItem(bannerStorageKey)
+        const metaBanner = isOwnProfile ? (user?.user_metadata?.banner as string | undefined) : undefined
+        setBanner(savedBanner || metaBanner || '#0f0f11')
+      } catch {
+        setBanner('#0f0f11')
+      }
     }
-    try {
-      const savedBanner = localStorage.getItem(bannerStorageKey)
-      const metaBanner = isOwnProfile ? (user?.user_metadata?.banner as string | undefined) : undefined
-      setBanner(savedBanner || metaBanner || '#0f0f11')
-    } catch {
-      setBanner('#0f0f11')
+    syncProfileLocal()
+    window.addEventListener(PROFILE_UPDATED_EVENT, syncProfileLocal)
+    window.addEventListener('storage', syncProfileLocal)
+    return () => {
+      window.removeEventListener(PROFILE_UPDATED_EVENT, syncProfileLocal)
+      window.removeEventListener('storage', syncProfileLocal)
     }
   }, [bioStorageKey, bannerStorageKey, isOwnProfile, user?.user_metadata?.banner])
 
@@ -648,6 +658,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                   } catch {
                     // ignore storage errors
                   }
+                  window.dispatchEvent(new CustomEvent(PROFILE_UPDATED_EVENT))
                   if (supabase && user) {
                     await supabase.auth.updateUser({
                       data: {
