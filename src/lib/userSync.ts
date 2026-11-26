@@ -6,6 +6,7 @@ import { GAME_STATS_EVENT, type StoredGameStats } from '@/lib/gameStats'
 import {
   EQUIPPED_CLOTHING_EVENT,
   NOVLUX_BALANCE_EVENT,
+  type EquippedClothingIds,
 } from '@/data/clothingStore'
 import { AVATAR_COLORS_EVENT, type BodyColors } from '@/components/PlayerModel3D'
 
@@ -20,7 +21,7 @@ interface SyncPayload {
   gameStats?: Record<string, StoredGameStats>
   balance?: number
   bodyColors?: BodyColors
-  equippedClothing?: string[]
+  equippedClothing?: EquippedClothingIds
   updatedAt?: number
 }
 
@@ -154,10 +155,10 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
     }
 
     // 7. Equipped Clothing
-    if (Array.isArray(sync.equippedClothing)) {
+    if (sync.equippedClothing && typeof sync.equippedClothing === 'object' && !Array.isArray(sync.equippedClothing)) {
       try {
         localStorage.setItem('novelo_equipped_clothing_v1', JSON.stringify(sync.equippedClothing))
-        window.dispatchEvent(new CustomEvent(EQUIPPED_CLOTHING_EVENT))
+        window.dispatchEvent(new CustomEvent(EQUIPPED_CLOTHING_EVENT, { detail: sync.equippedClothing }))
       } catch {
         // ignore
       }
@@ -188,7 +189,7 @@ export function schedulePushUserSync(user: User | null, profileId?: number | nul
     let gameStats: Record<string, StoredGameStats> | undefined
     let balance: number | undefined
     let bodyColors: BodyColors | undefined
-    let equippedClothing: string[] | undefined
+    let equippedClothing: EquippedClothingIds | undefined
 
     try {
       bio = localStorage.getItem(`novelo_profile_bio_${pidKey}`) || ''

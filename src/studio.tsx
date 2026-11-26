@@ -6,7 +6,8 @@ import { StudioStartView, type SavedStudioProject } from '@/components/studio/St
 import { createStarterWorld, generateId, type LightingPreset, type NvloDocument } from '@engine/index'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { AuthModal } from '@/components/AuthModal'
-import { fetchMyExperiences, upsertRemoteExperience, type UserProfile } from '@/lib/supabase'
+import { fetchMyExperiences, upsertRemoteExperience, supabase, type UserProfile } from '@/lib/supabase'
+import { hydrateFromUserMetadata } from '@/lib/userSync'
 
 const STORAGE_KEY = 'novelo_studio_projects_v1'
 
@@ -27,6 +28,38 @@ function StudioApp() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
   const [hydrated, setHydrated] = useState(false)
   const hydratedRef = useRef(false)
+
+  useEffect(() => {
+    if (!user) return
+    hydrateFromUserMetadata(user, profile?.id)
+
+    const pullFresh = async () => {
+      if (!supabase) return
+      try {
+        const { data } = await supabase.auth.getUser()
+        if (data?.user) hydrateFromUserMetadata(data.user, profile?.id)
+      } catch {
+        // ignore
+      }
+    }
+
+    window.addEventListener('focus', pullFresh)
+    const channel = supabase
+      ? supabase
+          .channel(`novelo-user-sync:${user.id}`)
+          .on('broadcast', { event: 'sync' }, () => {
+            void pullFresh()
+          })
+          .subscribe()
+      : null
+
+    return () => {
+      window.removeEventListener('focus', pullFresh)
+      if (channel && supabase) {
+        void supabase.removeChannel(channel)
+      }
+    }
+  }, [user?.id, profile?.id])
 
   useEffect(() => {
     let cancelled = false

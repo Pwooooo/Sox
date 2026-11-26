@@ -82,7 +82,18 @@ import {
   Coins,
   Check,
 } from 'lucide-react'
-import { PlayerModel3D } from '@/components/PlayerModel3D'
+import {
+  PlayerModel3D,
+  loadSavedBodyColors,
+  applyAvatarToRiggedModel,
+  AVATAR_COLORS_EVENT,
+} from '@/components/PlayerModel3D'
+import {
+  loadEquippedClothingIds,
+  resolveEquippedClothing,
+  EQUIPPED_CLOTHING_EVENT,
+  CLOTHING_UPDATED_EVENT,
+} from '@/data/clothingStore'
 
 interface RobloxStudioViewProps {
   onClose?: () => void
@@ -1276,6 +1287,46 @@ export function RobloxStudioView({
     }, 1000)
     return () => clearInterval(interval)
   }, [isPlaying, isPaused])
+
+  // Apply user avatar body colors and equipped clothing when Playtest spawns character
+  useEffect(() => {
+    if (!isPlaying) return
+    const applyStudioAvatar = () => {
+      const charGroup = (engineRef.current as any)?.character?.group
+      const riggedModel = charGroup?.children?.[1]
+      if (!riggedModel) return false
+      applyAvatarToRiggedModel(
+        riggedModel,
+        loadSavedBodyColors(),
+        resolveEquippedClothing(loadEquippedClothingIds()),
+      )
+      return true
+    }
+
+    let pollId: number | undefined
+    if (!applyStudioAvatar()) {
+      let tries = 0
+      pollId = window.setInterval(() => {
+        tries += 1
+        if (applyStudioAvatar() || tries >= 60) {
+          if (pollId !== undefined) window.clearInterval(pollId)
+        }
+      }, 50)
+    }
+
+    const onAvatarChange = () => {
+      applyStudioAvatar()
+    }
+    window.addEventListener(AVATAR_COLORS_EVENT, onAvatarChange)
+    window.addEventListener(EQUIPPED_CLOTHING_EVENT, onAvatarChange)
+    window.addEventListener(CLOTHING_UPDATED_EVENT, onAvatarChange)
+    return () => {
+      if (pollId !== undefined) window.clearInterval(pollId)
+      window.removeEventListener(AVATAR_COLORS_EVENT, onAvatarChange)
+      window.removeEventListener(EQUIPPED_CLOTHING_EVENT, onAvatarChange)
+      window.removeEventListener(CLOTHING_UPDATED_EVENT, onAvatarChange)
+    }
+  }, [isPlaying])
 
   // Tauri window controls
   const handleMinimize = async () => {
