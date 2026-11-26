@@ -57,9 +57,7 @@ export function Download() {
         }
       `}</style>
       {/* Atmospheric Hero Banner */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/[0.09] bg-[#0c0c0e] mb-8">
-        {/* Frosted-glass top edge highlight */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none z-20" />
+      <section className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0c0c0e] mb-8">
         {/* Deep atmospheric gradient + subtle halftone texture */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -154,14 +152,14 @@ export function Download() {
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 {/* Custom Novelo App Icon */}
-                <div className="relative size-10 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center shrink-0">
+                <div className="relative size-11 flex items-center justify-center shrink-0">
                   <img
                     src="/christmas-entropy.png"
                     alt={item.title}
-                    className="size-7 object-contain"
+                    className="size-11 object-contain"
                   />
                   {item.kind === 'studio' && (
-                    <span className="absolute -bottom-1 -right-1 size-4 rounded-md bg-white text-black flex items-center justify-center shadow-xs">
+                    <span className="absolute -bottom-0.5 -right-0.5 size-4 rounded-md bg-white text-black flex items-center justify-center shadow-xs">
                       <Hammer className="size-2.5" />
                     </span>
                   )}
