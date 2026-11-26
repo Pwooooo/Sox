@@ -61,11 +61,11 @@ export function hasStoredNovluxBalance(): boolean {
 export function loadNovluxBalance(): number {
   try {
     const raw = localStorage.getItem(BALANCE_STORAGE_KEY)
-    if (raw === null) return 1250
+    if (raw === null) return 50
     const parsed = Number(raw)
-    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 1250
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 50
   } catch {
-    return 1250
+    return 50
   }
 }
 

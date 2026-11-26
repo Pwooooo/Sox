@@ -46,7 +46,7 @@ interface NavbarProps {
 }
 
 export function Navbar({
-  balance = 1250,
+  balance = 50,
   unreadNotifications = 0,
   sidebarCollapsed = false,
   onToggleSidebar,
