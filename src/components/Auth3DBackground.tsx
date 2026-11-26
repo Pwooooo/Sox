@@ -229,6 +229,8 @@ export function Auth3DBackground({
       composer?.setSize(nw, nh)
     }
     window.addEventListener('resize', onResize)
+    const ro = new ResizeObserver(onResize)
+    ro.observe(container)
 
     let rafId = 0
     const clock = new THREE.Clock()
@@ -268,6 +270,7 @@ export function Auth3DBackground({
 
     return () => {
       cancelAnimationFrame(rafId)
+      ro.disconnect()
       window.removeEventListener('resize', onResize)
       terrain.clear()
       envRT.dispose()
