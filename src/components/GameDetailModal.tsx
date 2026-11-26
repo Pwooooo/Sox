@@ -98,13 +98,13 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
         <button
           onClick={onClose}
           aria-label="Close"
-          className="self-end size-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer border-none"
+          className="self-end size-8 rounded-[8px] bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer border-none"
         >
           <X className="size-4" />
         </button>
 
         {/* Top Showcase: Media Left + Title & Actions Right */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
           {/* Left: Large Thumbnail */}
           <div className="md:col-span-7 rounded-xl overflow-hidden aspect-[16/9] bg-[#0c0c0c] border border-white/10 shadow-md flex items-center justify-center">
             {currentGame.thumbnail ? (
@@ -119,91 +119,95 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
           </div>
 
           {/* Right: Info & Play Actions */}
-          <div className="md:col-span-5 flex flex-col gap-3">
-            {/* Title */}
-            <h2 className="text-xl md:text-2xl font-black text-white leading-tight tracking-tight">
-              {currentGame.name}
-            </h2>
+          <div className="md:col-span-5 flex flex-col justify-between gap-4">
+            <div className="flex flex-col gap-2.5">
+              {/* Title */}
+              <h2 className="text-xl md:text-2xl font-black text-white leading-tight tracking-tight">
+                {currentGame.name}
+              </h2>
 
-            {/* Creator with Verified Badge */}
-            <div className="flex items-center gap-1.5 text-xs text-white/70">
-              <span>By</span>
-              <span className="font-bold text-white hover:underline cursor-pointer">
-                {currentGame.creator}
-              </span>
-              {currentGame.isVerified && (
-                <CheckCircle2 className="size-3.5 fill-[#00a2ff] text-black shrink-0" />
-              )}
-            </div>
+              {/* Creator with Verified Badge */}
+              <div className="flex items-center gap-1.5 text-xs text-white/70">
+                <span>By</span>
+                <span className="font-bold text-white hover:underline cursor-pointer">
+                  {currentGame.creator}
+                </span>
+                {currentGame.isVerified && (
+                  <CheckCircle2 className="size-3.5 fill-[#00a2ff] text-black shrink-0" />
+                )}
+              </div>
 
-            {/* Maturity & Past Day Filter */}
-            <div className="flex items-center justify-between text-xs text-white/60 pt-0.5">
-              <span>Maturity: {maturity}</span>
-              <div className="flex items-center gap-1 text-[11px] text-white/50 cursor-pointer hover:text-white">
-                <Clock className="size-3" />
-                <span>Verify User</span>
-                <span className="ml-1 text-white/70 font-semibold">{timeFilter}</span>
-                <ChevronDown className="size-3" />
+              {/* Maturity & Past Day Filter */}
+              <div className="flex items-center justify-between text-xs text-white/60 pt-0.5">
+                <span>Maturity: {maturity}</span>
+                <div className="flex items-center gap-1 text-[11px] text-white/50 cursor-pointer hover:text-white">
+                  <Clock className="size-3" />
+                  <span>Verify User</span>
+                  <span className="ml-1 text-white/70 font-semibold">{timeFilter}</span>
+                  <ChevronDown className="size-3" />
+                </div>
               </div>
             </div>
 
-            {/* Big Action Buttons Row */}
-            <div className="pt-2">
-              {/* Classic Roblox Green Play Button */}
+            <div className="flex flex-col gap-3">
+              {/* Big Action Button Row */}
               <button
                 onClick={() => handlePlay(currentGame.id)}
-                className="w-full h-12 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-white font-extrabold text-base shadow-lg cursor-pointer border-none"
+                className="w-full h-14 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center text-white font-extrabold shadow-lg cursor-pointer border-none"
               >
-                <Play className="size-6 fill-white text-white ml-0.5" />
-              </button>
-            </div>
-
-            {/* Interaction Bar: Favorite, Notify, Likes, Dislikes */}
-            <div className="flex items-center justify-between pt-2 border-t border-white/[0.08] text-xs text-white/75">
-              {/* Favorite */}
-              <button
-                onClick={() => setIsFavorited(!isFavorited)}
-                className="flex flex-col items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
-              >
-                <Star className={`size-4 ${isFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
-                <span className="text-[11px]">Favorite</span>
+                <Play className="size-7 fill-white text-white ml-0.5" />
               </button>
 
-              {/* Notify */}
-              <button
-                onClick={() => setIsNotified(!isNotified)}
-                className="flex flex-col items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
-              >
-                <Bell className={`size-4 ${isNotified ? 'fill-white text-white' : ''}`} />
-                <span className="text-[11px]">Notify</span>
-              </button>
+              {/* Interaction Bar: Favorite, Notify, Likes, Dislikes */}
+              <div className="grid grid-cols-3 items-start pt-1 text-white/75">
+                {/* Favorite */}
+                <button
+                  onClick={() => setIsFavorited(!isFavorited)}
+                  className="flex flex-col items-center gap-1.5 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-1"
+                >
+                  <Star className={`size-6 ${isFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
+                  <span className="text-xs font-medium">Favorite</span>
+                </button>
 
-              {/* Like / Dislike with ratio bar */}
-              <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setUserRating(userRating === 'like' ? null : 'like')}
-                    className="flex items-center gap-1 hover:text-white cursor-pointer border-none bg-transparent text-[11px]"
-                  >
-                    <ThumbsUp className={`size-3.5 ${userRating === 'like' ? 'fill-white text-white' : ''}`} />
+                {/* Notify */}
+                <button
+                  onClick={() => setIsNotified(!isNotified)}
+                  className="flex flex-col items-center gap-1.5 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-1"
+                >
+                  <Bell className={`size-6 ${isNotified ? 'fill-white text-white' : ''}`} />
+                  <span className="text-xs font-medium">Notify</span>
+                </button>
+
+                {/* Like / Dislike with ratio bar */}
+                <div className="flex flex-col items-center gap-1.5 py-1">
+                  <div className="flex items-center justify-between w-28">
+                    <button
+                      onClick={() => setUserRating(userRating === 'like' ? null : 'like')}
+                      className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
+                    >
+                      <ThumbsUp className={`size-6 ${userRating === 'like' ? 'fill-white text-white' : ''}`} />
+                    </button>
+
+                    <button
+                      onClick={() => setUserRating(userRating === 'dislike' ? null : 'dislike')}
+                      className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
+                    >
+                      <ThumbsDown className={`size-6 ${userRating === 'dislike' ? 'fill-white text-white' : ''}`} />
+                    </button>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="w-28 h-[3px] rounded-full bg-neutral-700 overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full"
+                      style={{ width: `${currentGame.likePercent}%` }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between w-28 text-[11px] font-medium text-white/70 tabular-numbers">
                     <span>{likesDisplay}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setUserRating(userRating === 'dislike' ? null : 'dislike')}
-                    className="flex items-center gap-1 hover:text-white cursor-pointer border-none bg-transparent text-[11px]"
-                  >
-                    <ThumbsDown className={`size-3.5 ${userRating === 'dislike' ? 'fill-white text-white' : ''}`} />
                     <span>{dislikesDisplay}</span>
-                  </button>
-                </div>
-
-                {/* Progress bar */}
-                <div className="w-24 h-1 rounded-full bg-neutral-700 overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full"
-                    style={{ width: `${currentGame.likePercent}%` }}
-                  />
+                  </div>
                 </div>
               </div>
             </div>
@@ -211,7 +215,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
         </div>
 
         {/* Description & Controls Section */}
-        <div className="flex flex-col gap-3 text-sm text-white/80 leading-relaxed pt-2 border-t border-white/[0.08]">
+        <div className="flex flex-col gap-3 text-sm text-white/80 leading-relaxed pt-1">
           <p className="whitespace-pre-line">
             {currentGame.description || 'Created in Novelo Studio.'}
           </p>
@@ -286,26 +290,35 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
           </div>
         </div>
 
-        {/* Servers | Store | Recommended Tabs matching Screenshot 3 */}
+        {/* Servers | Store | Recommended Tabs with Sliding Highlight */}
         <div className="flex flex-col gap-4 pt-2">
-          <div className="grid grid-cols-3 border-b border-white/[0.08] bg-white/[0.03] rounded-t-xl overflow-hidden">
-            {(['Servers', 'Store', 'Recommended'] as DetailTab[]).map((tab) => {
-              const isActive = activeTab === tab
-              return (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`h-11 text-xs md:text-sm font-semibold transition-colors cursor-pointer border-0 border-b-2 bg-transparent ${
-                    isActive
-                      ? 'border-white text-white font-bold bg-white/[0.04]'
-                      : 'border-transparent text-white/55 hover:text-white/85 hover:bg-white/[0.02]'
-                  }`}
-                >
-                  {tab}
-                </button>
-              )
-            })}
+          <div className="p-1.5 rounded-xl bg-white/[0.04]">
+            <div className="relative grid grid-cols-3 gap-2">
+              <div
+                className={`absolute inset-y-0 w-[calc(33.333%-5.33px)] rounded-[8px] bg-white/[0.14] transition-[left] duration-200 ease-out pointer-events-none ${
+                  activeTab === 'Servers'
+                    ? 'left-0'
+                    : activeTab === 'Store'
+                    ? 'left-[calc(33.333%+2.67px)]'
+                    : 'left-[calc(66.666%+5.33px)]'
+                }`}
+              />
+              {(['Servers', 'Store', 'Recommended'] as DetailTab[]).map((tab) => {
+                const isActive = activeTab === tab
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={`relative z-10 h-10 rounded-[8px] text-xs md:text-sm font-bold transition-colors duration-150 cursor-pointer border-none bg-transparent outline-none ${
+                      isActive ? 'text-white' : 'text-white/55 hover:text-white/90'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {activeTab === 'Servers' && (
