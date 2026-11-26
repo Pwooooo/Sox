@@ -92,11 +92,11 @@ export function Download() {
             }`}
           >
             <div className="max-w-lg">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-0">
                 <img
                   src="/christmas-entropy.png"
                   alt={app.title}
-                  className="size-16 -ml-1 object-contain shrink-0"
+                  className="size-16 -ml-2 -mr-2 object-contain shrink-0"
                 />
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
