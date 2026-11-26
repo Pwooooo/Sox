@@ -88,8 +88,14 @@ export function Download() {
           mouseControls: true,
           touchControls: true,
           gyroControls: false,
-          minHeight: 200.0,
+          minHeight: 160.0,
           minWidth: 200.0,
+          skyColor: 0x0a0a0a,
+          cloudColor: 0x334155,
+          cloudShadowColor: 0x0f172a,
+          sunColor: 0x1e293b,
+          sunGlareColor: 0x334155,
+          sunlightColor: 0x475569,
           speed: 0.0,
         })
       } catch (err) {
@@ -114,16 +120,18 @@ export function Download() {
         }
       `}</style>
 
-      {/* Vanta.js Clouds header */}
+      {/* Scaled-down Vanta.js Clouds header (clouds only, dark sky) */}
       <div
-        ref={vantaRef}
-        className="fixed inset-x-0 top-0 h-[440px] pointer-events-none z-0 overflow-hidden"
+        className="fixed inset-x-0 top-0 h-[220px] pointer-events-none z-0 overflow-hidden opacity-55"
         style={{
-          maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 60%, transparent 100%)',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, transparent 0%, black 30%, black 60%, transparent 100%)',
         }}
         aria-hidden="true"
-      />
+      >
+        <div ref={vantaRef} className="w-full h-[360px] -mt-28 scale-95 origin-top" />
+      </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
 
