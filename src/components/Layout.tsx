@@ -44,8 +44,8 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate select-none">
-      {/* Fullscreen Encoded Wave Drift Background */}
-      <WaveBackground />
+      {/* Fullscreen Encoded Wave Drift Background (replaced on Download page) */}
+      {activeTab !== 'Download' && <WaveBackground />}
 
       {/* Top Navbar */}
       <Navbar

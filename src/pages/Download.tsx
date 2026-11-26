@@ -35,7 +35,26 @@ const HERO_APPS: HeroApp[] = [
 
 export function Download() {
   return (
-    <div className="w-full -mt-14 pb-12">
+    <div className="relative w-full -mt-14 pb-12">
+      {/* Fullscreen Wintry Trail Video Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        <video
+          src="/wintry-trail.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(90deg, rgba(10,10,12,0.78) 0%, rgba(10,10,12,0.52) 55%, rgba(10,10,12,0.38) 100%)',
+          }}
+        />
+      </div>
+
       {HERO_APPS.map((app, idx) => (
         <section
           key={app.filename}
