@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Gamepad2, X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Gamepad2, X, Link2, Check, UserPlus, Sparkles } from 'lucide-react'
 import { UnderConstruction } from '@/components/UnderConstruction'
 import { GameCard } from '@/components/GameCard'
 import { GameDetailModal } from '@/components/GameDetailModal'
@@ -12,7 +12,7 @@ import {
 } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
-import { loadNovluxBalance } from '@/data/clothingStore'
+import { loadFriends, FRIENDS_EVENT } from '@/lib/friendsStore'
 
 export function Profile({ profileId }: { profileId?: number | null }) {
   const { user, profile: myProfile } = useAuth()
@@ -20,11 +20,15 @@ export function Profile({ profileId }: { profileId?: number | null }) {
   const [projects, setProjects] = useState<GameDetailData[]>([])
   const [selectedGame, setSelectedGame] = useState<GameDetailData | null>(null)
   const [viewedProfile, setViewedProfile] = useState<UserProfile | null>(null)
-  const [novluxBalance, setNovluxBalance] = useState<number>(() => loadNovluxBalance())
   const [editOpen, setEditOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
+  const moreMenuRef = useRef<HTMLDivElement>(null)
   const [displayNameDraft, setDisplayNameDraft] = useState('')
   const [bioDraft, setBioDraft] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
+  const ownerKey = user?.id || myProfile?.username || 'guest'
+  const [friendsCount, setFriendsCount] = useState(() => loadFriends(ownerKey).length)
 
   const targetId = profileId ?? myProfile?.id ?? null
   const isOwnProfile = targetId === null || (myProfile?.id !== undefined && targetId === myProfile.id)
@@ -46,14 +50,33 @@ export function Profile({ profileId }: { profileId?: number | null }) {
   }, [bioStorageKey])
 
   useEffect(() => {
-    const refreshBalance = () => setNovluxBalance(loadNovluxBalance())
-    window.addEventListener('focus', refreshBalance)
-    window.addEventListener('storage', refreshBalance)
+    const syncFriends = () => setFriendsCount(loadFriends(ownerKey).length)
+    syncFriends()
+    window.addEventListener(FRIENDS_EVENT, syncFriends)
+    window.addEventListener('storage', syncFriends)
     return () => {
-      window.removeEventListener('focus', refreshBalance)
-      window.removeEventListener('storage', refreshBalance)
+      window.removeEventListener(FRIENDS_EVENT, syncFriends)
+      window.removeEventListener('storage', syncFriends)
     }
-  }, [])
+  }, [ownerKey])
+
+  useEffect(() => {
+    if (!moreOpen) return
+    const onMouseDown = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setMoreOpen(false)
+      }
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMoreOpen(false)
+    }
+    window.addEventListener('mousedown', onMouseDown)
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('mousedown', onMouseDown)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [moreOpen])
 
   const ownFallbackUsername =
     !profileId && user
@@ -182,10 +205,12 @@ export function Profile({ profileId }: { profileId?: number | null }) {
             </div>
 
             {/* Right Action Buttons matching reference #1d1d1d */}
-            {isOwnProfile && (
-              <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 relative" ref={moreMenuRef}>
+              {isOwnProfile && (
                 <button
+                  type="button"
                   onClick={() => {
+                    setMoreOpen(false)
                     setDisplayNameDraft(
                       viewedProfile?.display_name ||
                         (user?.user_metadata?.display_name as string | undefined) ||
@@ -199,13 +224,67 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                   <Edit3 className="size-3.5 stroke-[2]" />
                   <span>Edit Profile</span>
                 </button>
-                <button
-                  className="size-9 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
-                >
-                  <MoreHorizontal className="size-4" />
-                </button>
-              </div>
-            )}
+              )}
+              <button
+                type="button"
+                onClick={() => setMoreOpen((prev) => !prev)}
+                aria-label="More options"
+                className="size-9 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white flex items-center justify-center transition-all cursor-pointer border-none outline-none select-none active:scale-[0.97]"
+              >
+                <MoreHorizontal className="size-4" />
+              </button>
+
+              {moreOpen && (
+                <div className="absolute right-0 top-11 w-48 rounded-xl bg-[#141414] border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.85)] py-1.5 z-50">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const profileUrl = targetId
+                        ? `${window.location.origin}/profile/${targetId}`
+                        : window.location.href
+                      navigator.clipboard?.writeText(profileUrl).catch(() => {})
+                      setCopiedLink(true)
+                      window.setTimeout(() => {
+                        setCopiedLink(false)
+                        setMoreOpen(false)
+                      }, 900)
+                    }}
+                    className="w-full px-3.5 py-2 text-left text-xs font-semibold text-white/85 hover:text-white hover:bg-white/[0.06] flex items-center gap-2.5 cursor-pointer border-none bg-transparent transition-colors"
+                  >
+                    {copiedLink ? <Check className="size-3.5 text-emerald-400" /> : <Link2 className="size-3.5" />}
+                    <span>{copiedLink ? 'Link Copied!' : 'Copy Profile Link'}</span>
+                  </button>
+                  {isOwnProfile && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMoreOpen(false)
+                          window.history.pushState({}, '', '/?tab=Avatar')
+                          window.dispatchEvent(new PopStateEvent('popstate'))
+                        }}
+                        className="w-full px-3.5 py-2 text-left text-xs font-semibold text-white/85 hover:text-white hover:bg-white/[0.06] flex items-center gap-2.5 cursor-pointer border-none bg-transparent transition-colors"
+                      >
+                        <Sparkles className="size-3.5" />
+                        <span>Customize Avatar</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMoreOpen(false)
+                          window.history.pushState({}, '', '/?tab=Friends')
+                          window.dispatchEvent(new PopStateEvent('popstate'))
+                        }}
+                        className="w-full px-3.5 py-2 text-left text-xs font-semibold text-white/85 hover:text-white hover:bg-white/[0.06] flex items-center gap-2.5 cursor-pointer border-none bg-transparent transition-colors"
+                      >
+                        <UserPlus className="size-3.5" />
+                        <span>Manage Friends</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -216,7 +295,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/50">
             <div className="flex items-center gap-1.5">
               <Users className="size-3.5" />
-              <span>0 friends</span>
+              <span>{isOwnProfile ? friendsCount : 0} friends</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Calendar className="size-3.5" />
@@ -234,12 +313,6 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               <Clock className="size-3.5" />
               <span>{isOwnProfile ? 'Online Now' : 'Offline'}</span>
             </div>
-            {isOwnProfile && (
-              <div className="flex items-center gap-1.5">
-                <img src="/novelo-currency.png" alt="Currency" className="size-3 object-contain opacity-70" />
-                <span>{novluxBalance.toLocaleString()}</span>
-              </div>
-            )}
           </div>
         </div>
 
