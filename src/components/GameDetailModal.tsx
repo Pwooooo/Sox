@@ -120,42 +120,46 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
 
           {/* Right: Info & Play Actions */}
           <div className="md:col-span-5 flex flex-col justify-between gap-4">
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2">
               {/* Title */}
-              <h2 className="text-xl md:text-2xl font-black text-white leading-tight tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight">
                 {currentGame.name}
               </h2>
 
               {/* Creator with Verified Badge */}
-              <div className="flex items-center gap-1.5 text-xs text-white/70">
+              <div className="flex items-center gap-1.5 text-sm text-white/75">
                 <span>By</span>
                 <span className="font-bold text-white hover:underline cursor-pointer">
                   {currentGame.creator}
                 </span>
                 {currentGame.isVerified && (
-                  <CheckCircle2 className="size-3.5 fill-[#00a2ff] text-black shrink-0" />
+                  <CheckCircle2 className="size-4 fill-[#00a2ff] text-black shrink-0" />
                 )}
               </div>
 
-              {/* Maturity & Past Day Filter */}
-              <div className="flex items-center justify-between text-xs text-white/60 pt-0.5">
-                <span>Maturity: {maturity}</span>
-                <div className="flex items-center gap-1 text-[11px] text-white/50 cursor-pointer hover:text-white">
-                  <Clock className="size-3" />
+              {/* Maturity */}
+              <span className="text-sm text-white/65">Maturity: {maturity}</span>
+
+              {/* Verify User & Past Day Filter */}
+              <div className="flex items-center justify-between text-xs text-white/55 pt-0.5">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="size-3.5" />
                   <span>Verify User</span>
-                  <span className="ml-1 text-white/70 font-semibold">{timeFilter}</span>
-                  <ChevronDown className="size-3" />
+                </div>
+                <div className="flex items-center gap-1 cursor-pointer hover:text-white">
+                  <span className="text-white/75 font-semibold">{timeFilter}</span>
+                  <ChevronDown className="size-3.5" />
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3.5">
               {/* Big Action Button Row */}
               <button
                 onClick={() => handlePlay(currentGame.id)}
-                className="w-full h-14 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center text-white font-extrabold shadow-lg cursor-pointer border-none"
+                className="w-full h-16 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center text-white font-extrabold shadow-lg cursor-pointer border-none"
               >
-                <Play className="size-7 fill-white text-white ml-0.5" />
+                <Play className="size-8 fill-white text-white ml-0.5" />
               </button>
 
               {/* Interaction Bar: Favorite, Notify, Likes, Dislikes */}
@@ -165,7 +169,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
                   onClick={() => setIsFavorited(!isFavorited)}
                   className="flex flex-col items-center gap-1.5 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-1"
                 >
-                  <Star className={`size-6 ${isFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
+                  <Star className={`size-7 ${isFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
                   <span className="text-xs font-medium">Favorite</span>
                 </button>
 
@@ -174,37 +178,37 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
                   onClick={() => setIsNotified(!isNotified)}
                   className="flex flex-col items-center gap-1.5 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-1"
                 >
-                  <Bell className={`size-6 ${isNotified ? 'fill-white text-white' : ''}`} />
+                  <Bell className={`size-7 ${isNotified ? 'fill-white text-white' : ''}`} />
                   <span className="text-xs font-medium">Notify</span>
                 </button>
 
                 {/* Like / Dislike with ratio bar */}
                 <div className="flex flex-col items-center gap-1.5 py-1">
-                  <div className="flex items-center justify-between w-28">
+                  <div className="flex items-center justify-between w-32">
                     <button
                       onClick={() => setUserRating(userRating === 'like' ? null : 'like')}
                       className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
                     >
-                      <ThumbsUp className={`size-6 ${userRating === 'like' ? 'fill-white text-white' : ''}`} />
+                      <ThumbsUp className={`size-7 ${userRating === 'like' ? 'fill-white text-white' : ''}`} />
                     </button>
 
                     <button
                       onClick={() => setUserRating(userRating === 'dislike' ? null : 'dislike')}
                       className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
                     >
-                      <ThumbsDown className={`size-6 ${userRating === 'dislike' ? 'fill-white text-white' : ''}`} />
+                      <ThumbsDown className={`size-7 ${userRating === 'dislike' ? 'fill-white text-white' : ''}`} />
                     </button>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="w-28 h-[3px] rounded-full bg-neutral-700 overflow-hidden">
+                  <div className="w-32 h-[3px] rounded-full bg-neutral-700 overflow-hidden">
                     <div
                       className="h-full bg-white rounded-full"
                       style={{ width: `${currentGame.likePercent}%` }}
                     />
                   </div>
 
-                  <div className="flex items-center justify-between w-28 text-[11px] font-medium text-white/70 tabular-numbers">
+                  <div className="flex items-center justify-between w-32 text-xs font-medium text-white/70 tabular-numbers">
                     <span>{likesDisplay}</span>
                     <span>{dislikesDisplay}</span>
                   </div>
