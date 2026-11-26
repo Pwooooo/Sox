@@ -57,6 +57,18 @@ function AppContent() {
       const id = (e as CustomEvent<{ id?: string }>).detail?.id
       if (id) setActiveGameId(id)
     }
+    const onContextMenu = (e: MouseEvent) => {
+      if ((e.target as HTMLElement | null)?.closest('img, svg')) {
+        e.preventDefault()
+      }
+    }
+    const onDragStart = (e: DragEvent) => {
+      if ((e.target as HTMLElement | null)?.closest('img, svg')) {
+        e.preventDefault()
+      }
+    }
+    document.addEventListener('contextmenu', onContextMenu)
+    document.addEventListener('dragstart', onDragStart)
     window.addEventListener('novelo-join-game', onJoinEvent)
     let unlistenDeepLink: (() => void) | undefined
     if ((window as any).__TAURI_INTERNALS__) {
@@ -82,6 +94,8 @@ function AppContent() {
         .catch(() => {})
     }
     return () => {
+      document.removeEventListener('contextmenu', onContextMenu)
+      document.removeEventListener('dragstart', onDragStart)
       window.removeEventListener('novelo-join-game', onJoinEvent)
       if (unlistenDeepLink) unlistenDeepLink()
     }
