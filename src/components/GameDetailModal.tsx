@@ -92,19 +92,13 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   const maturityDetail = currentGame.maturityDetail || 'Suitable for everyone'
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-2 md:p-4 overflow-y-auto animate-in fade-in select-none"
-      onClick={onClose}
-    >
-      <div
-        className="relative w-[95vw] max-w-6xl min-h-[86vh] max-h-[94vh] overflow-y-auto rounded-2xl bg-[#141414] border border-white/10 shadow-2xl p-6 md:p-10 flex flex-col gap-6 text-white no-scrollbar"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-30 pt-14 md:pl-[230px] bg-[#0b0b0e] overflow-y-auto no-scrollbar animate-in fade-in select-none">
+      <div className="relative w-full max-w-5xl mx-auto px-5 py-6 md:px-10 md:py-8 flex flex-col gap-6 text-white">
         {/* Close Button */}
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-4 right-4 size-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer border-none z-10"
+          className="self-end size-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer border-none"
         >
           <X className="size-4" />
         </button>
