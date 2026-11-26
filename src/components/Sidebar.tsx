@@ -14,6 +14,7 @@ import {
   ExternalLink,
   MessagesSquare,
   PanelLeftClose,
+  Download,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
@@ -182,6 +183,36 @@ export function Sidebar({
           )
         })}
       </div>
+
+      {/* Bottom Download tab (web only) */}
+      {!isTauri && (
+        <div className="p-2 border-t border-white/[0.06] shrink-0">
+          {(() => {
+            const isActive = activeItem === 'Download'
+            return (
+              <button
+                onClick={() => onSelect?.('Download')}
+                className={cn(
+                  "w-full flex items-center gap-3.5 px-2.5 h-9 rounded-[8px] text-[13.5px] font-medium transition-all cursor-pointer border-none text-left",
+                  isActive
+                    ? "bg-white/[0.08] backdrop-blur-xs text-white shadow-xs font-semibold"
+                    : "bg-transparent text-white/70 hover:text-white hover:bg-white/[0.04]"
+                )}
+              >
+                <Download
+                  className={cn(
+                    "size-[18px] shrink-0 transition-transform duration-150",
+                    isActive
+                      ? "text-white scale-105"
+                      : "text-white/70"
+                  )}
+                />
+                <span className="flex-1 truncate tracking-tight">Download</span>
+              </button>
+            )
+          })()}
+        </div>
+      )}
     </aside>
   )
 }
