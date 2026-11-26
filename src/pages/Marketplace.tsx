@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Filter, Clock, Flame } from 'lucide-react'
+import { Search, Clock, Flame } from 'lucide-react'
 import { IsometricMannequin } from '@/components/IsometricMannequin'
 import { CustomDropdown, DropdownOption } from '@/components/CustomDropdown'
 import { PlayerModel3D, ClothingSelection } from '@/components/PlayerModel3D'
@@ -181,11 +181,6 @@ export function Marketplace({ initialItemId }: { initialItemId?: string | null }
             onChange={setSort}
             options={sortOptions}
           />
-
-          {/* Filter Funnel Icon matching Image 1 */}
-          <button className="size-9 rounded-[10px] bg-[#111113] border border-white/10 hover:border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer">
-            <Filter className="size-3.5 stroke-[2]" />
-          </button>
         </div>
       </div>
 
