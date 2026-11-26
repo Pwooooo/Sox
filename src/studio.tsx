@@ -7,7 +7,12 @@ import { createStarterWorld, generateId, type LightingPreset, type NvloDocument 
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { AuthModal } from '@/components/AuthModal'
 import { fetchMyExperiences, upsertRemoteExperience, supabase, type UserProfile } from '@/lib/supabase'
-import { hydrateFromUserMetadata } from '@/lib/userSync'
+import {
+  hydrateFromUserMetadata,
+  loadSharedAvatarFromDisk,
+  mergeRemoteClothingItems,
+} from '@/lib/userSync'
+import type { CreatedClothingItem } from '@/data/clothingStore'
 
 const STORAGE_KEY = 'novelo_studio_projects_v1'
 
@@ -30,10 +35,15 @@ function StudioApp() {
   const hydratedRef = useRef(false)
 
   useEffect(() => {
+    void loadSharedAvatarFromDisk()
+  }, [])
+
+  useEffect(() => {
     if (!user) return
     hydrateFromUserMetadata(user, profile?.id)
 
     const pullFresh = async () => {
+      await loadSharedAvatarFromDisk()
       if (!supabase) return
       try {
         const { data } = await supabase.auth.getUser()
@@ -47,7 +57,9 @@ function StudioApp() {
     const channel = supabase
       ? supabase
           .channel(`novelo-user-sync:${user.id}`)
-          .on('broadcast', { event: 'sync' }, () => {
+          .on('broadcast', { event: 'sync' }, (msg) => {
+            const payload = msg?.payload as { clothingItems?: CreatedClothingItem[] } | undefined
+            if (payload?.clothingItems) mergeRemoteClothingItems(payload.clothingItems)
             void pullFresh()
           })
           .subscribe()

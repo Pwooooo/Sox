@@ -376,6 +376,31 @@ fn load_studio_projects() -> Result<String, String> {
     std::fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
+fn shared_avatar_path() -> std::path::PathBuf {
+    let base = std::env::var_os("APPDATA")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(std::env::temp_dir);
+    base.join("Novelo").join("shared_avatar.json")
+}
+
+#[tauri::command]
+fn save_shared_avatar(json: String) -> Result<(), String> {
+    let path = shared_avatar_path();
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    std::fs::write(&path, json).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn load_shared_avatar() -> Result<String, String> {
+    let path = shared_avatar_path();
+    if !path.exists() {
+        return Ok("{}".to_string());
+    }
+    std::fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let initial_deep_link = std::env::args()
@@ -406,6 +431,8 @@ pub fn run() {
             open_external_url,
             save_studio_projects,
             load_studio_projects,
+            save_shared_avatar,
+            load_shared_avatar,
             get_launch_deep_link
         ])
         .setup(|app| {

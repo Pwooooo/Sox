@@ -15,11 +15,23 @@ import { Forum } from '@/pages/Forum'
 import { Settings } from '@/pages/Settings'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { AuthModal } from '@/components/AuthModal'
-import { hydrateFromUserMetadata, schedulePushUserSync, PROFILE_UPDATED_EVENT } from '@/lib/userSync'
+import {
+  hydrateFromUserMetadata,
+  schedulePushUserSync,
+  saveSharedAvatarToDisk,
+  loadSharedAvatarFromDisk,
+  mergeRemoteClothingItems,
+  PROFILE_UPDATED_EVENT,
+} from '@/lib/userSync'
 import { FRIENDS_EVENT } from '@/lib/friendsStore'
 import { NOTIFICATIONS_EVENT } from '@/lib/notifications'
 import { GAME_STATS_EVENT } from '@/lib/gameStats'
-import { NOVLUX_BALANCE_EVENT, EQUIPPED_CLOTHING_EVENT } from '@/data/clothingStore'
+import {
+  NOVLUX_BALANCE_EVENT,
+  EQUIPPED_CLOTHING_EVENT,
+  CLOTHING_UPDATED_EVENT,
+  type CreatedClothingItem,
+} from '@/data/clothingStore'
 import { AVATAR_COLORS_EVENT } from '@/components/PlayerModel3D'
 import { supabase } from '@/lib/supabase'
 import { GamePlayerView } from '@/components/GamePlayerView'
@@ -51,10 +63,16 @@ function AppContent() {
   const { user, profile, loading } = useAuth()
 
   useEffect(() => {
+    void loadSharedAvatarFromDisk()
+  }, [])
+
+  useEffect(() => {
     if (!user) return
     hydrateFromUserMetadata(user, profile?.id)
+    void saveSharedAvatarToDisk()
 
     const pullFresh = async () => {
+      await loadSharedAvatarFromDisk()
       if (!supabase) return
       try {
         const { data } = await supabase.auth.getUser()
@@ -64,7 +82,10 @@ function AppContent() {
       }
     }
 
-    const onSyncChange = () => schedulePushUserSync(user, profile?.id)
+    const onSyncChange = () => {
+      schedulePushUserSync(user, profile?.id)
+      void saveSharedAvatarToDisk()
+    }
     const events = [
       FRIENDS_EVENT,
       NOTIFICATIONS_EVENT,
@@ -73,6 +94,7 @@ function AppContent() {
       NOVLUX_BALANCE_EVENT,
       AVATAR_COLORS_EVENT,
       EQUIPPED_CLOTHING_EVENT,
+      CLOTHING_UPDATED_EVENT,
     ]
     for (const ev of events) window.addEventListener(ev, onSyncChange)
     window.addEventListener('focus', pullFresh)
@@ -80,7 +102,9 @@ function AppContent() {
     const channel = supabase
       ? supabase
           .channel(`novelo-user-sync:${user.id}`)
-          .on('broadcast', { event: 'sync' }, () => {
+          .on('broadcast', { event: 'sync' }, (msg) => {
+            const payload = msg?.payload as { clothingItems?: CreatedClothingItem[] } | undefined
+            if (payload?.clothingItems) mergeRemoteClothingItems(payload.clothingItems)
             void pullFresh()
           })
           .subscribe()

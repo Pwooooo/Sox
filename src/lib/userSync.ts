@@ -4,8 +4,13 @@ import { FRIENDS_EVENT, loadFriends, type StoredFriend } from '@/lib/friendsStor
 import { NOTIFICATIONS_EVENT, loadNotifications, type AppNotification } from '@/lib/notifications'
 import { GAME_STATS_EVENT, type StoredGameStats } from '@/lib/gameStats'
 import {
+  CLOTHING_UPDATED_EVENT,
   EQUIPPED_CLOTHING_EVENT,
   NOVLUX_BALANCE_EVENT,
+  loadCreatedClothing,
+  loadEquippedClothingIds,
+  saveCreatedClothing,
+  type CreatedClothingItem,
   type EquippedClothingIds,
 } from '@/data/clothingStore'
 import { AVATAR_COLORS_EVENT, type BodyColors } from '@/components/PlayerModel3D'
@@ -233,10 +238,92 @@ export function schedulePushUserSync(user: User | null, profileId?: number | nul
       await ch.send({
         type: 'broadcast',
         event: 'sync',
-        payload: { updatedAt: changeTs },
+        payload: {
+          updatedAt: changeTs,
+          clothingItems: loadCreatedClothing().filter((item) => {
+            const eq = equippedClothing
+            if (!eq) return false
+            return (
+              item.id === eq.shirtId ||
+              item.id === eq.pantsId ||
+              item.id === eq.tshirtId
+            )
+          }),
+        },
       })
     } catch {
       // ignore sync errors
     }
   }, 400)
+}
+
+export function mergeRemoteClothingItems(items: CreatedClothingItem[] | undefined) {
+  if (!Array.isArray(items) || items.length === 0) return
+  const existing = loadCreatedClothing()
+  const byId = new Map<string, CreatedClothingItem>()
+  for (const it of existing) byId.set(String(it.id), it)
+  let changed = false
+  for (const it of items) {
+    if (it && it.id && !byId.has(String(it.id))) {
+      byId.set(String(it.id), it)
+      changed = true
+    }
+  }
+  if (changed) {
+    saveCreatedClothing(Array.from(byId.values()), false)
+  }
+}
+
+export async function saveSharedAvatarToDisk() {
+  if (typeof window === 'undefined' || !(window as any).__TAURI_INTERNALS__) return
+  try {
+    const { invoke } = await import('@tauri-apps/api/core')
+    const rawColors = localStorage.getItem('novelo_avatar_body_colors')
+    const bodyColors = rawColors ? JSON.parse(rawColors) : null
+    const equippedClothing = loadEquippedClothingIds()
+    const createdClothing = loadCreatedClothing()
+    await invoke('save_shared_avatar', {
+      json: JSON.stringify({
+        bodyColors,
+        equippedClothing,
+        createdClothing,
+        updatedAt: Date.now(),
+      }),
+    })
+  } catch {
+    // ignore
+  }
+}
+
+export async function loadSharedAvatarFromDisk() {
+  if (typeof window === 'undefined' || !(window as any).__TAURI_INTERNALS__) return
+  try {
+    const { invoke } = await import('@tauri-apps/api/core')
+    const raw = await invoke<string>('load_shared_avatar')
+    if (!raw || raw === '{}') return
+    const parsed = JSON.parse(raw) as {
+      bodyColors?: BodyColors | null
+      equippedClothing?: EquippedClothingIds
+      createdClothing?: CreatedClothingItem[]
+    }
+    isHydrating = true
+    try {
+      if (Array.isArray(parsed.createdClothing) && parsed.createdClothing.length > 0) {
+        mergeRemoteClothingItems(parsed.createdClothing)
+        window.dispatchEvent(new CustomEvent(CLOTHING_UPDATED_EVENT))
+      }
+      if (parsed.equippedClothing && typeof parsed.equippedClothing === 'object') {
+        localStorage.setItem('novelo_equipped_clothing_v1', JSON.stringify(parsed.equippedClothing))
+        window.dispatchEvent(new CustomEvent(EQUIPPED_CLOTHING_EVENT, { detail: parsed.equippedClothing }))
+      }
+      if (parsed.bodyColors && typeof parsed.bodyColors === 'object') {
+        localStorage.setItem('novelo_avatar_body_colors', JSON.stringify(parsed.bodyColors))
+        window.dispatchEvent(new CustomEvent(AVATAR_COLORS_EVENT))
+      }
+    } finally {
+      isHydrating = false
+    }
+  } catch {
+    // ignore
+  }
 }
