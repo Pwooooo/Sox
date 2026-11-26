@@ -207,6 +207,16 @@ function AppContent() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
+  useEffect(() => {
+    if (loading || !user) {
+      document.title = 'Novelo'
+    } else if (activeGameId) {
+      document.title = 'Novelo │ Play'
+    } else {
+      document.title = `Novelo │ ${activeTab}`
+    }
+  }, [loading, user, activeGameId, activeTab])
+
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab)
     if (tab === 'Profile' && profile?.id) {
