@@ -171,7 +171,7 @@ export function Sidebar({
               <span className="flex-1 truncate tracking-tight">{item.label}</span>
 
               {item.badge ? (
-                <span className="bg-[#ef4444] text-white text-[11px] font-bold rounded-md px-1.5 py-0.5 min-w-[20px] text-center leading-tight">
+                <span className="bg-white text-black text-[11px] font-bold rounded-md px-1.5 py-0.5 min-w-[20px] text-center leading-tight">
                   {item.badge}
                 </span>
               ) : null}
