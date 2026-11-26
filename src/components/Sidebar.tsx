@@ -126,7 +126,7 @@ export function Sidebar({
       </div>
 
       {/* User Avatar & Name in Sidebar */}
-      <div className="px-2.5 pt-1 pb-1">
+      <div className="px-4 pt-1 pb-1">
         <button
           onClick={() => onSelect?.('Profile')}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-white/[0.06] transition-colors cursor-pointer border-none bg-transparent text-left group"
@@ -144,7 +144,7 @@ export function Sidebar({
       </div>
 
       {/* Navigation list matching Luduvo pill highlight shape */}
-      <div className="flex-1 py-1 px-2.5 flex flex-col gap-1">
+      <div className="flex-1 py-1 px-4 flex flex-col gap-1">
         {items.map((item) => {
           const isActive = activeItem === item.label
           return (
