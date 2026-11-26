@@ -59,24 +59,24 @@ export function Download() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover blur-[1.5px] scale-[1.02] saturate-[1.15] sepia-[0.08] brightness-95"
+          className="w-full h-full object-cover blur-[1.5px] scale-[1.02] saturate-[1.15] brightness-95"
         />
 
-        {/* Warm hearth / golden-hour horizon glow */}
+        {/* Cool icy-blue frost horizon glow */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 65% 60% at 64% 62%, rgba(255, 178, 107, 0.16) 0%, rgba(194, 118, 72, 0.08) 45%, transparent 78%)',
+              'radial-gradient(ellipse 70% 65% at 64% 58%, rgba(125, 195, 255, 0.18) 0%, rgba(56, 130, 210, 0.1) 45%, transparent 78%)',
           }}
         />
 
-        {/* Soft warm-dark reading vignette */}
+        {/* Deep midnight-blue frost vignette */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(90deg, rgba(12,10,10,0.8) 0%, rgba(14,11,11,0.52) 55%, rgba(12,10,10,0.34) 100%)',
+              'linear-gradient(90deg, rgba(6,11,20,0.82) 0%, rgba(8,15,28,0.52) 55%, rgba(6,12,24,0.34) 100%)',
           }}
         />
 
@@ -90,7 +90,7 @@ export function Download() {
               width: `${orb.size}px`,
               height: `${orb.size}px`,
               opacity: orb.opacity,
-              backgroundColor: orb.warm ? '#ffe4c4' : '#f8fafc',
+              backgroundColor: orb.warm ? '#bae6fd' : '#f8fafc',
               animation: `novelo-cozy-bokeh ${orb.duration} linear ${orb.delay} infinite`,
             }}
           />
