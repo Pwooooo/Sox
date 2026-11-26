@@ -28,6 +28,20 @@ const DOWNLOAD_ROWS: DownloadRow[] = [
   },
 ]
 
+const SNOWFLAKES = [
+  { left: '6%', size: 3, duration: '9s', delay: '-2s', opacity: 0.45 },
+  { left: '14%', size: 2, duration: '12s', delay: '-7s', opacity: 0.3 },
+  { left: '23%', size: 4, duration: '10s', delay: '-4s', opacity: 0.5 },
+  { left: '34%', size: 2.5, duration: '13s', delay: '-9s', opacity: 0.35 },
+  { left: '43%', size: 3, duration: '8.5s', delay: '-1s', opacity: 0.45 },
+  { left: '54%', size: 2, duration: '11.5s', delay: '-5s', opacity: 0.3 },
+  { left: '63%', size: 3.5, duration: '9.5s', delay: '-3s', opacity: 0.55 },
+  { left: '72%', size: 2.5, duration: '12.5s', delay: '-8s', opacity: 0.35 },
+  { left: '81%', size: 4, duration: '10.5s', delay: '-6s', opacity: 0.5 },
+  { left: '90%', size: 2, duration: '11s', delay: '-2.5s', opacity: 0.4 },
+  { left: '95%', size: 3, duration: '9.2s', delay: '-4.5s', opacity: 0.45 },
+]
+
 export function Download() {
   const scrollToAllApps = () => {
     document.getElementById('all-apps')?.scrollIntoView({ behavior: 'smooth' })
@@ -35,8 +49,17 @@ export function Download() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12 pt-4">
+      <style>{`
+        @keyframes novelo-snowfall {
+          0% { transform: translate3d(0, -12px, 0); }
+          50% { transform: translate3d(8px, 140px, 0); }
+          100% { transform: translate3d(-4px, 300px, 0); }
+        }
+      `}</style>
       {/* Atmospheric Hero Banner */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0c0c0e] mb-8">
+      <section className="relative overflow-hidden rounded-2xl border border-white/[0.09] bg-[#0c0c0e] mb-8">
+        {/* Frosted-glass top edge highlight */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none z-20" />
         {/* Deep atmospheric gradient + subtle halftone texture */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -52,6 +75,23 @@ export function Download() {
             backgroundSize: '6px 6px',
           }}
         />
+
+        {/* Subtle seasonal snowfall */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          {SNOWFLAKES.map((flake, idx) => (
+            <span
+              key={idx}
+              className="absolute top-0 rounded-full bg-white blur-[0.4px]"
+              style={{
+                left: flake.left,
+                width: `${flake.size}px`,
+                height: `${flake.size}px`,
+                opacity: flake.opacity,
+                animation: `novelo-snowfall ${flake.duration} linear ${flake.delay} infinite`,
+              }}
+            />
+          ))}
+        </div>
 
         {/* Blurred atmospheric emblem silhouette on the right */}
         <img
