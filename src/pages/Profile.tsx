@@ -13,15 +13,7 @@ import {
 import { useAuth } from '@/lib/auth'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 import { loadFriends, FRIENDS_EVENT } from '@/lib/friendsStore'
-
-const BANNER_PRESETS = [
-  { id: '#0f0f11', label: 'Default', style: '#0f0f11' },
-  { id: 'linear-gradient(135deg, #1b1f2a 0%, #0f172a 100%)', label: 'Midnight', style: 'linear-gradient(135deg, #1b1f2a 0%, #0f172a 100%)' },
-  { id: 'linear-gradient(135deg, #0d2b22 0%, #0f1715 100%)', label: 'Emerald', style: 'linear-gradient(135deg, #0d2b22 0%, #0f1715 100%)' },
-  { id: 'linear-gradient(135deg, #2d1624 0%, #140f17 100%)', label: 'Crimson', style: 'linear-gradient(135deg, #2d1624 0%, #140f17 100%)' },
-  { id: 'linear-gradient(135deg, #2b2114 0%, #14110e 100%)', label: 'Amber', style: 'linear-gradient(135deg, #2b2114 0%, #14110e 100%)' },
-  { id: 'linear-gradient(135deg, #231936 0%, #110f1a 100%)', label: 'Violet', style: 'linear-gradient(135deg, #231936 0%, #110f1a 100%)' },
-]
+import { HsvColorPicker } from '@/components/HsvColorPicker'
 
 export function Profile({ profileId }: { profileId?: number | null }) {
   const { user, profile: myProfile } = useAuth()
@@ -581,25 +573,11 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {BANNER_PRESETS.map((preset) => {
-                    const selected = bannerDraft === preset.id
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        title={preset.label}
-                        onClick={() => setBannerDraft(preset.id)}
-                        className={`h-7 flex-1 rounded-[6px] cursor-pointer transition-all border ${
-                          selected
-                            ? 'border-white scale-[1.03]'
-                            : 'border-white/10 hover:border-white/35'
-                        }`}
-                        style={{ background: preset.style }}
-                      />
-                    )
-                  })}
-                </div>
+                <HsvColorPicker
+                  value={bannerDraft.startsWith('#') ? bannerDraft : '#0f0f11'}
+                  onChange={(hex) => setBannerDraft(hex)}
+                  spectrumClassName="h-32"
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
