@@ -2,6 +2,12 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { FRIENDS_EVENT, loadFriends, type StoredFriend } from '@/lib/friendsStore'
 import { NOTIFICATIONS_EVENT, loadNotifications, type AppNotification } from '@/lib/notifications'
+import { GAME_STATS_EVENT, type StoredGameStats } from '@/lib/gameStats'
+import {
+  EQUIPPED_CLOTHING_EVENT,
+  NOVLUX_BALANCE_EVENT,
+} from '@/data/clothingStore'
+import { AVATAR_COLORS_EVENT, type BodyColors } from '@/components/PlayerModel3D'
 
 export const PROFILE_UPDATED_EVENT = 'novelo-profile-updated'
 
@@ -10,16 +16,27 @@ interface SyncPayload {
   notifications?: AppNotification[]
   bio?: string
   banner?: string
+  gameStats?: Record<string, StoredGameStats>
+  balance?: number
+  bodyColors?: BodyColors
+  equippedClothing?: string[]
   updatedAt?: number
 }
 
 let pushTimer: number | null = null
 let isHydrating = false
+let lastHydratedUpdatedAt = 0
 
 export function hydrateFromUserMetadata(user: User | null, profileId?: number | null) {
   if (!user) return
   const meta = user.user_metadata as Record<string, unknown> | undefined
   const sync = (meta?.novelo_sync as SyncPayload | undefined) || {}
+  if (typeof sync.updatedAt === 'number' && sync.updatedAt <= lastHydratedUpdatedAt) {
+    return
+  }
+  if (typeof sync.updatedAt === 'number') {
+    lastHydratedUpdatedAt = sync.updatedAt
+  }
 
   isHydrating = true
   try {
@@ -68,7 +85,8 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
 
     // 3. Bio & Banner
     const pidKey = profileId ?? 'guest'
-    const remoteBio = typeof sync.bio === 'string' ? sync.bio : (typeof meta?.bio === 'string' ? meta.bio : undefined)
+    const remoteBio =
+      typeof sync.bio === 'string' ? sync.bio : typeof meta?.bio === 'string' ? meta.bio : undefined
     if (typeof remoteBio === 'string' && remoteBio) {
       try {
         localStorage.setItem(`novelo_profile_bio_${pidKey}`, remoteBio)
@@ -77,7 +95,11 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
       }
     }
     const remoteBanner =
-      typeof sync.banner === 'string' ? sync.banner : (typeof meta?.banner === 'string' ? meta.banner : undefined)
+      typeof sync.banner === 'string'
+        ? sync.banner
+        : typeof meta?.banner === 'string'
+          ? meta.banner
+          : undefined
     if (typeof remoteBanner === 'string' && remoteBanner) {
       try {
         localStorage.setItem(`novelo_profile_banner_${pidKey}`, remoteBanner)
@@ -86,6 +108,61 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
       }
     }
     window.dispatchEvent(new CustomEvent(PROFILE_UPDATED_EVENT))
+
+    // 4. Game Stats (visits, likes, dislikes, favorites, userVote, userFavorited, userNotified)
+    if (sync.gameStats && typeof sync.gameStats === 'object') {
+      try {
+        const raw = localStorage.getItem('novelo_game_stats_v1')
+        const localMap: Record<string, StoredGameStats> = raw ? JSON.parse(raw) : {}
+        for (const [gid, rStats] of Object.entries(sync.gameStats)) {
+          if (!rStats || typeof rStats !== 'object') continue
+          const lStats = localMap[gid]
+          localMap[gid] = {
+            visits: Math.max(Number(lStats?.visits) || 0, Number(rStats.visits) || 0),
+            likes: Math.max(Number(lStats?.likes) || 0, Number(rStats.likes) || 0),
+            dislikes: Math.max(Number(lStats?.dislikes) || 0, Number(rStats.dislikes) || 0),
+            favorites: Math.max(Number(lStats?.favorites) || 0, Number(rStats.favorites) || 0),
+            userVote: lStats?.userVote ?? rStats.userVote ?? null,
+            userFavorited: Boolean(lStats?.userFavorited || rStats.userFavorited),
+            userNotified: Boolean(lStats?.userNotified || rStats.userNotified),
+          }
+        }
+        localStorage.setItem('novelo_game_stats_v1', JSON.stringify(localMap))
+        window.dispatchEvent(new CustomEvent(GAME_STATS_EVENT))
+      } catch {
+        // ignore
+      }
+    }
+
+    // 5. Novlux Balance
+    if (typeof sync.balance === 'number' && Number.isFinite(sync.balance)) {
+      try {
+        localStorage.setItem('novelo_novlux_balance_v1', String(Math.max(0, Math.floor(sync.balance))))
+        window.dispatchEvent(new CustomEvent(NOVLUX_BALANCE_EVENT))
+      } catch {
+        // ignore
+      }
+    }
+
+    // 6. Avatar Body Colors
+    if (sync.bodyColors && typeof sync.bodyColors === 'object') {
+      try {
+        localStorage.setItem('novelo_avatar_body_colors', JSON.stringify(sync.bodyColors))
+        window.dispatchEvent(new CustomEvent(AVATAR_COLORS_EVENT))
+      } catch {
+        // ignore
+      }
+    }
+
+    // 7. Equipped Clothing
+    if (Array.isArray(sync.equippedClothing)) {
+      try {
+        localStorage.setItem('novelo_equipped_clothing_v1', JSON.stringify(sync.equippedClothing))
+        window.dispatchEvent(new CustomEvent(EQUIPPED_CLOTHING_EVENT))
+      } catch {
+        // ignore
+      }
+    }
   } finally {
     isHydrating = false
   }
@@ -102,35 +179,60 @@ export function schedulePushUserSync(user: User | null, profileId?: number | nul
     const pidKey = profileId ?? 'guest'
     let bio = ''
     let banner = ''
+    let gameStats: Record<string, StoredGameStats> | undefined
+    let balance: number | undefined
+    let bodyColors: BodyColors | undefined
+    let equippedClothing: string[] | undefined
+
     try {
       bio = localStorage.getItem(`novelo_profile_bio_${pidKey}`) || ''
       const rawBanner = localStorage.getItem(`novelo_profile_banner_${pidKey}`) || ''
       banner = rawBanner.startsWith('data:') ? '' : rawBanner
+      const rawStats = localStorage.getItem('novelo_game_stats_v1')
+      if (rawStats) gameStats = JSON.parse(rawStats)
+      const rawBal = localStorage.getItem('novelo_novlux_balance_v1')
+      if (rawBal !== null && !Number.isNaN(Number(rawBal))) balance = Number(rawBal)
+      const rawColors = localStorage.getItem('novelo_avatar_body_colors')
+      if (rawColors) bodyColors = JSON.parse(rawColors)
+      const rawEq = localStorage.getItem('novelo_equipped_clothing_v1')
+      if (rawEq) equippedClothing = JSON.parse(rawEq)
     } catch {
       // ignore
     }
 
     const friends = loadFriends(user.id)
-    const notifications = loadNotifications().slice(0, 25).map((n) => ({
+    const notifications = loadNotifications().slice(0, 20).map((n) => ({
       ...n,
-      // Omit large inline data-URI thumbnails from auth metadata to stay well under JWT size limits
       thumbnail: n.thumbnail && n.thumbnail.startsWith('data:') ? undefined : n.thumbnail,
     }))
+
+    const now = Date.now()
+    lastHydratedUpdatedAt = now
 
     const payload: SyncPayload = {
       friends,
       notifications,
       bio,
       banner,
-      updatedAt: Date.now(),
+      gameStats,
+      balance,
+      bodyColors,
+      equippedClothing,
+      updatedAt: now,
     }
 
     try {
       await supabase.auth.updateUser({
         data: { novelo_sync: payload },
       })
+      const ch = supabase.channel(`novelo-user-sync:${user.id}`)
+      await ch.send({
+        type: 'broadcast',
+        event: 'sync',
+        payload: { updatedAt: now },
+      })
     } catch {
       // ignore sync errors
     }
-  }, 1000)
+  }, 600)
 }

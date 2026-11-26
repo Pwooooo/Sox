@@ -18,6 +18,10 @@ import { AuthModal } from '@/components/AuthModal'
 import { hydrateFromUserMetadata, schedulePushUserSync, PROFILE_UPDATED_EVENT } from '@/lib/userSync'
 import { FRIENDS_EVENT } from '@/lib/friendsStore'
 import { NOTIFICATIONS_EVENT } from '@/lib/notifications'
+import { GAME_STATS_EVENT } from '@/lib/gameStats'
+import { NOVLUX_BALANCE_EVENT, EQUIPPED_CLOTHING_EVENT } from '@/data/clothingStore'
+import { AVATAR_COLORS_EVENT } from '@/components/PlayerModel3D'
+import { supabase } from '@/lib/supabase'
 import { GamePlayerView } from '@/components/GamePlayerView'
 
 function parseJoinIdFromUrl(raw: string): string | null {
@@ -49,14 +53,45 @@ function AppContent() {
   useEffect(() => {
     if (!user) return
     hydrateFromUserMetadata(user, profile?.id)
+
+    const pullFresh = async () => {
+      if (!supabase) return
+      try {
+        const { data } = await supabase.auth.getUser()
+        if (data?.user) hydrateFromUserMetadata(data.user, profile?.id)
+      } catch {
+        // ignore
+      }
+    }
+
     const onSyncChange = () => schedulePushUserSync(user, profile?.id)
-    window.addEventListener(FRIENDS_EVENT, onSyncChange)
-    window.addEventListener(NOTIFICATIONS_EVENT, onSyncChange)
-    window.addEventListener(PROFILE_UPDATED_EVENT, onSyncChange)
+    const events = [
+      FRIENDS_EVENT,
+      NOTIFICATIONS_EVENT,
+      PROFILE_UPDATED_EVENT,
+      GAME_STATS_EVENT,
+      NOVLUX_BALANCE_EVENT,
+      AVATAR_COLORS_EVENT,
+      EQUIPPED_CLOTHING_EVENT,
+    ]
+    for (const ev of events) window.addEventListener(ev, onSyncChange)
+    window.addEventListener('focus', pullFresh)
+
+    const channel = supabase
+      ? supabase
+          .channel(`novelo-user-sync:${user.id}`)
+          .on('broadcast', { event: 'sync' }, () => {
+            void pullFresh()
+          })
+          .subscribe()
+      : null
+
     return () => {
-      window.removeEventListener(FRIENDS_EVENT, onSyncChange)
-      window.removeEventListener(NOTIFICATIONS_EVENT, onSyncChange)
-      window.removeEventListener(PROFILE_UPDATED_EVENT, onSyncChange)
+      for (const ev of events) window.removeEventListener(ev, onSyncChange)
+      window.removeEventListener('focus', pullFresh)
+      if (channel && supabase) {
+        void supabase.removeChannel(channel)
+      }
     }
   }, [user, profile?.id])
   const [viewedProfileId, setViewedProfileId] = useState<number | null>(() =>
