@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Sparkles, Tag, Gift, Shield, ArrowRight, CreditCard, Ticket, ExternalLink } from 'lucide-react'
+import { Sparkles, Tag, BadgeCheck, ImagePlay, Frame, Coins, Ticket, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { loadNovluxBalance, NOVLUX_BALANCE_EVENT } from '@/data/clothingStore'
 import { WHOP_PACKAGE_URLS, openWhopCheckout } from '@/lib/whop'
@@ -188,11 +188,11 @@ export function Store() {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-white">Get Novelo Plus</h3>
-                  <span className="text-[10px] font-bold text-black bg-white px-1.5 py-0.5 rounded-sm">
-                    VIP
+                  <span className="text-[10px] font-bold text-white/80 bg-white/[0.1] px-2 py-0.5 rounded-sm">
+                    Coming Soon
                   </span>
                 </div>
-                <p className="text-xs text-white/50 mt-0.5">Cancel or modify anytime</p>
+                <p className="text-xs text-white/50 mt-0.5">Membership launching soon</p>
               </div>
             </div>
 
@@ -205,44 +205,39 @@ export function Store() {
           {/* 2-Column Perks Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-6 text-xs text-white/70">
             <div className="flex items-center gap-3">
+              <Coins className="size-4 text-white/40 shrink-0" />
+              <span>10% more Novlux when purchasing</span>
+            </div>
+            <div className="flex items-center gap-3">
               <Tag className="size-4 text-white/40 shrink-0" />
-              <span>10% extra Novelo bonus on all package purchases</span>
+              <span>10% cheaper items in the Marketplace</span>
             </div>
             <div className="flex items-center gap-3">
-              <Gift className="size-4 text-white/40 shrink-0" />
-              <span>Exclusive limited avatar items delivered monthly</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Shield className="size-4 text-white/40 shrink-0" />
-              <span>Trade and resell limited items in the Marketplace</span>
+              <ImagePlay className="size-4 text-white/40 shrink-0" />
+              <span>Animated banners</span>
             </div>
             <div className="flex items-center gap-3">
               <Sparkles className="size-4 text-white/40 shrink-0" />
-              <span>Send and gift Novelo currency with zero commission</span>
+              <span>Animated profile pictures</span>
             </div>
             <div className="flex items-center gap-3">
-              <CreditCard className="size-4 text-white/40 shrink-0" />
-              <span>Free VIP private servers for supported experiences</span>
+              <Frame className="size-4 text-white/40 shrink-0" />
+              <span>Profile frames</span>
             </div>
             <div className="flex items-center gap-3">
-              <ArrowRight className="size-4 text-white/40 shrink-0" />
-              <span>Publish experiences and create catalog assets</span>
+              <BadgeCheck className="size-4 text-white/40 shrink-0" />
+              <span>Novelo Plus badge</span>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
             <button
-              onClick={() => alert('Novelo Plus activated successfully!')}
-              className="w-full sm:flex-1 h-10 rounded-[10px] bg-white hover:bg-neutral-200 text-black font-bold text-xs transition-all cursor-pointer border-none shadow-md active:scale-[0.97]"
+              type="button"
+              disabled
+              className="w-full sm:flex-1 h-10 rounded-[10px] bg-white/[0.06] text-white/45 font-bold text-xs border-none cursor-not-allowed"
             >
-              Start 30-Day Free Trial
-            </button>
-            <button
-              onClick={() => alert('Novelo Plus Terms: Membership renews automatically monthly. Cancel anytime under Account Settings.')}
-              className="w-full sm:w-auto h-10 px-5 rounded-[10px] bg-white/[0.08] hover:bg-white/[0.14] text-white font-bold text-xs transition-all cursor-pointer border-none active:scale-[0.97]"
-            >
-              Membership Terms
+              Coming Soon
             </button>
           </div>
         </div>
