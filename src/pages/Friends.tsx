@@ -41,6 +41,7 @@ export function Friends() {
     return 'friends'
   })
   const [friendFilter, setFriendFilter] = useState<'all' | 'trusted'>('all')
+  const [hoveredTab, setHoveredTab] = useState<FriendsMainTab | null>(null)
   const [searchFriendsQuery, setSearchFriendsQuery] = useState('')
   const [friends, setFriends] = useState<StoredFriend[]>(() => loadFriends(ownerKey))
   const [requests, setRequests] = useState<FriendRequestItem[]>([])
@@ -161,31 +162,44 @@ export function Friends() {
         My Friends
       </h1>
 
-      {/* Horizontal Underline Tab Bar */}
-      <div className="grid grid-cols-5 border-b border-white/10 bg-white/[0.02]">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative py-3 text-xs md:text-sm font-semibold transition-colors cursor-pointer border-none bg-transparent ${
-                isActive ? 'text-white' : 'text-white/55 hover:text-white/85'
-              }`}
-            >
-              <span>{tab.label}</span>
-              {tab.id === 'requests' && requests.length > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold">
-                  {requests.length}
-                </span>
-              )}
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
-              )}
-            </button>
-          )
-        })}
+      {/* Sliding Highlight Tab Bar */}
+      <div className="p-1.5 rounded-xl bg-white/[0.04]">
+        <div
+          className="relative grid grid-cols-5 gap-2"
+          onMouseLeave={() => setHoveredTab(null)}
+        >
+          <div
+            className="absolute inset-y-0 rounded-[8px] bg-white/[0.14] transition-[left] duration-200 ease-out pointer-events-none"
+            style={{
+              width: 'calc(20% - 6.4px)',
+              left: `calc(${Math.max(
+                0,
+                tabs.findIndex((t) => t.id === (hoveredTab ?? activeTab)),
+              )} * (20% + 1.6px))`,
+            }}
+          />
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                onMouseEnter={() => setHoveredTab(tab.id)}
+                className={`relative z-10 h-10 rounded-[8px] text-xs md:text-sm font-bold transition-colors duration-150 cursor-pointer border-none bg-transparent outline-none ${
+                  isActive ? 'text-white' : 'text-white/55 hover:text-white/90'
+                }`}
+              >
+                <span>{tab.label}</span>
+                {tab.id === 'requests' && requests.length > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold">
+                    {requests.length}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Tab 1: Friends */}
