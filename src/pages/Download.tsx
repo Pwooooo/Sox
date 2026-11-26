@@ -43,14 +43,67 @@ const SHOW_FROST_CARDS = false
 
 export function Download() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
+    <div className="relative w-full">
       <style>{`
         @keyframes novelo-card-bokeh {
           0% { transform: translate3d(0, -16px, 0); }
           50% { transform: translate3d(12px, 160px, 0); }
           100% { transform: translate3d(-8px, 340px, 0); }
         }
+        @keyframes novelo-clouds-1 {
+          to { background-position: -1000px 0; }
+        }
+        @keyframes novelo-clouds-2 {
+          to { background-position: -1000px 0; }
+        }
+        @keyframes novelo-clouds-3 {
+          to { background-position: -1579px 0; }
+        }
+        .novelo-clouds {
+          opacity: 0.38;
+          pointer-events: none;
+          position: fixed;
+          overflow: hidden;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 500px;
+          z-index: 1;
+          mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+        }
+        .novelo-clouds-1,
+        .novelo-clouds-2,
+        .novelo-clouds-3 {
+          background-repeat: repeat-x;
+          position: absolute;
+          top: 0;
+          right: 0;
+          left: 0;
+          height: 500px;
+        }
+        .novelo-clouds-1 {
+          background-image: url("https://s.cdpn.io/15514/clouds_2.png");
+          animation: novelo-clouds-1 20s infinite linear;
+        }
+        .novelo-clouds-2 {
+          background-image: url("https://s.cdpn.io/15514/clouds_1.png");
+          animation: novelo-clouds-2 15s infinite linear;
+        }
+        .novelo-clouds-3 {
+          background-image: url("https://s.cdpn.io/15514/clouds_3.png");
+          animation: novelo-clouds-3 17s infinite linear;
+        }
       `}</style>
+
+      {/* Parallax drifting clouds header */}
+      <div className="novelo-clouds" aria-hidden="true">
+        <div className="novelo-clouds-1" />
+        <div className="novelo-clouds-2" />
+        <div className="novelo-clouds-3" />
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
 
       {SHOW_FROST_CARDS && HERO_APPS.map((app) => (
         <section
@@ -192,6 +245,7 @@ export function Download() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   )
 }
