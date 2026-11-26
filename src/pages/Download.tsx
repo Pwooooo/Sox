@@ -55,10 +55,10 @@ export function Download() {
 
         {/* Blurred atmospheric emblem silhouette on the right */}
         <img
-          src="/novelo-icon.png"
+          src="/christmas-entropy.png"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute right-6 sm:right-14 top-1/2 -translate-y-1/2 w-52 sm:w-64 h-52 sm:h-64 object-contain opacity-20 blur-[2px] brightness-75 contrast-125"
+          className="pointer-events-none select-none absolute right-6 sm:right-14 top-1/2 -translate-y-1/2 w-52 sm:w-64 h-52 sm:h-64 object-contain opacity-25 blur-[1.5px] brightness-90 contrast-110"
         />
 
         {/* Bottom fade into page background */}
@@ -116,9 +116,9 @@ export function Download() {
                 {/* Custom Novelo App Icon */}
                 <div className="relative size-10 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center shrink-0">
                   <img
-                    src="/novelo-icon.png"
+                    src="/christmas-entropy.png"
                     alt={item.title}
-                    className="size-6 object-contain"
+                    className="size-7 object-contain"
                   />
                   {item.kind === 'studio' && (
                     <span className="absolute -bottom-1 -right-1 size-4 rounded-md bg-white text-black flex items-center justify-center shadow-xs">
