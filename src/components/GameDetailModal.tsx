@@ -269,7 +269,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
               </button>
 
               {/* Interaction Bar: Favorite, Notify, Likes, Dislikes */}
-              <div className="flex items-start justify-end gap-6 pt-0.5 text-white/75">
+              <div className="flex items-start justify-center gap-6 pt-0.5 text-white/75">
                 {/* Favorite */}
                 <button
                   onClick={handleToggleFavorite}
