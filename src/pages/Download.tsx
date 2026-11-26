@@ -92,11 +92,11 @@ export function Download() {
             }`}
           >
             <div className="max-w-lg">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <img
                   src="/christmas-entropy.png"
                   alt={app.title}
-                  className="size-16 object-contain shrink-0"
+                  className="size-16 -ml-1 object-contain shrink-0"
                 />
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
@@ -116,7 +116,12 @@ export function Download() {
                 <a
                   href={app.href}
                   download={app.filename}
-                  className="h-9 px-4 rounded-lg bg-white hover:bg-white/90 text-black text-xs font-semibold inline-flex items-center gap-2 transition-all hover:-translate-y-px no-underline cursor-pointer shadow-sm"
+                  style={{
+                    background: 'linear-gradient(180deg, #ffffff 0%, #e4effa 55%, #c9dff3 100%)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 16px rgba(186, 220, 255, 0.22)',
+                  }}
+                  className="h-9 px-4 rounded-lg border border-white/80 text-[#0f172a] hover:brightness-105 text-xs font-semibold inline-flex items-center gap-2 transition-all hover:-translate-y-px no-underline cursor-pointer"
                 >
                   <DownloadIcon className="size-3.5" />
                   <span>Download for Windows</span>
