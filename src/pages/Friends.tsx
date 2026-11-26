@@ -1,5 +1,16 @@
-import { useState } from 'react'
-import { Search, UserPlus, Check, X, MessageSquare, Play, MoreVertical, ShieldAlert, UserCheck } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Search, UserPlus, Check, X, MessageSquare, Play, UserCheck, UserMinus } from 'lucide-react'
+import { searchProfilesByUsername } from '@/lib/supabase'
+import { useAuth } from '@/lib/auth'
+import {
+  loadFriends,
+  addFriendFromProfile,
+  removeFriend,
+  FRIENDS_EVENT,
+  type StoredFriend,
+} from '@/lib/friendsStore'
+import { addNotification } from '@/lib/notifications'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface Friend {
   id: string
@@ -22,13 +33,39 @@ const INITIAL_REQUESTS: {
   headColor: string
 }[] = []
 
+function toFriendCard(f: StoredFriend): Friend {
+  return {
+    id: f.id,
+    name: f.displayName || f.username,
+    tag: `@${f.username}`,
+    status: 'online',
+    avatarBg: '#1f2024',
+    headColor: '#f3d19c',
+    shirtColor: '#3b82f6',
+  }
+}
+
 export function Friends() {
+  const { user, profile } = useAuth()
+  const ownerKey = user?.id || profile?.username || 'guest'
   const [activeTab, setActiveTab] = useState<'all' | 'online' | 'requests'>('all')
   const [search, setSearch] = useState('')
-  const [friends, setFriends] = useState(INITIAL_FRIENDS)
+  const [friends, setFriends] = useState<Friend[]>(() => loadFriends(ownerKey).map(toFriendCard))
   const [requests, setRequests] = useState(INITIAL_REQUESTS)
   const [addUsername, setAddUsername] = useState('')
   const [requestSent, setRequestSent] = useState(false)
+  const [addError, setAddError] = useState('')
+
+  useEffect(() => {
+    const sync = () => setFriends(loadFriends(ownerKey).map(toFriendCard))
+    sync()
+    window.addEventListener(FRIENDS_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(FRIENDS_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [ownerKey])
 
   const handleAccept = (id: string) => {
     const req = requests.find((r) => r.id === id)
@@ -53,12 +90,35 @@ export function Friends() {
     setRequests((prev) => prev.filter((r) => r.id !== id))
   }
 
-  const handleSendRequest = (e: React.FormEvent) => {
+  const handleSendRequest = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!addUsername.trim()) return
+    const clean = addUsername.trim().replace(/^@/, '')
+    if (!clean) return
+    setAddError('')
+    const matches = await searchProfilesByUsername(clean)
+    const exact =
+      matches.find((m) => m.username.toLowerCase() === clean.toLowerCase()) || matches[0]
+    if (!exact) {
+      setAddError(`Player "${clean}" not found`)
+      return
+    }
+    if (
+      (user?.id && exact.auth_uid === user.id) ||
+      (profile?.username && exact.username.toLowerCase() === profile.username.toLowerCase())
+    ) {
+      setAddError("You can't add yourself")
+      return
+    }
+    addFriendFromProfile(exact, ownerKey)
+    addNotification({
+      title: exact.display_name || exact.username,
+      body: `@${exact.username} was added to your friends list.`,
+      category: 'social',
+      actionTab: 'Friends',
+    })
     setRequestSent(true)
+    setAddUsername('')
     setTimeout(() => {
-      setAddUsername('')
       setRequestSent(false)
     }, 2000)
   }
@@ -86,23 +146,29 @@ export function Friends() {
         </div>
 
         {/* Add Friend Form */}
-        <form onSubmit={handleSendRequest} className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Add by username (@user)..."
-            value={addUsername}
-            onChange={(e) => setAddUsername(e.target.value)}
-            className="h-10 px-3.5 rounded-xl bg-[#141414]/90 border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
-          />
-          <button
-            type="submit"
-            disabled={requestSent}
-            className="h-10 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 transition-all font-bold text-xs flex items-center gap-1.5 cursor-pointer border-none shrink-0"
-          >
-            {requestSent ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
-            <span>{requestSent ? 'Sent!' : 'Add'}</span>
-          </button>
-        </form>
+        <div className="flex flex-col items-end gap-1">
+          <form onSubmit={handleSendRequest} className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Add by username (@user)..."
+              value={addUsername}
+              onChange={(e) => {
+                setAddUsername(e.target.value)
+                if (addError) setAddError('')
+              }}
+              className="h-10 px-3.5 rounded-xl bg-[#141414]/90 border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+            />
+            <button
+              type="submit"
+              disabled={requestSent}
+              className="h-10 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 transition-all font-bold text-xs flex items-center gap-1.5 cursor-pointer border-none shrink-0"
+            >
+              {requestSent ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
+              <span>{requestSent ? 'Added!' : 'Add'}</span>
+            </button>
+          </form>
+          {addError && <span className="text-[11px] text-red-400">{addError}</span>}
+        </div>
       </div>
 
       {/* Tabs Row (No outline, matching Luduvo tab animations) */}
@@ -222,12 +288,7 @@ export function Friends() {
                       className="size-12 rounded-full border border-white/10 flex items-center justify-center overflow-hidden shrink-0 shadow-md"
                       style={{ backgroundColor: friend.avatarBg }}
                     >
-                      <div
-                        className="size-6 rounded-xs flex items-center justify-center shadow-xs"
-                        style={{ backgroundColor: friend.headColor }}
-                      >
-                        <div className="size-1 rounded-full bg-black/80" />
-                      </div>
+                      <PlayerModel3D mode="headshot" className="w-full h-full" />
                     </div>
 
                     {/* Status Dot */}
@@ -285,6 +346,14 @@ export function Friends() {
                 >
                   <MessageSquare className="size-3.5" />
                   <span>Chat</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeFriend(friend.id, ownerKey)}
+                  title="Remove friend"
+                  className="h-8 px-2.5 rounded-lg bg-white/[0.06] hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-all flex items-center justify-center cursor-pointer border-none"
+                >
+                  <UserMinus className="size-3.5" />
                 </button>
               </div>
             </div>
