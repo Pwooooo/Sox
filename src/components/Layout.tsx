@@ -45,14 +45,21 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate select-none">
-      {/* Fullscreen Background: live 3D scene on Download, Wave Drift elsewhere */}
-      {activeTab === 'Download' ? (
-        <>
-          <Auth3DBackground />
-          <div className="fixed inset-0 pointer-events-none z-0 bg-black/35" aria-hidden="true" />
-        </>
-      ) : (
-        <WaveBackground />
+      {/* Fullscreen Encoded Wave Drift Background (keeps sidebar & top navbar consistent) */}
+      <WaveBackground />
+
+      {/* Live 3D scene background confined to main content area on Download */}
+      {activeTab === 'Download' && (
+        <div
+          className={cn(
+            "fixed top-14 right-0 bottom-0 z-0 overflow-hidden pointer-events-none transition-all duration-300",
+            sidebarCollapsed ? "left-0" : "left-[230px]"
+          )}
+          aria-hidden="true"
+        >
+          <Auth3DBackground className="absolute inset-0 z-0 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/35" />
+        </div>
       )}
 
       {/* Top Navbar */}

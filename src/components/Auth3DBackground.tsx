@@ -27,7 +27,13 @@ const QUALITY_CONFIGS: Record<
   Max: { pixelRatioCap: 2, shadowMapSize: 2048, shadows: true, msaa: 4, bloom: true, bloomStrength: 0.22, bloomRadius: 0.65, bloomThreshold: 0.88 },
 }
 
-export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset }) {
+export function Auth3DBackground({
+  quality = 'Max',
+  className = 'fixed inset-0 z-0 pointer-events-none',
+}: {
+  quality?: QualityPreset
+  className?: string
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -278,7 +284,7 @@ export function Auth3DBackground({ quality = 'Max' }: { quality?: QualityPreset 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-0 pointer-events-none"
+      className={className}
       style={{ filter: 'blur(2.5px)', transform: 'scale(1.015)' }}
       aria-hidden="true"
     />
