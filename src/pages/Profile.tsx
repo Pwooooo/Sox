@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Gamepad2, X, Link2, Check, UserPlus, Sparkles } from 'lucide-react'
+import { useState, useEffect, useRef, type ChangeEvent } from 'react'
+import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Gamepad2, X, Link2, Check, UserPlus, Sparkles, ImagePlus, RotateCcw } from 'lucide-react'
 import { UnderConstruction } from '@/components/UnderConstruction'
 import { GameCard } from '@/components/GameCard'
 import { GameDetailModal } from '@/components/GameDetailModal'
@@ -14,6 +14,15 @@ import { useAuth } from '@/lib/auth'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 import { loadFriends, FRIENDS_EVENT } from '@/lib/friendsStore'
 
+const BANNER_PRESETS = [
+  { id: '#0f0f11', label: 'Default', style: '#0f0f11' },
+  { id: 'linear-gradient(135deg, #1b1f2a 0%, #0f172a 100%)', label: 'Midnight', style: 'linear-gradient(135deg, #1b1f2a 0%, #0f172a 100%)' },
+  { id: 'linear-gradient(135deg, #0d2b22 0%, #0f1715 100%)', label: 'Emerald', style: 'linear-gradient(135deg, #0d2b22 0%, #0f1715 100%)' },
+  { id: 'linear-gradient(135deg, #2d1624 0%, #140f17 100%)', label: 'Crimson', style: 'linear-gradient(135deg, #2d1624 0%, #140f17 100%)' },
+  { id: 'linear-gradient(135deg, #2b2114 0%, #14110e 100%)', label: 'Amber', style: 'linear-gradient(135deg, #2b2114 0%, #14110e 100%)' },
+  { id: 'linear-gradient(135deg, #231936 0%, #110f1a 100%)', label: 'Violet', style: 'linear-gradient(135deg, #231936 0%, #110f1a 100%)' },
+]
+
 export function Profile({ profileId }: { profileId?: number | null }) {
   const { user, profile: myProfile } = useAuth()
   const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory'>('About')
@@ -26,6 +35,8 @@ export function Profile({ profileId }: { profileId?: number | null }) {
   const moreMenuRef = useRef<HTMLDivElement>(null)
   const [displayNameDraft, setDisplayNameDraft] = useState('')
   const [bioDraft, setBioDraft] = useState('')
+  const [bannerDraft, setBannerDraft] = useState('')
+  const bannerInputRef = useRef<HTMLInputElement>(null)
   const [savingProfile, setSavingProfile] = useState(false)
   const ownerKey = user?.id || myProfile?.username || 'guest'
   const [friendsCount, setFriendsCount] = useState(() => loadFriends(ownerKey).length)
@@ -33,11 +44,19 @@ export function Profile({ profileId }: { profileId?: number | null }) {
   const targetId = profileId ?? myProfile?.id ?? null
   const isOwnProfile = targetId === null || (myProfile?.id !== undefined && targetId === myProfile.id)
   const bioStorageKey = `novelo_profile_bio_${targetId ?? 'guest'}`
+  const bannerStorageKey = `novelo_profile_banner_${targetId ?? 'guest'}`
   const [bio, setBio] = useState<string>(() => {
     try {
       return localStorage.getItem(`novelo_profile_bio_${profileId ?? myProfile?.id ?? 'guest'}`) || ''
     } catch {
       return ''
+    }
+  })
+  const [banner, setBanner] = useState<string>(() => {
+    try {
+      return localStorage.getItem(`novelo_profile_banner_${profileId ?? myProfile?.id ?? 'guest'}`) || '#0f0f11'
+    } catch {
+      return '#0f0f11'
     }
   })
 
@@ -47,7 +66,14 @@ export function Profile({ profileId }: { profileId?: number | null }) {
     } catch {
       setBio('')
     }
-  }, [bioStorageKey])
+    try {
+      const savedBanner = localStorage.getItem(bannerStorageKey)
+      const metaBanner = isOwnProfile ? (user?.user_metadata?.banner as string | undefined) : undefined
+      setBanner(savedBanner || metaBanner || '#0f0f11')
+    } catch {
+      setBanner('#0f0f11')
+    }
+  }, [bioStorageKey, bannerStorageKey, isOwnProfile, user?.user_metadata?.banner])
 
   useEffect(() => {
     const syncFriends = () => setFriendsCount(loadFriends(ownerKey).length)
@@ -163,9 +189,24 @@ export function Profile({ profileId }: { profileId?: number | null }) {
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1500px]">
       {/* 1. Header Card Matching Image 1 */}
       <div className="flex flex-col gap-4">
-        {/* Dark Blank Banner with Overlapping Avatar & Action Buttons */}
+        {/* Profile Banner with Overlapping Avatar & Action Buttons */}
         <div className="relative">
-          <div className="h-44 md:h-52 w-full rounded-2xl bg-[#0f0f11] relative overflow-hidden" />
+          <div
+            className="h-44 md:h-52 w-full rounded-2xl bg-[#0f0f11] relative overflow-hidden"
+            style={
+              banner.startsWith('data:') || banner.startsWith('http')
+                ? undefined
+                : { background: banner }
+            }
+          >
+            {(banner.startsWith('data:') || banner.startsWith('http')) && (
+              <img
+                src={banner}
+                alt="Profile banner"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
 
           {/* User Info Line Overlapping Banner */}
           <div className="px-3 flex flex-col md:flex-row md:items-end justify-between gap-4 -mt-12 md:-mt-14 relative z-10">
@@ -217,6 +258,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                         ''
                     )
                     setBioDraft(bio)
+                    setBannerDraft(banner)
                     setEditOpen(true)
                   }}
                   className="h-9 px-3.5 rounded-[10px] bg-[#1d1d1d] hover:bg-[#262626] text-white text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-none outline-none select-none active:scale-[0.97]"
@@ -436,7 +478,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
         >
           <div className="w-full max-w-[480px] rounded-2xl bg-[#141414] border border-white/[0.08] overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.85)] flex flex-col">
             {/* Modal Header */}
-            <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between">
+            <div className="px-5 pt-4 pb-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Edit3 className="size-4 text-white/80" />
                 <h3 className="text-sm font-bold text-white m-0">Edit Profile</h3>
@@ -451,31 +493,115 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               </button>
             </div>
 
-            {/* Live Preview Strip */}
-            <div className="px-5 py-4 bg-[#101010] border-b border-white/[0.06] flex items-center gap-3.5">
-              <div className="size-14 rounded-full bg-[#1c1c1c] border border-white/10 overflow-hidden shrink-0">
-                <PlayerModel3D
-                  mode="headshot"
-                  useSavedColors={isOwnProfile}
-                  useSavedClothing={isOwnProfile}
-                  className="w-full h-full"
-                />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-extrabold text-white truncate m-0">
-                  {displayNameDraft.trim() ||
-                    viewedProfile?.username ||
-                    ownFallbackUsername ||
-                    'Guest'}
-                </p>
-                <p className="text-xs text-white/45 truncate m-0 mt-0.5">
-                  @{(viewedProfile?.username || ownFallbackUsername || 'guest').toLowerCase()}
-                </p>
+            {/* Live Banner + Avatar Preview */}
+            <div className="px-5 py-2">
+              <div className="rounded-xl overflow-hidden bg-[#101010]">
+                <div
+                  className="h-20 w-full relative overflow-hidden bg-[#0f0f11]"
+                  style={
+                    bannerDraft.startsWith('data:') || bannerDraft.startsWith('http')
+                      ? undefined
+                      : { background: bannerDraft || '#0f0f11' }
+                  }
+                >
+                  {(bannerDraft.startsWith('data:') || bannerDraft.startsWith('http')) && (
+                    <img
+                      src={bannerDraft}
+                      alt="Banner preview"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <div className="px-4 pb-3.5 -mt-7 relative z-10 flex items-end gap-3">
+                  <div className="size-14 rounded-full bg-[#1c1c1c] border-[3px] border-[#101010] overflow-hidden shrink-0">
+                    <PlayerModel3D
+                      mode="headshot"
+                      useSavedColors={isOwnProfile}
+                      useSavedClothing={isOwnProfile}
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <div className="min-w-0 pb-0.5">
+                    <p className="text-sm font-extrabold text-white truncate m-0">
+                      {displayNameDraft.trim() ||
+                        viewedProfile?.username ||
+                        ownFallbackUsername ||
+                        'Guest'}
+                    </p>
+                    <p className="text-xs text-white/45 truncate m-0">
+                      @{(viewedProfile?.username || ownFallbackUsername || 'guest').toLowerCase()}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Form Body */}
-            <div className="p-5 flex flex-col gap-4">
+            <div className="px-5 py-3 flex flex-col gap-4">
+              {/* Banner Customization */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-white/75">Banner</label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      ref={bannerInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        const reader = new FileReader()
+                        reader.onload = () => {
+                          if (typeof reader.result === 'string') {
+                            setBannerDraft(reader.result)
+                          }
+                        }
+                        reader.readAsDataURL(file)
+                        e.target.value = ''
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => bannerInputRef.current?.click()}
+                      className="h-7 px-2.5 rounded-[6px] bg-white/[0.08] hover:bg-white/[0.14] text-white/85 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer border-none transition-colors"
+                    >
+                      <ImagePlus className="size-3.5" />
+                      <span>Upload</span>
+                    </button>
+                    {bannerDraft !== '#0f0f11' && (
+                      <button
+                        type="button"
+                        onClick={() => setBannerDraft('#0f0f11')}
+                        title="Reset banner"
+                        className="size-7 rounded-[6px] bg-white/[0.06] hover:bg-white/[0.12] text-white/65 hover:text-white flex items-center justify-center cursor-pointer border-none transition-colors"
+                      >
+                        <RotateCcw className="size-3" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {BANNER_PRESETS.map((preset) => {
+                    const selected = bannerDraft === preset.id
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        title={preset.label}
+                        onClick={() => setBannerDraft(preset.id)}
+                        className={`h-7 flex-1 rounded-[6px] cursor-pointer transition-all border ${
+                          selected
+                            ? 'border-white scale-[1.03]'
+                            : 'border-white/10 hover:border-white/35'
+                        }`}
+                        style={{ background: preset.style }}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-white/75">Display Name</label>
@@ -512,7 +638,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
             </div>
 
             {/* Footer Actions */}
-            <div className="px-5 py-3.5 border-t border-white/[0.08] bg-[#101010] flex items-center justify-end gap-2">
+            <div className="px-5 pt-2 pb-4 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setEditOpen(false)}
@@ -526,13 +652,20 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                 onClick={async () => {
                   const trimmedBio = bioDraft.trim()
                   const trimmedDisplay = displayNameDraft.trim()
+                  const nextBanner = bannerDraft || '#0f0f11'
                   setSavingProfile(true)
                   setBio(trimmedBio)
+                  setBanner(nextBanner)
                   try {
                     if (trimmedBio) {
                       localStorage.setItem(bioStorageKey, trimmedBio)
                     } else {
                       localStorage.removeItem(bioStorageKey)
+                    }
+                    if (nextBanner && nextBanner !== '#0f0f11') {
+                      localStorage.setItem(bannerStorageKey, nextBanner)
+                    } else {
+                      localStorage.removeItem(bannerStorageKey)
                     }
                   } catch {
                     // ignore storage errors
@@ -542,6 +675,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                       data: {
                         display_name: trimmedDisplay || null,
                         bio: trimmedBio,
+                        banner: nextBanner.startsWith('data:') ? undefined : nextBanner,
                       },
                     })
                     if (viewedProfile?.id) {
