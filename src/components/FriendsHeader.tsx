@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
-import { AddFriendsModal } from '@/components/AddFriendsModal'
 import { useAuth } from '@/lib/auth'
 import { loadFriends, FRIENDS_EVENT, type StoredFriend } from '@/lib/friendsStore'
 
@@ -9,7 +8,6 @@ export function FriendsHeader({ username = 'Sky' }: { username?: string }) {
   const { user, profile } = useAuth()
   const ownerKey = user?.id || profile?.username || 'guest'
   const [friends, setFriends] = useState<StoredFriend[]>(() => loadFriends(ownerKey))
-  const [addFriendsOpen, setAddFriendsOpen] = useState(false)
 
   useEffect(() => {
     const sync = () => setFriends(loadFriends(ownerKey))
@@ -78,7 +76,10 @@ export function FriendsHeader({ username = 'Sky' }: { username?: string }) {
           {/* Add Friends Button */}
           <button
             type="button"
-            onClick={() => setAddFriendsOpen(true)}
+            onClick={() => {
+              window.history.pushState({}, '', '/?tab=Friends&subtab=add')
+              window.dispatchEvent(new PopStateEvent('popstate'))
+            }}
             className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group bg-transparent border-none p-0"
           >
             <div className="size-14 md:size-16 rounded-full bg-[#141414] hover:bg-[#1c1c1c] border border-white/10 group-hover:border-white/30 transition-all flex items-center justify-center text-white/60 group-hover:text-white shadow-sm">
@@ -90,8 +91,6 @@ export function FriendsHeader({ username = 'Sky' }: { username?: string }) {
           </button>
         </div>
       </div>
-
-      <AddFriendsModal open={addFriendsOpen} onClose={() => setAddFriendsOpen(false)} />
     </div>
   )
 }

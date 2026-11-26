@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Search, UserPlus, Check, X, MessageSquare, Play, UserCheck, UserMinus } from 'lucide-react'
-import { searchProfilesByUsername } from '@/lib/supabase'
+import {
+  Search,
+  UserPlus,
+  Check,
+  X,
+  UserMinus,
+  Loader2,
+  Users,
+  HelpCircle,
+} from 'lucide-react'
+import { searchProfilesByUsername, type UserProfile } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import {
   loadFriends,
@@ -12,52 +21,37 @@ import {
 import { addNotification } from '@/lib/notifications'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 
-interface Friend {
+type FriendsMainTab = 'friends' | 'following' | 'followers' | 'requests' | 'add'
+
+interface FriendRequestItem {
   id: string
   name: string
-  tag: string
-  status: 'in-game' | 'online' | 'offline'
-  gameName?: string
-  avatarBg: string
-  headColor: string
-  shirtColor: string
-}
-
-const INITIAL_FRIENDS: Friend[] = []
-
-const INITIAL_REQUESTS: {
-  id: string
-  name: string
-  tag: string
-  mutualFriends: number
-  headColor: string
-}[] = []
-
-function toFriendCard(f: StoredFriend): Friend {
-  return {
-    id: f.id,
-    name: f.displayName || f.username,
-    tag: `@${f.username}`,
-    status: 'online',
-    avatarBg: '#1f2024',
-    headColor: '#f3d19c',
-    shirtColor: '#3b82f6',
-  }
+  username: string
 }
 
 export function Friends() {
   const { user, profile } = useAuth()
   const ownerKey = user?.id || profile?.username || 'guest'
-  const [activeTab, setActiveTab] = useState<'all' | 'online' | 'requests'>('all')
-  const [search, setSearch] = useState('')
-  const [friends, setFriends] = useState<Friend[]>(() => loadFriends(ownerKey).map(toFriendCard))
-  const [requests, setRequests] = useState(INITIAL_REQUESTS)
-  const [addUsername, setAddUsername] = useState('')
-  const [requestSent, setRequestSent] = useState(false)
-  const [addError, setAddError] = useState('')
+
+  const [activeTab, setActiveTab] = useState<FriendsMainTab>(() => {
+    const sub = new URLSearchParams(window.location.search).get('subtab')
+    if (sub === 'add' || sub === 'following' || sub === 'followers' || sub === 'requests') {
+      return sub
+    }
+    return 'friends'
+  })
+  const [friendFilter, setFriendFilter] = useState<'all' | 'trusted'>('all')
+  const [searchFriendsQuery, setSearchFriendsQuery] = useState('')
+  const [friends, setFriends] = useState<StoredFriend[]>(() => loadFriends(ownerKey))
+  const [requests, setRequests] = useState<FriendRequestItem[]>([])
+
+  // Add Friends tab search state
+  const [playerQuery, setPlayerQuery] = useState('')
+  const [playerResults, setPlayerResults] = useState<UserProfile[]>([])
+  const [searchingPlayers, setSearchingPlayers] = useState(false)
 
   useEffect(() => {
-    const sync = () => setFriends(loadFriends(ownerKey).map(toFriendCard))
+    const sync = () => setFriends(loadFriends(ownerKey))
     sync()
     window.addEventListener(FRIENDS_EVENT, sync)
     window.addEventListener('storage', sync)
@@ -67,297 +61,406 @@ export function Friends() {
     }
   }, [ownerKey])
 
-  const handleAccept = (id: string) => {
-    const req = requests.find((r) => r.id === id)
-    if (req) {
-      setFriends((prev) => [
-        ...prev,
-        {
-          id: req.id,
-          name: req.name,
-          tag: req.tag,
-          status: 'online',
-          avatarBg: '#1f2024',
-          headColor: req.headColor,
-          shirtColor: '#3b82f6',
-        },
-      ])
-      setRequests((prev) => prev.filter((r) => r.id !== id))
+  useEffect(() => {
+    const onPopState = () => {
+      const sub = new URLSearchParams(window.location.search).get('subtab')
+      if (sub === 'add' || sub === 'following' || sub === 'followers' || sub === 'requests') {
+        setActiveTab(sub)
+      }
     }
-  }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
-  const handleDecline = (id: string) => {
-    setRequests((prev) => prev.filter((r) => r.id !== id))
-  }
-
-  const handleSendRequest = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const clean = addUsername.trim().replace(/^@/, '')
-    if (!clean) return
-    setAddError('')
-    const matches = await searchProfilesByUsername(clean)
-    const exact =
-      matches.find((m) => m.username.toLowerCase() === clean.toLowerCase()) || matches[0]
-    if (!exact) {
-      setAddError(`Player "${clean}" not found`)
+  useEffect(() => {
+    if (activeTab !== 'add') return
+    const clean = playerQuery.trim().replace(/^@/, '')
+    if (!clean) {
+      setPlayerResults([])
+      setSearchingPlayers(false)
       return
     }
-    if (
-      (user?.id && exact.auth_uid === user.id) ||
-      (profile?.username && exact.username.toLowerCase() === profile.username.toLowerCase())
-    ) {
-      setAddError("You can't add yourself")
-      return
+    let cancelled = false
+    setSearchingPlayers(true)
+    const timer = window.setTimeout(() => {
+      searchProfilesByUsername(clean)
+        .then((rows) => {
+          if (!cancelled) setPlayerResults(rows)
+        })
+        .catch(() => {
+          if (!cancelled) setPlayerResults([])
+        })
+        .finally(() => {
+          if (!cancelled) setSearchingPlayers(false)
+        })
+    }, 200)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
     }
-    addFriendFromProfile(exact, ownerKey)
-    addNotification({
-      title: exact.display_name || exact.username,
-      body: `@${exact.username} was added to your friends list.`,
-      category: 'social',
-      actionTab: 'Friends',
-    })
-    setRequestSent(true)
-    setAddUsername('')
-    setTimeout(() => {
-      setRequestSent(false)
-    }, 2000)
-  }
+  }, [playerQuery, activeTab])
 
   const filteredFriends = friends.filter((f) => {
-    const matchesSearch =
-      f.name.toLowerCase().includes(search.toLowerCase()) ||
-      f.tag.toLowerCase().includes(search.toLowerCase())
-    if (!matchesSearch) return false
-    if (activeTab === 'online') return f.status === 'in-game' || f.status === 'online'
-    return true
+    if (friendFilter === 'trusted') return false
+    const q = searchFriendsQuery.trim().toLowerCase()
+    if (!q) return true
+    return (
+      f.username.toLowerCase().includes(q) ||
+      (f.displayName || '').toLowerCase().includes(q)
+    )
   })
 
+  const isAlreadyFriend = (p: UserProfile) =>
+    friends.some(
+      (f) =>
+        f.id === p.auth_uid ||
+        (p.id && f.profileId === p.id) ||
+        f.username.toLowerCase() === p.username.toLowerCase(),
+    )
+
+  const isSelf = (p: UserProfile) =>
+    Boolean(
+      (user?.id && p.auth_uid === user.id) ||
+        (profile?.id && p.id === profile.id) ||
+        (profile?.username && p.username.toLowerCase() === profile.username.toLowerCase()),
+    )
+
+  const handleToggleFriend = (p: UserProfile) => {
+    if (isSelf(p)) return
+    if (isAlreadyFriend(p)) {
+      const target = friends.find(
+        (f) =>
+          f.id === p.auth_uid ||
+          (p.id && f.profileId === p.id) ||
+          f.username.toLowerCase() === p.username.toLowerCase(),
+      )
+      if (target) setFriends(removeFriend(target.id, ownerKey))
+    } else {
+      setFriends(addFriendFromProfile(p, ownerKey))
+      addNotification({
+        title: p.display_name || p.username,
+        body: `@${p.username} was added to your friends list.`,
+        category: 'social',
+        actionTab: 'Friends',
+      })
+    }
+  }
+
+  const tabs: { id: FriendsMainTab; label: string }[] = [
+    { id: 'friends', label: 'Friends' },
+    { id: 'following', label: 'Following' },
+    { id: 'followers', label: 'Followers' },
+    { id: 'requests', label: 'Requests' },
+    { id: 'add', label: 'Add Friends' },
+  ]
+
   return (
-    <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1700px]">
-      {/* Title & Tabs */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Friends
-          </h1>
-          <p className="text-xs md:text-sm text-white/50 mt-0.5">
-            Manage your friends, pending requests, and party up in games
-          </p>
-        </div>
+    <div className="p-4 md:p-6 lg:p-8 flex flex-col gap-5 max-w-[1200px]">
+      {/* Page Title */}
+      <h1 className="text-2xl md:text-[28px] font-extrabold text-white tracking-tight m-0">
+        My Friends
+      </h1>
 
-        {/* Add Friend Form */}
-        <div className="flex flex-col items-end gap-1">
-          <form onSubmit={handleSendRequest} className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Add by username (@user)..."
-              value={addUsername}
-              onChange={(e) => {
-                setAddUsername(e.target.value)
-                if (addError) setAddError('')
-              }}
-              className="h-10 px-3.5 rounded-xl bg-[#141414]/90 border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
-            />
+      {/* Horizontal Underline Tab Bar */}
+      <div className="grid grid-cols-5 border-b border-white/10 bg-white/[0.02]">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id
+          return (
             <button
-              type="submit"
-              disabled={requestSent}
-              className="h-10 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 transition-all font-bold text-xs flex items-center gap-1.5 cursor-pointer border-none shrink-0"
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative py-3 text-xs md:text-sm font-semibold transition-colors cursor-pointer border-none bg-transparent ${
+                isActive ? 'text-white' : 'text-white/55 hover:text-white/85'
+              }`}
             >
-              {requestSent ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
-              <span>{requestSent ? 'Added!' : 'Add'}</span>
+              <span>{tab.label}</span>
+              {tab.id === 'requests' && requests.length > 0 && (
+                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold">
+                  {requests.length}
+                </span>
+              )}
+              {isActive && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
+              )}
             </button>
-          </form>
-          {addError && <span className="text-[11px] text-red-400">{addError}</span>}
-        </div>
+          )
+        })}
       </div>
 
-      {/* Tabs Row (No outline, matching Luduvo tab animations) */}
-      <div className="flex items-center justify-between gap-4 border-b border-white/[0.08] pb-3">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
-              activeTab === 'all'
-                ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
-                : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
-            }`}
-          >
-            All ({friends.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('online')}
-            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] ${
-              activeTab === 'online'
-                ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
-                : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
-            }`}
-          >
-            Online ({friends.filter((f) => f.status !== 'offline').length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('requests')}
-            className={`px-3.5 h-9 rounded-[10px] text-xs font-semibold transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] flex items-center gap-1.5 ${
-              activeTab === 'requests'
-                ? 'bg-white/[0.08] backdrop-blur-xs text-white font-bold shadow-xs'
-                : 'bg-transparent text-white/50 hover:text-white hover:bg-white/[0.04]'
-            }`}
-          >
-            <span>Requests</span>
-            {requests.length > 0 && (
-              <span className="size-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-black">
-                {requests.length}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Search */}
-        <div className="relative w-48 md:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/40" />
-          <input
-            type="text"
-            placeholder="Search friends..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#141414] border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none"
-          />
-        </div>
-      </div>
-
-      {/* Requests Tab */}
-      {activeTab === 'requests' ? (
-        <div className="flex flex-col gap-3">
-          {requests.map((req) => (
-            <div
-              key={req.id}
-              className="p-3.5 rounded-xl bg-[#141414]/90 border border-white/10 flex items-center justify-between gap-4"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="size-11 rounded-full border border-white/10 flex items-center justify-center overflow-hidden shrink-0 shadow-sm"
-                  style={{ backgroundColor: req.headColor }}
-                >
-                  <div className="size-3 bg-black/60 rounded-xs" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white leading-tight">{req.name}</h4>
-                  <p className="text-xs text-white/50">{req.tag} • {req.mutualFriends} mutual friends</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleAccept(req.id)}
-                  className="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-neutral-200 transition-colors font-bold text-xs flex items-center gap-1 cursor-pointer border-none"
-                >
-                  <Check className="size-3.5" />
-                  <span>Accept</span>
-                </button>
-                <button
-                  onClick={() => handleDecline(req.id)}
-                  className="px-3 py-1.5 rounded-lg bg-white/10 text-white/80 hover:bg-white/20 transition-colors font-bold text-xs flex items-center gap-1 cursor-pointer border-none"
-                >
-                  <X className="size-3.5" />
-                  <span>Decline</span>
-                </button>
-              </div>
+      {/* Tab 1: Friends */}
+      {activeTab === 'friends' && (
+        <div className="flex flex-col gap-4">
+          {/* Count + Search Friends */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-base font-bold text-white m-0">
+                Friends ({friends.length})
+              </h2>
+              <HelpCircle className="size-4 text-white/40" />
             </div>
-          ))}
 
-          {requests.length === 0 && (
-            <div className="py-16 text-center text-white/40 text-xs">
-              No pending friend requests.
+            <div className="relative w-full sm:w-[240px]">
+              <Search className="size-3.5 text-white/45 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search Friends"
+                value={searchFriendsQuery}
+                onChange={(e) => setSearchFriendsQuery(e.target.value)}
+                className="w-full h-9 pl-8 pr-3 rounded-lg bg-[#141418] border border-white/15 focus:border-white/35 text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* All / Trusted Pill Filters */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setFriendFilter('all')}
+              className={`px-3.5 h-7 rounded-full text-xs font-semibold cursor-pointer border-none transition-colors ${
+                friendFilter === 'all'
+                  ? 'bg-white text-black'
+                  : 'bg-white/[0.1] text-white/75 hover:text-white hover:bg-white/[0.15]'
+              }`}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              onClick={() => setFriendFilter('trusted')}
+              className={`px-3.5 h-7 rounded-full text-xs font-semibold cursor-pointer border-none transition-colors ${
+                friendFilter === 'trusted'
+                  ? 'bg-white text-black'
+                  : 'bg-white/[0.1] text-white/75 hover:text-white hover:bg-white/[0.15]'
+              }`}
+            >
+              Trusted
+            </button>
+          </div>
+
+          {/* Friend Cards Grid */}
+          {filteredFriends.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {filteredFriends.map((friend) => (
+                <div
+                  key={friend.id}
+                  onClick={() => {
+                    if (friend.profileId) {
+                      window.history.pushState({}, '', `/profile/${friend.profileId}`)
+                      window.dispatchEvent(new PopStateEvent('popstate'))
+                    }
+                  }}
+                  className="p-3.5 rounded-lg bg-[#141418] hover:bg-[#1a1a20] border border-white/[0.08] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="size-16 rounded-full bg-[#1e1e24] border border-white/10 overflow-hidden shrink-0">
+                      <PlayerModel3D mode="headshot" className="w-full h-full" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-white truncate m-0">
+                        {friend.displayName || friend.username}
+                      </h3>
+                      <p className="text-xs text-white/50 truncate m-0 mt-0.5">
+                        @{friend.username}
+                      </p>
+                      <p className="text-[11px] text-white/40 m-0 mt-1">Offline</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      removeFriend(friend.id, ownerKey)
+                    }}
+                    title="Remove friend"
+                    className="size-8 rounded-lg bg-white/[0.05] hover:bg-red-500/20 text-white/45 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center cursor-pointer border-none shrink-0"
+                  >
+                    <UserMinus className="size-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2.5 text-center">
+              <Users className="size-6 text-white/30" />
+              <p className="text-xs text-white/55 m-0">
+                {friendFilter === 'trusted'
+                  ? 'No trusted friends yet.'
+                  : searchFriendsQuery.trim()
+                    ? 'No friends match your search.'
+                    : 'No friends yet. Open the Add Friends tab to find players.'}
+              </p>
+              {!searchFriendsQuery.trim() && friendFilter === 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('add')}
+                  className="mt-1 h-8 px-4 rounded-lg bg-[#02b070] hover:bg-[#009b62] text-xs font-bold text-white cursor-pointer border-none transition-colors"
+                >
+                  Add Friends
+                </button>
+              )}
             </div>
           )}
         </div>
-      ) : (
-        /* Friends Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-          {filteredFriends.map((friend) => (
-            <div
-              key={friend.id}
-              className="p-4 rounded-xl bg-[#141414]/80 hover:bg-[#181818]/90 border border-white/10 transition-all flex flex-col gap-3 group"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  {/* Avatar */}
-                  <div className="relative">
-                    <div
-                      className="size-12 rounded-full border border-white/10 flex items-center justify-center overflow-hidden shrink-0 shadow-md"
-                      style={{ backgroundColor: friend.avatarBg }}
-                    >
+      )}
+
+      {/* Tab 2: Following */}
+      {activeTab === 'following' && (
+        <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+          <Users className="size-6 text-white/30" />
+          <p className="text-xs text-white/55 m-0">You are not following anyone yet.</p>
+        </div>
+      )}
+
+      {/* Tab 3: Followers */}
+      {activeTab === 'followers' && (
+        <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+          <Users className="size-6 text-white/30" />
+          <p className="text-xs text-white/55 m-0">No followers yet.</p>
+        </div>
+      )}
+
+      {/* Tab 4: Requests */}
+      {activeTab === 'requests' && (
+        <div className="flex flex-col gap-3">
+          {requests.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {requests.map((req) => (
+                <div
+                  key={req.id}
+                  className="p-3.5 rounded-lg bg-[#141418] border border-white/[0.08] flex items-center justify-between gap-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="size-12 rounded-full bg-[#1e1e24] border border-white/10 overflow-hidden shrink-0">
                       <PlayerModel3D mode="headshot" className="w-full h-full" />
                     </div>
-
-                    {/* Status Dot */}
-                    <span
-                      className={`absolute bottom-0 right-0 size-3 rounded-full border-2 border-[#141414] ${
-                        friend.status === 'in-game'
-                          ? 'bg-blue-500'
-                          : friend.status === 'online'
-                          ? 'bg-emerald-500'
-                          : 'bg-neutral-600'
-                      }`}
-                    />
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-white truncate m-0">{req.name}</h3>
+                      <p className="text-xs text-white/50 truncate m-0">@{req.username}</p>
+                    </div>
                   </div>
-
-                  {/* Name & Tag */}
-                  <div>
-                    <h3 className="text-sm font-bold text-white group-hover:text-white transition-colors">
-                      {friend.name}
-                    </h3>
-                    <p className="text-[11px] text-white/50">{friend.tag}</p>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setRequests((prev) => prev.filter((r) => r.id !== req.id))}
+                      className="size-8 rounded-lg bg-[#02b070] hover:bg-[#009b62] text-white flex items-center justify-center cursor-pointer border-none"
+                    >
+                      <Check className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRequests((prev) => prev.filter((r) => r.id !== req.id))}
+                      className="size-8 rounded-lg bg-white/10 hover:bg-white/20 text-white/75 flex items-center justify-center cursor-pointer border-none"
+                    >
+                      <X className="size-4" />
+                    </button>
                   </div>
                 </div>
-              </div>
-
-              {/* Status details */}
-              <div className="text-xs min-h-[32px] flex items-center">
-                {friend.status === 'in-game' ? (
-                  <div className="flex items-center gap-1.5 text-blue-400 font-medium truncate">
-                    <Play className="size-3 fill-current shrink-0" />
-                    <span className="truncate">Playing {friend.gameName}</span>
-                  </div>
-                ) : friend.status === 'online' ? (
-                  <span className="text-emerald-400 font-medium">Online on website</span>
-                ) : (
-                  <span className="text-white/40">Offline</span>
-                )}
-              </div>
-
-              {/* Quick Action Buttons */}
-              <div className="flex items-center gap-2 pt-1 border-t border-white/[0.06]">
-                {friend.status === 'in-game' && (
-                  <button
-                    onClick={() => alert(`Joining ${friend.name} in ${friend.gameName}...`)}
-                    className="flex-1 h-8 rounded-lg bg-[#02b070] hover:bg-[#009b62] text-white text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer border-none"
-                  >
-                    <Play className="size-3 fill-current" />
-                    <span>Join</span>
-                  </button>
-                )}
-                <button
-                  onClick={() => alert(`Opening chat with ${friend.name}...`)}
-                  className={`h-8 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-none ${
-                    friend.status === 'in-game' ? 'px-3' : 'flex-1'
-                  }`}
-                >
-                  <MessageSquare className="size-3.5" />
-                  <span>Chat</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removeFriend(friend.id, ownerKey)}
-                  title="Remove friend"
-                  className="h-8 px-2.5 rounded-lg bg-white/[0.06] hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-all flex items-center justify-center cursor-pointer border-none"
-                >
-                  <UserMinus className="size-3.5" />
-                </button>
-              </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+              <Users className="size-6 text-white/30" />
+              <p className="text-xs text-white/55 m-0">No pending friend requests.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 5: Add Friends */}
+      {activeTab === 'add' && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 className="text-base font-bold text-white m-0">Add Friends</h2>
+            <div className="relative w-full sm:w-[280px]">
+              <Search className="size-3.5 text-white/45 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search players by username..."
+                value={playerQuery}
+                onChange={(e) => setPlayerQuery(e.target.value)}
+                className="w-full h-9 pl-8 pr-3 rounded-lg bg-[#141418] border border-white/15 focus:border-white/35 text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          {searchingPlayers ? (
+            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex items-center justify-center gap-2 text-xs text-white/55">
+              <Loader2 className="size-4 animate-spin" />
+              <span>Searching players...</span>
+            </div>
+          ) : !playerQuery.trim() ? (
+            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+              <Search className="size-6 text-white/30" />
+              <p className="text-xs text-white/55 m-0">
+                Type a username above to find and add players.
+              </p>
+            </div>
+          ) : playerResults.length === 0 ? (
+            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+              <Users className="size-6 text-white/30" />
+              <p className="text-xs text-white/55 m-0">
+                No players found matching "{playerQuery.trim()}".
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {playerResults.map((p) => {
+                const self = isSelf(p)
+                const added = isAlreadyFriend(p)
+                return (
+                  <div
+                    key={p.auth_uid || p.id}
+                    className="p-3.5 rounded-lg bg-[#141418] border border-white/[0.08] flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="size-14 rounded-full bg-[#1e1e24] border border-white/10 overflow-hidden shrink-0">
+                        <PlayerModel3D mode="headshot" className="w-full h-full" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-bold text-white truncate m-0">
+                          {p.display_name || p.username}
+                        </h3>
+                        <p className="text-xs text-white/50 truncate m-0 mt-0.5">
+                          @{p.username}
+                        </p>
+                      </div>
+                    </div>
+
+                    {self ? (
+                      <span className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-xs font-semibold text-white/45 shrink-0">
+                        You
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleFriend(p)}
+                        className={`h-8 px-3.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer border-none transition-colors shrink-0 ${
+                          added
+                            ? 'bg-white/[0.1] hover:bg-white/[0.16] text-white/85'
+                            : 'bg-[#02b070] hover:bg-[#009b62] text-white'
+                        }`}
+                      >
+                        {added ? (
+                          <>
+                            <Check className="size-3.5" />
+                            <span>Added</span>
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="size-3.5" />
+                            <span>Add</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
