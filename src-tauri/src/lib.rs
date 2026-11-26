@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::sync::Mutex;
-use tauri::{Manager, State};
+use tauri::{Emitter, Manager, State};
 
 struct CursorLockState {
     locked: AtomicBool,
@@ -383,6 +383,15 @@ pub fn run() {
         .find(|a| a.starts_with("novelo://"));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+            if let Some(deep_link) = args.into_iter().find(|a| a.starts_with("novelo://")) {
+                let _ = app.emit("novelo-deep-link", deep_link);
+            }
+        }))
         .manage(CursorLockState {
             locked: AtomicBool::new(false),
             raw_dx: AtomicI32::new(0),

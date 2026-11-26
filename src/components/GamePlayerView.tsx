@@ -160,8 +160,9 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
     maxFpsRef.current = maxFps
   }, [maxFps])
   useEffect(() => {
-    return joinGamePresence(gameId, currentUsername)
-  }, [gameId, currentUsername])
+    const accountKey = user?.id || currentUsername.trim().toLowerCase()
+    return joinGamePresence(gameId, currentUsername, accountKey)
+  }, [gameId, currentUsername, user?.id])
   const [isFullscreen, setIsFullscreen] = useState(false)
   const prevWindowBoundsRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null)
   const [chatOpen, setChatOpen] = useState(true)

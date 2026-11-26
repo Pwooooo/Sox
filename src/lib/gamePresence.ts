@@ -45,19 +45,18 @@ function getFreshLocalSessions(gameId: string): Map<string, string> {
   return result
 }
 
-function makeSessionId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID()
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+function normalizeAccountKey(accountKey: string | undefined, username: string): string {
+  const raw = (accountKey || username || 'player').trim().toLowerCase()
+  return raw || 'player'
 }
 
 /**
- * Registers the current client as actively playing `gameId` via both localStorage
+ * Registers the current account as actively playing `gameId` via both localStorage
  * (instant same-origin sync) and Supabase Realtime Presence (cross-window / web <-> player sync).
+ * Keyed by account so the same person cannot appear twice.
  */
-export function joinGamePresence(gameId: string, username: string): () => void {
-  const sessionId = makeSessionId()
+export function joinGamePresence(gameId: string, username: string, accountKey?: string): () => void {
+  const sessionId = normalizeAccountKey(accountKey, username)
   let disposed = false
 
   const upsertLocal = () => {

@@ -58,6 +58,7 @@ function AppContent() {
       if (id) setActiveGameId(id)
     }
     window.addEventListener('novelo-join-game', onJoinEvent)
+    let unlistenDeepLink: (() => void) | undefined
     if ((window as any).__TAURI_INTERNALS__) {
       import('@tauri-apps/api/core')
         .then(({ invoke }) => invoke<string | null>('get_launch_deep_link'))
@@ -67,8 +68,23 @@ function AppContent() {
           if (entryId) setActiveGameId(entryId)
         })
         .catch(() => {})
+      import('@tauri-apps/api/event')
+        .then(({ listen }) =>
+          listen<string>('novelo-deep-link', (event) => {
+            if (!event.payload) return
+            const entryId = parseJoinIdFromUrl(event.payload)
+            if (entryId) setActiveGameId(entryId)
+          }),
+        )
+        .then((fn) => {
+          unlistenDeepLink = fn
+        })
+        .catch(() => {})
     }
-    return () => window.removeEventListener('novelo-join-game', onJoinEvent)
+    return () => {
+      window.removeEventListener('novelo-join-game', onJoinEvent)
+      if (unlistenDeepLink) unlistenDeepLink()
+    }
   }, [])
   const [activeTab, setActiveTab] = useState(() => {
     if (parseProfileIdFromPath(window.location.pathname) !== null) {
