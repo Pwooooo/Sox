@@ -143,6 +143,50 @@ export function Download() {
           </div>
         </section>
       ))}
+
+      {/* Basic styled platform list */}
+      <section className="pt-2">
+        <h2 className="text-lg font-bold tracking-tight text-white mb-3.5">All platforms</h2>
+
+        <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] divide-y divide-white/[0.06] overflow-hidden backdrop-blur-sm">
+          {HERO_APPS.map((app) => (
+            <div
+              key={`row-${app.filename}`}
+              className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-white/[0.025] transition-colors"
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                <img
+                  src="/windows-logo.png"
+                  alt="Windows"
+                  className="size-7 object-contain shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-white leading-tight">
+                    {app.title}
+                  </div>
+                  <div className="text-xs text-white/45 mt-0.5 truncate">
+                    64-bit installer · {app.version}
+                  </div>
+                </div>
+              </div>
+
+              <a
+                href={app.href}
+                download={app.filename}
+                style={{
+                  background: 'linear-gradient(180deg, #ffffff 0%, #e4effa 55%, #c9dff3 100%)',
+                  boxShadow:
+                    'inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 16px rgba(186, 220, 255, 0.18)',
+                }}
+                className="shrink-0 h-8 px-3.5 rounded-lg border border-white/80 text-[#0f172a] hover:brightness-105 text-xs font-semibold inline-flex items-center gap-1.5 transition-all no-underline cursor-pointer"
+              >
+                <DownloadIcon className="size-3.5" />
+                <span>Download for Windows</span>
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }
