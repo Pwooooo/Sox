@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { NoveloViewport, createStarterWorld, type NvloDocument } from '@engine/index'
 import { fetchExperienceById } from '@/lib/supabase'
+import { joinGamePresence } from '@/lib/gamePresence'
 import { useAuth } from '@/lib/auth'
 import {
   PlayerModel3D,
@@ -158,6 +159,9 @@ export function GamePlayerView({ gameId, onLeave }: GamePlayerViewProps) {
   useEffect(() => {
     maxFpsRef.current = maxFps
   }, [maxFps])
+  useEffect(() => {
+    return joinGamePresence(gameId, currentUsername)
+  }, [gameId, currentUsername])
   const [isFullscreen, setIsFullscreen] = useState(false)
   const prevWindowBoundsRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null)
   const [chatOpen, setChatOpen] = useState(true)

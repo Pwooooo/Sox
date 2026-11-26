@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { GameDetailData } from '@/data/homeGames'
 import { fetchPublicExperiences } from '@/lib/supabase'
+import { subscribeGamePresence } from '@/lib/gamePresence'
 
 interface GameDetailModalProps {
   game: GameDetailData
@@ -74,6 +75,7 @@ function saveGameStats(gameId: string, stats: StoredGameStats): void {
 export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   const [currentGame, setCurrentGame] = useState<GameDetailData>(game)
   const [stats, setStats] = useState<StoredGameStats>(() => getGameStats(game.id))
+  const [activePlayers, setActivePlayers] = useState<number>(() => Number(game.players) || 0)
   const [timeFilter] = useState('Past Day')
   const [activeTab, setActiveTab] = useState<DetailTab>('Servers')
   const [recommended, setRecommended] = useState<GameDetailData[]>([])
@@ -82,10 +84,14 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   useEffect(() => {
     setCurrentGame(game)
     setStats(getGameStats(game.id))
+    setActivePlayers(Number(game.players) || 0)
   }, [game])
 
   useEffect(() => {
     setStats(getGameStats(currentGame.id))
+    return subscribeGamePresence(currentGame.id, (count) => {
+      setActivePlayers(count)
+    })
   }, [currentGame.id])
 
   const updateStats = (updater: (prev: StoredGameStats) => StoredGameStats) => {
@@ -346,7 +352,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
           <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-10 gap-3 text-center">
             <div>
               <span className="text-[11px] text-white/45 block mb-1">Active</span>
-              <span className="text-xs font-bold text-white tabular-numbers">{currentGame.players}</span>
+              <span className="text-xs font-bold text-white tabular-numbers">{activePlayers.toLocaleString()}</span>
             </div>
             <div>
               <span className="text-[11px] text-white/45 block mb-1">Favorites</span>
@@ -438,7 +444,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
                   <span>Join Server</span>
                 </button>
               </div>
-              {Number(currentGame.players) > 0 ? (
+              {activePlayers > 0 ? (
                 <div className="rounded-xl bg-[#1a1a1d] border border-white/[0.06] p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="size-9 rounded-lg bg-white/[0.06] flex items-center justify-center text-white/75">
@@ -447,7 +453,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
                     <div>
                       <p className="text-xs font-bold text-white m-0">Public Server #1</p>
                       <p className="text-[11px] text-white/50 m-0 mt-0.5">
-                        {currentGame.players} of {serverSize} people max
+                        {activePlayers} of {serverSize} people max
                       </p>
                     </div>
                   </div>
