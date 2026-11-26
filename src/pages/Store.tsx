@@ -171,7 +171,7 @@ export function Store() {
       {/* 3. Novelo Plus Membership Card */}
       <section className="flex flex-col gap-3.5">
         <h2 className="text-base md:text-lg font-bold text-white tracking-tight flex items-center gap-2.5">
-          <img src="/novelo-plus.png" alt="Novelo Plus" className="size-5 object-contain" />
+          <img src="/novelo-plus.png" alt="Novelo Plus" className="size-7 object-contain" />
           <span>Novelo Plus Membership</span>
         </h2>
 
@@ -182,9 +182,7 @@ export function Store() {
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.05]">
             <div className="flex items-center gap-3.5">
-              <div className="size-12 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center shrink-0 p-1.5 shadow-sm">
-                <img src="/novelo-plus.png" alt="Novelo Plus" className="size-full object-contain" />
-              </div>
+              <img src="/novelo-plus.png" alt="Novelo Plus" className="size-14 object-contain shrink-0" />
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-white">Get Novelo Plus</h3>
