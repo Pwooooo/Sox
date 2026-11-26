@@ -7,7 +7,6 @@ interface HeroApp {
   meta: string
   filename: string
   href: string
-  glow: string
 }
 
 const HERO_APPS: HeroApp[] = [
@@ -19,7 +18,6 @@ const HERO_APPS: HeroApp[] = [
     meta: 'Windows 64-bit · NoveloPlayer.exe · 12.6 MB',
     filename: 'NoveloPlayer.exe',
     href: '/downloads/NoveloPlayer.exe',
-    glow: 'radial-gradient(ellipse 70% 90% at 72% 45%, rgba(148, 163, 184, 0.16) 0%, rgba(51, 65, 85, 0.1) 45%, transparent 78%)',
   },
   {
     title: 'Novelo Studio',
@@ -29,14 +27,31 @@ const HERO_APPS: HeroApp[] = [
     meta: 'Windows 64-bit · NoveloStudio.exe · 12.6 MB',
     filename: 'NoveloStudio.exe',
     href: '/downloads/NoveloStudio.exe',
-    glow: 'radial-gradient(ellipse 70% 90% at 72% 45%, rgba(161, 161, 170, 0.14) 0%, rgba(63, 63, 70, 0.09) 45%, transparent 78%)',
   },
+]
+
+const COZY_BOKEH = [
+  { left: '12%', size: 8, duration: '18s', delay: '-3s', opacity: 0.22, warm: false },
+  { left: '26%', size: 12, duration: '24s', delay: '-11s', opacity: 0.16, warm: true },
+  { left: '41%', size: 6, duration: '16s', delay: '-6s', opacity: 0.25, warm: false },
+  { left: '58%', size: 14, duration: '26s', delay: '-14s', opacity: 0.14, warm: true },
+  { left: '71%', size: 9, duration: '20s', delay: '-8s', opacity: 0.2, warm: false },
+  { left: '84%', size: 11, duration: '22s', delay: '-16s', opacity: 0.18, warm: true },
+  { left: '93%', size: 7, duration: '17s', delay: '-2s', opacity: 0.22, warm: false },
 ]
 
 export function Download() {
   return (
     <div className="relative w-full -mt-14 pb-12">
-      {/* Fullscreen Wintry Trail Video Background */}
+      <style>{`
+        @keyframes novelo-cozy-bokeh {
+          0% { transform: translate3d(0, -4vh, 0); }
+          50% { transform: translate3d(16px, 52vh, 0); }
+          100% { transform: translate3d(-10px, 108vh, 0); }
+        }
+      `}</style>
+
+      {/* Fullscreen Cozy Wintry Trail Video Background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         <video
           src="/wintry-trail.mp4"
@@ -44,50 +59,52 @@ export function Download() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover blur-[1.5px] scale-[1.02] saturate-[1.15] sepia-[0.08] brightness-95"
         />
+
+        {/* Warm hearth / golden-hour horizon glow */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(90deg, rgba(10,10,12,0.78) 0%, rgba(10,10,12,0.52) 55%, rgba(10,10,12,0.38) 100%)',
+              'radial-gradient(ellipse 65% 60% at 64% 62%, rgba(255, 178, 107, 0.16) 0%, rgba(194, 118, 72, 0.08) 45%, transparent 78%)',
           }}
         />
+
+        {/* Soft warm-dark reading vignette */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(90deg, rgba(12,10,10,0.8) 0%, rgba(14,11,11,0.52) 55%, rgba(12,10,10,0.34) 100%)',
+          }}
+        />
+
+        {/* Slow drifting foreground bokeh snow */}
+        {COZY_BOKEH.map((orb, i) => (
+          <span
+            key={i}
+            className="absolute top-0 rounded-full blur-[2.5px]"
+            style={{
+              left: orb.left,
+              width: `${orb.size}px`,
+              height: `${orb.size}px`,
+              opacity: orb.opacity,
+              backgroundColor: orb.warm ? '#ffe4c4' : '#f8fafc',
+              animation: `novelo-cozy-bokeh ${orb.duration} linear ${orb.delay} infinite`,
+            }}
+          />
+        ))}
       </div>
 
       {HERO_APPS.map((app, idx) => (
         <section
           key={app.filename}
-          className={`relative w-full overflow-hidden ${idx === 0 ? 'pt-14' : ''}`}
-          style={{
-            maskImage:
-              idx === 0
-                ? 'linear-gradient(to bottom, black 72%, transparent 100%)'
-                : 'linear-gradient(to bottom, transparent 0%, black 16%, black 78%, transparent 100%)',
-            WebkitMaskImage:
-              idx === 0
-                ? 'linear-gradient(to bottom, black 72%, transparent 100%)'
-                : 'linear-gradient(to bottom, transparent 0%, black 16%, black 78%, transparent 100%)',
-          }}
+          className={`relative z-10 w-full ${idx === 0 ? 'pt-14' : ''}`}
         >
-          {/* Monochrome / frost radial atmosphere */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: app.glow }}
-          />
-
-          {/* Subtle halftone dot-matrix texture */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-25"
-            style={{
-              backgroundImage: 'radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1px)',
-              backgroundSize: '6px 6px',
-            }}
-          />
-
           {/* Copy & Download CTA */}
           <div
-            className={`relative z-10 max-w-5xl mx-auto px-4 sm:px-6 ${
+            className={`max-w-5xl mx-auto px-4 sm:px-6 ${
               idx === 0 ? 'py-14 sm:py-18' : 'py-12 sm:py-16'
             }`}
           >
@@ -108,7 +125,7 @@ export function Download() {
                 </div>
               </div>
 
-              <p className="mt-3 text-sm text-white/70 leading-relaxed">
+              <p className="mt-3 text-sm text-white/75 leading-relaxed">
                 {app.description}
               </p>
 
@@ -128,7 +145,7 @@ export function Download() {
                 </a>
               </div>
 
-              <p className="mt-2.5 text-[11px] text-white/45">{app.meta}</p>
+              <p className="mt-2.5 text-[11px] text-white/50">{app.meta}</p>
             </div>
           </div>
         </section>
