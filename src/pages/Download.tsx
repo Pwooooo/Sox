@@ -39,9 +39,11 @@ const COZY_BOKEH = [
   { left: '91%', size: 10, duration: '17s', delay: '-13s', opacity: 0.2, warm: true },
 ]
 
+const SHOW_FROST_CARDS = false
+
 export function Download() {
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
       <style>{`
         @keyframes novelo-card-bokeh {
           0% { transform: translate3d(0, -16px, 0); }
@@ -50,7 +52,7 @@ export function Download() {
         }
       `}</style>
 
-      {HERO_APPS.map((app) => (
+      {SHOW_FROST_CARDS && HERO_APPS.map((app) => (
         <section
           key={app.filename}
           className="relative overflow-hidden rounded-2xl border border-white/[0.1] bg-[#070b14] shadow-2xl"
@@ -144,22 +146,25 @@ export function Download() {
         </section>
       ))}
 
-      {/* Basic styled platform list */}
-      <section className="pt-2">
-        <h2 className="text-lg font-bold tracking-tight text-white mb-3.5">All platforms</h2>
+      {/* Side character/icon + basic styled platform list */}
+      <section className="flex flex-col md:flex-row items-center gap-8 pt-2">
+        <div className="shrink-0 flex items-center justify-center">
+          <img
+            src="/windows-logo.png"
+            alt="Novelo"
+            className="w-48 sm:w-56 h-auto object-contain drop-shadow-[0_16px_32px_rgba(0,0,0,0.6)]"
+          />
+        </div>
 
-        <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] divide-y divide-white/[0.06] overflow-hidden backdrop-blur-sm">
-          {HERO_APPS.map((app) => (
-            <div
-              key={`row-${app.filename}`}
-              className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-white/[0.025] transition-colors"
-            >
-              <div className="flex items-center gap-4 min-w-0">
-                <img
-                  src="/windows-logo.png"
-                  alt="Windows"
-                  className="size-7 object-contain shrink-0"
-                />
+        <div className="flex-1 w-full">
+          <h2 className="text-lg font-bold tracking-tight text-white mb-3.5">All platforms</h2>
+
+          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] divide-y divide-white/[0.06] overflow-hidden backdrop-blur-sm">
+            {HERO_APPS.map((app) => (
+              <div
+                key={`row-${app.filename}`}
+                className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-white/[0.025] transition-colors"
+              >
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-white leading-tight">
                     {app.title}
@@ -168,23 +173,23 @@ export function Download() {
                     64-bit installer · {app.version}
                   </div>
                 </div>
-              </div>
 
-              <a
-                href={app.href}
-                download={app.filename}
-                style={{
-                  background: 'linear-gradient(180deg, #ffffff 0%, #e4effa 55%, #c9dff3 100%)',
-                  boxShadow:
-                    'inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 16px rgba(186, 220, 255, 0.18)',
-                }}
-                className="shrink-0 h-8 px-3.5 rounded-lg border border-white/80 text-[#0f172a] hover:brightness-105 text-xs font-semibold inline-flex items-center gap-1.5 transition-all no-underline cursor-pointer"
-              >
-                <DownloadIcon className="size-3.5" />
-                <span>Download for Windows</span>
-              </a>
-            </div>
-          ))}
+                <a
+                  href={app.href}
+                  download={app.filename}
+                  style={{
+                    background: 'linear-gradient(180deg, #ffffff 0%, #e4effa 55%, #c9dff3 100%)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 16px rgba(186, 220, 255, 0.18)',
+                  }}
+                  className="shrink-0 h-8 px-3.5 rounded-lg border border-white/80 text-[#0f172a] hover:brightness-105 text-xs font-semibold inline-flex items-center gap-1.5 transition-all no-underline cursor-pointer"
+                >
+                  <DownloadIcon className="size-3.5" />
+                  <span>Download for Windows</span>
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
