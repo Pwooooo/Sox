@@ -235,7 +235,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
               </button>
 
               {moreOpen && (
-                <div className="absolute right-0 top-11 w-48 rounded-xl bg-[#141414] border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.85)] py-1.5 z-50">
+                <div className="absolute right-0 top-full mt-1.5 z-50 min-w-[180px] rounded-[8px] bg-[#141416] border border-white/10 p-1 shadow-2xl flex flex-col gap-0.5 animate-in fade-in-50 zoom-in-95 duration-100">
                   <button
                     type="button"
                     onClick={() => {
@@ -249,9 +249,9 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                         setMoreOpen(false)
                       }, 900)
                     }}
-                    className="w-full px-3.5 py-2 text-left text-xs font-semibold text-white/85 hover:text-white hover:bg-white/[0.06] flex items-center gap-2.5 cursor-pointer border-none bg-transparent transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-[6px] flex items-center gap-2 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left"
                   >
-                    {copiedLink ? <Check className="size-3.5 text-emerald-400" /> : <Link2 className="size-3.5" />}
+                    {copiedLink ? <Check className="size-3.5 text-emerald-400 shrink-0" /> : <Link2 className="size-3.5 shrink-0" />}
                     <span>{copiedLink ? 'Link Copied!' : 'Copy Profile Link'}</span>
                   </button>
                   {isOwnProfile && (
@@ -263,9 +263,9 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                           window.history.pushState({}, '', '/?tab=Avatar')
                           window.dispatchEvent(new PopStateEvent('popstate'))
                         }}
-                        className="w-full px-3.5 py-2 text-left text-xs font-semibold text-white/85 hover:text-white hover:bg-white/[0.06] flex items-center gap-2.5 cursor-pointer border-none bg-transparent transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-[6px] flex items-center gap-2 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left"
                       >
-                        <Sparkles className="size-3.5" />
+                        <Sparkles className="size-3.5 shrink-0" />
                         <span>Customize Avatar</span>
                       </button>
                       <button
@@ -275,9 +275,9 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                           window.history.pushState({}, '', '/?tab=Friends')
                           window.dispatchEvent(new PopStateEvent('popstate'))
                         }}
-                        className="w-full px-3.5 py-2 text-left text-xs font-semibold text-white/85 hover:text-white hover:bg-white/[0.06] flex items-center gap-2.5 cursor-pointer border-none bg-transparent transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-[6px] flex items-center gap-2 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border-none bg-transparent text-left"
                       >
-                        <UserPlus className="size-3.5" />
+                        <UserPlus className="size-3.5 shrink-0" />
                         <span>Manage Friends</span>
                       </button>
                     </>
@@ -426,49 +426,102 @@ export function Profile({ profileId }: { profileId?: number | null }) {
         <UnderConstruction onGoBack={() => setActiveTab('About')} />
       )}
 
-      {/* Edit Profile Modal */}
+      {/* Remade Edit Profile Modal */}
       {editOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl bg-[#111114] border border-white/10 p-5 flex flex-col gap-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white">Edit Profile</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setEditOpen(false)
+          }}
+        >
+          <div className="w-full max-w-[480px] rounded-2xl bg-[#141414] border border-white/[0.08] overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.85)] flex flex-col">
+            {/* Modal Header */}
+            <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Edit3 className="size-4 text-white/80" />
+                <h3 className="text-sm font-bold text-white m-0">Edit Profile</h3>
+              </div>
               <button
+                type="button"
                 onClick={() => setEditOpen(false)}
-                className="size-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white cursor-pointer border-none bg-transparent"
+                aria-label="Close"
+                className="size-8 rounded-[8px] bg-white/[0.06] hover:bg-white/[0.14] flex items-center justify-center text-white/75 hover:text-white cursor-pointer border-none transition-colors"
               >
                 <X className="size-4" />
               </button>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-white/70">Display Name</label>
-              <input
-                type="text"
-                maxLength={30}
-                value={displayNameDraft}
-                onChange={(e) => setDisplayNameDraft(e.target.value)}
-                placeholder={viewedProfile?.username || ownFallbackUsername || 'Display name'}
-                className="h-9 rounded-xl bg-[#18181b] border border-white/10 px-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
-              />
+
+            {/* Live Preview Strip */}
+            <div className="px-5 py-4 bg-[#101010] border-b border-white/[0.06] flex items-center gap-3.5">
+              <div className="size-14 rounded-full bg-[#1c1c1c] border border-white/10 overflow-hidden shrink-0">
+                <PlayerModel3D
+                  mode="headshot"
+                  useSavedColors={isOwnProfile}
+                  useSavedClothing={isOwnProfile}
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-extrabold text-white truncate m-0">
+                  {displayNameDraft.trim() ||
+                    viewedProfile?.username ||
+                    ownFallbackUsername ||
+                    'Guest'}
+                </p>
+                <p className="text-xs text-white/45 truncate m-0 mt-0.5">
+                  @{(viewedProfile?.username || ownFallbackUsername || 'guest').toLowerCase()}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-white/70">Bio / Status</label>
-              <textarea
-                rows={3}
-                maxLength={160}
-                value={bioDraft}
-                onChange={(e) => setBioDraft(e.target.value)}
-                placeholder="Write a short bio..."
-                className="w-full rounded-xl bg-[#18181b] border border-white/10 p-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
-              />
+
+            {/* Form Body */}
+            <div className="p-5 flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-white/75">Display Name</label>
+                  <span className="text-[11px] text-white/35 tabular-numbers">
+                    {displayNameDraft.length}/30
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  maxLength={30}
+                  value={displayNameDraft}
+                  onChange={(e) => setDisplayNameDraft(e.target.value)}
+                  placeholder={viewedProfile?.username || ownFallbackUsername || 'Display name'}
+                  className="h-10 rounded-[8px] bg-[#1c1c1c] border border-white/[0.12] px-3 text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 transition-colors"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-white/75">Bio / About</label>
+                  <span className="text-[11px] text-white/35 tabular-numbers">
+                    {bioDraft.length}/160
+                  </span>
+                </div>
+                <textarea
+                  rows={3}
+                  maxLength={160}
+                  value={bioDraft}
+                  onChange={(e) => setBioDraft(e.target.value)}
+                  placeholder="Tell others about yourself..."
+                  className="w-full rounded-[8px] bg-[#1c1c1c] border border-white/[0.12] p-3 text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/30 resize-none transition-colors"
+                />
+              </div>
             </div>
-            <div className="flex items-center justify-end gap-2">
+
+            {/* Footer Actions */}
+            <div className="px-5 py-3.5 border-t border-white/[0.08] bg-[#101010] flex items-center justify-end gap-2">
               <button
+                type="button"
                 onClick={() => setEditOpen(false)}
-                className="h-9 px-4 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-semibold cursor-pointer border-none"
+                className="h-9 px-4 rounded-[8px] bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold cursor-pointer border-none transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 disabled={savingProfile}
                 onClick={async () => {
                   const trimmedBio = bioDraft.trim()
@@ -504,9 +557,9 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                   setSavingProfile(false)
                   setEditOpen(false)
                 }}
-                className="h-9 px-4 rounded-xl bg-white text-black hover:bg-neutral-200 disabled:opacity-50 text-xs font-bold cursor-pointer border-none"
+                className="h-9 px-4 rounded-[8px] bg-white text-black hover:bg-neutral-200 disabled:opacity-50 text-xs font-bold cursor-pointer border-none transition-colors"
               >
-                {savingProfile ? 'Saving...' : 'Save'}
+                {savingProfile ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>
