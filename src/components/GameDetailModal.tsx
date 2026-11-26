@@ -257,7 +257,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
               {/* Action Button Row */}
               <button
                 onClick={() => handlePlay(currentGame.id)}
-                className="w-full h-11 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center text-white font-extrabold shadow-lg cursor-pointer border-none"
+                className="w-full h-11 rounded-md bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center text-white font-extrabold shadow-lg cursor-pointer border-none"
               >
                 <Play className="size-5 fill-white text-white ml-0.5" />
               </button>
