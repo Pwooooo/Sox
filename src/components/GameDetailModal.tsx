@@ -24,11 +24,56 @@ interface GameDetailModalProps {
 
 type DetailTab = 'Servers' | 'Store' | 'Recommended'
 
+interface StoredGameStats {
+  likes: number
+  dislikes: number
+  favorites: number
+  visits: number
+  userVote: 'like' | 'dislike' | null
+  userFavorited: boolean
+  userNotified: boolean
+}
+
+const GAME_STATS_KEY = 'novelo_game_stats_v1'
+
+function loadAllGameStats(): Record<string, StoredGameStats> {
+  try {
+    const raw = localStorage.getItem(GAME_STATS_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, StoredGameStats>) : {}
+  } catch {
+    return {}
+  }
+}
+
+function getGameStats(gameId: string): StoredGameStats {
+  const all = loadAllGameStats()
+  const existing = all[gameId]
+  return {
+    likes: typeof existing?.likes === 'number' ? existing.likes : 0,
+    dislikes: typeof existing?.dislikes === 'number' ? existing.dislikes : 0,
+    favorites: typeof existing?.favorites === 'number' ? existing.favorites : 0,
+    visits: typeof existing?.visits === 'number' ? existing.visits : 0,
+    userVote: existing?.userVote === 'like' || existing?.userVote === 'dislike' ? existing.userVote : null,
+    userFavorited: Boolean(existing?.userFavorited),
+    userNotified: Boolean(existing?.userNotified),
+  }
+}
+
+function saveGameStats(gameId: string, stats: StoredGameStats): void {
+  try {
+    const all = loadAllGameStats()
+    all[gameId] = stats
+    localStorage.setItem(GAME_STATS_KEY, JSON.stringify(all))
+  } catch {
+    // ignore storage errors
+  }
+}
+
 export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   const [currentGame, setCurrentGame] = useState<GameDetailData>(game)
-  const [isFavorited, setIsFavorited] = useState(false)
-  const [isNotified, setIsNotified] = useState(false)
-  const [userRating, setUserRating] = useState<'like' | 'dislike' | null>(null)
+  const [stats, setStats] = useState<StoredGameStats>(() => getGameStats(game.id))
   const [timeFilter] = useState('Past Day')
   const [activeTab, setActiveTab] = useState<DetailTab>('Servers')
   const [recommended, setRecommended] = useState<GameDetailData[]>([])
@@ -36,7 +81,55 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
 
   useEffect(() => {
     setCurrentGame(game)
+    setStats(getGameStats(game.id))
   }, [game])
+
+  useEffect(() => {
+    setStats(getGameStats(currentGame.id))
+  }, [currentGame.id])
+
+  const updateStats = (updater: (prev: StoredGameStats) => StoredGameStats) => {
+    setStats((prev) => {
+      const next = updater(prev)
+      saveGameStats(currentGame.id, next)
+      return next
+    })
+  }
+
+  const handleToggleFavorite = () => {
+    updateStats((prev) => {
+      const nextFav = !prev.userFavorited
+      return {
+        ...prev,
+        userFavorited: nextFav,
+        favorites: Math.max(0, prev.favorites + (nextFav ? 1 : -1)),
+      }
+    })
+  }
+
+  const handleToggleNotify = () => {
+    updateStats((prev) => ({ ...prev, userNotified: !prev.userNotified }))
+  }
+
+  const handleVote = (vote: 'like' | 'dislike') => {
+    updateStats((prev) => {
+      let likes = prev.likes
+      let dislikes = prev.dislikes
+      let userVote: 'like' | 'dislike' | null = vote
+
+      if (prev.userVote === vote) {
+        userVote = null
+        if (vote === 'like') likes = Math.max(0, likes - 1)
+        else dislikes = Math.max(0, dislikes - 1)
+      } else {
+        if (prev.userVote === 'like') likes = Math.max(0, likes - 1)
+        if (prev.userVote === 'dislike') dislikes = Math.max(0, dislikes - 1)
+        if (vote === 'like') likes += 1
+        else dislikes += 1
+      }
+      return { ...prev, likes, dislikes, userVote }
+    })
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -71,6 +164,11 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   }, [currentGame.id])
 
   const handlePlay = (targetId = currentGame.id) => {
+    const cur = getGameStats(targetId)
+    const next = { ...cur, visits: cur.visits + 1 }
+    saveGameStats(targetId, next)
+    if (targetId === currentGame.id) setStats(next)
+
     if ((window as any).__TAURI_INTERNALS__) {
       window.dispatchEvent(new CustomEvent('novelo-join-game', { detail: { id: targetId } }))
       onClose()
@@ -79,13 +177,15 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
     }
   }
 
-  const likesDisplay = currentGame.likesCount || `${currentGame.likePercent * 10}K+`
-  const dislikesDisplay = currentGame.dislikesCount || `${(100 - currentGame.likePercent) * 2}K+`
-  const favoritesDisplay = currentGame.favoritesCount || '0'
-  const visitsDisplay = currentGame.visitsCount || '0'
+  const likesDisplay = stats.likes.toLocaleString()
+  const dislikesDisplay = stats.dislikes.toLocaleString()
+  const totalVotes = stats.likes + stats.dislikes
+  const likePercent = totalVotes > 0 ? Math.round((stats.likes / totalVotes) * 100) : 0
+  const favoritesDisplay = stats.favorites.toLocaleString()
+  const visitsDisplay = stats.visits.toLocaleString()
   const serverSize = currentGame.serverSize || 20
   const created = currentGame.createdDate || '—'
-  const updated = currentGame.updatedDate || 'Recently'
+  const updated = currentGame.updatedDate || '—'
   const genre = currentGame.genre || 'All'
   const subgenre = currentGame.subgenre || 'All'
   const maturity = currentGame.maturity || 'Mild'
@@ -166,19 +266,19 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
               <div className="flex items-start justify-end gap-6 pt-0.5 text-white/75">
                 {/* Favorite */}
                 <button
-                  onClick={() => setIsFavorited(!isFavorited)}
+                  onClick={handleToggleFavorite}
                   className="flex flex-col items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-0.5"
                 >
-                  <Star className={`size-5 ${isFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
+                  <Star className={`size-5 ${stats.userFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
                   <span className="text-[11px] font-medium">Favorite</span>
                 </button>
 
                 {/* Notify */}
                 <button
-                  onClick={() => setIsNotified(!isNotified)}
+                  onClick={handleToggleNotify}
                   className="flex flex-col items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-0.5"
                 >
-                  <Bell className={`size-5 ${isNotified ? 'fill-white text-white' : ''}`} />
+                  <Bell className={`size-5 ${stats.userNotified ? 'fill-white text-white' : ''}`} />
                   <span className="text-[11px] font-medium">Notify</span>
                 </button>
 
@@ -186,25 +286,25 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
                 <div className="flex flex-col items-center gap-1 py-0.5">
                   <div className="flex items-center justify-between w-20">
                     <button
-                      onClick={() => setUserRating(userRating === 'like' ? null : 'like')}
+                      onClick={() => handleVote('like')}
                       className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
                     >
-                      <ThumbsUp className={`size-5 ${userRating === 'like' ? 'fill-white text-white' : ''}`} />
+                      <ThumbsUp className={`size-5 ${stats.userVote === 'like' ? 'fill-white text-white' : ''}`} />
                     </button>
 
                     <button
-                      onClick={() => setUserRating(userRating === 'dislike' ? null : 'dislike')}
+                      onClick={() => handleVote('dislike')}
                       className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
                     >
-                      <ThumbsDown className={`size-5 ${userRating === 'dislike' ? 'fill-white text-white' : ''}`} />
+                      <ThumbsDown className={`size-5 ${stats.userVote === 'dislike' ? 'fill-white text-white' : ''}`} />
                     </button>
                   </div>
 
                   {/* Progress bar */}
                   <div className="w-20 h-[2px] rounded-full bg-neutral-700 overflow-hidden">
                     <div
-                      className="h-full bg-white rounded-full"
-                      style={{ width: `${currentGame.likePercent}%` }}
+                      className="h-full bg-white rounded-full transition-all duration-200"
+                      style={{ width: `${likePercent}%` }}
                     />
                   </div>
 
@@ -258,7 +358,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
             </div>
             <div>
               <span className="text-[11px] text-white/45 block mb-1">Voice Chat</span>
-              <span className="text-xs font-bold text-white">Supported</span>
+              <span className="text-xs font-bold text-white">Not Supported</span>
             </div>
             <div>
               <span className="text-[11px] text-white/45 block mb-1">Camera</span>
