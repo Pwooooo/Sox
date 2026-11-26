@@ -93,7 +93,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
 
   return (
     <div className="fixed inset-0 z-30 pt-14 md:pl-[230px] bg-[#0b0b0e] overflow-y-auto no-scrollbar animate-in fade-in select-none">
-      <div className="relative w-full max-w-[900px] mx-auto px-5 py-6 md:px-8 md:py-7 flex flex-col gap-5 text-white">
+      <div className="relative w-full max-w-[780px] mx-auto px-5 py-6 md:px-7 md:py-7 flex flex-col gap-5 text-white">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -106,7 +106,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
         {/* Top Showcase: Media Left + Title & Actions Right */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
           {/* Left: Large Thumbnail */}
-          <div className="md:col-span-7 rounded-xl overflow-hidden aspect-[16/9] bg-[#0c0c0c] border border-white/10 shadow-md flex items-center justify-center">
+          <div className="md:col-span-7 min-w-0 w-full rounded-xl overflow-hidden aspect-[16/9] bg-[#0c0c0c] border border-white/10 shadow-md flex items-center justify-center">
             {currentGame.thumbnail ? (
               <img
                 src={currentGame.thumbnail}
@@ -119,96 +119,96 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
           </div>
 
           {/* Right: Info & Play Actions */}
-          <div className="md:col-span-5 flex flex-col justify-between gap-4">
-            <div className="flex flex-col gap-2">
+          <div className="md:col-span-5 min-w-0 flex flex-col justify-between gap-3">
+            <div className="flex flex-col gap-1.5">
               {/* Title */}
-              <h2 className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight">
+              <h2 className="text-xl md:text-2xl font-black text-white leading-tight tracking-tight truncate">
                 {currentGame.name}
               </h2>
 
               {/* Creator with Verified Badge */}
-              <div className="flex items-center gap-1.5 text-sm text-white/75">
+              <div className="flex items-center gap-1.5 text-xs text-white/75">
                 <span>By</span>
                 <span className="font-bold text-white hover:underline cursor-pointer">
                   {currentGame.creator}
                 </span>
                 {currentGame.isVerified && (
-                  <CheckCircle2 className="size-4 fill-[#00a2ff] text-black shrink-0" />
+                  <CheckCircle2 className="size-3.5 fill-[#00a2ff] text-black shrink-0" />
                 )}
               </div>
 
               {/* Maturity */}
-              <span className="text-sm text-white/65">Maturity: {maturity}</span>
+              <span className="text-xs text-white/65">Maturity: {maturity}</span>
 
               {/* Verify User & Past Day Filter */}
-              <div className="flex items-center justify-between text-xs text-white/55 pt-0.5">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="size-3.5" />
+              <div className="flex items-center justify-between text-[11px] text-white/55 pt-0.5">
+                <div className="flex items-center gap-1">
+                  <Clock className="size-3" />
                   <span>Verify User</span>
                 </div>
                 <div className="flex items-center gap-1 cursor-pointer hover:text-white">
                   <span className="text-white/75 font-semibold">{timeFilter}</span>
-                  <ChevronDown className="size-3.5" />
+                  <ChevronDown className="size-3" />
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-3.5">
-              {/* Big Action Button Row */}
+            <div className="flex flex-col gap-2.5 w-full max-w-[260px]">
+              {/* Action Button Row */}
               <button
                 onClick={() => handlePlay(currentGame.id)}
-                className="w-full h-16 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center text-white font-extrabold shadow-lg cursor-pointer border-none"
+                className="w-full h-11 rounded-xl bg-[#02b070] hover:bg-[#009b62] active:scale-[0.98] transition-all flex items-center justify-center text-white font-extrabold shadow-lg cursor-pointer border-none"
               >
-                <Play className="size-8 fill-white text-white ml-0.5" />
+                <Play className="size-5 fill-white text-white ml-0.5" />
               </button>
 
               {/* Interaction Bar: Favorite, Notify, Likes, Dislikes */}
-              <div className="grid grid-cols-3 items-start pt-1 text-white/75">
+              <div className="grid grid-cols-3 items-start pt-0.5 text-white/75">
                 {/* Favorite */}
                 <button
                   onClick={() => setIsFavorited(!isFavorited)}
-                  className="flex flex-col items-center gap-1.5 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-1"
+                  className="flex flex-col items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-0.5"
                 >
-                  <Star className={`size-7 ${isFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
-                  <span className="text-xs font-medium">Favorite</span>
+                  <Star className={`size-5 ${isFavorited ? 'fill-amber-400 text-amber-400' : ''}`} />
+                  <span className="text-[11px] font-medium">Favorite</span>
                 </button>
 
                 {/* Notify */}
                 <button
                   onClick={() => setIsNotified(!isNotified)}
-                  className="flex flex-col items-center gap-1.5 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-1"
+                  className="flex flex-col items-center gap-1 hover:text-white transition-colors cursor-pointer border-none bg-transparent py-0.5"
                 >
-                  <Bell className={`size-7 ${isNotified ? 'fill-white text-white' : ''}`} />
-                  <span className="text-xs font-medium">Notify</span>
+                  <Bell className={`size-5 ${isNotified ? 'fill-white text-white' : ''}`} />
+                  <span className="text-[11px] font-medium">Notify</span>
                 </button>
 
                 {/* Like / Dislike with ratio bar */}
-                <div className="flex flex-col items-center gap-1.5 py-1">
-                  <div className="flex items-center justify-between w-32">
+                <div className="flex flex-col items-center gap-1 py-0.5">
+                  <div className="flex items-center justify-between w-20">
                     <button
                       onClick={() => setUserRating(userRating === 'like' ? null : 'like')}
                       className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
                     >
-                      <ThumbsUp className={`size-7 ${userRating === 'like' ? 'fill-white text-white' : ''}`} />
+                      <ThumbsUp className={`size-5 ${userRating === 'like' ? 'fill-white text-white' : ''}`} />
                     </button>
 
                     <button
                       onClick={() => setUserRating(userRating === 'dislike' ? null : 'dislike')}
                       className="flex items-center justify-center hover:text-white cursor-pointer border-none bg-transparent p-0"
                     >
-                      <ThumbsDown className={`size-7 ${userRating === 'dislike' ? 'fill-white text-white' : ''}`} />
+                      <ThumbsDown className={`size-5 ${userRating === 'dislike' ? 'fill-white text-white' : ''}`} />
                     </button>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="w-32 h-[3px] rounded-full bg-neutral-700 overflow-hidden">
+                  <div className="w-20 h-[2px] rounded-full bg-neutral-700 overflow-hidden">
                     <div
                       className="h-full bg-white rounded-full"
                       style={{ width: `${currentGame.likePercent}%` }}
                     />
                   </div>
 
-                  <div className="flex items-center justify-between w-32 text-xs font-medium text-white/70 tabular-numbers">
+                  <div className="flex items-center justify-between w-20 text-[10px] font-medium text-white/70 tabular-numbers">
                     <span>{likesDisplay}</span>
                     <span>{dislikesDisplay}</span>
                   </div>
