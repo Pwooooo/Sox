@@ -51,26 +51,29 @@ export function Download() {
           100% { transform: translate3d(-8px, 340px, 0); }
         }
         @keyframes novelo-clouds-1 {
+          from { background-position: 0 0; }
           to { background-position: -1000px 0; }
         }
         @keyframes novelo-clouds-2 {
-          to { background-position: -1000px 0; }
+          from { background-position: 0 0; }
+          to { background-position: -1200px 0; }
         }
         @keyframes novelo-clouds-3 {
-          to { background-position: -1579px 0; }
+          from { background-position: 0 0; }
+          to { background-position: -1400px 0; }
         }
         .novelo-clouds {
-          opacity: 0.38;
+          opacity: 0.5;
           pointer-events: none;
           position: fixed;
           overflow: hidden;
           top: 0;
           left: 0;
           right: 0;
-          height: 500px;
-          z-index: 1;
-          mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
-          -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+          height: 420px;
+          z-index: 0;
+          mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
         }
         .novelo-clouds-1,
         .novelo-clouds-2,
@@ -80,19 +83,22 @@ export function Download() {
           top: 0;
           right: 0;
           left: 0;
-          height: 500px;
+          height: 420px;
         }
         .novelo-clouds-1 {
-          background-image: url("https://s.cdpn.io/15514/clouds_2.png");
-          animation: novelo-clouds-1 20s infinite linear;
+          background-size: 1000px 420px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='420' viewBox='0 0 1000 420'%3E%3Cdefs%3E%3Cfilter id='b1' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='24'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23b1)' fill='%23cbd5e1' fill-opacity='0.28'%3E%3Cellipse cx='140' cy='110' rx='180' ry='65'/%3E%3Cellipse cx='340' cy='150' rx='210' ry='75'/%3E%3Cellipse cx='620' cy='95' rx='220' ry='70'/%3E%3Cellipse cx='860' cy='140' rx='190' ry='68'/%3E%3C/g%3E%3C/svg%3E");
+          animation: novelo-clouds-1 28s infinite linear;
         }
         .novelo-clouds-2 {
-          background-image: url("https://s.cdpn.io/15514/clouds_1.png");
-          animation: novelo-clouds-2 15s infinite linear;
+          background-size: 1200px 420px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='420' viewBox='0 0 1200 420'%3E%3Cdefs%3E%3Cfilter id='b2' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='18'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23b2)' fill='%23e2e8f0' fill-opacity='0.24'%3E%3Cellipse cx='200' cy='175' rx='190' ry='55'/%3E%3Cellipse cx='520' cy='125' rx='240' ry='65'/%3E%3Cellipse cx='840' cy='180' rx='210' ry='58'/%3E%3Cellipse cx='1090' cy='135' rx='160' ry='52'/%3E%3C/g%3E%3C/svg%3E");
+          animation: novelo-clouds-2 20s infinite linear;
         }
         .novelo-clouds-3 {
-          background-image: url("https://s.cdpn.io/15514/clouds_3.png");
-          animation: novelo-clouds-3 17s infinite linear;
+          background-size: 1400px 420px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1400' height='420' viewBox='0 0 1400 420'%3E%3Cdefs%3E%3Cfilter id='b3' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='30'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23b3)' fill='%2394a3b8' fill-opacity='0.22'%3E%3Cellipse cx='180' cy='220' rx='260' ry='80'/%3E%3Cellipse cx='650' cy='190' rx='290' ry='85'/%3E%3Cellipse cx='1120' cy='230' rx='270' ry='78'/%3E%3C/g%3E%3C/svg%3E");
+          animation: novelo-clouds-3 24s infinite linear;
         }
       `}</style>
 
