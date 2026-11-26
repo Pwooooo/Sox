@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Search, Flame, Trophy, Sparkles, Swords, Compass, Ghost, Shield } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { GameCard } from '@/components/GameCard'
 import { GameDetailModal } from '@/components/GameDetailModal'
 import type { GameDetailData } from '@/data/homeGames'
@@ -7,13 +7,13 @@ import { cn } from '@/lib/utils'
 import { fetchPublicExperiences } from '@/lib/supabase'
 
 const CATEGORIES = [
-  { id: 'all', label: 'All Experiences', icon: Sparkles },
-  { id: 'popular', label: 'Popular', icon: Flame },
-  { id: 'top_rated', label: 'Top Rated', icon: Trophy },
-  { id: 'fighting', label: 'Fighting & PvP', icon: Swords },
-  { id: 'adventure', label: 'Adventure', icon: Compass },
-  { id: 'survival', label: 'Survival', icon: Shield },
-  { id: 'horror', label: 'Horror', icon: Ghost },
+  { id: 'all', label: 'All Experiences' },
+  { id: 'popular', label: 'Popular' },
+  { id: 'top_rated', label: 'Top Rated' },
+  { id: 'fighting', label: 'Fighting & PvP' },
+  { id: 'adventure', label: 'Adventure' },
+  { id: 'survival', label: 'Survival' },
+  { id: 'horror', label: 'Horror' },
 ]
 
 export function Games() {
@@ -174,27 +174,18 @@ export function Games() {
       {/* Category Filter Pills (Soft, semi-transparent highlight letting background drift through) */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" style={{ scrollbarWidth: 'none' }}>
         {CATEGORIES.map((cat) => {
-          const Icon = cat.icon
           const isActive = selectedCategory === cat.id
           return (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
               className={cn(
-                "group flex items-center gap-2 px-3.5 h-9 rounded-[10px] text-xs font-semibold shrink-0 cursor-pointer transition-all duration-150 border-none outline-none select-none active:scale-[0.97]",
+                "group flex items-center px-3.5 h-9 rounded-[10px] text-xs font-semibold shrink-0 cursor-pointer transition-all duration-150 border-none outline-none select-none active:scale-[0.97]",
                 isActive
                   ? "bg-white/[0.08] backdrop-blur-sm text-white font-bold shadow-xs"
                   : "bg-transparent text-white/50 hover:text-white hover:bg-white/[0.03]"
               )}
             >
-              <Icon
-                className={cn(
-                  "size-3.5 shrink-0 transition-transform duration-150",
-                  isActive
-                    ? "fill-current text-white scale-105"
-                    : "fill-none text-white/50 group-hover:scale-105 group-hover:text-white"
-                )}
-              />
               <span className="tracking-tight">{cat.label}</span>
             </button>
           )
