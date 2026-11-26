@@ -163,7 +163,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
               </button>
 
               {/* Interaction Bar: Favorite, Notify, Likes, Dislikes */}
-              <div className="grid grid-cols-3 items-start pt-0.5 text-white/75">
+              <div className="flex items-start justify-end gap-6 pt-0.5 text-white/75">
                 {/* Favorite */}
                 <button
                   onClick={() => setIsFavorited(!isFavorited)}
