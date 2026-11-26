@@ -10,6 +10,7 @@ import {
 import { AVATAR_COLORS_EVENT, type BodyColors } from '@/components/PlayerModel3D'
 
 export const PROFILE_UPDATED_EVENT = 'novelo-profile-updated'
+const SYNC_TS_KEY = 'novelo_sync_updated_at_v1'
 
 interface SyncPayload {
   friends?: StoredFriend[]
@@ -25,36 +26,44 @@ interface SyncPayload {
 
 let pushTimer: number | null = null
 let isHydrating = false
-let lastHydratedUpdatedAt = 0
+
+function getLocalUpdatedAt(): number {
+  try {
+    return Number(localStorage.getItem(SYNC_TS_KEY) || 0) || 0
+  } catch {
+    return 0
+  }
+}
+
+function setLocalUpdatedAt(ts: number) {
+  try {
+    localStorage.setItem(SYNC_TS_KEY, String(ts))
+  } catch {
+    // ignore
+  }
+}
 
 export function hydrateFromUserMetadata(user: User | null, profileId?: number | null) {
   if (!user) return
   const meta = user.user_metadata as Record<string, unknown> | undefined
   const sync = (meta?.novelo_sync as SyncPayload | undefined) || {}
-  if (typeof sync.updatedAt === 'number' && sync.updatedAt <= lastHydratedUpdatedAt) {
+  const remoteTs = typeof sync.updatedAt === 'number' ? sync.updatedAt : 0
+  const localTs = getLocalUpdatedAt()
+
+  // Only overwrite local state if remote snapshot is strictly newer than local edits
+  if (remoteTs > 0 && remoteTs <= localTs) {
     return
-  }
-  if (typeof sync.updatedAt === 'number') {
-    lastHydratedUpdatedAt = sync.updatedAt
   }
 
   isHydrating = true
   try {
     // 1. Friends
-    if (Array.isArray(sync.friends) && sync.friends.length > 0) {
+    if (Array.isArray(sync.friends)) {
       try {
         const raw = localStorage.getItem('novelo_friends_v1')
         const map = raw ? JSON.parse(raw) : {}
         const ownerKey = user.id.trim().toLowerCase()
-        const existing: StoredFriend[] = Array.isArray(map[ownerKey]) ? map[ownerKey] : []
-        const byId = new Map<string, StoredFriend>()
-        for (const f of existing) byId.set(f.id, f)
-        for (const f of sync.friends) {
-          if (f && typeof f.id === 'string' && !byId.has(f.id)) {
-            byId.set(f.id, f)
-          }
-        }
-        map[ownerKey] = Array.from(byId.values())
+        map[ownerKey] = sync.friends
         localStorage.setItem('novelo_friends_v1', JSON.stringify(map))
         window.dispatchEvent(new CustomEvent(FRIENDS_EVENT))
       } catch {
@@ -63,20 +72,9 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
     }
 
     // 2. Notifications
-    if (Array.isArray(sync.notifications) && sync.notifications.length > 0) {
+    if (Array.isArray(sync.notifications)) {
       try {
-        const existing = loadNotifications()
-        const byId = new Map<string, AppNotification>()
-        for (const n of existing) byId.set(n.id, n)
-        for (const n of sync.notifications) {
-          if (n && typeof n.id === 'string' && !byId.has(n.id)) {
-            byId.set(n.id, n)
-          }
-        }
-        const merged = Array.from(byId.values())
-          .sort((a, b) => b.createdAt - a.createdAt)
-          .slice(0, 50)
-        localStorage.setItem('novelo_notifications_v1', JSON.stringify(merged))
+        localStorage.setItem('novelo_notifications_v1', JSON.stringify(sync.notifications.slice(0, 50)))
         window.dispatchEvent(new CustomEvent(NOTIFICATIONS_EVENT))
       } catch {
         // ignore
@@ -87,9 +85,10 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
     const pidKey = profileId ?? 'guest'
     const remoteBio =
       typeof sync.bio === 'string' ? sync.bio : typeof meta?.bio === 'string' ? meta.bio : undefined
-    if (typeof remoteBio === 'string' && remoteBio) {
+    if (typeof remoteBio === 'string') {
       try {
-        localStorage.setItem(`novelo_profile_bio_${pidKey}`, remoteBio)
+        if (remoteBio) localStorage.setItem(`novelo_profile_bio_${pidKey}`, remoteBio)
+        else localStorage.removeItem(`novelo_profile_bio_${pidKey}`)
       } catch {
         // ignore
       }
@@ -109,7 +108,7 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
     }
     window.dispatchEvent(new CustomEvent(PROFILE_UPDATED_EVENT))
 
-    // 4. Game Stats (visits, likes, dislikes, favorites, userVote, userFavorited, userNotified)
+    // 4. Game Stats (preserve exact likes/dislikes/userVote from newer snapshot; visits monotonic)
     if (sync.gameStats && typeof sync.gameStats === 'object') {
       try {
         const raw = localStorage.getItem('novelo_game_stats_v1')
@@ -119,12 +118,12 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
           const lStats = localMap[gid]
           localMap[gid] = {
             visits: Math.max(Number(lStats?.visits) || 0, Number(rStats.visits) || 0),
-            likes: Math.max(Number(lStats?.likes) || 0, Number(rStats.likes) || 0),
-            dislikes: Math.max(Number(lStats?.dislikes) || 0, Number(rStats.dislikes) || 0),
-            favorites: Math.max(Number(lStats?.favorites) || 0, Number(rStats.favorites) || 0),
-            userVote: lStats?.userVote ?? rStats.userVote ?? null,
-            userFavorited: Boolean(lStats?.userFavorited || rStats.userFavorited),
-            userNotified: Boolean(lStats?.userNotified || rStats.userNotified),
+            likes: Math.max(0, Number(rStats.likes) || 0),
+            dislikes: Math.max(0, Number(rStats.dislikes) || 0),
+            favorites: Math.max(0, Number(rStats.favorites) || 0),
+            userVote: rStats.userVote === 'like' || rStats.userVote === 'dislike' ? rStats.userVote : null,
+            userFavorited: Boolean(rStats.userFavorited),
+            userNotified: Boolean(rStats.userNotified),
           }
         }
         localStorage.setItem('novelo_game_stats_v1', JSON.stringify(localMap))
@@ -163,6 +162,10 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
         // ignore
       }
     }
+
+    if (remoteTs > 0) {
+      setLocalUpdatedAt(remoteTs)
+    }
   } finally {
     isHydrating = false
   }
@@ -170,6 +173,9 @@ export function hydrateFromUserMetadata(user: User | null, profileId?: number | 
 
 export function schedulePushUserSync(user: User | null, profileId?: number | null) {
   if (!supabase || !user || isHydrating) return
+  const changeTs = Date.now()
+  setLocalUpdatedAt(changeTs)
+
   if (pushTimer !== null) {
     window.clearTimeout(pushTimer)
   }
@@ -206,9 +212,6 @@ export function schedulePushUserSync(user: User | null, profileId?: number | nul
       thumbnail: n.thumbnail && n.thumbnail.startsWith('data:') ? undefined : n.thumbnail,
     }))
 
-    const now = Date.now()
-    lastHydratedUpdatedAt = now
-
     const payload: SyncPayload = {
       friends,
       notifications,
@@ -218,7 +221,7 @@ export function schedulePushUserSync(user: User | null, profileId?: number | nul
       balance,
       bodyColors,
       equippedClothing,
-      updatedAt: now,
+      updatedAt: changeTs,
     }
 
     try {
@@ -229,10 +232,10 @@ export function schedulePushUserSync(user: User | null, profileId?: number | nul
       await ch.send({
         type: 'broadcast',
         event: 'sync',
-        payload: { updatedAt: now },
+        payload: { updatedAt: changeTs },
       })
     } catch {
       // ignore sync errors
     }
-  }, 600)
+  }, 400)
 }

@@ -93,7 +93,7 @@ function AppContent() {
         void supabase.removeChannel(channel)
       }
     }
-  }, [user, profile?.id])
+  }, [user?.id, profile?.id])
   const [viewedProfileId, setViewedProfileId] = useState<number | null>(() =>
     parseProfileIdFromPath(window.location.pathname),
   )
