@@ -16,7 +16,8 @@ import {
 } from 'lucide-react'
 import { GameDetailData } from '@/data/homeGames'
 import { fetchPublicExperiences } from '@/lib/supabase'
-import { subscribeGamePresence } from '@/lib/gamePresence'
+import { subscribeGamePresence, type ActivePlayerSession } from '@/lib/gamePresence'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 
 interface GameDetailModalProps {
   game: GameDetailData
@@ -75,7 +76,8 @@ function saveGameStats(gameId: string, stats: StoredGameStats): void {
 export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   const [currentGame, setCurrentGame] = useState<GameDetailData>(game)
   const [stats, setStats] = useState<StoredGameStats>(() => getGameStats(game.id))
-  const [activePlayers, setActivePlayers] = useState<number>(() => Number(game.players) || 0)
+  const [activeSessions, setActiveSessions] = useState<ActivePlayerSession[]>([])
+  const [copiedServerId, setCopiedServerId] = useState(false)
   const [timeFilter] = useState('Past Day')
   const [activeTab, setActiveTab] = useState<DetailTab>('Servers')
   const [recommended, setRecommended] = useState<GameDetailData[]>([])
@@ -84,15 +86,17 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
   useEffect(() => {
     setCurrentGame(game)
     setStats(getGameStats(game.id))
-    setActivePlayers(Number(game.players) || 0)
+    setActiveSessions([])
   }, [game])
 
   useEffect(() => {
     setStats(getGameStats(currentGame.id))
-    return subscribeGamePresence(currentGame.id, (count) => {
-      setActivePlayers(count)
+    return subscribeGamePresence(currentGame.id, (sessions) => {
+      setActiveSessions(sessions)
     })
   }, [currentGame.id])
+
+  const activePlayers = activeSessions.length
 
   const updateStats = (updater: (prev: StoredGameStats) => StoredGameStats) => {
     setStats((prev) => {
@@ -269,7 +273,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
               </button>
 
               {/* Interaction Bar: Favorite, Notify, Likes, Dislikes */}
-              <div className="flex items-start justify-center gap-6 pt-0.5 text-white/75">
+              <div className="flex items-start justify-end pr-3 gap-6 pt-0.5 text-white/75">
                 {/* Favorite */}
                 <button
                   onClick={handleToggleFavorite}
@@ -445,25 +449,52 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
                 </button>
               </div>
               {activePlayers > 0 ? (
-                <div className="rounded-xl bg-[#1a1a1d] border border-white/[0.06] p-4 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="size-9 rounded-lg bg-white/[0.06] flex items-center justify-center text-white/75">
-                      <Users className="size-4" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="rounded-xl bg-[#1a1a1d] border border-white/[0.06] p-4 flex flex-col gap-3">
+                    <div className="grid grid-cols-3 gap-2.5">
+                      {activeSessions.slice(0, 5).map((player) => (
+                        <div
+                          key={player.sessionId}
+                          title={player.username}
+                          className="aspect-square rounded-full bg-white/[0.08] border border-white/[0.06] overflow-hidden flex items-center justify-center"
+                        >
+                          <PlayerModel3D mode="headshot" className="w-full h-full" />
+                        </div>
+                      ))}
+                      {activePlayers > 5 && (
+                        <div className="aspect-square rounded-full bg-white/[0.08] border border-white/[0.06] flex items-center justify-center text-xs font-bold text-white/80">
+                          +{activePlayers - 5}
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-white m-0">Public Server #1</p>
-                      <p className="text-[11px] text-white/50 m-0 mt-0.5">
-                        {activePlayers} of {serverSize} people max
-                      </p>
+                    <p className="text-xs font-medium text-white/85 m-0">
+                      {activePlayers} of {serverSize} people max
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handlePlay(currentGame.id)}
+                        className="flex-1 h-8 rounded-lg bg-[#02b070] hover:bg-[#009b62] text-xs font-bold text-white cursor-pointer border-none transition-colors"
+                      >
+                        Join
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const shareUrl = `novelo://join?entry=${encodeURIComponent(currentGame.id)}&token=guest&address=127.0.0.1&port=24221`
+                          navigator.clipboard?.writeText(shareUrl).catch(() => {})
+                          setCopiedServerId(true)
+                          window.setTimeout(() => setCopiedServerId(false), 1800)
+                        }}
+                        className="h-8 px-3.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] text-xs font-semibold text-white/90 cursor-pointer border-none transition-colors"
+                      >
+                        {copiedServerId ? 'Copied' : 'Share'}
+                      </button>
                     </div>
+                    <p className="text-[11px] text-white/45 m-0 font-mono">
+                      ID: {currentGame.id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).padEnd(4, '0')}-{currentGame.id.replace(/[^a-zA-Z0-9]/g, '').slice(4, 8).padEnd(4, '0')}
+                    </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handlePlay(currentGame.id)}
-                    className="h-9 px-5 rounded-lg bg-[#02b070] hover:bg-[#009b62] text-xs font-bold text-white cursor-pointer border-none transition-colors"
-                  >
-                    Join
-                  </button>
                 </div>
               ) : (
                 <div className="py-10 rounded-xl bg-[#1a1a1d]/60 border border-white/[0.05] flex flex-col items-center justify-center gap-2 text-center">

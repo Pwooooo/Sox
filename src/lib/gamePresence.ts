@@ -7,6 +7,11 @@ const HEARTBEAT_MS = 5_000
 
 type LocalSessionsMap = Record<string, Record<string, { username: string; updatedAt: number }>>
 
+export interface ActivePlayerSession {
+  sessionId: string
+  username: string
+}
+
 function readLocalSessions(): LocalSessionsMap {
   try {
     const raw = localStorage.getItem(LOCAL_SESSIONS_KEY)
@@ -26,18 +31,18 @@ function writeLocalSessions(map: LocalSessionsMap) {
   }
 }
 
-function getFreshLocalSessionIds(gameId: string): Set<string> {
+function getFreshLocalSessions(gameId: string): Map<string, string> {
   const now = Date.now()
   const map = readLocalSessions()
   const gameSessions = map[gameId]
-  if (!gameSessions || typeof gameSessions !== 'object') return new Set()
-  const ids = new Set<string>()
+  const result = new Map<string, string>()
+  if (!gameSessions || typeof gameSessions !== 'object') return result
   for (const [sid, entry] of Object.entries(gameSessions)) {
     if (entry && typeof entry.updatedAt === 'number' && now - entry.updatedAt <= STALE_MS) {
-      ids.add(sid)
+      result.set(sid, entry.username || 'Player')
     }
   }
-  return ids
+  return result
 }
 
 function makeSessionId(): string {
@@ -114,20 +119,27 @@ export function joinGamePresence(gameId: string, username: string): () => void {
 }
 
 /**
- * Subscribes to live active player count for `gameId`.
+ * Subscribes to live active player sessions for `gameId`.
  */
 export function subscribeGamePresence(
   gameId: string,
-  onCountChange: (count: number) => void,
+  onPlayersChange: (players: ActivePlayerSession[]) => void,
 ): () => void {
   let disposed = false
-  let remoteIds = new Set<string>()
+  let remotePlayers = new Map<string, string>()
 
   const emit = () => {
     if (disposed) return
-    const localIds = getFreshLocalSessionIds(gameId)
-    const merged = new Set<string>([...remoteIds, ...localIds])
-    onCountChange(merged.size)
+    const localPlayers = getFreshLocalSessions(gameId)
+    const merged = new Map<string, string>(remotePlayers)
+    for (const [sid, uname] of localPlayers.entries()) {
+      if (!merged.has(sid)) merged.set(sid, uname)
+    }
+    const list: ActivePlayerSession[] = Array.from(merged.entries()).map(([sessionId, username]) => ({
+      sessionId,
+      username,
+    }))
+    onPlayersChange(list)
   }
 
   const onStorage = (e: StorageEvent) => {
@@ -149,8 +161,13 @@ export function subscribeGamePresence(
 
   if (channel) {
     const syncRemote = () => {
-      const state = channel.presenceState()
-      remoteIds = new Set(Object.keys(state))
+      const state = channel.presenceState<{ username?: string }>()
+      const next = new Map<string, string>()
+      for (const [key, presences] of Object.entries(state)) {
+        const first = Array.isArray(presences) ? presences[0] : undefined
+        next.set(key, first?.username || 'Player')
+      }
+      remotePlayers = next
       emit()
     }
     channel
