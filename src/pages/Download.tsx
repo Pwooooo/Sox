@@ -1,5 +1,4 @@
 import { Download as DownloadIcon } from 'lucide-react'
-import { CloudHeader } from '@/components/CloudHeader'
 
 interface HeroApp {
   title: string
@@ -43,12 +42,8 @@ const COZY_BOKEH = [
 const SHOW_FROST_CARDS = false
 
 export function Download() {
-  const scrollToPlatforms = () => {
-    document.getElementById('all-platforms')?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
-    <div className="relative w-full -mt-14 pb-16">
+    <div className="relative w-full py-12">
       <style>{`
         @keyframes novelo-card-bokeh {
           0% { transform: translate3d(0, -16px, 0); }
@@ -57,50 +52,7 @@ export function Download() {
         }
       `}</style>
 
-      {/* Full-bleed Cloud Header Hero */}
-      <section className="relative w-full pt-14 overflow-hidden">
-        <CloudHeader />
-
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 pt-20 pb-24 sm:pt-28 sm:pb-28">
-          <div className="max-w-lg">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-              Download Novelo
-            </h1>
-            <p className="mt-2.5 text-sm text-white/75 leading-relaxed">
-              Get Novelo Player to play games and Novelo Studio to create 3D worlds.
-            </p>
-
-            <div className="mt-5">
-              <a
-                href="/downloads/NoveloPlayer.exe"
-                download="NoveloPlayer.exe"
-                style={{
-                  background: 'linear-gradient(180deg, #ffffff 0%, #e4effa 55%, #c9dff3 100%)',
-                  boxShadow:
-                    'inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 16px rgba(186, 220, 255, 0.22)',
-                }}
-                className="h-9 px-4 rounded-lg border border-white/80 text-[#0f172a] hover:brightness-105 text-xs font-semibold inline-flex items-center gap-2 transition-all hover:-translate-y-px no-underline cursor-pointer"
-              >
-                <DownloadIcon className="size-3.5" />
-                <span>Download for Windows</span>
-              </a>
-            </div>
-
-            <p className="mt-2.5 text-[11px] text-white/55">
-              Windows, 64-bit · v1.0.0.{' '}
-              <button
-                type="button"
-                onClick={scrollToPlatforms}
-                className="underline underline-offset-2 text-white/75 hover:text-white bg-transparent border-none p-0 cursor-pointer text-[11px]"
-              >
-                All platforms
-              </button>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 pt-2 space-y-8">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
 
       {SHOW_FROST_CARDS && HERO_APPS.map((app) => (
         <section
