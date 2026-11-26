@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Cat, Rocket, Gamepad2, X } from 'lucide-react'
+import { Edit3, MoreHorizontal, Users, Calendar, Clock, ChevronRight, Gamepad2, X } from 'lucide-react'
 import { UnderConstruction } from '@/components/UnderConstruction'
+import { GameCard } from '@/components/GameCard'
+import { GameDetailModal } from '@/components/GameDetailModal'
+import type { GameDetailData } from '@/data/homeGames'
 import {
   supabase,
   fetchProfileById,
@@ -11,17 +14,11 @@ import { useAuth } from '@/lib/auth'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
 import { loadNovluxBalance } from '@/data/clothingStore'
 
-interface ProfileProject {
-  id: string
-  name: string
-  thumbnail?: string
-  genre?: string
-}
-
 export function Profile({ profileId }: { profileId?: number | null }) {
   const { user, profile: myProfile } = useAuth()
-  const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory' | 'Wishlist'>('About')
-  const [projects, setProjects] = useState<ProfileProject[]>([])
+  const [activeTab, setActiveTab] = useState<'About' | 'Games' | 'Groups' | 'Inventory'>('About')
+  const [projects, setProjects] = useState<GameDetailData[]>([])
+  const [selectedGame, setSelectedGame] = useState<GameDetailData | null>(null)
   const [viewedProfile, setViewedProfile] = useState<UserProfile | null>(null)
   const [novluxBalance, setNovluxBalance] = useState<number>(() => loadNovluxBalance())
   const [editOpen, setEditOpen] = useState(false)
@@ -65,14 +62,25 @@ export function Profile({ profileId }: { profileId?: number | null }) {
 
   useEffect(() => {
     let cancelled = false
-    const mapProjects = (list: any[]): ProfileProject[] =>
+    const mapProjects = (list: any[]): GameDetailData[] =>
       list
         .filter((p: any) => !p.archived && p.privacy === 'Public')
         .map((p: any) => ({
-          id: p.id,
+          id: String(p.id),
           name: p.name || 'Untitled Experience',
           thumbnail: p.thumbnail || '',
+          likePercent: 0,
+          players: '0',
+          aspect: '16/9' as const,
+          creator:
+            p.owner_username ||
+            viewedProfile?.username ||
+            myProfile?.username ||
+            'Creator',
+          description: p.description || p.promo || 'Created in Novelo Studio.',
           genre: p.genre || 'All',
+          subgenre: p.subgenre || 'All',
+          updatedDate: p.updated_at ? new Date(p.updated_at).toLocaleDateString() : '—',
         }))
 
     const load = async () => {
@@ -126,7 +134,7 @@ export function Profile({ profileId }: { profileId?: number | null }) {
     }
   }, [targetId, myProfile])
 
-  const TABS = ['About', 'Games', 'Groups', 'Inventory', 'Wishlist'] as const
+  const TABS = ['About', 'Games', 'Groups', 'Inventory'] as const
 
   return (
     <div className="p-4 md:p-6 lg:p-7 flex flex-col gap-6 max-w-[1500px]">
@@ -166,12 +174,6 @@ export function Profile({ profileId }: { profileId?: number | null }) {
                       ownFallbackUsername ||
                       (targetId ? `User #${targetId}` : 'Guest')}
                   </h1>
-                  {(viewedProfile?.id ?? targetId) === 1 && (
-                    <>
-                      <Cat className="size-4 text-white/80" />
-                      <Rocket className="size-4 text-white/80" />
-                    </>
-                  )}
                 </div>
                 <span className="text-xs text-white/50 font-medium">
                   @{(viewedProfile?.username || ownFallbackUsername || 'guest').toLowerCase()}
@@ -300,24 +302,12 @@ export function Profile({ profileId }: { profileId?: number | null }) {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {projects.slice(0, 2).map((proj) => (
-                  <div key={proj.id} className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
-                    <div className="aspect-[16/9] w-full bg-black/50 relative overflow-hidden flex items-center justify-center">
-                      {proj.thumbnail ? (
-                        <img src={proj.thumbnail} alt={proj.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Gamepad2 className="size-8 text-white/30" />
-                      )}
-                    </div>
-                    <div className="p-3 flex flex-col gap-1">
-                      <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
-                        {proj.name}
-                      </h4>
-                      <div className="flex items-center gap-2 text-[10px] text-white/40">
-                        <span>{proj.genre || 'All'}</span>
-                        <span>👤 0</span>
-                      </div>
-                    </div>
-                  </div>
+                  <GameCard
+                    key={proj.id}
+                    game={proj}
+                    aspect="16/9"
+                    onClick={() => setSelectedGame(proj)}
+                  />
                 ))}
               </div>
             )}
@@ -339,28 +329,23 @@ export function Profile({ profileId }: { profileId?: number | null }) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {projects.map((proj) => (
-                <div key={proj.id} className="rounded-xl overflow-hidden bg-[#161618] border border-white/[0.04] flex flex-col group cursor-pointer hover:border-white/10 transition-all">
-                  <div className="aspect-[16/9] w-full bg-black/50 relative overflow-hidden flex items-center justify-center">
-                    {proj.thumbnail ? (
-                      <img src={proj.thumbnail} alt={proj.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Gamepad2 className="size-8 text-white/30" />
-                    )}
-                  </div>
-                  <div className="p-3 flex flex-col gap-1">
-                    <h4 className="text-xs font-bold text-white truncate group-hover:text-white">
-                      {proj.name}
-                    </h4>
-                    <div className="flex items-center gap-2 text-[10px] text-white/40">
-                      <span>{proj.genre || 'All'}</span>
-                      <span>👤 0</span>
-                    </div>
-                  </div>
-                </div>
+                <GameCard
+                  key={proj.id}
+                  game={proj}
+                  aspect="16/9"
+                  onClick={() => setSelectedGame(proj)}
+                />
               ))}
             </div>
           )}
         </div>
+      )}
+
+      {selectedGame && (
+        <GameDetailModal
+          game={selectedGame}
+          onClose={() => setSelectedGame(null)}
+        />
       )}
 
       {/* Other tabs placeholder */}
