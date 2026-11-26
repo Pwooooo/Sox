@@ -40,7 +40,6 @@ export function Friends() {
     }
     return 'friends'
   })
-  const [friendFilter, setFriendFilter] = useState<'all' | 'trusted'>('all')
   const [hoveredTab, setHoveredTab] = useState<FriendsMainTab | null>(null)
   const [searchFriendsQuery, setSearchFriendsQuery] = useState('')
   const [friends, setFriends] = useState<StoredFriend[]>(() => loadFriends(ownerKey))
@@ -102,7 +101,6 @@ export function Friends() {
   }, [playerQuery, activeTab])
 
   const filteredFriends = friends.filter((f) => {
-    if (friendFilter === 'trusted') return false
     const q = searchFriendsQuery.trim().toLowerCase()
     if (!q) return true
     return (
@@ -221,35 +219,9 @@ export function Friends() {
                 placeholder="Search Friends"
                 value={searchFriendsQuery}
                 onChange={(e) => setSearchFriendsQuery(e.target.value)}
-                className="w-full h-9 pl-8 pr-3 rounded-lg bg-[#141418] border border-white/15 focus:border-white/35 text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors"
+                className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#1c1c1c] border border-white/[0.12] focus:border-white/30 text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors"
               />
             </div>
-          </div>
-
-          {/* All / Trusted Pill Filters */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setFriendFilter('all')}
-              className={`px-3.5 h-7 rounded-full text-xs font-semibold cursor-pointer border-none transition-colors ${
-                friendFilter === 'all'
-                  ? 'bg-white text-black'
-                  : 'bg-white/[0.1] text-white/75 hover:text-white hover:bg-white/[0.15]'
-              }`}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              onClick={() => setFriendFilter('trusted')}
-              className={`px-3.5 h-7 rounded-full text-xs font-semibold cursor-pointer border-none transition-colors ${
-                friendFilter === 'trusted'
-                  ? 'bg-white text-black'
-                  : 'bg-white/[0.1] text-white/75 hover:text-white hover:bg-white/[0.15]'
-              }`}
-            >
-              Trusted
-            </button>
           </div>
 
           {/* Friend Cards Grid */}
@@ -264,10 +236,10 @@ export function Friends() {
                       window.dispatchEvent(new PopStateEvent('popstate'))
                     }
                   }}
-                  className="p-3.5 rounded-lg bg-[#141418] hover:bg-[#1a1a20] border border-white/[0.08] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
+                  className="p-3.5 rounded-xl bg-[#141414]/90 hover:bg-[#1c1c1c] border border-white/[0.08] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="size-16 rounded-full bg-[#1e1e24] border border-white/10 overflow-hidden shrink-0">
+                    <div className="size-16 rounded-full bg-[#1c1c1c] border border-white/[0.08] overflow-hidden shrink-0">
                       <PlayerModel3D mode="headshot" className="w-full h-full" />
                     </div>
                     <div className="min-w-0">
@@ -288,7 +260,7 @@ export function Friends() {
                       removeFriend(friend.id, ownerKey)
                     }}
                     title="Remove friend"
-                    className="size-8 rounded-lg bg-white/[0.05] hover:bg-red-500/20 text-white/45 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center cursor-pointer border-none shrink-0"
+                    className="size-8 rounded-lg bg-white/[0.06] hover:bg-red-500/20 text-white/45 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center cursor-pointer border-none shrink-0"
                   >
                     <UserMinus className="size-3.5" />
                   </button>
@@ -296,20 +268,18 @@ export function Friends() {
               ))}
             </div>
           ) : (
-            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2.5 text-center">
+            <div className="py-14 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex flex-col items-center justify-center gap-2.5 text-center">
               <Users className="size-6 text-white/30" />
               <p className="text-xs text-white/55 m-0">
-                {friendFilter === 'trusted'
-                  ? 'No trusted friends yet.'
-                  : searchFriendsQuery.trim()
-                    ? 'No friends match your search.'
-                    : 'No friends yet. Open the Add Friends tab to find players.'}
+                {searchFriendsQuery.trim()
+                  ? 'No friends match your search.'
+                  : 'No friends yet. Open the Add Friends tab to find players.'}
               </p>
-              {!searchFriendsQuery.trim() && friendFilter === 'all' && (
+              {!searchFriendsQuery.trim() && (
                 <button
                   type="button"
                   onClick={() => setActiveTab('add')}
-                  className="mt-1 h-8 px-4 rounded-lg bg-[#02b070] hover:bg-[#009b62] text-xs font-bold text-white cursor-pointer border-none transition-colors"
+                  className="mt-1 h-9 px-4 rounded-[10px] bg-white text-black hover:bg-neutral-200 text-xs font-bold cursor-pointer border-none transition-colors"
                 >
                   Add Friends
                 </button>
@@ -321,7 +291,7 @@ export function Friends() {
 
       {/* Tab 2: Following */}
       {activeTab === 'following' && (
-        <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+        <div className="py-14 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex flex-col items-center justify-center gap-2 text-center">
           <Users className="size-6 text-white/30" />
           <p className="text-xs text-white/55 m-0">You are not following anyone yet.</p>
         </div>
@@ -329,7 +299,7 @@ export function Friends() {
 
       {/* Tab 3: Followers */}
       {activeTab === 'followers' && (
-        <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+        <div className="py-14 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex flex-col items-center justify-center gap-2 text-center">
           <Users className="size-6 text-white/30" />
           <p className="text-xs text-white/55 m-0">No followers yet.</p>
         </div>
@@ -343,10 +313,10 @@ export function Friends() {
               {requests.map((req) => (
                 <div
                   key={req.id}
-                  className="p-3.5 rounded-lg bg-[#141418] border border-white/[0.08] flex items-center justify-between gap-3"
+                  className="p-3.5 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="size-12 rounded-full bg-[#1e1e24] border border-white/10 overflow-hidden shrink-0">
+                    <div className="size-12 rounded-full bg-[#1c1c1c] border border-white/[0.08] overflow-hidden shrink-0">
                       <PlayerModel3D mode="headshot" className="w-full h-full" />
                     </div>
                     <div className="min-w-0">
@@ -358,7 +328,7 @@ export function Friends() {
                     <button
                       type="button"
                       onClick={() => setRequests((prev) => prev.filter((r) => r.id !== req.id))}
-                      className="size-8 rounded-lg bg-[#02b070] hover:bg-[#009b62] text-white flex items-center justify-center cursor-pointer border-none"
+                      className="size-8 rounded-lg bg-white text-black hover:bg-neutral-200 flex items-center justify-center cursor-pointer border-none"
                     >
                       <Check className="size-4" />
                     </button>
@@ -374,7 +344,7 @@ export function Friends() {
               ))}
             </div>
           ) : (
-            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+            <div className="py-14 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex flex-col items-center justify-center gap-2 text-center">
               <Users className="size-6 text-white/30" />
               <p className="text-xs text-white/55 m-0">No pending friend requests.</p>
             </div>
@@ -395,25 +365,25 @@ export function Friends() {
                 placeholder="Search players by username..."
                 value={playerQuery}
                 onChange={(e) => setPlayerQuery(e.target.value)}
-                className="w-full h-9 pl-8 pr-3 rounded-lg bg-[#141418] border border-white/15 focus:border-white/35 text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors"
+                className="w-full h-9 pl-8 pr-3 rounded-[8px] bg-[#1c1c1c] border border-white/[0.12] focus:border-white/30 text-xs text-white placeholder:text-white/40 focus:outline-none transition-colors"
               />
             </div>
           </div>
 
           {searchingPlayers ? (
-            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex items-center justify-center gap-2 text-xs text-white/55">
+            <div className="py-14 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex items-center justify-center gap-2 text-xs text-white/55">
               <Loader2 className="size-4 animate-spin" />
               <span>Searching players...</span>
             </div>
           ) : !playerQuery.trim() ? (
-            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+            <div className="py-14 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex flex-col items-center justify-center gap-2 text-center">
               <Search className="size-6 text-white/30" />
               <p className="text-xs text-white/55 m-0">
                 Type a username above to find and add players.
               </p>
             </div>
           ) : playerResults.length === 0 ? (
-            <div className="py-14 rounded-xl bg-[#141418]/60 border border-white/[0.06] flex flex-col items-center justify-center gap-2 text-center">
+            <div className="py-14 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex flex-col items-center justify-center gap-2 text-center">
               <Users className="size-6 text-white/30" />
               <p className="text-xs text-white/55 m-0">
                 No players found matching "{playerQuery.trim()}".
@@ -427,10 +397,10 @@ export function Friends() {
                 return (
                   <div
                     key={p.auth_uid || p.id}
-                    className="p-3.5 rounded-lg bg-[#141418] border border-white/[0.08] flex items-center justify-between gap-3"
+                    className="p-3.5 rounded-xl bg-[#141414]/90 border border-white/[0.08] flex items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="size-14 rounded-full bg-[#1e1e24] border border-white/10 overflow-hidden shrink-0">
+                      <div className="size-14 rounded-full bg-[#1c1c1c] border border-white/[0.08] overflow-hidden shrink-0">
                         <PlayerModel3D mode="headshot" className="w-full h-full" />
                       </div>
                       <div className="min-w-0">
@@ -444,17 +414,17 @@ export function Friends() {
                     </div>
 
                     {self ? (
-                      <span className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-xs font-semibold text-white/45 shrink-0">
+                      <span className="px-3 py-1.5 rounded-[8px] bg-white/[0.06] text-xs font-semibold text-white/45 shrink-0">
                         You
                       </span>
                     ) : (
                       <button
                         type="button"
                         onClick={() => handleToggleFriend(p)}
-                        className={`h-8 px-3.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer border-none transition-colors shrink-0 ${
+                        className={`h-8 px-3.5 rounded-[8px] text-xs font-bold flex items-center gap-1.5 cursor-pointer border-none transition-colors shrink-0 ${
                           added
                             ? 'bg-white/[0.1] hover:bg-white/[0.16] text-white/85'
-                            : 'bg-[#02b070] hover:bg-[#009b62] text-white'
+                            : 'bg-white text-black hover:bg-neutral-200'
                         }`}
                       >
                         {added ? (
