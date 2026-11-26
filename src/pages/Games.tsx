@@ -165,7 +165,7 @@ export function Games() {
               placeholder="Search experiences..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-[#141414]/90 border border-white/10 text-xs md:text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all"
+              className="w-full h-10 pl-9 pr-3.5 rounded-[8px] bg-[#141414]/90 border border-white/10 text-xs md:text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all"
             />
           </div>
         </div>
