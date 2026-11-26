@@ -1,14 +1,28 @@
 export const WHOP_PACKAGE_URLS: Record<string, string | undefined> = {
-  p1: (import.meta.env.VITE_WHOP_URL_P1 as string | undefined)?.trim() || undefined,
-  p2: (import.meta.env.VITE_WHOP_URL_P2 as string | undefined)?.trim() || undefined,
-  p3: (import.meta.env.VITE_WHOP_URL_P3 as string | undefined)?.trim() || undefined,
-  p4: (import.meta.env.VITE_WHOP_URL_P4 as string | undefined)?.trim() || undefined,
-  p5: (import.meta.env.VITE_WHOP_URL_P5 as string | undefined)?.trim() || undefined,
-  p6: (import.meta.env.VITE_WHOP_URL_P6 as string | undefined)?.trim() || undefined,
-  p7: (import.meta.env.VITE_WHOP_URL_P7 as string | undefined)?.trim() || undefined,
+  p1:
+    (import.meta.env.VITE_WHOP_URL_P1 as string | undefined)?.trim() ||
+    'https://whop.com/novelo/products/24-000-novlux/',
+  p2:
+    (import.meta.env.VITE_WHOP_URL_P2 as string | undefined)?.trim() ||
+    'https://whop.com/novelo/products/11-000-novlux/',
+  p3:
+    (import.meta.env.VITE_WHOP_URL_P3 as string | undefined)?.trim() ||
+    'https://whop.com/novelo/products/5-250-novlux/',
+  p4:
+    (import.meta.env.VITE_WHOP_URL_P4 as string | undefined)?.trim() ||
+    'https://whop.com/novelo/products/3-625-novlux/',
+  p5:
+    (import.meta.env.VITE_WHOP_URL_P5 as string | undefined)?.trim() ||
+    'https://whop.com/novelo/products/2000-novlux/',
+  p6:
+    (import.meta.env.VITE_WHOP_URL_P6 as string | undefined)?.trim() ||
+    'https://whop.com/novelo/products/1-500-novlux/',
+  p7:
+    (import.meta.env.VITE_WHOP_URL_P7 as string | undefined)?.trim() ||
+    'https://whop.com/novelo/products/1000-novlux/',
   p8:
     (import.meta.env.VITE_WHOP_URL_P8 as string | undefined)?.trim() ||
-    'https://whop.com/novelo/500-novlux',
+    'https://whop.com/novelo/products/500-novlux/',
 }
 
 export async function openWhopCheckout(
