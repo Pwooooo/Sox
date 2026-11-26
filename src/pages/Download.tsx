@@ -49,7 +49,7 @@ export function Download() {
               <a
                 href={item.href}
                 download={item.filename}
-                className="shrink-0 h-8 px-3.5 rounded-lg bg-[#e11d48] hover:bg-[#f43f5e] text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors no-underline cursor-pointer"
+                className="shrink-0 h-8 px-3.5 rounded-lg bg-white hover:bg-white/90 text-black text-xs font-semibold inline-flex items-center gap-1.5 transition-colors no-underline cursor-pointer"
               >
                 <DownloadIcon className="size-3.5" />
                 <span>Download for Windows</span>
