@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import { Sparkles, Tag, Gift, Shield, ArrowRight, CreditCard, Check, Ticket } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Sparkles, Tag, Gift, Shield, ArrowRight, CreditCard, Ticket, ExternalLink } from 'lucide-react'
+import { useAuth } from '@/lib/auth'
+import { loadNovluxBalance, NOVLUX_BALANCE_EVENT } from '@/data/clothingStore'
+import { WHOP_PACKAGE_URLS, openWhopCheckout } from '@/lib/whop'
 
 interface PackageItem {
   id: string
@@ -21,16 +24,35 @@ const NOVELO_PACKAGES: PackageItem[] = [
 ]
 
 export function Store() {
+  const { user, profile } = useAuth()
+  const [balance, setBalance] = useState(() => loadNovluxBalance())
   const [purchasingId, setPurchasingId] = useState<string | null>(null)
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
 
-  const handleBuy = (item: PackageItem) => {
+  useEffect(() => {
+    const sync = () => setBalance(loadNovluxBalance())
+    window.addEventListener(NOVLUX_BALANCE_EVENT, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(NOVLUX_BALANCE_EVENT, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  const handleBuy = async (item: PackageItem) => {
+    const whopUrl = WHOP_PACKAGE_URLS[item.id]
+    if (!whopUrl) return
     setPurchasingId(item.id)
-    setTimeout(() => {
-      alert(`Success! Added ${item.amount} Novlux to your balance.`)
-      setPurchasingId(null)
-    }, 700)
+    try {
+      await openWhopCheckout(whopUrl, {
+        email: user?.email ?? undefined,
+        userId: user?.id,
+        username: profile?.username,
+      })
+    } finally {
+      window.setTimeout(() => setPurchasingId(null), 500)
+    }
   }
 
   const handleRedeem = (e: React.FormEvent) => {
@@ -61,7 +83,7 @@ export function Store() {
         <div className="flex items-center gap-2.5 px-4 h-10 rounded-[12px] bg-[#141416] border border-white/[0.06] shadow-sm self-start sm:self-auto shrink-0">
           <span className="text-xs text-white/40">Balance:</span>
           <img src="/novelo-currency.png" alt="Currency" className="size-4 object-contain" />
-          <span className="text-sm font-bold text-white font-mono">1,450</span>
+          <span className="text-sm font-bold text-white font-mono">{balance.toLocaleString()}</span>
         </div>
       </div>
 
@@ -111,16 +133,36 @@ export function Store() {
               </div>
 
               {/* Right Side: Buy Button */}
-              <button
-                onClick={() => handleBuy(pkg)}
-                className={`h-9 px-5 rounded-[10px] font-bold text-xs transition-all duration-150 cursor-pointer border-none outline-none select-none active:scale-[0.97] shrink-0 ${
-                  pkg.popular
-                    ? 'bg-white hover:bg-neutral-200 text-black shadow-md'
-                    : 'bg-white/[0.08] hover:bg-white/[0.14] text-white'
-                }`}
-              >
-                {purchasingId === pkg.id ? 'Processing...' : pkg.price}
-              </button>
+              {(() => {
+                const whopUrl = WHOP_PACKAGE_URLS[pkg.id]
+                const available = Boolean(whopUrl)
+                return (
+                  <button
+                    type="button"
+                    disabled={!available}
+                    onClick={() => handleBuy(pkg)}
+                    title={available ? 'Buy with Whop' : 'Whop checkout not linked yet'}
+                    className={`h-9 px-5 rounded-[10px] font-bold text-xs transition-all duration-150 border-none outline-none select-none shrink-0 flex items-center gap-1.5 ${
+                      !available
+                        ? 'bg-white/[0.04] text-white/35 cursor-not-allowed'
+                        : pkg.popular
+                          ? 'bg-white hover:bg-neutral-200 text-black shadow-md cursor-pointer active:scale-[0.97]'
+                          : 'bg-white/[0.08] hover:bg-white/[0.14] text-white cursor-pointer active:scale-[0.97]'
+                    }`}
+                  >
+                    <span>
+                      {!available
+                        ? 'Coming Soon'
+                        : purchasingId === pkg.id
+                          ? 'Opening Whop...'
+                          : pkg.price}
+                    </span>
+                    {available && purchasingId !== pkg.id && (
+                      <ExternalLink className="size-3 opacity-60" />
+                    )}
+                  </button>
+                )
+              })()}
             </div>
           ))}
         </div>
