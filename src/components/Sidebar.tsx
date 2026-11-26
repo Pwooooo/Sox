@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PlayerModel3D } from '@/components/PlayerModel3D'
+import { loadNotifications, NOTIFICATIONS_EVENT } from '@/lib/notifications'
 
 interface SidebarProps {
   collapsed?: boolean
@@ -37,7 +38,7 @@ interface NavItemDef {
 const ALL_SIDEBAR_ITEMS: NavItemDef[] = [
   { label: 'Home', icon: Home },
   { label: 'Games', icon: Gamepad2 },
-  { label: 'Friends', icon: Users, badge: 6 },
+  { label: 'Friends', icon: Users },
   { label: 'Messages', icon: MessageSquare },
   { label: 'Profile', icon: User },
   { label: 'Avatar', icon: Paintbrush },
@@ -59,17 +60,34 @@ export function Sidebar({
   const [isTauri, setIsTauri] = useState(
     typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
   )
+  const [socialUnreadCount, setSocialUnreadCount] = useState(
+    () => loadNotifications().filter((n) => !n.read && n.category === 'social').length
+  )
 
   useEffect(() => {
     if (typeof window !== 'undefined' && ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)) {
       setIsTauri(true)
+    }
+    const syncUnread = () =>
+      setSocialUnreadCount(
+        loadNotifications().filter((n) => !n.read && n.category === 'social').length
+      )
+    window.addEventListener(NOTIFICATIONS_EVENT, syncUnread)
+    window.addEventListener('storage', syncUnread)
+    return () => {
+      window.removeEventListener(NOTIFICATIONS_EVENT, syncUnread)
+      window.removeEventListener('storage', syncUnread)
     }
   }, [])
 
   const items = ALL_SIDEBAR_ITEMS.filter(item => {
     if (isTauri && item.label === 'Create') return false
     return true
-  })
+  }).map(item =>
+    item.label === 'Friends' && socialUnreadCount > 0
+      ? { ...item, badge: socialUnreadCount }
+      : item
+  )
 
   const handleHeaderMouseDown = async (e: MouseEvent<HTMLDivElement>) => {
     if (!isTauri || e.button !== 0) return
