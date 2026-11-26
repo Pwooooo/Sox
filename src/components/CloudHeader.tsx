@@ -197,10 +197,10 @@ export function CloudHeader() {
 
   return (
     <div
-      className="fixed inset-x-0 top-0 h-[300px] pointer-events-none z-0 overflow-hidden"
+      className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
       style={{
-        maskImage: 'linear-gradient(to bottom, black 45%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 45%, transparent 100%)',
+        maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)',
       }}
       aria-hidden="true"
     >
