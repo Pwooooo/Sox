@@ -186,7 +186,7 @@ export function Sidebar({
 
       {/* Bottom Download tab (web only) */}
       {!isTauri && (
-        <div className="p-2 border-t border-white/[0.06] shrink-0">
+        <div className="p-2 shrink-0">
           {(() => {
             const isActive = activeItem === 'Download'
             return (
