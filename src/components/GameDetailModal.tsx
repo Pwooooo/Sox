@@ -127,6 +127,7 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
         body: 'Notifications enabled for this experience.',
         category: 'experience',
         actionTab: 'Home',
+        thumbnail: currentGame.thumbnail,
       })
     }
   }

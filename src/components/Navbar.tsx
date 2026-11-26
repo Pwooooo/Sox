@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
+import { PlayerModel3D } from '@/components/PlayerModel3D'
 import {
   loadNotifications,
   markNotificationRead,
@@ -238,7 +239,7 @@ export function Navbar({
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-white">Notifications</span>
                     {liveUnreadCount > 0 && (
-                      <span className="px-1.5 py-0.5 rounded-full bg-[#e52525]/20 text-[#ff6b6b] text-[10px] font-bold tabular-numbers">
+                      <span className="text-xs font-bold text-white tabular-numbers">
                         {liveUnreadCount}
                       </span>
                     )}
@@ -313,9 +314,35 @@ export function Navbar({
                             item.read ? 'bg-transparent' : 'bg-white/[0.03]',
                           )}
                         >
-                          <div className="size-8 rounded-lg bg-white/[0.08] flex items-center justify-center text-white/80 shrink-0 mt-0.5">
-                            <Icon className="size-4" />
-                          </div>
+                          {item.category === 'experience' ? (
+                            <div className="w-14 aspect-[16/9] rounded-md bg-white/[0.08] overflow-hidden flex items-center justify-center text-white/80 shrink-0 mt-0.5">
+                              {item.thumbnail ? (
+                                <img
+                                  src={item.thumbnail}
+                                  alt={item.title}
+                                  className="size-full object-cover"
+                                />
+                              ) : (
+                                <Gamepad2 className="size-4" />
+                              )}
+                            </div>
+                          ) : item.category === 'social' ? (
+                            <div className="size-9 rounded-full bg-white/[0.08] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 mt-0.5">
+                              {item.avatarUrl ? (
+                                <img
+                                  src={item.avatarUrl}
+                                  alt={item.title}
+                                  className="size-full object-cover"
+                                />
+                              ) : (
+                                <PlayerModel3D mode="headshot" className="w-full h-full" />
+                              )}
+                            </div>
+                          ) : (
+                            <div className="size-8 rounded-lg bg-white/[0.08] flex items-center justify-center text-white/80 shrink-0 mt-0.5">
+                              <Icon className="size-4" />
+                            </div>
+                          )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
                               <p className="text-xs font-bold text-white truncate m-0">

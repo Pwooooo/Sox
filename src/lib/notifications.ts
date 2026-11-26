@@ -8,6 +8,8 @@ export interface AppNotification {
   createdAt: number
   read: boolean
   actionTab?: string
+  thumbnail?: string
+  avatarUrl?: string
 }
 
 const STORAGE_KEY = 'novelo_notifications_v1'
@@ -43,6 +45,8 @@ export function addNotification(input: {
   body: string
   category?: NotificationCategory
   actionTab?: string
+  thumbnail?: string
+  avatarUrl?: string
 }): AppNotification {
   const item: AppNotification = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -52,6 +56,8 @@ export function addNotification(input: {
     createdAt: Date.now(),
     read: false,
     actionTab: input.actionTab,
+    thumbnail: input.thumbnail,
+    avatarUrl: input.avatarUrl,
   }
   const current = loadNotifications()
   saveNotifications([item, ...current])
