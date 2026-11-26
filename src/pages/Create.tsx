@@ -1215,7 +1215,7 @@ export function Create({ onClose }: CreateProps) {
                 }`}
               >
                 <Store className={`size-4 shrink-0 transition-transform ${primarySidebarTab === 'Marketplace' ? 'fill-current text-white scale-105' : 'fill-none text-white/60'}`} />
-                <span className="hidden md:inline text-xs font-semibold">Marketplace</span>
+                <span className="hidden md:inline text-xs font-semibold">Items</span>
               </button>
 
               <button
@@ -1352,7 +1352,7 @@ export function Create({ onClose }: CreateProps) {
         {/* Main Workspace matching Reference Image */}
         <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar bg-transparent">
           {primarySidebarTab === 'Marketplace' ? (
-            <CreatorMarketplaceView title="Marketplace" />
+            <CreatorMarketplaceView title="Items" />
           ) : primarySidebarTab !== 'Games' ? (
             <>
               <div className="h-14 px-6 md:px-8 border-b border-white/[0.04] flex items-center justify-between shrink-0">
