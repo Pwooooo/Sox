@@ -117,72 +117,106 @@ export function joinGamePresence(gameId: string, username: string, accountKey?: 
   }
 }
 
+interface ChannelEntry {
+  listeners: Set<(players: ActivePlayerSession[]) => void>
+  remotePlayers: Map<string, string>
+  lastList: ActivePlayerSession[]
+  cleanup: () => void
+}
+
+const activeSubscriptions = new Map<string, ChannelEntry>()
+
 /**
  * Subscribes to live active player sessions for `gameId`.
+ * Reference-counted per `gameId` so multiple cards/modals share one channel safely.
  */
 export function subscribeGamePresence(
   gameId: string,
   onPlayersChange: (players: ActivePlayerSession[]) => void,
 ): () => void {
-  let disposed = false
-  let remotePlayers = new Map<string, string>()
-
-  const emit = () => {
-    if (disposed) return
-    const localPlayers = getFreshLocalSessions(gameId)
-    const merged = new Map<string, string>(remotePlayers)
-    for (const [sid, uname] of localPlayers.entries()) {
-      if (!merged.has(sid)) merged.set(sid, uname)
+  let entry = activeSubscriptions.get(gameId)
+  if (!entry) {
+    const newEntry: ChannelEntry = {
+      listeners: new Set(),
+      remotePlayers: new Map(),
+      lastList: [],
+      cleanup: () => {},
     }
-    const list: ActivePlayerSession[] = Array.from(merged.entries()).map(([sessionId, username]) => ({
-      sessionId,
-      username,
-    }))
-    onPlayersChange(list)
-  }
 
-  const onStorage = (e: StorageEvent) => {
-    if (!e.key || e.key === LOCAL_SESSIONS_KEY) emit()
-  }
-  const onLocalPresence = (e: Event) => {
-    const detail = (e as CustomEvent<{ gameId?: string }>).detail
-    if (!detail?.gameId || detail.gameId === gameId) emit()
-  }
-
-  window.addEventListener('storage', onStorage)
-  window.addEventListener(PRESENCE_EVENT, onLocalPresence)
-  const poll = window.setInterval(emit, HEARTBEAT_MS)
-  emit()
-
-  const channel = supabase
-    ? supabase.channel(`novelo-presence:${gameId}`)
-    : null
-
-  if (channel) {
-    const syncRemote = () => {
-      const state = channel.presenceState<{ username?: string }>()
-      const next = new Map<string, string>()
-      for (const [key, presences] of Object.entries(state)) {
-        const first = Array.isArray(presences) ? presences[0] : undefined
-        next.set(key, first?.username || 'Player')
+    const emit = () => {
+      const localPlayers = getFreshLocalSessions(gameId)
+      const merged = new Map<string, string>(newEntry.remotePlayers)
+      for (const [sid, uname] of localPlayers.entries()) {
+        if (!merged.has(sid)) merged.set(sid, uname)
       }
-      remotePlayers = next
-      emit()
+      const list: ActivePlayerSession[] = Array.from(merged.entries()).map(([sessionId, username]) => ({
+        sessionId,
+        username,
+      }))
+      newEntry.lastList = list
+      for (const fn of newEntry.listeners) {
+        fn(list)
+      }
     }
-    channel
-      .on('presence', { event: 'sync' }, syncRemote)
-      .on('presence', { event: 'join' }, syncRemote)
-      .on('presence', { event: 'leave' }, syncRemote)
-      .subscribe()
+
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key === LOCAL_SESSIONS_KEY) emit()
+    }
+    const onLocalPresence = (e: Event) => {
+      const detail = (e as CustomEvent<{ gameId?: string }>).detail
+      if (!detail?.gameId || detail.gameId === gameId) emit()
+    }
+
+    window.addEventListener('storage', onStorage)
+    window.addEventListener(PRESENCE_EVENT, onLocalPresence)
+    const poll = window.setInterval(emit, HEARTBEAT_MS)
+
+    const channel = supabase
+      ? supabase.channel(`novelo-presence:${gameId}`)
+      : null
+
+    if (channel) {
+      const syncRemote = () => {
+        const state = channel.presenceState<{ username?: string }>()
+        const next = new Map<string, string>()
+        for (const [key, presences] of Object.entries(state)) {
+          const first = Array.isArray(presences) ? presences[0] : undefined
+          next.set(key, first?.username || 'Player')
+        }
+        newEntry.remotePlayers = next
+        emit()
+      }
+      channel
+        .on('presence', { event: 'sync' }, syncRemote)
+        .on('presence', { event: 'join' }, syncRemote)
+        .on('presence', { event: 'leave' }, syncRemote)
+        .subscribe()
+    }
+
+    newEntry.cleanup = () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener(PRESENCE_EVENT, onLocalPresence)
+      window.clearInterval(poll)
+      if (channel && supabase) {
+        void supabase.removeChannel(channel)
+      }
+    }
+
+    emit()
+    activeSubscriptions.set(gameId, newEntry)
+    entry = newEntry
   }
+
+  entry.listeners.add(onPlayersChange)
+  onPlayersChange(entry.lastList)
 
   return () => {
-    disposed = true
-    window.removeEventListener('storage', onStorage)
-    window.removeEventListener(PRESENCE_EVENT, onLocalPresence)
-    window.clearInterval(poll)
-    if (channel && supabase) {
-      void supabase.removeChannel(channel)
+    const current = activeSubscriptions.get(gameId)
+    if (!current) return
+    current.listeners.delete(onPlayersChange)
+    if (current.listeners.size === 0) {
+      current.cleanup()
+      activeSubscriptions.delete(gameId)
     }
   }
 }
