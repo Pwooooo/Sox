@@ -1,4 +1,4 @@
-import { Download as DownloadIcon, Hammer } from 'lucide-react'
+import { Download as DownloadIcon } from 'lucide-react'
 
 interface DownloadRow {
   title: string
@@ -44,17 +44,12 @@ export function Download() {
           >
             <div className="flex items-center gap-4 min-w-0">
               {/* Custom Novelo App Icon (no background) */}
-              <div className="relative size-11 flex items-center justify-center shrink-0">
+              <div className="size-11 flex items-center justify-center shrink-0">
                 <img
                   src="/christmas-entropy.png"
                   alt={item.title}
                   className="size-11 object-contain"
                 />
-                {item.kind === 'studio' && (
-                  <span className="absolute -bottom-0.5 -right-0.5 size-4 rounded-md bg-white text-black flex items-center justify-center shadow-xs">
-                    <Hammer className="size-2.5" />
-                  </span>
-                )}
               </div>
 
               <div className="min-w-0">
