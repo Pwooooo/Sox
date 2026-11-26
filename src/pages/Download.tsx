@@ -41,7 +41,7 @@ const COZY_BOKEH = [
 
 export function Download() {
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <style>{`
         @keyframes novelo-card-bokeh {
           0% { transform: translate3d(0, -16px, 0); }
