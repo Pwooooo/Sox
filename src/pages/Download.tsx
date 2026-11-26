@@ -66,6 +66,16 @@ export function Download() {
             }}
           />
 
+          {/* Blurred atmospheric silhouette on the first hero section */}
+          {idx === 0 && (
+            <img
+              src="/christmas-entropy.png"
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute right-8 sm:right-20 top-1/2 -translate-y-1/2 w-60 sm:w-72 h-60 sm:h-72 object-contain opacity-20 blur-[2.5px] grayscale contrast-125"
+            />
+          )}
+
           {/* Copy & Download CTA */}
           <div
             className={`relative z-10 max-w-5xl mx-auto px-4 sm:px-6 ${
