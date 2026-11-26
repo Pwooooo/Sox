@@ -2,6 +2,7 @@ import { useState, useEffect, ReactNode } from 'react'
 import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
 import { WaveBackground } from '@/components/WaveBackground'
+import { Auth3DBackground } from '@/components/Auth3DBackground'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
 import { loadNovluxBalance, NOVLUX_BALANCE_EVENT } from '@/data/clothingStore'
@@ -44,8 +45,15 @@ export function Layout({ activeTab = 'Home', onSelectTab, children }: LayoutProp
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white relative isolate select-none">
-      {/* Fullscreen Encoded Wave Drift Background */}
-      <WaveBackground />
+      {/* Fullscreen Background: live 3D scene on Download, Wave Drift elsewhere */}
+      {activeTab === 'Download' ? (
+        <>
+          <Auth3DBackground />
+          <div className="fixed inset-0 pointer-events-none z-0 bg-black/35" aria-hidden="true" />
+        </>
+      ) : (
+        <WaveBackground />
+      )}
 
       {/* Top Navbar */}
       <Navbar
