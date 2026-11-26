@@ -20,7 +20,14 @@ for (const file of jsFiles) {
   const fullPath = path.join(distAssetsDir, file);
 
   // Skip bundles whose React/Three.js internals or top-level ESM patterns break under full-file Ruam VM.
-  if (file.startsWith('index-') || file.startsWith('src-') || file.startsWith('main-') || file.startsWith('AuthModal-')) {
+  if (
+    file.startsWith('index-') ||
+    file.startsWith('src-') ||
+    file.startsWith('main-') ||
+    file.startsWith('AuthModal-') ||
+    file.startsWith('RobloxStudioView-') ||
+    file.startsWith('scenestudio-')
+  ) {
     console.log(`[Ruam] Skipping bundle ${file}.`);
     execSync(`node --check "${fullPath}"`, { stdio: 'inherit' });
     continue;
